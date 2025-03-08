@@ -19,7 +19,10 @@ import 'jobs/my_team.dart';
 import 'new_jobs/new_jobs_v1.dart';
 
 class PartnerHomeScreen extends StatefulWidget {
-  const PartnerHomeScreen({super.key});
+  final int? userid;
+  final int? usertype;
+  final int? role;
+  const PartnerHomeScreen({super.key,this.userid,this.usertype,this.role});
 
   @override
   State<PartnerHomeScreen> createState() => _PartnerHomeScreenState();
@@ -28,21 +31,18 @@ class PartnerHomeScreen extends StatefulWidget {
 class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
   // PageController pageController = PageController();
   int selectedIndex = 0;
-  dynamic userType;
-  String userName = "";
-  String userEmail = "";
-  String role = "";
-  int id = 0;
+ 
   List<BottomNavigationBarItem> bottomTabItems = [];
 
   @override
   void initState() {
+    // getData();
     super.initState();
-    getData();
+
     // bindBottomTabs();
   }
 
-  getData() {
+  /* getData() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences pref = await Utils.getSharedPreferences();
       userType = await Utils.getPreferencesValue(
@@ -52,12 +52,12 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
           pref, ESharedPreferences.user_rawData.name);
       dynamic userRawData = jsonDecode(userRaw);
       userName = userRawData['firstName'] + " " + userRawData['lastName'];
-      userEmail = userRawData['email'];
-      role = userRawData['role'];
+      role =
+          await Utils.getPreferencesValue(null, ESharedPreferences.role.name);
       id = userRawData['id'];
       setState(() {});
     });
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
@@ -68,14 +68,14 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
           const NewJobsV1(),
           // const TalentPool(),
           // if (role == "3") const InterViewBayCC(), //TODO:: old my interview page
-          if (role == "3") const NewInterviewBayCC(),
-          if (role == "4") const ManagerPipeLine(),
+          if (widget.role == 3) const NewInterviewBayCC(),
+          if (widget.role == 4) const ManagerPipeLine(),
           //CC()
           // else
           //   const InterViewBayExecutive(),
-          role == "3"
+          widget.role == 3
               ? const CCMyTeam()
-              : role == "4"
+              : widget.role == 4
                   ? const ManagerMyTeam()
                   : const TalentPoolExecutive(),
           //Recruitz(),
@@ -104,7 +104,7 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
               label: 'Hiring',
               backgroundColor: Colors.blue,
             ),
-            if (role == "3" || role == "4")
+            if (widget.role == 3 || widget.role == 4)
               BottomNavigationBarItem(
                 icon: Image.asset(
                   "assets/images/recruitz.png",
@@ -127,9 +127,9 @@ class _PartnerHomeScreenState extends State<PartnerHomeScreen> {
                 "assets/images/user-group.png",
                 height: 25.h,
               ),
-              label: role == "3"
+              label: widget.role == 3
                   ? "Team"
-                  : role == "4"
+                  : widget.role == 4
                       ? "Manager Team"
                       : "TalentPool",
               backgroundColor: Colors.blue,

@@ -4,7 +4,6 @@
 import 'dart:convert';
 
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,17 +11,22 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
+import 'package:job_circle/constants/customwidget_upload_file.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/get_banking_detail_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_container_for_gender.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/service/FileUploadService.dart';
-import 'package:job_circle/service/data_delete_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:super_banners/super_banners.dart';
 
 final fetchBankingDetails = FutureProvider<List<GetBankingModel>>((ref) {
   Future.delayed(const Duration(milliseconds: 10));
@@ -73,33 +77,8 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
     }
   }
 
-  /*  static Future<GetBankingModel?> FetchBillingData() async {
-    var userid =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
-    final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/users/v1/$userid/getBankDetailsOfUserByUserId');
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        final List<dynamic> contentList = jsonData['resultData'];
-
-        // Convert the list of Map to a list of Applicant objects
-        GetBankingModel applicants = GetBankingModel.fromJson(jsonData);
-        return applicants;
-      } else {
-        print('Failed to fetch data. Status Code: ${response.statusCode}');
-        return null;
-      }
-    } catch (e) {
-      print('Error while fetching data: $e');
-      return null;
-    }
-  } */
-
   //TODO:: variable Decl..
 
-  TextEditingController _pan_no = TextEditingController();
   TextEditingController _bank_name = TextEditingController();
   TextEditingController _ac_type = TextEditingController();
   TextEditingController _ac_no = TextEditingController();
@@ -114,7 +93,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
 
   bool saving = false, current = false;
 
-  String cancelCheckCopy = "", panCardCopy = "";
+  String cancelCheckCopy = "";
 
   String checkBankName = "";
 
@@ -140,23 +119,30 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                       //TODO:: ui to view banking details...
                       backgroundColor: Colors.white,
                       appBar: AppBar(
+                        iconTheme: const IconThemeData(color: Constants.black),
                         centerTitle: false,
-                        automaticallyImplyLeading: false,
-                        title: Text(
-                          "Banking Detail",
-                          style: GoogleFonts.varela(
-                              color: Colors.black,
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
+                        automaticallyImplyLeading: true,
+                        title: const customTextForWeather(
+                            title: "Banking Detail",
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
                         elevation: 0,
-                        backgroundColor: Colors.white,
+                        backgroundColor: Constants.borderColor,
                       ),
                       body: ListView.builder(
                         itemCount: data.length,
                         itemBuilder: (context, index) {
                           final bankData = data[index];
-                          return customCardToViewBank(bankData);
+                          return Column(
+                            children: [
+                              customCardToViewBank(bankData),
+                              if (index != data.length - 1)
+                                const Divider(
+                                  thickness: 1.0,
+                                )
+                            ],
+                          );
                         },
                       ))
                   : GestureDetector(
@@ -168,176 +154,52 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                       child: Scaffold(
                           backgroundColor: Colors.white,
                           appBar: AppBar(
-                            centerTitle: true,
-                            automaticallyImplyLeading: false,
-                            title: Text(
-                              "Banking Details",
-                              style: GoogleFonts.varela(
-                                  color: Colors.black,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.bold),
-                            ),
+                            automaticallyImplyLeading: true,
+                            iconTheme:
+                                const IconThemeData(color: Constants.black),
+                            title: const customTextForWeather(
+                                title: "Banking Details",
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
                             elevation: 0,
-                            backgroundColor: Colors.white,
+                            backgroundColor: Constants.borderColor,
                           ),
-                          bottomNavigationBar: GestureDetector(
-                            onTap: () {
+                          bottomNavigationBar: CustomButtonForSave(
+                            onTap: () async {
+                              RegExp regex = RegExp(r'^[A-Za-z]{4}0.*$');
                               if (_ac_no.text == null || _ac_no.text == "") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Specify Account Number",
-                                        error: true));
+                                CustomSnackbar.show(
+                                    "Specify Account Number", true);
                               } else if (_ac_no.text != _ac_no_verify.text) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Account Number mismatch",
-                                        error: true));
+                                CustomSnackbar.show(
+                                    "Account Number mismatch", true);
                               } else if (_bank_name.text.isEmpty ||
                                   _bank_name.text == "") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Specify Bank Name.",
-                                        error: true));
+                                CustomSnackbar.show("Specify Bank Name.", true);
                               } else if (checkBankName == null ||
                                   checkBankName == "") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title:
-                                            "Select Bank Name from given list.",
-                                        error: true));
+                                CustomSnackbar.show(
+                                    "Select Bank Name from given list.", true);
                               } else if (_ifsc_code == null ||
                                   _ifsc_code.text == "") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Specify IFSC Code",
-                                        error: true));
-                              } else if (_pan_no == null ||
-                                  _pan_no.text == "") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Specify Pan Card Number",
-                                        error: true));
-                              } else if (panCardCopy == null ||
-                                  panCardCopy == "") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Add Pan Card", error: true));
+                                CustomSnackbar.show("Specify IFSC Code", true);
+                              } else if (_ifsc_code != null &&
+                                  _ifsc_code.text != "" &&
+                                  (!regex.hasMatch(_ifsc_code.text))) {
+                                CustomSnackbar.show(
+                                    "Specify proper IFSC", true);
                               } else if (cancelCheckCopy == null ||
                                   cancelCheckCopy == "") {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Add Cancel Cheque",
-                                        error: true));
+                                CustomSnackbar.show("Add Cancel Cheque", true);
                               } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                        title: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Text("Bank Details Confirmation"),
-                                          ],
-                                        ),
-                                        content: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                                "Bank Name :- ${_bank_name.text}"),
-                                            Text(
-                                                "Account Type :- ${saving ? "Saving" : "Current"}"),
-                                            Text(
-                                                "A/C Number :- ${_ac_no.text}"),
-                                            Text(
-                                                "A/C Holder Name :- ${widget.name}"),
-                                            Text(
-                                                "IFSC code :- ${_ifsc_code.text.toUpperCase()}"),
-                                            Text(
-                                                "Pan Card :- ${_pan_no.text.toUpperCase()}"),
-                                            SizedBox(
-                                              height: 10.h,
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    await addBankingDetails();
-                                                    ref.refresh(
-                                                        fetchBankingDetails);
-                                                  },
-                                                  child: Container(
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 2.h,
-                                                            horizontal: 8.w),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 6.h,
-                                                            horizontal: 12.w),
-                                                    decoration: BoxDecoration(
-                                                        color: Constants.blue,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.r)),
-                                                    child:
-                                                        const Text("Confirm"),
-                                                  ),
-                                                ),
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    _bank_name.clear();
-                                                    checkBankName = "";
-                                                    Navigator.pop(context);
-                                                  },
-                                                  child: Container(
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 2.h,
-                                                            horizontal: 8.w),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            vertical: 6.h,
-                                                            horizontal: 12.w),
-                                                    decoration: BoxDecoration(
-                                                        color:
-                                                            Constants.lightdull,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(8.r)),
-                                                    child: const Text("Edit"),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ));
-                                  },
-                                );
+                                await addBankingDetails();
+                                ref.refresh(fetchBankingDetails);
                               }
 
                               //
                             },
-                            child: Container(
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 8.h, horizontal: 16.w),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  color: Constants.blue),
-                              height: 40.sp,
-                              width: double.maxFinite,
-                              child: Center(
-                                  child: Text("Review & Submit",
-                                      style: GoogleFonts.varela(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold))),
-                            ),
+                            title: "Submit",
                           ),
                           //TODO:: Ui to send banking detail.......
                           body: customCard(context)),
@@ -355,7 +217,7 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
               return const Scaffold(
                 body: Center(
                     child: CircularProgressIndicator(
-                  color: Constants.themeBgColor,
+                  color: Constants.darkBlue,
                   strokeWidth: 1,
                 )),
               );
@@ -385,223 +247,97 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
   Stack customCardToViewBank(GetBankingModel data) {
     return Stack(
       children: [
-        Container(
-          margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
-          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.r),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                  offset: const Offset(0.5, 2),
-                  blurRadius: 2,
-                  spreadRadius: 2,
-                  color: Colors.grey.shade200)
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Column(
-                    children: [
-                      data.icon != null
-                          ? Container(
-                              margin: const EdgeInsets.only(right: 10),
-                              height: 40.h,
-                              width: 50.w,
-                              child: CustomImage(
-                                imageUrl:
-                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.icon}",
-                                defaultImageUrl: "assets/images/bank.png",
-                              ))
-                          : Image.asset(
-                              "assets/images/bank.png",
-                              height: 30.h,
-                              fit: BoxFit.fill,
-                            )
-                    ],
-                  ),
-                  SizedBox(
-                    width: 4.w,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(data.bankName.toString(),
-                          style:
-                              GoogleFonts.varela(fontWeight: FontWeight.bold)),
-                      Text("${data.accountType} Account".toString(),
-                          style: GoogleFonts.varela()),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 6.h,
-              ),
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Name as per Bank Record",
-                          style: GoogleFonts.varela()),
-                      Text("Account Number", style: GoogleFonts.varela()),
-                      Text("IFSC Code", style: GoogleFonts.varela()),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(" : ${widget.name.toTitleCase()}",
-                          style: GoogleFonts.varela()),
-                      Text(" : ${data.accountNumber}",
-                          style: GoogleFonts.varela()),
-                      Text(" : ${data.ifscCode}", style: GoogleFonts.varela()),
-                    ],
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    margin:
-                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 10.w),
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            showUploadedDocument(
-                                context, data.panCardCopy.toString());
-                          },
-                          child: Image.asset(
-                            "assets/images/pancard.png",
-                            height: 30,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20.w,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            showUploadedDocument(
-                                context, data.panCardCopy.toString());
-                          },
-                          child: Image.asset(
-                            "assets/images/cancel_check.png",
-                            height: 30,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              if (data.isVerify == 0)
-                Padding(
-                  padding: EdgeInsets.only(top: 4.sp),
-                  child: Text(
-                    "Reason : ${data.remark}",
-                    style: GoogleFonts.varela(fontSize: 14.sp),
-                  ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: ListTile(
+            dense: true,
+            contentPadding: const EdgeInsets.only(top: 0, bottom: 0),
+            trailing: Container(
+              margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 10.w),
+              child: GestureDetector(
+                onTap: () {
+                  showUploadedDocument(context, data.cancelCheque.toString());
+                },
+                child: Image.asset(
+                  "assets/images/cancel_check.png",
+                  height: 30,
                 ),
-            ],
+              ),
+            ),
+            leading: data.icon != null
+                ? Container(
+                    margin: const EdgeInsets.only(right: 10),
+                    height: 40.h,
+                    width: 50.w,
+                    child: CustomImage(
+                      imageUrl:
+                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.icon}",
+                      defaultImageUrl: "assets/images/bank.png",
+                    ))
+                : Image.asset(
+                    "assets/images/bank.png",
+                    height: 30.h,
+                    fit: BoxFit.fill,
+                  ),
+            title: customTextForWeather(
+                title: widget.name.toString(),
+                fontSize: 14,
+                fontWeight: FontWeight.bold),
+            subtitle: customTextForMonst(
+              title: "${data.accountNumber} || ${data.ifscCode}",
+              fontSize: 12,
+            ),
           ),
         ),
-        /* if (data.isVerify != 1 || data.isVerify != 0)
-          Positioned(
-              child: data.isVerify == null
-                  ? BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                      child: Container(
-                        margin: EdgeInsets.symmetric(
-                            vertical: 30.h, horizontal: 16.w),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 16.h, horizontal: 16.w),
-                        decoration:
-                            const BoxDecoration(color: Colors.transparent),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          // mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Text(
-                              "Under Review",
-                              style: GoogleFonts.varela(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange),
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                    
-                  : const SizedBox())
-                  
- */
-
+        if (data.isVerify == 0)
+          Padding(
+            padding: EdgeInsets.only(top: 4.sp),
+            child: customTextForRoboto(
+                title: "Reason : ${data.remark}", fontSize: 12),
+          ),
         Positioned(
           right: 15.w,
           top: 10,
-          child: CornerBanner(
-              bannerPosition: CornerBannerPosition.topRight,
-              elevation: 1,
-              bannerColor: data.isVerify == null
-                  ? Colors.orange
-                  : data.isVerify == 0
-                      ? Colors.red
-                      : Colors.green,
-              child: Text(
-                data.isVerify == null
-                    ? "Under Review"
+          child: Text(
+            data.isVerify == null
+                ? "Under Review"
+                : data.isVerify == 0
+                    ? "InActive"
+                    : "Active",
+            style: GoogleFonts.roboto(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: data.isVerify == null
+                    ? Constants.yellow
                     : data.isVerify == 0
-                        ? "InActive"
-                        : "Active",
-                style: GoogleFonts.roboto(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              )),
+                        ? Constants.red
+                        : Constants.darkBlue),
+          ),
         ),
       ],
     );
   }
 
   Future<void> addBankingDetails() async {
-    var userid =
+    var id =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    int? userid = int.tryParse(id);
     try {
       if (_ac_no.text == null || _ac_no.text == "") {
-        ScaffoldMessenger.of(context).showSnackBar(
-            CustomSnackbarfinal(title: "Specify Account Number", error: true));
+        CustomSnackbar.show("Specify Account Number", true);
       } else if (_ac_no.text != _ac_no_verify.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            CustomSnackbarfinal(title: "Account Number mismatch", error: true));
+        CustomSnackbar.show("Account Number mismatch", true);
       } else if (_bank_name == null || _bank_name.text == "") {
-        ScaffoldMessenger.of(context).showSnackBar(
-            CustomSnackbarfinal(title: "Specify Bank Name", error: true));
+        CustomSnackbar.show("Specify Bank Name", true);
       } else if (_ifsc_code == null || _ifsc_code.text == "") {
-        ScaffoldMessenger.of(context).showSnackBar(
-            CustomSnackbarfinal(title: "Specify IFSC Code", error: true));
-      } else if (_pan_no == null || _pan_no.text == "") {
-        ScaffoldMessenger.of(context).showSnackBar(
-            CustomSnackbarfinal(title: "Specify Pan Card Number", error: true));
-      } else if (panCardCopy == null || panCardCopy == "") {
-        ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
-            title: "Specify The copy of Pan Card", error: true));
+        CustomSnackbar.show("Specify IFSC Code", true);
       } else if (cancelCheckCopy == null || cancelCheckCopy == "") {
-        ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
-            title: "Specify The copy of Cancel Check", error: true));
+        CustomSnackbar.show("Specify The copy of Cancel Check", true);
       } else {
         if (widget.fromInvoice == null || widget.fromInvoice == false) {
           Navigator.pop(context);
         }
         PostBankingModel postBankingModel = PostBankingModel(
-            updatedDate: DateTime.now(),
             accountNumber: int.tryParse(_ac_no.text),
             uid: userid,
             accountType: saving
@@ -611,10 +347,8 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                     : "",
             bankName: _bank_name.text,
             ifscCode: _ifsc_code.text,
-            panCard: _pan_no.text,
-            panCardCopy: panCardCopy,
             bankId: int.tryParse(bankid), //TODO from all bank dropdown...
-            cancelCheque: cancelCheckCopy);
+            cancleCheque: cancelCheckCopy);
         Map<String, dynamic> jsonData = postBankingModel.toJson();
 
         await JobPostApiService.AddBankingDetails(jsonData, context);
@@ -641,28 +375,17 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
         margin: EdgeInsets.symmetric(horizontal: 16.w),
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             //crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                  radius: 50.r,
-                  backgroundColor: Constants.borderColor,
-                  backgroundImage:
-                      widget.profilePic != null && widget.profilePic != "null"
-                          ? Image.network(
-                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.profilePic}",
-                              fit: BoxFit.fill,
-                            ).image
-                          : Image.asset(
-                              widget.gender != "Male"
-                                  ? "assets/images/leadfemal.png"
-                                  : "assets/images/leadmale.png",
-                              //  height: 8.h,
-                              fit: BoxFit.fill,
-                            ).image),
-              SizedBox(
-                height: 20.h,
+              const SizedBox(
+                height: 20,
+              ),
+              const customTextForWeather(
+                title: "Name as per Bank Record*",
               ),
               customTextfield(
+                  primaryfield: true,
                   onTab: () {},
                   context: context,
                   controller: _ac_type,
@@ -674,6 +397,12 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   obsecText: false,
                   limit: 30,
                   icon: const Icon(Icons.person_2_outlined)),
+              SizedBox(
+                height: 10.h,
+              ),
+              const customTextForWeather(
+                title: "Bank Name*",
+              ),
               customTextFieldForBank(
                 contextIn: context,
                 controller: _bank_name,
@@ -689,58 +418,14 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   });
                 },
               ),
-              /*  customTextfield(
-                  context: context,
-                  controller: _bank_name,
-                  label: "Bank Name",
-                  hint: "Bank of India",
-                  focusNode: _bank_focus_node,
-                  textfield_no: 3,
-                  lock: true,
-                  obsecText: false,
-                  icon: const Icon(Icons.account_balance_outlined)), */
-              Container(
-                margin: EdgeInsets.only(bottom: 10.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Account Type",
-                      style: GoogleFonts.varela(
-                          color: Constants.themeBgColor,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        customAccountType(
-                            context: context,
-                            isSelect: saving,
-                            title: "Saving",
-                            onTab: () {
-                              setState(() {
-                                saving = true;
-                                current = false;
-                                hideText = true;
-                              });
-                            }),
-                        customAccountType(
-                            context: context,
-                            isSelect: current,
-                            title: "Current",
-                            onTab: () {
-                              setState(() {
-                                saving = false;
-                                current = true;
-                                hideText = true;
-                              });
-                            }),
-                      ],
-                    ),
-                  ],
-                ),
+              const SizedBox(
+                height: 10,
+              ),
+              const customTextForWeather(
+                title: "Bank Account Number*",
               ),
               customTextfield(
+                  primaryfield: false,
                   onTab: () {
                     setState(() {
                       hideText = false;
@@ -756,7 +441,14 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   obsecText: true,
                   limit: 16,
                   icon: const Icon(Icons.account_balance_wallet_outlined)),
+              const SizedBox(
+                height: 10,
+              ),
+              const customTextForWeather(
+                title: "Re confirm your Bank Account Number*",
+              ),
               customTextfield(
+                  primaryfield: false,
                   onTab: () {
                     setState(() {
                       hideText = true;
@@ -772,7 +464,14 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   obsecText: false,
                   limit: 16,
                   icon: const Icon(Icons.account_balance_wallet_outlined)),
+              const SizedBox(
+                height: 10,
+              ),
+              const customTextForWeather(
+                title: "IFSC Code*",
+              ),
               customTextfield(
+                  primaryfield: false,
                   onTab: () {
                     setState(() {
                       hideText = true;
@@ -788,142 +487,78 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
                   obsecText: false,
                   limit: 11,
                   icon: const Icon(Icons.adjust_sharp)),
-              customTextfield(
-                  onTab: () {
-                    setState(() {
-                      hideText = true;
-                    });
+              const customTextForWeather(
+                title: "Bank Account Type*",
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  CustomContainerForGender(
+                      onPressed: () {
+                        setState(() {
+                          saving = true;
+                          current = false;
+                          hideText = true;
+                        });
+                      },
+                      isSelect: saving,
+                      title: "Saving"),
+                  CustomContainerForGender(
+                      onPressed: () {
+                        setState(() {
+                          saving = false;
+                          current = true;
+                          hideText = true;
+                        });
+                      },
+                      isSelect: current,
+                      title: "Current"),
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              if (cancelCheckCopy == null || cancelCheckCopy == "")
+                CustomDocumentUploadButton(
+                  onTab: () async {
+                    FileUploader fileUploader = FileUploader();
+
+                    cancelCheckCopy = (await fileUploader.uploadFile(
+                        context, ['pdf'], "cancelcheque"))!;
+                    setState(() {});
                   },
-                  context: context,
-                  controller: _pan_no,
-                  label: "Pan Card Number",
-                  hint: "MG1**32D4",
-                  focusNode: _pan_focus_node,
-                  textfield_no: 5,
-                  lock: true,
-                  obsecText: false,
-                  limit: 10,
-                  icon: const Icon(Icons.credit_card)),
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Upload Document",
-                      style: GoogleFonts.varela(
-                          color: Constants.themeBgColor,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 4.h,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: () async {
-                            panCardCopy == ""
-                                ? setState(() async {
-                                    panCardCopy = (await uploadFile(['pdf']))!;
-                                    setState(() {});
-                                  })
-                                : showPdfUploadDialog(context, "pan");
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.r),
-                                border:
-                                    Border.all(color: Constants.themeBgColor)),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 12),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text("Pan Card"),
-                                if (panCardCopy != "")
-                                  SizedBox(
-                                    width: 4.sp,
-                                  ),
-                                if (panCardCopy != "")
-                                  Icon(
-                                    Icons.visibility_outlined,
-                                    size: 15.sp,
-                                  )
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 10.w,
-                        ),
-                        GestureDetector(
-                          onTap: () async {
-                            cancelCheckCopy == ""
-                                ? setState(() async {
-                                    cancelCheckCopy =
-                                        (await uploadFile(['pdf']))!;
-                                    setState(() {});
-                                  })
-                                : showPdfUploadDialog(context, "cancel");
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.r),
-                                border:
-                                    Border.all(color: Constants.themeBgColor)),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 12),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text("Cancel Cheque"),
-                                if (cancelCheckCopy != "")
-                                  SizedBox(
-                                    width: 4.sp,
-                                  ),
-                                if (cancelCheckCopy != "")
-                                  Icon(
-                                    Icons.visibility_outlined,
-                                    size: 15.sp,
-                                  )
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
+                  title: "Upload Cancel Cheque",
                 ),
-              )
+              if (cancelCheckCopy != null && cancelCheckCopy != "")
+                CustomContainerSelectToViewDoc(
+                  title: "Cancel Cheque",
+                  onPressed: () {
+                    showModalBottomSheet(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (context) {
+                        return CustomPDFViewerDialog(
+                          pdfUrl:
+                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/$cancelCheckCopy",
+                          onRemove: () async {
+                            await FileUploadService()
+                                .deleteSingleFile(cancelCheckCopy);
+                            setState(() {
+                              cancelCheckCopy = "";
+                            });
+                          },
+                          onReplace: () {},
+                        );
+                      },
+                    );
+                  },
+                ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget customAccountType({
-    required BuildContext context,
-    required Function onTab,
-    required bool isSelect,
-    required String title,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        onTab();
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4.h),
-        width: MediaQuery.of(context).size.width / 2.2.w,
-        //  margin: EdgeInsets.symmetric(vertical: 4.h,horizontal: 8.w),
-        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 8.w),
-        decoration: BoxDecoration(
-            color: isSelect ? Constants.themeBgColor : Constants.borderColor,
-            borderRadius: BorderRadius.circular(8.r)),
-        child: Center(
-            child: Text(title,
-                style: GoogleFonts.varela(
-                    color: isSelect ? Colors.white : Colors.grey.shade500))),
       ),
     );
   }
@@ -941,10 +576,10 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
       required bool obsecText,
       required int limit,
       required Function onTab,
+      required bool primaryfield,
       required Icon icon}) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
-      height: MediaQuery.of(context).size.height / 24.h,
+    return SizedBox(
+      height: MediaQuery.of(context).size.height / 24,
       child: TextField(
         onTap: () {
           onTab();
@@ -985,206 +620,34 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
             ? TextCapitalization.characters
             : TextCapitalization.sentences,
         controller: controller,
-        style:
-            GoogleFonts.varela(color: Constants.subtitleclr, fontSize: 14.sp),
+        style: GoogleFonts.montserrat(
+            color: Constants.black, fontSize: 14, fontWeight: FontWeight.w500),
         decoration: InputDecoration(
-            filled: true,
-            fillColor: Constants.borderColor,
-            prefixIcon: icon,
-            prefixIconColor: Constants.themeBgColor,
+            filled: primaryfield,
+            fillColor: Constants.lightdull,
             contentPadding:
                 const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
             counterText: '',
-            labelText: label,
-            labelStyle: const TextStyle(
-              color: Constants.themeBgColor,
-            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: Color(0xffff0eceb)),
+              borderSide: const BorderSide(color: Constants.subtitleclr),
             ),
             focusColor: const Color(0xffff0eceb),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
               borderSide: const BorderSide(
-                color: Constants.themeBgColor,
+                color: Constants.black,
               ),
             ),
             hintText: hint,
-            hintStyle: GoogleFonts.sourceSansPro(
-                color: Constants.hintColor, fontSize: 15.sp)),
+            hintStyle: GoogleFonts.montserrat(
+                color: primaryfield ? Constants.black : Constants.subtitleclr,
+                fontWeight: primaryfield ? FontWeight.w500 : FontWeight.normal,
+                fontSize: 14)),
         onChanged: (value) {
           setState(() {});
         },
       ),
-    );
-  }
-
-  Future<String?> uploadFile(
-    allowExt,
-  ) async {
-    Utils.showLoaderDialog(context, "");
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: allowExt,
-      withReadStream: true,
-    );
-
-    if (result != null) {
-      try {
-        var res = await FileUploadService()
-            .uploadSingleFile("salarySlip", result.files.single);
-        var resultD = Utils.parseResponse(res);
-
-        if (resultD.resultKey == 'SUCCESS') {
-          String filePath = result.files.single.path ?? '';
-          String filename = resultD.resultData[0]["fileName"];
-          print(filename);
-          print("Filename: $filePath");
-
-          // Close the loading dialog when the upload is successful
-          Navigator.pop(context);
-          //save(filename, data);
-
-          return filename;
-        } else {
-          // Close the loading dialog when there is an error
-          Navigator.pop(context);
-
-          // Handle the case where the server returns an error
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Error while uploading cv"),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Ok"),
-                  ),
-                ],
-              );
-            },
-          );
-          return null;
-        }
-      } catch (e) {
-        // Close the loading dialog in case of exceptions
-        Navigator.pop(context);
-
-        // Handle any exceptions that occur during the upload
-        print("Error during file upload: $e");
-        return null;
-      }
-    } else {
-      // Close the loading dialog when the user cancels file selection
-      Navigator.pop(context);
-
-      // Handle the case where the user cancels file selection
-      return null;
-    }
-  }
-
-  Future<void> showPdfUploadDialog(BuildContext context, String data) async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Scaffold(
-          floatingActionButton: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              InkWell(
-                onTap: () async {
-                  ApplicationDeletApi api = ApplicationDeletApi();
-                  data == "pan"
-                      ? await api.DeleteDocument(
-                          panCardCopy..toString(), context)
-                      : await api.DeleteDocument(
-                          cancelCheckCopy.toString(), context);
-                  setState(() {
-                    data == "pan" ? panCardCopy = "" : cancelCheckCopy = "";
-                  });
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.r),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: Constants.themeBgColor),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.cancel_outlined,
-                        size: 15.h,
-                        color: Constants.themeBgColor,
-                      ),
-                      SizedBox(width: 4.w),
-                      const Text("Remove"),
-                    ],
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () async {
-                  setState(() async {
-                    data == "pan"
-                        ? panCardCopy = (await uploadFile(['pdf']))!
-                        : cancelCheckCopy = (await uploadFile(['pdf']))!;
-                    Navigator.pop(context);
-                  });
-                },
-                child: Container(
-                  margin: EdgeInsets.only(left: 20.w),
-                  padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.r),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.r),
-                    border: Border.all(color: Constants.themeBgColor),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.upload_file,
-                        size: 15.h,
-                        color: Constants.themeBgColor,
-                      ),
-                      SizedBox(width: 4.w),
-                      const Text("Replace"),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          body: Container(
-            child: FutureBuilder<PDFDocument>(
-              future: PDFDocument.fromURL(
-                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data == "pan" ? panCardCopy : cancelCheckCopy}",
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData) {
-                    return PDFViewer(
-                      scrollDirection: Axis.vertical,
-                      panLimit: 1.1,
-                      document: snapshot.data!,
-                      zoomSteps: 3,
-                      showNavigation: false,
-                      showPicker: false,
-                    );
-                  } else {
-                    return const Center(child: Text('Failed to load PDF'));
-                  }
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
-          ),
-        );
-      },
     );
   }
 

@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/bank_dropDown_model.dart';
-import 'package:job_circle/service/job_post_api_service.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 
 import '../models/job_title_model.dart';
 import '../models/nature_of_work.dart';
@@ -333,13 +333,12 @@ class _CustomTextFieldComapanyLocationState
           //focusNode: widget.focusNode,
           textCapitalization: TextCapitalization.sentences,
           controller: controller,
-          style:
-              GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+          style: GoogleFonts.varela(color: Constants.black, fontSize: 12.sp),
           decoration: InputDecoration(
-            label: Text(widget.labelText.toString()),
+            //  label: Text(widget.labelText.toString()),
             labelStyle: GoogleFonts.varela(
-                color: Constants.themeBgColor, fontSize: 15.sp),
-            prefixIcon: widget.icon,
+                color: Constants.themeBgColor, fontSize: 12.sp),
+            // prefixIcon: widget.icon,
             /*  const Icon(
              widget.icon,
               color: Constants.themeBgColor,
@@ -349,10 +348,10 @@ class _CustomTextFieldComapanyLocationState
             hintText: widget.hintText,
             hintStyle: GoogleFonts.varela(
               color: Constants.subtitleclr,
-              fontSize: 14.sp,
+              fontSize: 12.sp,
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Constants.themeBgColor),
+              borderSide: const BorderSide(color: Constants.black),
               borderRadius: BorderRadius.circular(8),
             ),
             border: OutlineInputBorder(
@@ -1210,7 +1209,6 @@ class _customCompanyforExperienceState
       });
     }); */
   }
- 
 
   late final Function(String) onIDSelected;
   int suggestionIndex = 0;
@@ -1272,11 +1270,13 @@ class _customCompanyforExperienceState
           // focusNode: focusNode,
           textCapitalization: TextCapitalization.sentences,
           controller: controller,
-          style:
-              GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+          style: GoogleFonts.montserrat(
+              color: Constants.black,
+              fontSize: 14,
+              fontWeight: FontWeight.w500),
           decoration: InputDecoration(
-            label: const Text("Company"),
-            suffixIcon: suggestion != null &&
+            // label: const Text("Enter your comapany name"),
+            /*   suffixIcon: suggestion != null &&
                     suggestion!.isEmpty &&
                     controller!.text.isNotEmpty
                 ? IconButton(
@@ -1291,22 +1291,21 @@ class _customCompanyforExperienceState
                       Icons.add,
                       color: Constants.themeBgColor,
                     ))
-                : null,
-            labelStyle: GoogleFonts.varela(
-                color: Constants.themeBgColor, fontSize: 15.sp),
-            prefixIcon: const Icon(
+                : null, */
+
+            /*  prefixIcon: const Icon(
               Icons.domain_add_outlined,
               color: Constants.themeBgColor,
-            ),
+            ), */
             prefixIconColor: Constants.themeBgColor,
             //label: Text("Reside at"),
             hintText: hintText,
-            hintStyle: GoogleFonts.varela(
+            hintStyle: GoogleFonts.montserrat(
               color: Constants.subtitleclr,
-              fontSize: 14.sp,
+              fontSize: 14,
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Constants.themeBgColor),
+              borderSide: const BorderSide(color: Constants.black),
               borderRadius: BorderRadius.circular(8),
             ),
             border: OutlineInputBorder(
@@ -1339,9 +1338,10 @@ class _customCompanyforExperienceState
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
-              title: Text(
-                suggestion.name.toString(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              title: customTextForMonst(
+                title: suggestion.name.toString(),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
             ),
           );
@@ -1371,23 +1371,23 @@ class _customCompanyforExperienceState
             widget.onChanged(true);
             controller!.text = suggestion.name.toString();
             widget.getid!(suggestion.id);
-            compid = suggestion.id;
+            compid = int.tryParse(suggestion.id)!;
             suggestionSelected = true;
             widget.onSubmit!(suggestion.id);
           });
         },
         noItemsFoundBuilder: (value) {
           final message = suggestion != null && suggestion!.isEmpty
-              ? 'No result found. Search again or click on add button to add.'
+              ? 'Add ${widget.name}'
               : 'Searching';
 
           return InkWell(
             onTap: () async {
               FocusScope.of(context).unfocus();
-              if (compid == 0) {
+              /*  if (compid == 0) {
                 await JobPostApiService.AddCompanytoMom(
                     controller!.text.toString());
-              }
+              } */
               widget.onChanged(true);
             },
             child: Container(
@@ -1397,9 +1397,10 @@ class _customCompanyforExperienceState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Expanded(
-                      child: Text(
-                        message,
-                        style: GoogleFonts.varela(fontWeight: FontWeight.w600),
+                      child: customTextForMonst(
+                        title: message,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -1579,34 +1580,28 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
 
           textCapitalization: TextCapitalization.sentences,
           controller: controller,
-          style:
-              GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+          style: GoogleFonts.montserrat(
+              color: Constants.black,
+              fontSize: 14,
+              fontWeight: FontWeight.w500),
           decoration: InputDecoration(
-              filled: true,
-              fillColor: Constants.borderColor,
-              prefixIcon: const Icon(Icons.account_balance_outlined),
-              prefixIconColor: Constants.themeBgColor,
               contentPadding:
                   const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
               counterText: '',
-              labelText: "Bank Name",
-              labelStyle: const TextStyle(
-                color: Constants.themeBgColor,
-              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
-                borderSide: const BorderSide(color: Color(0xffff0eceb)),
+                borderSide: const BorderSide(color: Constants.subtitleclr),
               ),
               focusColor: const Color(0xffff0eceb),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8.r),
                 borderSide: const BorderSide(
-                  color: Constants.themeBgColor,
+                  color: Constants.black,
                 ),
               ),
-              hintText: "Bank of India",
-              hintStyle: GoogleFonts.sourceSansPro(
-                  color: Constants.hintColor, fontSize: 15.sp)),
+              hintText: "Type to search",
+              hintStyle: GoogleFonts.montserrat(
+                  color: Constants.subtitleclr, fontSize: 14)),
         ),
         suggestionsCallback: (pattern) async {
           if (pattern.isNotEmpty) {
@@ -1629,9 +1624,10 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
-              title: Text(
-                suggestion.name.toString(),
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              title: customTextForMonst(
+                title: suggestion.name.toString(),
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
               ),
             ),
           );

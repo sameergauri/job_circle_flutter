@@ -105,13 +105,14 @@ class ServiceBase {
 
     return http.Response.fromStream(result)
         .then((response) {
-          if (response.statusCode == 200) {
+          if (response.statusCode == 200) {   
             // print("Uploaded! ");
             // print('response.body ' + response.body);
             return response;
+            
           }
           return response;
-        })
+        })      
         .catchError((err) => err)
         .whenComplete(() {});
   }

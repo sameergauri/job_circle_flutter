@@ -2,7 +2,6 @@
 
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/themes/colors.dart';
 // Make sure to import the necessary package(s)
 
@@ -26,78 +25,16 @@ class CustomPDFViewerDialog extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(top: kToolbarHeight),
           child: Scaffold(
-            floatingActionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  onTap: () {
-                    if (onRemove != null) {
-                      onRemove!();
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 4.h,
-                      horizontal: 8.r,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color: Constants.themeBgColor,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.cancel_outlined,
-                          size: 15.h,
-                          color: Constants.themeBgColor,
-                        ),
-                        SizedBox(
-                          width: 4.w,
-                        ),
-                        const Text("Remove"),
-                      ],
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () async {
-                    if (onReplace != null) {
-                      onReplace!();
-                    }
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(left: 20.w),
-                    padding: EdgeInsets.symmetric(
-                      vertical: 4.h,
-                      horizontal: 8.r,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color: Constants.themeBgColor,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.upload_file,
-                          size: 15.h,
-                          color: Constants.themeBgColor,
-                        ),
-                        SizedBox(
-                          width: 4.w,
-                        ),
-                        const Text("Replace"),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
+            floatingActionButton: FloatingActionButton(
+                backgroundColor: Constants.borderColor,
+                child: const Icon(Icons.delete_outline_outlined,
+                    color: Constants.darkBlue),
+                onPressed: () {
+                  if (onRemove != null) {
+                    onRemove!();
+                  }
+                  Navigator.pop(context);
+                }),
             body: Container(
               child: FutureBuilder<PDFDocument>(
                 future: PDFDocument.fromURL(pdfUrl),

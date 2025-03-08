@@ -1,18 +1,29 @@
-// ignore_for_file: must_be_immutable, unused_result, unused_local_variable, prefer_typing_uninitialized_variables, unused_element, avoid_print, use_build_context_synchronously, avoid_unnecessary_containers, non_constant_identifier_names, use_full_hex_values_for_flutter_colors
+// ignore_for_file: must_be_immutable, unused_result, unused_local_variable, prefer_typing_uninitialized_variables, unused_element, avoid_print, use_build_context_synchronously, avoid_unnecessary_containers, non_constant_identifier_names, use_full_hex_values_for_flutter_colors, unnecessary_null_comparison
 // ignore_for_file: todo
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:job_circle/constants/custom_textfield_for_profile.dart';
+import 'package:job_circle/constants/customTextfield.dart';
 import 'package:job_circle/constants/customdialogue_for_education_selecton.dart';
-import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/constants/customwidget_upload_file.dart';
+import 'package:job_circle/constants/viewuploadfile.dart';
+import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/Manager/constant/month_drop_down.dart';
+import 'package:job_circle/screens/new_jobs/profile_model.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
+import 'package:job_circle/screens/profile/user_profile.dart';
 import 'package:job_circle/service/FileUploadService.dart';
+import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -21,7 +32,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../common/utils.dart';
 import '../../models/autocompleteModel.dart';
 import '../../models/profileSummary.dart';
-import '../../service/UserDataService.dart';
+// import '../../service/UserDataService.dart';
 
 class Screen2 extends ConsumerStatefulWidget {
   final bool underGraduate;
@@ -30,13 +41,19 @@ class Screen2 extends ConsumerStatefulWidget {
       this.prevPageModel,
       this.selectedLevel,
       this.educationList,
+      required this.edulength,
       required this.isFirst,
       required this.underGraduate,
+      required this.userid,
+      required this.profileskill,
       required this.isEdit});
-  late Education? prevPageModel;
+  late EducationDetail? prevPageModel;
+  int edulength;
   late String? selectedLevel;
-  late List<Education>? educationList;
+  late List<EducationDetail>? educationList;
   final bool isFirst, isEdit;
+  final int userid;
+  final List<String> profileskill;
 
   @override
   ConsumerState<Screen2> createState() => _Screen2State();
@@ -47,11 +64,14 @@ class _Screen2State extends ConsumerState<Screen2> {
   //controller
   late TextEditingController educationController = TextEditingController();
   late TextEditingController firstYearController = TextEditingController();
-  late TextEditingController passingYearController = TextEditingController();
+  late TextEditingController endYearController = TextEditingController();
   late TextEditingController universityController = TextEditingController();
   late TextEditingController degreeController = TextEditingController();
   late TextEditingController fieldOfStudyController = TextEditingController();
   late TextEditingController boardController = TextEditingController();
+  late TextEditingController firstMonthController = TextEditingController();
+  late TextEditingController endMonthController = TextEditingController();
+
   int? eduID;
 
   int? userID;
@@ -86,6 +106,8 @@ class _Screen2State extends ConsumerState<Screen2> {
   FocusNode degreeMFocus = FocusNode();
   FocusNode uniOFocus = FocusNode();
   FocusNode degreeOFocus = FocusNode();
+  FocusNode firstmonthfocus = FocusNode();
+  FocusNode endmonthfocus = FocusNode();
 
   int? universityId, degreeId, fieldId;
 
@@ -99,32 +121,14 @@ class _Screen2State extends ConsumerState<Screen2> {
   AutoCompleteModel selectedDegree = AutoCompleteModel("", "", {});
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
 
-  bindProfileSummary() async {
-    SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserDetails(
-        await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name));
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      var dataResult = Utils.parseResponse(result).resultData;
-      var userData = dataResult["users"];
-
-      profilemodel = ProfileSummaryModel.fromJson(userData);
-    }
-    setState(() {
-      widget.underGraduate ? degreeCode = "D001" : degreeCode = "";
-      degreeController.text = widget.underGraduate
-          ? "H.S.C"
-          : widget.prevPageModel!.degree_spc.toString();
-    });
-  }
+  bool isremote = false;
 
   @override
   initState() {
     super.initState();
-    bindProfileSummary();
 
     bindLevelOfEducation();
-    bindUniversityEducation();
+    // bindUniversityEducation();
     bindDegree();
     if (widget.prevPageModel != null) {
       setState(() {
@@ -231,35 +235,43 @@ class _Screen2State extends ConsumerState<Screen2> {
       } else if (widget.prevPageModel!.level == "Graduate") { */
       setState(() {
         // graduate = true;
-
-        universityController.text = widget.prevPageModel!.board != null
-            ? widget.prevPageModel!.board.toString()
-            : widget.prevPageModel!.university!;
-        boardController.text = widget.prevPageModel!.board.toString();
+        if (widget.prevPageModel?.isRemote == 1) {
+          isremote = true;
+        } else if (widget.prevPageModel?.isRemote == 0) {
+          isremote = false;
+        }
+        if (widget.prevPageModel!.schoolOrCollegeName != null &&
+            widget.prevPageModel!.schoolOrCollegeName != "") {
+          schoolcollegeName.text =
+              widget.prevPageModel!.schoolOrCollegeName.toString();
+        }
+        universityController.text = widget.prevPageModel!.university.toString();
         degreeController.text = widget.prevPageModel!.degree_spc!;
         fieldOfStudyController.text = widget.prevPageModel!.fieldOfStudy!;
+        firstMonthController.text = widget.prevPageModel!.startMonth.toString();
         firstYearController.text = widget.prevPageModel!.firstYear.toString();
-        passingYearController.text =
-            widget.prevPageModel!.passingYear.toString();
-        if (widget.prevPageModel?.degree_spc == "H.S.C") {
-          passingYearController.text =
-              widget.prevPageModel!.passingYear.toString();
+        if (widget.prevPageModel!.isCurrent != 1 &&
+            widget.prevPageModel!.isCurrent != null) {
+          endMonthController.text = widget.prevPageModel!.endMonth.toString();
+          endYearController.text = widget.prevPageModel!.passingYear.toString();
         }
-        universityId = widget.prevPageModel!.university_id;
+        if (widget.prevPageModel!.isCurrent == 1) {
+          currentlyStudying = true;
+        } else {
+          currentlyStudying = false;
+        }
+        if (widget.prevPageModel!.marksheet != null &&
+            widget.prevPageModel!.marksheet != "" &&
+            widget.prevPageModel!.marksheet != "null") {
+          marksheet = widget.prevPageModel!.marksheet.toString();
+        }
+        /*  universityId = widget.prevPageModel!.university_id;
         degreeId = widget.prevPageModel!.degree_id;
         fieldId = widget.prevPageModel!.fieldofstudy_id;
         marksheet = widget.prevPageModel!.marksheet.toString();
         universityId = widget.prevPageModel!.university_id;
         degreeId = widget.prevPageModel!.degree_id;
-        fieldId = widget.prevPageModel!.fieldofstudy_id;
-
-        widget.prevPageModel!.fieldOfStudy == "Science"
-            ? science = true
-            : widget.prevPageModel!.fieldOfStudy == "Commerce"
-                ? commerce = true
-                : widget.prevPageModel!.fieldOfStudy == "Art"
-                    ? art = true
-                    : null;
+        fieldId = widget.prevPageModel!.fieldofstudy_id; */
       });
       /*  } else if (widget.prevPageModel!.level == "Post Graduate") {
         undergraduate = true;
@@ -310,7 +322,7 @@ class _Screen2State extends ConsumerState<Screen2> {
     }
   }
 
-  bindUniversityEducation() async {
+  /*  bindUniversityEducation() async {
     var result = await MasterService().masterGetByGroup(
         {'groupName': 'university', 'pageNumber': '1', 'pageSize': '1000'});
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
@@ -326,7 +338,7 @@ class _Screen2State extends ConsumerState<Screen2> {
         // selectedUniversity = AutoCompleteModel("0", "", {});
       });
     }
-  }
+  } */
 
   bindDegree() async {
     var result = await MasterService().masterGetByGroup(
@@ -465,205 +477,89 @@ class _Screen2State extends ConsumerState<Screen2> {
   }
  */
 
-  SnackBar customSnackbar(String title, bool error) {
-    return SnackBar(
-      elevation: 1.0,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 5),
-      backgroundColor: Constants.themeBgColorLight,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      ),
-      padding: const EdgeInsets.symmetric(
-          horizontal: 10, vertical: 8), // Remove shadow
-      content: Row(
-        children: [
-          error
-              ? Icon(
-                  Icons.error_outline_outlined,
-                  color: Colors.red,
-                  size: 15.h,
-                )
-              : Image.asset(
-                  "assets/images/check.png",
-                  color: Constants.themeBgColor,
-                  height: 15.h,
-                ),
-          /* Icon(
-                  Icons.check,
-                  color: Constants.themeBgColor,
-                  size: 15.h,
-                ),  */ // Add an icon if needed
-          const SizedBox(width: 8.0), // Add spacing between icon and text
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.black, // Text color
-              fontSize: 14.0, // Text size
-            ),
-          ),
-        ],
-      ),
-      // duration: const Duration(seconds: 3),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : const SizedBox(),
-        GestureDetector(
-          onTap: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          child: Scaffold(
-              bottomNavigationBar: InkWell(
-                onTap: /* degreeController.text.isNotEmpty &&
-                        (degreeController.text.isNotEmpty ||
-                            boardController.text.isNotEmpty) &&
-                        //    fieldOfStudyController.text.isNotEmpty &&
-                        firstYearController.text.isNotEmpty
-                    //passingYearController.text.isNotEmpty
-                    ? */
-                    () async {
-                  int firstYear = firstYearController.text.isNotEmpty
-                      ? int.parse(firstYearController.text)
-                      : 0;
-                  int lastYear = passingYearController.text.isNotEmpty
-                      ? degreeCode == "D001"
-                          ? int.parse(firstYearController.text)
-                          : int.parse(passingYearController.text)
-                      : 0;
-                  if (widget.educationList != null &&
-                      widget.educationList!.isNotEmpty) {
-                    for (Education education in widget.educationList!) {
-                      if (education.degree_spc == degreeController.text &&
-                          widget.prevPageModel == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar(
-                                "The Degree is already added", true));
-                        // break;
-                      } else {}
-                    }
-                    if (degreeController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Add degree first", true));
-                    } else if (universityController.text.isEmpty &&
-                        degreeCode != "D001") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Add University first", true));
-                    } else if (boardController.text.isEmpty &&
-                        degreeCode == "D001") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Add Board first", true));
-                    } else if (firstYearController.text.length != 4) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("First year is invalid", true));
-                    } else if (passingYearController.text.length != 4 &&
-                        degreeCode != "D001") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Invalid year of passing", true));
-                    } else if (lastYear <= firstYear && degreeCode != "D001") {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Passing year should be greater than first year",
-                          true));
-                    } else if (firstYearController.text.length != 4 &&
-                        degreeCode != "D001") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("First year is not valid", true));
-                    } else {
-                      await save();
-                      ref.refresh(userDataProvider);
-                      Navigator.pop(context);
-                      //   Navigator.pop(context);
-                    }
-                  } else {
-                    await save();
-                    ref.refresh(userDataProvider);
-                    Navigator.pop(context);
-                    // Navigator.pop(context);
-                  } // ignore: curly_braces_in_flow_control_structures
-                },
-                // : () {},
-                child: Container(
-                  margin: const EdgeInsets.only(
-                      top: 10, left: 20, right: 20, bottom: 10),
-                  decoration: BoxDecoration(
-                      color: /* degreeController.text.isNotEmpty &&
-                              (universityController.text.isNotEmpty ||
-                                  boardController.text.isNotEmpty) &&
-                              //   fieldOfStudyController.text.isNotEmpty &&
-                              firstYearController.text.isNotEmpty
-                          //  passingYearController.text.isNotEmpty
-                          ? Constants.themeBgColor
-                          : */
-                          Constants.themeBgColor,
-                      borderRadius: BorderRadius.circular(8.r)),
-                  width: double.maxFinite,
-                  padding: const EdgeInsets.only(bottom: 8, top: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Save",
-                        style: GoogleFonts.varela(
-                            fontWeight: FontWeight.bold, color: Colors.white),
-                      ),
-                    ],
+        Scaffold(
+            bottomNavigationBar: CustomButtonForSave(
+              onTap: () async {
+                int? firstyear =
+                    int.tryParse(firstYearController.text.toString());
+                int? passingyear =
+                    int.tryParse(endYearController.text.toString());
+                if (!isremote && schoolcollegeName.text.isEmpty) {
+                  CustomSnackbar.show("Add School / College name", true);
+                } else if (degreeController.text.isEmpty) {
+                  CustomSnackbar.show("Add degree first", true);
+                } else if (universityController.text.isEmpty) {
+                  CustomSnackbar.show("Add University first", true);
+                } else if (fieldOfStudyController.text.isEmpty) {
+                  CustomSnackbar.show("Add Field of study", true);
+                } else if (firstMonthController.text.isEmpty ||
+                    firstMonthController.text.isEmpty) {
+                  CustomSnackbar.show("Add Start year", true);
+                } else if (!currentlyStudying &&
+                    (endMonthController.text.isEmpty ||
+                        endYearController.text.isEmpty)) {
+                  CustomSnackbar.show("Add Passing/End year", true);
+                } else if ((passingyear != null && firstyear != null) &&
+                    (firstyear > passingyear)) {
+                  CustomSnackbar.show(
+                      "Passing year should be greater the start year", true);
+                } else {
+                  await save();
+                }
+              },
+              title: "Save",
+            ),
+            appBar: AppBar(
+              automaticallyImplyLeading: true,
+              backgroundColor: Constants.borderColor,
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Colors.black),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  widget.prevPageModel == null
+                      ? const OnboardingTitle(
+                          title: "Add Education",
+                        )
+                      : const OnboardingTitle(
+                          title: "Edit Education",
+                        ),
+                ],
+              ),
+            ),
+            extendBodyBehindAppBar: true,
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              bottom: false,
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: _education(),
+              ),
+            )),
+        if (isLoading)
+          Positioned.fill(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Blur Effect
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.2), // Semi-transparent overlay
                   ),
                 ),
-              ),
-              appBar: AppBar(
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.white,
-                elevation: 0,
-                iconTheme: const IconThemeData(color: Colors.black),
-                title: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    widget.prevPageModel == null
-                        ? Text(
-                            "Add Education",
-                            style: GoogleFonts.varela(
-                              fontSize: 18.sp,
-                              color: Constants.themeBgColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          )
-                        : Text(
-                            "Edit Education ",
-                            style: GoogleFonts.varela(
-                              fontSize: 18.sp,
-                              color: Constants.themeBgColor,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                    Text(
-                      "Adding your education details will help recruiters to know your value as a potential candidate.",
-                      softWrap: true,
-                      maxLines: 3,
-                      style: GoogleFonts.varela(
-                          color: Constants.hintColor,
-                          fontSize: 12.sp,
-                          fontWeight: FontWeight.normal),
-                    )
-                  ],
+                // Circular Progress Indicator
+                const CircularProgressIndicator(
+                  color: Constants.darkBlue,
                 ),
-              ),
-              extendBodyBehindAppBar: true,
-              backgroundColor: Colors.white,
-              body: SafeArea(
-                bottom: false,
-                child: SingleChildScrollView(
-                  child: _education(),
-                ),
-              )),
-        ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -671,1252 +567,29 @@ class _Screen2State extends ConsumerState<Screen2> {
   Widget _education() {
     String? selectedLevel =
         widget.prevPageModel != null ? widget.prevPageModel!.level : "";
-    return selectedLevel != ""
-        ? Container(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w),
-
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                /*    Text(
+    return Container(
+      padding: EdgeInsets.only(left: 20.w, right: 20.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          /*    Text(
                   "Level of Education : ${widget.prevPageModel!.level}",
                   style: GoogleFonts.varela(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ), */
-                const SizedBox(height: 10),
-                // if (hsc) customWidgetHSC(),
-                // if (graduate)
-                customWidgetGraduation(),
-                // if (undergraduate) customWidgetPost(),
-                // if (mba) customWidgetMBA(),
-                // if (other) customWidgetOther(),
-              ],
-            ),
-          )
-        : Container(
-            padding: EdgeInsets.only(left: 20.w, right: 20.w),
-           
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                /* Text(
-                  "Level of Education",
-                  style: GoogleFonts.varela(
-                      fontSize: 14.sp, fontWeight: FontWeight.bold),
-                ), */
-                /* const SizedBox(height: 10),
-                Wrap(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          // gender = value.toString();
-                          graduate = false;
-                          undergraduate = false;
-                          mba = false;
-                          hsc = true;
-                          other = false;
-                          degreeController.clear;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: hsc ? Constants.borderColor : Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 4),
-                        margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            hsc
-                                ? Text(
-                                    "H.S.C / 10+2",
-                                    style: GoogleFonts.varela(
-                                        fontSize: 13.sp,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )
-                                : Text(
-                                    "H.S.C / 10+2",
-                                    style: GoogleFonts.varela(
-                                        color: Colors.grey.shade400,
-                                        fontSize: 13.sp),
-                                    textAlign: TextAlign.center,
-                                  ),
-                            SizedBox(
-                              width: 4.w,
-                            ),
-                            hsc
-                                ? Image.asset(
-                                    "assets/images/check.png",
-                                    height: 13.h,
-                                  )
-                                : const SizedBox()
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          // gender = value.toString();
-                          graduate = true;
-                          undergraduate = false;
-                          hsc = false;
-                          other = false;
-                          mba = false;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color:
-                              graduate ? Constants.borderColor : Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 4),
-                        margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            graduate
-                                ? Text(
-                                    "Graduate",
-                                    style: GoogleFonts.varela(
-                                        fontSize: 13.sp,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )
-                                : Text(
-                                    "Graduate",
-                                    style: GoogleFonts.varela(
-                                        color: Colors.grey.shade400,
-                                        fontSize: 13.sp),
-                                    textAlign: TextAlign.center,
-                                  ),
-                            SizedBox(
-                              width: 4.w,
-                            ),
-                            graduate
-                                ? Image.asset(
-                                    "assets/images/check.png",
-                                    height: 13.h,
-                                  )
-                                : const SizedBox()
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          // gender = value.toString();
-                          graduate = false;
-                          undergraduate = true;
-                          mba = false;
-                          hsc = false;
-                          other = false;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: undergraduate
-                              ? Constants.borderColor
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 4),
-                        margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            undergraduate
-                                ? Text(
-                                    "Post Graduate",
-                                    style: GoogleFonts.varela(
-                                        fontSize: 13.sp,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )
-                                : Text(
-                                    "Post Graduate",
-                                    style: GoogleFonts.varela(
-                                        color: Colors.grey.shade400,
-                                        fontSize: 13.sp),
-                                    textAlign: TextAlign.center,
-                                  ),
-                            SizedBox(
-                              width: 4.w,
-                            ),
-                            undergraduate
-                                ? Image.asset(
-                                    "assets/images/check.png",
-                                    height: 13.h,
-                                  )
-                                : const SizedBox()
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          // gender = value.toString();
-                          graduate = false;
-                          undergraduate = false;
-                          hsc = false;
-                          mba = true;
-                          other = false;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: mba ? Constants.borderColor : Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 4),
-                        margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            mba
-                                ? Text(
-                                    "MBA",
-                                    style: GoogleFonts.varela(
-                                        fontSize: 13.sp,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )
-                                : Text(
-                                    "MBA",
-                                    style: GoogleFonts.varela(
-                                        color: Colors.grey.shade400,
-                                        fontSize: 13.sp),
-                                    textAlign: TextAlign.center,
-                                  ),
-                            SizedBox(
-                              width: 4.w,
-                            ),
-                            mba
-                                ? Image.asset(
-                                    "assets/images/check.png",
-                                    height: 13.h,
-                                  )
-                                : const SizedBox()
-                          ],
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          // gender = value.toString();
-                          graduate = false;
-                          undergraduate = false;
-                          mba = false;
-                          hsc = false;
-                          degreeController.clear;
-                          other = true;
-                        });
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: other ? Constants.borderColor : Colors.white,
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 4),
-                        margin: EdgeInsets.only(right: 5.w, bottom: 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            other
-                                ? Text(
-                                    "Other's",
-                                    style: GoogleFonts.varela(
-                                        fontSize: 13.sp,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold),
-                                    textAlign: TextAlign.center,
-                                  )
-                                : Text(
-                                    "Other's",
-                                    style: GoogleFonts.varela(
-                                        color: Colors.grey.shade400,
-                                        fontSize: 13.sp),
-                                    textAlign: TextAlign.center,
-                                  ),
-                            SizedBox(
-                              width: 4.w,
-                            ),
-                            other
-                                ? Image.asset(
-                                    "assets/images/check.png",
-                                    height: 13.h,
-                                  )
-                                : const SizedBox()
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ), */
-                SizedBox(
-                  height: 10.h,
-                ),
-
-                // if (hsc == true) customWidgetHSC(),
-                // if (graduate == true)
-                customWidgetGraduation(),
-                /*   if (undergraduate == true) customWidgetPost(),
-                if (mba == true) customWidgetMBA(),
-                if (other == true) customWidgetOther(), */
-              ],
-            ),
-          );
-  }
-
-/*   SizedBox customWidgetOther() {
-    return SizedBox(
-      child: Column(
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: isOtherUni
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "University / Institute",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      customContainerSelect1(
-                        true,
-                        universityController.text,
-                        true,
-                        () {
-                          setState(() {
-                            isOtherUni = false;
-                            uniOFocus.requestFocus();
-                            universityController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                : CustomJobFormTextFieldRespOne(
-                    onIDSelected: () {},
-                    // isSelected: isIndustry,
-                    focusNode: uniOFocus,
-                    role: "",
-                    isCompany: false,
-                    isIndustry: true,
-                    name: "university",
-                    title: "University / Institute",
-                    controller: universityController,
-                    onChanged: (p0) {
-                      isUniO = true;
-                    },
-                    contextIn: context,
-                    hintText: "Mumbai University",
-                  ),
-          ),
           const SizedBox(height: 10),
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: isOtherDeg
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Degree / Specialization",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      customContainerSelect1(
-                        true,
-                        degreeController.text,
-                        true,
-                        () {
-                          setState(() {
-                            isOtherDeg = false;
-                            degreeOFocus.requestFocus();
-                            degreeController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                : CustomJobFormTextFieldRespOne(
-                    onIDSelected: () {},
-                    // isSelected: isIndustry,
-                    focusNode: degreeOFocus,
-                    role: "",
-                    isCompany: false,
-                    isIndustry: true,
-                    name: "degree",
-                    title: "Degree / Specialization",
-                    controller: degreeController,
-                    onChanged: (p0) {
-                      isOtherDeg = true;
-                    },
-                    contextIn: context,
-                    hintText: "Bachelor of Commerce",
-                  ),
-          ),
-          const SizedBox(height: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Field of Study",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isOtherfield
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isOtherfield = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          fieldOfStudyController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: fieldOfStudyController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherfield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherfield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherfield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: fieldOfStudyController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "Accounts and Finance",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "First Year",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isOtherFirst
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isOtherFirst = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          firstYearController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: firstYearController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: firstYearController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "March 2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Final Year",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isOtherPassing
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isOtherPassing = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          passingYearController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: passingYearController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isOtherPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: passingYearController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "March 2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
-            ],
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              marksheet != null
-                  ? customContainerSelectToViewDoc(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return CustomPDFViewerDialog(
-                              pdfUrl:
-                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/$marksheet",
-                              onRemove: () {
-                                setState(() {
-                                  marksheet = null;
-                                });
-                                // Add your logic for removing here
-                              },
-                              onReplace: () async {
-                                setState(() async {
-                                  marksheet = await customFilePicker(
-                                    ['pdf'],
-                                  );
-
-                                  // Add your logic for replacing here
-                                });
-                              },
-                            );
-                          },
-                        );
-                      },
-                      title: "Upload Marksheet")
-                  : customContainerSelectMarksheet(
-                      isAnother: true,
-                      isSelect: false,
-                      onPressed: () async {
-                        setState(() async {
-                          // offerletter = true;
-                          marksheet = await customFilePicker(
-                            ["pdf"],
-                          );
-                        });
-                      },
-                      title: marksheet != null
-                          ? marksheet.toString()
-                          : "Upload Marksheet"),
-            ],
-          ),
+          // if (hsc) customWidgetHSC(),
+          // if (graduate)
+          customWidgetGraduation(),
+          // if (undergraduate) customWidgetPost(),
+          // if (mba) customWidgetMBA(),
+          // if (other) customWidgetOther(),
         ],
       ),
     );
-  } */
-
-/*   SizedBox customWidgetMBA() {
-    return SizedBox(
-      child: Column(children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: isMbaUni
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "University / Institute",
-                      style: GoogleFonts.sourceSansPro(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    customContainerSelect1(
-                      true,
-                      universityController.text,
-                      true,
-                      () {
-                        setState(() {
-                          isMbaUni = false;
-                          uniMFocus.requestFocus();
-                          universityController.clear();
-                        });
-                      },
-                    ),
-                  ],
-                )
-              : CustomJobFormTextFieldRespOne(
-                  onIDSelected: () {},
-                  // isSelected: isIndustry,
-                  focusNode: uniMFocus,
-                  role: "",
-                  isCompany: false,
-                  isIndustry: true,
-                  name: "university",
-                  title: "University / Institute",
-                  controller: universityController,
-                  onChanged: (p0) {
-                    isUniM = true;
-                  },
-                  contextIn: context,
-                  hintText: "Mumbai University",
-                ),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: MediaQuery.of(context).size.width,
-          child: isMbaDeg
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Degree / Specialization",
-                      style: GoogleFonts.sourceSansPro(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    customContainerSelect1(
-                      true,
-                      degreeController.text,
-                      true,
-                      () {
-                        setState(() {
-                          isMbaDeg = false;
-                          degreeMFocus.requestFocus();
-                          degreeController.clear();
-                        });
-                      },
-                    ),
-                  ],
-                )
-              : CustomJobFormTextFieldRespOne(
-                  onIDSelected: () {},
-                  // isSelected: isIndustry,
-                  focusNode: degreeMFocus,
-                  role: "",
-                  isCompany: false,
-                  isIndustry: true,
-                  name: "degree",
-                  title: "Degree / Specialization",
-                  controller: degreeController,
-                  onChanged: (p0) {
-                    isMbaDeg = true;
-                  },
-                  contextIn: context,
-                  hintText: "Bachelor of Commerce",
-                ),
-        ),
-        const SizedBox(height: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Field of Study",
-              style: GoogleFonts.sourceSansPro(
-                  fontSize: 18.sp, fontWeight: FontWeight.w600),
-            ),
-            isMbafield
-                ? customContainerSelect(
-                    isVacancy: true,
-                    isCross: true,
-                    isAnother: true,
-                    isNumOfOpening: false,
-                    onPressed: () {
-                      setState(() {
-                        isMbafield = false;
-                        // FocusScope.of(context).autofocus(focusNode);
-                        fieldOfStudyController.clear();
-                        // titleFocus.requestFocus();
-                      });
-                    },
-                    isSelect: true,
-                    title: fieldOfStudyController.text)
-                : Container(
-                    width: MediaQuery.of(context).size.width,
-                    // height: 55,
-                    margin: const EdgeInsets.only(bottom: 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(bottom: 5.h),
-                          width: MediaQuery.of(context).size.width,
-                          height: 35,
-                          color: Colors.white,
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "This Text field Cant be empty";
-                              }
-                              return null;
-                            },
-
-                            onFieldSubmitted: (value) {
-                              fieldOfStudyController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbafield = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            onChanged: (value) {
-                              setState(() {});
-                            },
-                            onTapOutside: (event) {
-                              fieldOfStudyController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbafield = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            onEditingComplete: () {
-                              fieldOfStudyController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbafield = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            keyboardType: TextInputType.text,
-                            controller: fieldOfStudyController,
-                            // enabled: enableShortListFor,
-                            onTap: (() {}),
-                            decoration: InputDecoration(
-                                counterText: '',
-                                contentPadding: const EdgeInsets.only(
-                                    top: 8, bottom: 8, left: 10, right: 10),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xffff0eceb)),
-                                ),
-                                focusColor: const Color(0xffff0eceb),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                      color:
-                                          Color.fromARGB(255, 122, 113, 111)),
-                                ),
-                                hintText: "Accounts and Finance",
-                                hintStyle: GoogleFonts.sourceSansPro(
-                                    color: Constants.subtitleclr,
-                                    fontSize: 15.sp)
-                                //  prefixIcon: Icon(Icons.list)
-                                ),
-                          ),
-                        ),
-                      ],
-                    )),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "First Year",
-              style: GoogleFonts.sourceSansPro(
-                  fontSize: 18.sp, fontWeight: FontWeight.w600),
-            ),
-            isMbaFirst
-                ? customContainerSelect(
-                    isVacancy: true,
-                    isCross: true,
-                    isAnother: true,
-                    isNumOfOpening: false,
-                    onPressed: () {
-                      setState(() {
-                        isMbaFirst = false;
-                        // FocusScope.of(context).autofocus(focusNode);
-                        firstYearController.clear();
-                        // titleFocus.requestFocus();
-                      });
-                    },
-                    isSelect: true,
-                    title: firstYearController.text)
-                : Container(
-                    width: MediaQuery.of(context).size.width,
-                    // height: 55,
-                    margin: const EdgeInsets.only(bottom: 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(bottom: 5.h),
-                          width: MediaQuery.of(context).size.width,
-                          height: 35,
-                          color: Colors.white,
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "This Text field Cant be empty";
-                              }
-                              return null;
-                            },
-
-                            onFieldSubmitted: (value) {
-                              firstYearController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbaFirst = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            onChanged: (value) {
-                              setState(() {});
-                            },
-                            onTapOutside: (event) {
-                              firstYearController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbaFirst = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            onEditingComplete: () {
-                              firstYearController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbaFirst = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            keyboardType: TextInputType.text,
-                            controller: firstYearController,
-                            // enabled: enableShortListFor,
-                            onTap: (() {}),
-                            decoration: InputDecoration(
-                                counterText: '',
-                                contentPadding: const EdgeInsets.only(
-                                    top: 8, bottom: 8, left: 10, right: 10),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xffff0eceb)),
-                                ),
-                                focusColor: const Color(0xffff0eceb),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                      color:
-                                          Color.fromARGB(255, 122, 113, 111)),
-                                ),
-                                hintText: "March 2023",
-                                hintStyle: GoogleFonts.sourceSansPro(
-                                    color: Constants.subtitleclr,
-                                    fontSize: 15.sp)
-                                //  prefixIcon: Icon(Icons.list)
-                                ),
-                          ),
-                        ),
-                      ],
-                    )),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Final Year",
-              style: GoogleFonts.sourceSansPro(
-                  fontSize: 18.sp, fontWeight: FontWeight.w600),
-            ),
-            isMbaPassing
-                ? customContainerSelect(
-                    isVacancy: true,
-                    isCross: true,
-                    isAnother: true,
-                    isNumOfOpening: false,
-                    onPressed: () {
-                      setState(() {
-                        isMbaPassing = false;
-                        // FocusScope.of(context).autofocus(focusNode);
-                        passingYearController.clear();
-                        // titleFocus.requestFocus();
-                      });
-                    },
-                    isSelect: true,
-                    title: passingYearController.text)
-                : Container(
-                    width: MediaQuery.of(context).size.width,
-                    // height: 55,
-                    margin: const EdgeInsets.only(bottom: 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(bottom: 5.h),
-                          width: MediaQuery.of(context).size.width,
-                          height: 35,
-                          color: Colors.white,
-                          child: TextFormField(
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "This Text field Cant be empty";
-                              }
-                              return null;
-                            },
-
-                            onFieldSubmitted: (value) {
-                              passingYearController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbaPassing = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            onChanged: (value) {
-                              setState(() {});
-                            },
-                            onTapOutside: (event) {
-                              passingYearController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbaPassing = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            onEditingComplete: () {
-                              passingYearController.text.isNotEmpty
-                                  ? setState(() {
-                                      isMbaPassing = true;
-                                      // _showContainer1 = value.isEmpty;
-                                    })
-                                  : null;
-                            },
-                            keyboardType: TextInputType.text,
-                            controller: passingYearController,
-                            // enabled: enableShortListFor,
-                            onTap: (() {}),
-                            decoration: InputDecoration(
-                                counterText: '',
-                                contentPadding: const EdgeInsets.only(
-                                    top: 8, bottom: 8, left: 10, right: 10),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xffff0eceb)),
-                                ),
-                                focusColor: const Color(0xffff0eceb),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                      color:
-                                          Color.fromARGB(255, 122, 113, 111)),
-                                ),
-                                hintText: "March 2023",
-                                hintStyle: GoogleFonts.sourceSansPro(
-                                    color: Constants.subtitleclr,
-                                    fontSize: 15.sp)
-                                //  prefixIcon: Icon(Icons.list)
-                                ),
-                          ),
-                        ),
-                      ],
-                    )),
-          ],
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            InkWell(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      elevation: 0,
-                      backgroundColor: Colors.transparent,
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              /*     customButton("Digi Locker",
-                                  "assets/images/digilocker.png", 70, false), */
-                              customButton("Manual",
-                                  "assets/images/file_exp.png", 70, false),
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-              child: customButton("Upload Marksheet", "", 0, true),
-            ),
-          ],
-        )
-      ]),
-    );
-  } */
+  }
 
   FocusNode boardFocus = FocusNode();
   FocusNode passingyearfocus = FocusNode();
@@ -1925,269 +598,6 @@ class _Screen2State extends ConsumerState<Screen2> {
   FocusNode filedofstudyfocus = FocusNode();
   FocusNode firstyearfocus = FocusNode();
   FocusNode finalyearfocus = FocusNode();
-
-/*   SizedBox customWidgetHSC() {  //TODO: hsc before 21/10/2023
-    return SizedBox(
-      child: Column(
-        children: [
-          CustomTextField(
-              icon: const Icon(Icons.school_outlined),
-              context: context,
-              hint: "Maharashtra Board",
-              label: "Board",
-              focusNode: boardFocus,
-              controller: boardController),
-          /* isBoard  //TODO: old code board
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isBoard = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          boardController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: boardController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                boardController.text.isNotEmpty
-                                    ? setState(() {
-                                        isBoard = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                boardController.text.isNotEmpty
-                                    ? setState(() {
-                                        isBoard = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                boardController.text.isNotEmpty
-                                    ? setState(() {
-                                        isBoard = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: boardController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "Maharashtra Board",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )), */
-
-          const SizedBox(height: 10),
-          CustomTextField(
-              context: context,
-              hint: "2023",
-              label: "Passing Year",
-              focusNode: passingyearfocus,
-              icon: const Icon(Icons.edit_calendar_outlined),
-              controller: passingYearController),
-/*           Column(  //TODOD: old code of passing year
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Passing Year",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isHscPassing
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isHscPassing = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          passingYearController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: passingYearController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isHscPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isHscPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isHscPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: passingYearController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "March 2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
-            ],
-          ), */
-          const SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              InkWell(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        elevation: 0,
-                        backgroundColor: Colors.transparent,
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                customButton("Digi Locker",
-                                    "assets/images/digilocker.png", 70, false),
-                                customButton("Manual",
-                                    "assets/images/file_exp.png", 70, false),
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: customButton("Upload Marksheet", "", 0, true),
-              ),
-            ],
-          )
-        ],
-      ),
-    );
-  } */
 
   String? marksheet;
 
@@ -2258,41 +668,6 @@ class _Screen2State extends ConsumerState<Screen2> {
                         color: Constants.themeBgColor, fontSize: 15.sp))));
   }
 
-  InkWell customContainerSelectToViewDoc({
-    required final VoidCallback onPressed,
-    required String title,
-  }) {
-    return InkWell(
-        onTap: onPressed,
-        child: Container(
-
-            //height: MediaQuery.of(context).size.height / 30,
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(title,
-                    style: GoogleFonts.sourceSansPro(
-                        color: Constants.themeBgColor, fontSize: 15.sp)),
-                SizedBox(
-                  width: 6.w,
-                ),
-                Icon(
-                  Icons.visibility_outlined,
-                  color: Constants.themeBgColor,
-                  size: 18.h,
-                )
-              ],
-            )));
-  }
-
   Widget customButton(String title, String? img, int? conSize, bool dlg) {
     return InkWell(
       onTap: () async {
@@ -2348,672 +723,330 @@ class _Screen2State extends ConsumerState<Screen2> {
     );
   }
 
+  TextEditingController schoolcollegeName = TextEditingController();
+  FocusNode schoolcollegeFocus = FocusNode();
+
+  bool currentlyStudying = false;
+
   String degreeCode = "";
   bool science = false, commerce = false, art = false;
 
   SizedBox customWidgetGraduation() {
     return SizedBox(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (degreeCode == "D001")
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                /* Text(
-                  "Education :-",
-                  style: GoogleFonts.varela(
-                      fontWeight: FontWeight.bold,
-                      color: Constants.themeBgColor),
-                ), */
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 6, horizontal: 25),
-                  decoration: BoxDecoration(
-                      color: Constants.themeBgColor,
-                      borderRadius: BorderRadius.circular(8.r)),
-                  child: Text("H.S.C",
-                      style: GoogleFonts.varela(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-          if (degreeCode != "D001")
-            CustomTextFieldComapanyLocation(
-              labelText: "Degree / Specialization",
-              university: false,
-              degree: true,
-              hsc: true,
-              title: "",
-              isCity: true,
-              contextIn: context,
-              role: "",
-              hintText: "Bachelor of Commerce",
-              name: "degree",
-              isCompany: false,
-              controller: degreeController,
-              onChanged: (p0) {
-                isGraduateDeg = true;
-              },
-              getid: (p0) {
-                degreeId = p0;
-              },
-              onSubmit: (p0) {
-                setState(() {
-                  degreeCode = p0;
-                });
-              },
-              icon: const Icon(Icons.workspace_premium_outlined),
-            ),
-          const SizedBox(height: 10),
-          CustomTextFieldComapanyLocation(
-            university: true,
-            degree: false,
-            hsc: false,
-            labelText:
-                degreeCode == "D001" ? "Board" : "University / Institute",
-            title: "",
-            isCity: true,
-            contextIn: context,
-            role: "",
-            hintText: degreeCode == "D001"
-                ? "Maharshtra State Board"
-                : "Mumbai University",
-            name: degreeCode == "D001" ? "board" : "university",
-            isCompany: false,
-            controller:
-                degreeCode == "D001" ? boardController : universityController,
-            onChanged: (p0) {
-              isUniG = true;
-            },
-            getid: (p0) {
-              universityId = p0;
-            },
-            icon: const Icon(Icons.school_outlined),
+          const customTextForWeather(
+            title: "School / College Name*",
           ),
-          const SizedBox(height: 10),
-          degreeCode == "D001"
-              ? Container(
-                  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Field of study",
-                        style: GoogleFonts.varela(
-                            fontSize: 14.sp, color: Constants.themeBgColor)),
-                    SizedBox(
-                      height: 5.h,
-                    ),
-                    Row(
-                      //  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              science = true;
-                              commerce = false;
-                              art = false;
-                              // degreeController.text = "H.S.C".toString();
-                            });
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(right: 5.w),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.r),
-                                color: science
-                                    ? Constants.themeBgColor
-                                    : Colors.white,
-                                border:
-                                    Border.all(color: Constants.themeBgColor)),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 4.h, horizontal: 8),
-                            child: Text(
-                              "Science",
-                              style: GoogleFonts.varela(
-                                  fontWeight: science
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: science ? Colors.white : Colors.black),
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              science = false;
-                              commerce = true;
-                              art = false;
-                              // degreeController.text = "H.S.C".toString();
-                            });
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(right: 5.w),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.r),
-                                color: commerce
-                                    ? Constants.themeBgColor
-                                    : Colors.white,
-                                border:
-                                    Border.all(color: Constants.themeBgColor)),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 4.h, horizontal: 8),
-                            child: Text(
-                              "Commerce",
-                              style: GoogleFonts.varela(
-                                  fontWeight: commerce
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color:
-                                      commerce ? Colors.white : Colors.black),
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              science = false;
-                              commerce = false;
-                              art = true;
-                              // degreeController.text = "H.S.C".toString();
-                            });
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(right: 5.w),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.r),
-                                color:
-                                    art ? Constants.themeBgColor : Colors.white,
-                                border:
-                                    Border.all(color: Constants.themeBgColor)),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 4.h, horizontal: 8),
-                            child: Text(
-                              "Art",
-                              style: GoogleFonts.varela(
-                                  fontWeight:
-                                      art ? FontWeight.bold : FontWeight.normal,
-                                  color: art ? Colors.white : Colors.black),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ))
-              : CustomTextFieldComapanyLocation(
-                  university: false,
-                  degree: false,
-                  labelText: "Field of Study",
-                  title: "",
-                  hsc: false,
-                  isCity: true,
-                  contextIn: context,
-                  role: "",
-                  hintText: "Account and Finance",
-                  name: "fieldofstudy",
-                  isCompany: false,
-                  controller: fieldOfStudyController,
-                  onChanged: (p0) {
-                    // isUniG = true;
-                  },
-                  getid: (p0) {
-                    fieldId = p0;
-                  },
-                  icon: const Icon(Icons.auto_stories_outlined),
-                ),
-          /* CustomTextField(
-              context: context,
-              hint: "Account and Finance",
-              label: "Field of Study",
-              focusNode: filedofstudyfocus,
-              controller: fieldOfStudyController,
-              icon: const Icon(Icons.auto_stories_outlined)), */
-          /* Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          CustomJobTitleForExperience(
+            onIDSelected: () {},
+            role: "",
+            isCompany: false,
+            isIndustry: true,
+            name: "school",
+            title: "School / College name",
+            controller: schoolcollegeName,
+            onChanged: (p0) {},
+            getid: (p0) {},
+            contextIn: context,
+            hintText: "School or college name",
+          ),
+          SizedBox(
+            height: 6.h,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                "Field of Study",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color:
+                        // selectedKeyResponsible.contains(item)
+                        Colors.grey,
+                    width: 1.5,
+                  ),
+                ),
+                height: 16,
+                width: 20,
+                child: Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: Colors.transparent,
+                  ),
+                  child: Checkbox(
+                    side: const BorderSide(color: Colors.white),
+                    activeColor: Colors.white,
+                    checkColor: Constants.themeBgColor,
+                    visualDensity: VisualDensity.compact,
+                    value: isremote,
+                    onChanged: (newValue) {
+                      setState(() {
+                        isremote = !isremote;
+                      });
+                      // Notify Flutter that the state has changed
+                    },
+                  ),
+                ),
               ),
-              isGraduatefield
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isGraduatefield = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          fieldOfStudyController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: fieldOfStudyController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduatefield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduatefield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduatefield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: fieldOfStudyController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "Accounts and Finance",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
+              SizedBox(
+                width: 10.w,
+              ),
+              const customTextForWeather(
+                title: "Study remotely via a distance learning.",
+              ),
             ],
-          ), */
+          ),
+
+          const SizedBox(height: 10),
+          const customTextForWeather(
+            title: "University / Board Name*",
+          ),
+          CustomJobTitleForExperience(
+            onIDSelected: () {},
+            // isSelected: isIndustry,
+            //focusNode: titleFocus,
+            role: "",
+            isCompany: false,
+            isIndustry: true,
+            name: "university",
+            title: "University",
+            controller: universityController,
+            onChanged: (p0) {},
+            getid: (p0) {},
+            contextIn: context,
+            hintText: "Type to search",
+          ),
+
+          SizedBox(
+            height: 10.h,
+          ),
+          //   if (degreeCode != "D001")
+          const customTextForWeather(
+            title: "Degree*",
+          ),
+          CustomJobTitleForExperience(
+            onIDSelected: () {},
+            // isSelected: isIndustry,
+            //focusNode: titleFocus,
+            role: "",
+            isCompany: false,
+            isIndustry: true,
+            name: "degree",
+            title: "Degree",
+            controller: degreeController,
+            onChanged: (p0) {},
+            getid: (p0) {},
+            contextIn: context,
+            hintText: "Type to search",
+          ),
+
+          const SizedBox(height: 10),
+          const customTextForWeather(
+            title: "Field of study*",
+          ),
+          CustomJobTitleForExperience(
+            onIDSelected: () {},
+            // isSelected: isIndustry,
+            //focusNode: titleFocus,
+            role: "",
+            isCompany: false,
+            isIndustry: true,
+            name: "fieldofstudy",
+            title: "Field of study",
+            controller: fieldOfStudyController,
+            onChanged: (p0) {},
+            getid: (p0) {},
+            contextIn: context,
+            hintText: "Type to search",
+          ),
+
           const SizedBox(
             height: 10,
           ),
-          CustomTextField(
-              maxLength: 4,
-              isNumber: true,
-              context: context,
-              hint: "2017",
-              label: degreeCode == "D001" ? "Passing Year" : "First Year",
-              focusNode: firstyearfocus,
-              controller: firstYearController,
-              icon: const Icon(Icons.edit_calendar)),
-          /* Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const customTextForWeather(
+            title: "Start Year*",
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "First Year",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 2.5,
+                child: MonthDropdown(
+                  controller: firstMonthController,
+                  //focusNode: firstmonthfocus,
+                  hint: firstMonthController.text.isNotEmpty
+                      ? firstMonthController.text
+                      : "Select Month",
+                ),
               ),
-              isGraduateFirst
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isGraduateFirst = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          firstYearController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: firstYearController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduateFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduateFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduateFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: firstYearController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "March 2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width / 2.5,
+                  child: DropDownYear(
+                      firstYearController.text.isNotEmpty
+                          ? firstYearController.text
+                          : "Select Year",
+                      firstYearController,
+                      true)),
             ],
-          ), */
-          const SizedBox(height: 10),
-          if (degreeCode != "D001")
-            CustomTextField(
-                maxLength: 4,
-                isNumber: true,
-                context: context,
-                hint: "2023",
-                label: "Final Year",
-                focusNode: finalyearfocus,
-                controller: passingYearController,
-                icon: const Icon(Icons.edit_calendar)),
-          /* Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          if (!currentlyStudying)
+            const SizedBox(
+              height: 10,
+            ),
+          if (!currentlyStudying)
+            const customTextForWeather(
+              title: "End Year*",
+            ),
+          if (!currentlyStudying)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                    width: MediaQuery.of(context).size.width / 2.5,
+                    child: MonthDropdown(
+                      controller: endMonthController,
+                      // focusNode: firstmonthfocus,
+                      hint: endMonthController.text.isNotEmpty
+                          ? endMonthController.text
+                          : "Select Month",
+                    )),
+                SizedBox(
+                    width: MediaQuery.of(context).size.width / 2.5,
+                    child: DropDownYear(
+                        endYearController.text.isNotEmpty
+                            ? endYearController.text
+                            : "Select Year",
+                        endYearController,
+                        false)),
+              ],
+            ),
+
+          const SizedBox(
+            height: 10,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                "Final Year",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color:
+                        // selectedKeyResponsible.contains(item)
+                        Colors.grey,
+                    width: 1.5,
+                  ),
+                ),
+                height: 16,
+                width: 20,
+                child: Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: Colors.transparent,
+                  ),
+                  child: Checkbox(
+                    side: const BorderSide(color: Colors.white),
+                    activeColor: Colors.white,
+                    checkColor: Constants.themeBgColor,
+                    visualDensity: VisualDensity.compact,
+                    value: currentlyStudying,
+                    onChanged: (newValue) {
+                      setState(() {
+                        currentlyStudying = !currentlyStudying;
+                        endMonthController.clear();
+                        endYearController.clear();
+                        marksheet = null;
+                      });
+                      // Notify Flutter that the state has changed
+                    },
+                  ),
+                ),
               ),
-              isGraduatePassing
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isGraduatePassing = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          passingYearController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: passingYearController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduatePassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduatePassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isGraduatePassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: passingYearController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "March 2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
+              SizedBox(
+                width: 10.w,
+              ),
+              const customTextForWeather(
+                  title: "I am currently studying here."),
             ],
-          ), */
+          ),
+          SizedBox(
+            height: 20.h,
+          ),
+          if (marksheet != null)
+            CustomContainerSelectToViewDoc(
+                onPressed: () {
+                  showModalBottomSheet(
+                    isScrollControlled: true,
+                    context: context,
+                    builder: (context) {
+                      return CustomPDFViewerDialog(
+                        pdfUrl:
+                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/$marksheet",
+                        onRemove: () async {
+                          await FileUploadService()
+                              .deleteSingleFile(marksheet!);
+                          setState(() {
+                            marksheet = null;
+                          });
+                        },
+                        onReplace: () {},
+                      );
+                    },
+                  );
+                },
+                title: "Uploaded Marksheet"),
+          if (marksheet == null && !currentlyStudying)
+            CustomDocumentUploadButton(
+                onTab: () async {
+                  FileUploader fileUploader = FileUploader();
+
+                  marksheet = await fileUploader.uploadFile(
+                      context, ['pdf'], "Marksheet");
+                  setState(() {});
+                },
+                title: "Add Marksheet"),
+          SizedBox(
+            height: 10.h,
+          ),
+          if (marksheet == null && !currentlyStudying)
+            const customTextForWeather(
+              title:
+                  "Add your marksheets here. These confidential document are only visible to recruiters",
+              fontSize: 10,
+              color: Constants.subtitleclr,
+            ),
+
           const SizedBox(
             height: 20,
           ),
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              /*   InkWell(    //TODO: marksheet document
-                /* onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        elevation: 0,
-                        backgroundColor: Colors.transparent,
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                /*  customButton("Digi Locker",
-                                    "assets/images/digilocker.png", 70, false), */
-                                customButton("Manual",
-                                    "assets/images/file_exp.png", 70, false),
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                }, */
-                child: marksheet != null
-                    ? customContainerSelectToViewDoc(
-                        onPressed: () async {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return CustomPDFViewerDialog(
-                                pdfUrl:
-                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/$marksheet",
-                                onRemove: () {
-                                  setState(() {
-                                    marksheet = null;
-                                  });
-                                  // Add your logic for removing here
-                                },
-                                onReplace: () async {
-                                  setState(() async {
-                                    marksheet = await customFilePicker(
-                                      ['pdf'],
-                                    );
-                                    setState(() {});
-                                    ref.refresh(userDataProvider);
-
-                                    // Add your logic for replacing here
-                                  });
-                                },
-                              );
-                            },
-                          );
-                        },
-                        title: "Upload Marksheet")
-                    : customContainerSelectMarksheet(
-                        isAnother: true,
-                        isSelect: false,
-                        onPressed: () async {
-                          setState(() async {
-                            // offerletter = true;
-                            marksheet = await customFilePicker(
-                              ["pdf"],
-                            );
-                          });
-                        },
-                        title: marksheet != null
-                            ? marksheet.toString()
-                            : "Upload Marksheet"), //customButton("Upload Marksheet", "", 0, true),
-              ), */
-            ],
+            children: [],
           ),
           const SizedBox(
             height: 50,
           ),
-          if (widget.isEdit)
-            Column(
+          if (widget.isEdit && widget.edulength != 1)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Padding(
                   padding: const EdgeInsets.only(right: 0),
                   child: InkWell(
                       onTap: () async {
-                        widget.educationList!.length <= 1
-                            ? showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return EducationSelectionDialog(
-                                    id: widget.prevPageModel!.id!.toInt(),
-                                  );
-                                },
-                              )
-                            : await JobPostApiService.DeletExperience(
-                                widget.prevPageModel!.id!.toInt(),
-                                context,
-                                "edu");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar(
-                                "Qualification Deleted Succesfully.", true));
-                        ref.refresh(userDataProvider);
+                        /*  widget.educationList!.length <= 1
+                                ? */
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return EducationSelectionDialog(
+                              explegth: widget.edulength,
+                              type: "edu",
+                              text: "Education",
+                              id: widget.prevPageModel!.id!.toInt(),
+                            );
+                          },
+                        );
                       },
                       child: Image.asset(
                         "assets/images/bin.gif",
@@ -3023,7 +1056,7 @@ class _Screen2State extends ConsumerState<Screen2> {
                         style: GoogleFonts.varela(color: Colors.red),
                       ) */
                       ),
-                )
+                ),
               ],
             )
         ],
@@ -3031,527 +1064,72 @@ class _Screen2State extends ConsumerState<Screen2> {
     );
   }
 
-  /* SizedBox customWidgetPost() {
-    return SizedBox(
-      child: Column(
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: isPostUni
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "University / Institute",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      customContainerSelect1(
-                        true,
-                        universityController.text,
-                        true,
-                        () {
-                          setState(() {
-                            isPostUni = false;
-                            uniPFocus.requestFocus();
-                            universityController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                : CustomJobFormTextFieldRespOne(
-                    onIDSelected: () {},
-                    // isSelected: isIndustry,
-                    focusNode: uniPFocus,
-                    role: "",
-                    isCompany: false,
-                    isIndustry: true,
-                    name: "university",
-                    title: "University / Institute",
-                    controller: universityController,
-                    onChanged: (p0) {
-                      isUniP = true;
-                    },
-                    contextIn: context,
-                    hintText: "Mumbai University",
-                  ),
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: isPostDeg
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Degree / Specialization",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      customContainerSelect1(
-                        true,
-                        degreeController.text,
-                        true,
-                        () {
-                          setState(() {
-                            isPostDeg = false;
-                            degreePFocus.requestFocus();
-                            degreeController.clear();
-                          });
-                        },
-                      ),
-                    ],
-                  )
-                : CustomJobFormTextFieldRespOne(
-                    onIDSelected: () {},
-                    // isSelected: isIndustry,
-                    focusNode: degreePFocus,
-                    role: "",
-                    isCompany: false,
-                    isIndustry: true,
-                    name: "degree",
-                    title: "Degree / Specialization",
-                    controller: degreeController,
-                    onChanged: (p0) {
-                      isPostDeg = true;
-                    },
-                    contextIn: context,
-                    hintText: "Bachelor of Commerce",
-                  ),
-          ),
-          const SizedBox(height: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Field of Study",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isPostfield
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isPostfield = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          fieldOfStudyController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: fieldOfStudyController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
+  Widget DropDownYear(
+      String hint, TextEditingController controller, bool isFirst) {
+    late List<int> years;
+    late int currentYear;
+    int? selectedYear;
+    currentYear = DateTime.now().year;
 
-                              onFieldSubmitted: (value) {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostfield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostfield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                fieldOfStudyController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostfield = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: fieldOfStudyController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "Accounts and Finance",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "First Year",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isGraduateFirst
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isPostFirst = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          firstYearController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: firstYearController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
+    int startYear =
+        int.tryParse(isFirst ? "1995" : firstYearController.text) ?? 1995;
+    years = isFirst
+        ? List.generate(
+                currentYear - startYear + 1, (index) => startYear + index)
+            .reversed
+            .toList()
+        : List.generate(
+            currentYear - startYear + 1, (index) => startYear + index);
 
-                              onFieldSubmitted: (value) {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                firstYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostFirst = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: firstYearController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "March 2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Final Year",
-                style: GoogleFonts.sourceSansPro(
-                    fontSize: 18.sp, fontWeight: FontWeight.w600),
-              ),
-              isPostPassing
-                  ? customContainerSelect(
-                      isVacancy: true,
-                      isCross: true,
-                      isAnother: true,
-                      isNumOfOpening: false,
-                      onPressed: () {
-                        setState(() {
-                          isPostPassing = false;
-                          // FocusScope.of(context).autofocus(focusNode);
-                          passingYearController.clear();
-                          // titleFocus.requestFocus();
-                        });
-                      },
-                      isSelect: true,
-                      title: passingYearController.text)
-                  : Container(
-                      width: MediaQuery.of(context).size.width,
-                      // height: 55,
-                      margin: const EdgeInsets.only(bottom: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 5.h),
-                            width: MediaQuery.of(context).size.width,
-                            height: 35,
-                            color: Colors.white,
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "This Text field Cant be empty";
-                                }
-                                return null;
-                              },
-
-                              onFieldSubmitted: (value) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onChanged: (value) {
-                                setState(() {});
-                              },
-                              onTapOutside: (event) {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              onEditingComplete: () {
-                                passingYearController.text.isNotEmpty
-                                    ? setState(() {
-                                        isPostPassing = true;
-                                        // _showContainer1 = value.isEmpty;
-                                      })
-                                    : null;
-                              },
-                              keyboardType: TextInputType.text,
-                              controller: passingYearController,
-                              // enabled: enableShortListFor,
-                              onTap: (() {}),
-                              decoration: InputDecoration(
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, left: 10, right: 10),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb)),
-                                  ),
-                                  focusColor: const Color(0xffff0eceb),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: const BorderSide(
-                                        color:
-                                            Color.fromARGB(255, 122, 113, 111)),
-                                  ),
-                                  hintText: "March 2023",
-                                  hintStyle: GoogleFonts.sourceSansPro(
-                                      color: Constants.subtitleclr,
-                                      fontSize: 15.sp)
-                                  //  prefixIcon: Icon(Icons.list)
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )),
-            ],
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              InkWell(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        elevation: 0,
-                        backgroundColor: Colors.transparent,
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                /*    customButton("Digi Locker",
-                                    "assets/images/digilocker.png", 70, false), */
-                                customButton("Manual",
-                                    "assets/images/file_exp.png", 70, false),
-                              ],
-                            )
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: customButton("Upload Marksheet", "", 0, true),
-              ),
-            ],
-          )
-        ],
+    return DropdownButtonFormField<int>(
+      value: selectedYear,
+      hint: customTextForMonst(title: hint),
+      isDense: true, // Reduce default dropdown height
+      decoration: InputDecoration(
+        focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Constants.black),
+            borderRadius: BorderRadius.circular(8)),
+        disabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Constants.subtitleclr)),
+        enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Constants.subtitleclr),
+            borderRadius: BorderRadius.circular(8)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(
+              color:
+                  selectedYear != null ? Colors.black : Constants.subtitleclr),
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
+      items: years
+          .map((year) => DropdownMenuItem<int>(
+                value: year,
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: selectedYear == year
+                          ? Colors.black
+                          : Colors.transparent,
+                      width: 1.5,
+                    ),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                  child: customTextForMonst(title: year.toString()),
+                ),
+              ))
+          .toList(),
+
+      onChanged: (value) {
+        setState(() {
+          selectedYear = value;
+          controller.text = value.toString();
+        });
+      },
+      // Limits dropdown height to show 5 elements
     );
-  } */
-
-  InkWell customContainerSelect(
-      {required final VoidCallback onPressed,
-      required bool isSelect,
-      required String title,
-      bool isHalf = false,
-      bool isVacancy = false,
-      bool isNumOfOpening = false,
-      bool isAnother = false,
-      bool isEmails = false,
-      bool isCross = false,
-      bool? isSalary = false}) {
-    return InkWell(
-        onTap: onPressed,
-        child: Container(
-            width: isAnother
-                ? null
-                : isNumOfOpening
-                    ? MediaQuery.of(context).size.width / 2.449
-                    : isEmails
-                        ? MediaQuery.of(context).size.width / 2.437
-                        : MediaQuery.of(context).size.width,
-
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: isSelect ? Constants.themeBgColor : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: isSelect
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      isSalary!
-                          ? const Icon(
-                              Icons.currency_rupee_rounded,
-                              color: Colors.white,
-                              size: 15,
-                            )
-                          : const SizedBox(),
-                      Text(title,
-                          style: GoogleFonts.sourceSansPro(
-                              color: Colors.white, fontSize: 15.sp)),
-                      isVacancy
-                          ? const Spacer()
-                          : const SizedBox(
-                              width: 5,
-                            ),
-                      isCross
-                          ? Image.asset(
-                              "assets/images/close.png",
-                              height: 12,
-                            )
-                          : const Icon(
-                              Icons.check,
-                              size: 15,
-                              color: Colors.white,
-                            )
-                    ],
-                  )
-                : Text(title,
-                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
 
   bool isLoading = false;
@@ -3560,47 +1138,74 @@ class _Screen2State extends ConsumerState<Screen2> {
     setState(() {
       isLoading = true;
     });
-    Education model = Education();
 
-    model = Education(
-        id: eduID,
-        userId: profilemodel.id,
+    Map<String, int> monthMapping = {
+      "January": 1,
+      "February": 2,
+      "March": 3,
+      "April": 4,
+      "May": 5,
+      "June": 6,
+      "July": 7,
+      "August": 8,
+      "September": 9,
+      "October": 10,
+      "November": 11,
+      "December": 12,
+    };
+    int? startmonth = monthMapping[firstMonthController.text.toString()];
+    int? endmonth = monthMapping[endMonthController.text.toString()];
+
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+
+    ProfileUpdateRequestDto profileUpdateRequestDto =
+        ProfileUpdateRequestDto(id: widget.userid, skills: widget.profileskill);
+    EducationRequestDto educationRequestDto = EducationRequestDto(
+        id: widget.isEdit == true ? widget.prevPageModel?.id : null,
+        userId: widget.userid,
         //level: "Graduate",
-        university: degreeCode == "D001" ? null : universityController.text,
-        board: degreeCode == "D001" ? boardController.text : null,
-        degree_spc: degreeCode == "D001" ? "H.S.C" : degreeController.text,
-        fieldOfStudy: degreeCode == "D001"
-            ? science
-                ? "Science"
-                : commerce
-                    ? "Commerce"
-                    : art
-                        ? "Art"
-                        : fieldOfStudyController.text
-            : fieldOfStudyController.text,
+        university: universityController.text,
+        isRemote: isremote ? 1 : 0,
+        schoolOrCollegeName: schoolcollegeName.text,
+        degreeSpc: degreeController.text,
+        fieldOfStudy: fieldOfStudyController.text,
+        endMonth: currentlyStudying ? null : endmonth,
+        startMonth: startmonth,
         firstYear: firstYearController.text.isNotEmpty
             ? int.parse(firstYearController.text)
             : null,
-        passingYear: degreeCode == "D001"
-            ? null
-            : passingYearController.text.isNotEmpty
-                ? int.parse(passingYearController.text)
-                : null,
-        marksheet: marksheet,
-        degree_id: degreeId,
-        fieldofstudy_id: fieldId,
-        university_id: universityId);
+        passingYear:
+            currentlyStudying ? null : int.tryParse(endYearController.text),
+        isCurrent: currentlyStudying ? 1 : 0,
+        marksheet: marksheet.toString());
+
+    UserUpdateRequestModel userUpdateRequestModel = UserUpdateRequestModel(
+        certificationsRequestDtos: null,
+        educationRequestDtos: [educationRequestDto],
+        experienceRequestDtos: null,
+        profileUpdateRequestDto: profileUpdateRequestDto);
 
     // Create an instance of UserDataService
     UserDataService userDataService = UserDataService();
 
     // Call the saveUserExperience method on the instance
-    await JobPostApiService.postEducation(model.toMap());
-    ScaffoldMessenger.of(context)
-        .showSnackBar(customSnackbar("Qualification added Succesfully", false));
+    await JobPostApiService.PostUserInfo(userUpdateRequestModel);
+
     setState(() {
       isLoading = false;
     });
+    ref.refresh(ProfileDataProvider);
+    ref.refresh(userDataProvider);
+
+    Navigator.pop(context);
+    if (widget.edulength > 1) {
+      Navigator.pop(context);
+    }
+    CustomSnackbar.show(
+        widget.isEdit
+            ? "Qualification Updated Succesfully"
+            : "Qualification Added Succesfully",
+        false);
 
     // await userDataService.saveUserEducation(model.toMap()); //TODO: Old one.....
     /*  if (widget.prevPageModel == null) {
@@ -3610,135 +1215,4 @@ class _Screen2State extends ConsumerState<Screen2> {
 
     //  }
   }
-}
-
-Widget CustomTextField(
-    {Icon? icon,
-    required BuildContext context,
-    required String hint,
-    required String label,
-    required FocusNode focusNode,
-    bool? isPrimaryNumber = false,
-    String? img,
-    bool? isImage = false,
-    int? maxLength,
-    bool isNumber = false,
-    bool? keyboardType,
-    bool? isDisabled = true,
-    bool? isOptional = false,
-    required TextEditingController controller}) {
-  // bool isError = false;
-  return SizedBox(
-    height: MediaQuery.of(context).size.height / 24,
-    child: TextFormField(
-      enabled: isDisabled,
-      // autofocus: focusNode.canRequestFocus,
-      focusNode: focusNode,
-      inputFormatters: isNumber
-          ? <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly,
-            ]
-          : <TextInputFormatter>[
-              FilteringTextInputFormatter.singleLineFormatter,
-            ],
-
-      /*  validator: (value) {
-          if (value == null || value.isEmpty) {
-            //return "This Text field Cant be empty";
-          }
-          return null;
-        }, */
-      maxLength: maxLength,
-
-      keyboardType: isNumber ? TextInputType.phone : TextInputType.name,
-      //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-      textCapitalization: TextCapitalization.sentences,
-      controller: controller.text != "0" ? controller : null,
-      onTap: (() {}),
-      style: GoogleFonts.varela(color: Constants.subtitleclr, fontSize: 14.sp),
-      decoration: InputDecoration(
-          filled: isPrimaryNumber! ? true : false,
-          fillColor:
-              isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent,
-          prefixIcon: icon,
-          prefixIconColor: Constants.themeBgColor,
-          suffix: isOptional != null && isOptional
-              ? const Text("(Optional)")
-              : const SizedBox(),
-          contentPadding:
-              const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
-          counterText: '',
-          labelText: label,
-          labelStyle: const TextStyle(
-            color: Constants.themeBgColor,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.r),
-            borderSide: const BorderSide(color: Color(0xffff0eceb)),
-          ),
-          focusColor: const Color(0xffff0eceb),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.r),
-            borderSide: const BorderSide(
-              color: Constants.themeBgColor,
-            ),
-          ),
-          hintText: hint,
-          hintStyle: GoogleFonts.sourceSansPro(
-              color: Constants.hintColor, fontSize: 15.sp)),
-    ),
-  );
-}
-
-InkWell customContainerSelect1(
-    bool isSelect, String text, bool isFetch, Function() onTab) {
-  return InkWell(
-      onTap: onTab,
-      child: Container(
-          width: double.maxFinite,
-          // height: MediaQuery.of(context).size.height / 26.h,
-          margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          /* decoration: BoxDecoration(
-                //310D44   color code for dark purple
-                //3D3635   color code for greybrown
-                color: isSelect ? const Color(0xfff310d44) : null,
-                border: isSelect
-                    ? null
-                    : Border.all(
-                        color: isSelect
-                            ? Colors.deepOrange.shade400
-                            : Colors.grey),
-                borderRadius: BorderRadius.circular(18)), */
-          //  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-          child: isSelect
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(text,
-                        style: GoogleFonts.sourceSansPro(
-                            // fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 15.sp)),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    isFetch
-                        ? Image.asset(
-                            "assets/images/close.png",
-                            height: 12,
-                          )
-                        : const Icon(
-                            Icons.check,
-                            size: 15,
-                            color: Colors.white,
-                          )
-                  ],
-                )
-              : Text(text, style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
 }

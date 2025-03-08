@@ -14,5 +14,7 @@
         ]
       
   },
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "pieces.cloudCapabilities": "Blended",
+  "pieces.telemetry": true
 }

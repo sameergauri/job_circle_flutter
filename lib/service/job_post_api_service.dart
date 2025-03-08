@@ -10,6 +10,7 @@ import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
 import 'package:job_circle/models/role_model.dart';
 import 'package:job_circle/screens/partnerhome.dart';
 
@@ -170,21 +171,75 @@ class JobPostApiService {
   static Future<void> postJobApply(
       {required int jobId,
       required int userId,
-      required String number,
-      required BuildContext context}) async {
-    final url =
-        Uri.parse('http://${GlobalConstants.API_Host_one}/leads/v1/applyJob');
-    final body = {
-      'jobId': jobId.toString(),
-      'userId': userId.toString(),
-      'mobile': number
-
-      /// 'status':'TP1',
-      // Assuming 'status' is always '1' based on the provided URL.
-    };
+      required BuildContext context,
+      required bool addcv}) async {
+    const String url =
+        "http://${GlobalConstants.API_Host_one}/leads/v1/applyJobWithNewApproach";
 
     try {
-      final response = await http.post(url, body: body);
+      final response = await http.post(
+        Uri.parse(
+            "$url?jobId=$jobId&userId=$userId"), // Sending as query params
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsonData = jsonDecode(response.body);
+        String codeValue = jsonData['code'];
+        String resulkey = jsonData["resultKey"];
+        print("Job applied successfully: ${response.body}");
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: CustomDialog(
+                  fetchDataFromApi: () {},
+                  onClose: () {
+                    addcv
+                        ? Navigator.of(context)
+                            .popUntil((route) => route.isFirst)
+                        : Navigator.pop(context);
+                    /*  Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomeScreen(),
+                        ),
+                        (route) => false); */
+                  },
+                  isFisrt: false,
+                  title:
+                      resulkey == "ERROR" ? codeValue : "Application Submitted",
+                  subtitle: resulkey == "ERROR"
+                      ? "Please try for another job"
+                      : "Recruiter will connect you shortly"),
+            );
+          },
+        );
+        print(response.body);
+      } else {
+        print('Post request failed with status code: ${response.statusCode}');
+        print(response.body);
+      }
+    } catch (e) {
+      print("Error applying job: $e");
+    }
+  }
+/*   static Future<void> postJobApply(
+      {required int jobId,
+      required int userId,
+      required BuildContext context}) async {
+    final url = Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/leads/v1/applyJobWithNewApproach?jobId=$jobId&userId=$userId');
+    // Uri.parse('http://${GlobalConstants.API_Host_one}/leads/v1/applyJob');
+
+    try {
+      final response = await http.post(
+        url,
+      );
 
       if (response.statusCode == 200) {
         // Post request was successful, handle the response data here if needed.
@@ -217,7 +272,7 @@ class JobPostApiService {
       // Error occurred during the post request, handle the error here.
       print('Error occurred during post request: $e');
     }
-  }
+  } */
 
   static Future<void> changeStatus(
       Map<String, dynamic> jsonData, int id) async {
@@ -252,7 +307,6 @@ class JobPostApiService {
           body: json.encode(jsonData));
 
       if (response.statusCode == 200) {
-        
         // Successful request
         // print(response.body);
         print('Status Updated Successfully');
@@ -293,7 +347,8 @@ class JobPostApiService {
       Map<String, dynamic> jsonData, BuildContext context) async {
     /*  var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name); */
-    String apiUrl = 'http://${GlobalConstants.API_Host_one}/bankDetails/v1';
+    String apiUrl =
+        'http://${GlobalConstants.API_Host_one}/bankDetails/v1/saveBankDetails';
 
     try {
       var response = await http.post(Uri.parse(apiUrl),
@@ -440,6 +495,7 @@ class JobPostApiService {
         print('Response Data: $responseData');
 
         final resultKey = responseData['resultKey'] as String?;
+        final resultData = responseData['resultData'].toString();
         if (resultKey == 'SUCCESS' && fromDialog == false) {
           showDialog(
             barrierDismissible: false,
@@ -451,7 +507,100 @@ class JobPostApiService {
                   Navigator.pop(context);
                   Navigator.pop(context);
                 },
-                subtitle: "Submitted successfully!",
+                subtitle: resultData.contains("Duplicate candidate")
+                    ? resultData
+                    : "Submitted successfully!",
+              );
+            },
+          );
+        } else if (fromDialog == false) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return CustomDialogueForAddResume(
+                error: false,
+                onClose: () {
+                  Navigator.pop(context);
+                },
+                subtitle: "Failed while posting!",
+              );
+            },
+          );
+        } else {}
+      } else {
+        print('Error: ${response.statusCode}');
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+              },
+              subtitle: "Failed while posting!",
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+            error: true,
+            onClose: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => const PartnerHomeScreen()),
+                (Route<dynamic> route) => false,
+              );
+            },
+            subtitle: "An error occurred!",
+          );
+        },
+      );
+    }
+  }
+
+  static Future<void> ReferAndAddResume(Map<String, dynamic> jsonData,
+      BuildContext context, bool fromDialog, String refId, bool isref) async {
+    final apiUrl = isref
+        ? Uri.parse(
+            'http://${GlobalConstants.API_Host}/leads/v1/referJobWithNewApproach?referralId=$refId')
+        : Uri.parse(
+            'http://${GlobalConstants.API_Host}/leads/v1/addResumeWithNewApproach?recruiterId=$refId');
+
+    try {
+      final response = await http.post(
+        apiUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(jsonData),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Response Data: $responseData');
+
+        final resultKey = responseData['resultKey'] as String?;
+        final resultData = responseData['resultData'].toString();
+        if (resultKey == 'SUCCESS' && fromDialog == false) {
+          showDialog(
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return CustomDialogueForAddResume(
+                error: false,
+                onClose: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
+                subtitle: resultData.contains("Duplicate candidate")
+                    ? resultData
+                    : "Submitted successfully!",
               );
             },
           );
@@ -515,8 +664,9 @@ class JobPostApiService {
     return "R${List.generate(3, (index) => chars[random.nextInt(chars.length)]).join()}";
   }
 
-  static Future<void> PostUserInfo(Map<dynamic, dynamic> jsonData) async {
-    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/saveStages';
+  static Future<void> PostUserInfo(UserUpdateRequestModel jsonData) async {
+    // String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/saveStages';
+    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/updateUser';
 
     try {
       var response = await http.post(Uri.parse(apiUrl),
@@ -528,6 +678,7 @@ class JobPostApiService {
         print("data posted succesully");
       } else {
         // Request failed
+        print(response.body);
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
@@ -536,8 +687,8 @@ class JobPostApiService {
   }
 
   static Future<void> PostUserExperience(
-      Map<dynamic, dynamic> jsonData, BuildContext context) async {
-    String apiUrl = 'http://${GlobalConstants.API_Host}/exp/v1';
+      UserUpdateRequestModel jsonData, BuildContext context) async {
+    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/updateUser';
 
     try {
       var response = await http.post(Uri.parse(apiUrl),
@@ -569,8 +720,8 @@ class JobPostApiService {
     }
   }
 
-  static Future<void> postEducation(Map<dynamic, dynamic> jsonData) async {
-    String apiUrl = 'http://${GlobalConstants.API_Host}/edu/v1';
+  static Future<void> postEducation(UserUpdateRequestModel jsonData) async {
+    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/updateUser';
 
     try {
       var response = await http.post(Uri.parse(apiUrl),
@@ -589,10 +740,31 @@ class JobPostApiService {
     }
   }
 
+  static Future<void> DeletEducaton(int id, BuildContext context) async {
+    String apiurl =
+        // 'http://${GlobalConstants.API_Host}/$urlcode/v1/delete?id=$id';
+        'http://${GlobalConstants.API_Host}/edu/v1/delete?id=$id';
+    try {
+      var respopnse = await http.delete(
+        Uri.parse(apiurl),
+      );
+      if (respopnse.statusCode == 200) {
+        print('Data deleted successfully.');
+        Navigator.pop(context);
+      } else {
+        print('Failed to delete data. Status code: ${respopnse.statusCode}');
+      }
+    } catch (e) {
+      // Handle any errors that occurred during the request
+      print('Error: $e');
+    }
+  }
+
   static Future<void> DeletExperience(
       int id, BuildContext context, String urlcode) async {
     String apiurl =
-        'http://${GlobalConstants.API_Host}/$urlcode/v1/delete?id=$id';
+        // 'http://${GlobalConstants.API_Host}/$urlcode/v1/delete?id=$id';
+        'http://${GlobalConstants.API_Host}/users/v1/$urlcode?id=$id';
     try {
       var respopnse = await http.delete(
         Uri.parse(apiurl),

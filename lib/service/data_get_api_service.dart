@@ -126,11 +126,14 @@ class ApplicationAPI {
     required String role,
     required String now,
   }) async {
-    final userid =
+    final id =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
 
-    final number = await Utils.getPreferencesValue(
+    final no = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_mobile.name);
+
+    int? userid = int.tryParse(id);
+    int? number = int.tryParse(no.toString().replaceAll('"', ''));
 
     final Uri apiUrl = Uri.parse(
         'http://${GlobalConstants.API_Host}/leads/v1/getStatusAndDolOfUser?uid=$userid&mobile=$number&companyId=$companyId&process=$process&role=$role&now=$now');

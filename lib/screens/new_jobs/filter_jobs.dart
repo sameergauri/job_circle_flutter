@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/models/favorite_job_model.dart';
 import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
+import 'package:job_circle/screens/new_jobs/profile_jobs_model.dart';
 import 'package:job_circle/screens/new_jobs/profile_model.dart';
 // Import your JobsModel class
 import 'package:job_circle/themes/colors.dart';
@@ -16,7 +18,7 @@ class FilterDialog {
   List<String> storedSelectedColumn = [];
   Function(List<String> selectedOptions, String selectedCategory,
       List<String> selectedColumn) onDialogClosed;
-  final ProfileModel profileModel;
+  final ProfileModelForJob profileModel;
 
   FilterDialog({
     required this.profileModel,
@@ -45,7 +47,7 @@ class FilterDialog {
 }
 
 class _FilterDialogContent extends ConsumerStatefulWidget {
-  final ProfileModel profileModel;
+  final ProfileModelForJob profileModel;
   Function(List<JobsModel> filteredData) onFilterApplied;
   List<String> storedSelectedOptions = [];
   String storedSelectedCategory = '';

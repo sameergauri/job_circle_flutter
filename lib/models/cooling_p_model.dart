@@ -19,7 +19,9 @@ class CoolingModel {
       status: json['status'] ?? "",
       subStatus: json['sub_status'] ?? "",
       contactNo: json['contact_no'] ?? "",
-      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      dol: json['dol'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['dol'])
+          : null,
     );
   }
 }

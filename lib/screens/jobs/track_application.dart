@@ -153,7 +153,7 @@ class CustomTabBar extends StatelessWidget {
                 0,
               ),
               decoration: BoxDecoration(
-                color: Constants.lightBlue,
+                color: Constants.darkBlue,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -173,9 +173,9 @@ class CustomTabBar extends StatelessWidget {
         child: Center(
           child: Text(
             tabs[index],
-            style: GoogleFonts.varela(
+            style: GoogleFonts.merriweather(
               fontSize: 16.sp,
-              color: isSelected ? Constants.lightBlue : Colors.grey.shade400,
+              color: isSelected ? Constants.darkBlue : Colors.grey.shade400,
               fontWeight: FontWeight.bold,
             ),
           ),

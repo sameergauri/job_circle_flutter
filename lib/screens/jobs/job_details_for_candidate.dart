@@ -1,15 +1,11 @@
 // ignore_for_file: must_be_immutable, unused_local_variable, unused_result, unnecessary_null_comparison, non_constant_identifier_names, avoid_print, use_build_context_synchronously, avoid_unnecessary_containers, deprecated_member_use, unused_element
 // ignore_for_file: todo
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/constants/custom_network_image.dart';
-import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
@@ -67,7 +63,7 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
   var subtitleText = "";
   var partner_request = 1;
   NumberFormat format = NumberFormat.compact();
-  List jobs = [];
+  // List jobs = [];
 
   String extractText(String input) {
     RegExp regex = RegExp(r'[a-zA-Z\s]+');
@@ -77,7 +73,7 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
     return text.trim();
   }
 
-  Future<void> fetchJobs() async {
+/*   Future<void> fetchJobs() async {
     Uri url = Uri.parse('http://${GlobalConstants.API_Host_one}/favjob/v1');
     final response = await http.get(url, headers: {
       "Content-Type": "application/json"
@@ -94,7 +90,7 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
       print("No fav job found!");
       // handle error
     }
-  }
+  } */
 
   String formatSalaryRange(int minSalary, int maxSalary) {
     String formattedMinSalary = '';
@@ -135,9 +131,11 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
 
   bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-        await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name));
+    var id =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    int? userid = int.tryParse(id);
+    var result = await UserDataService().getUserProfileSummary(userid!);
+
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromJson(dataResult);
@@ -155,7 +153,7 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
         length: 2, vsync: this, initialIndex: widget.hint == 1 ? 1 : 0);
     // benefit();
     //   const RestrictedButton();
-    fetchJobs();
+    // fetchJobs();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       usertype = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
@@ -326,7 +324,7 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (jobDetailsModel.name.toString().isNotEmpty)
+                      /* if (jobDetailsModel.name.toString().isNotEmpty)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,7 +349,7 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
                                   fontSize: 13.sp),
                             )
                           ],
-                        ),
+                        ), */
                       jobDetailsModel.isfresher == "Fresher"
                           ? Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -620,6 +618,7 @@ class _JobDetailsForCandidateState extends ConsumerState<JobDetailsForCandidate>
                         id: widget.id,
                         Applies: widget.Applies,
                         referal: widget.referal,
+                        jobDetailsModel: jobDetailsModel,
                       ),
                       InterviewFaqPage(
                         crpfid: jobDetailsModel.crpf_id!.toInt(),

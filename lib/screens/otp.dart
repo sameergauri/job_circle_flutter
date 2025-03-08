@@ -8,14 +8,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:job_circle/components/theme_button.dart';
 import 'package:job_circle/constants/customSnackBar.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/api_response.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/Manager/manager_piepline.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
@@ -24,12 +26,13 @@ import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
+import 'package:job_circle/screens/profile/profile_summary_partner.dart';
+import 'package:job_circle/screens/profile/user_profile.dart';
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common/utils.dart';
-import '../service/UserDataService.dart';
 
 class OTPScreen extends ConsumerStatefulWidget {
   const OTPScreen({super.key, this.no});
@@ -69,11 +72,6 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      mobileno = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_mobile.name);
-      setState(() {});
-    });
 
     otpChar1FocusNode = FocusNode();
     //otpChar1FocusNode.requestFocus();
@@ -107,35 +105,29 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
           child: Column(
             children: [
               Image.asset("assets/images/otplogo.png"),
-              const Text(
-                'OTP Verification',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w500,
-                ),
+              const customTextForWeather(
+                title: 'OTP Verification',
+                fontSize: 22,
+                fontWeight: FontWeight.w500,
               ),
               const SizedBox(
                 height: 20,
               ),
-              const Text(
-                'Enter the OTP sent to',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey),
-              ),
+              const customTextForWeather(
+                  title: 'Enter the OTP sent to',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey),
               const SizedBox(
                 height: 4,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "+91 $mobileno",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  customTextForMonst(
+                    title: "+91 ${widget.no}",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                   SizedBox(
                     width: 8.w,
@@ -145,7 +137,9 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                       Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const Login()));
+                              builder: (context) => Login(
+                                    number: int.tryParse(mobileno),
+                                  )));
                     },
                     child: Image.asset(
                       "assets/images/pencil.png",
@@ -163,6 +157,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                   SizedBox(
                     width: 50,
                     child: TextField(
+                      style: GoogleFonts.montserrat(),
                       controller: otpChar1Controller,
                       maxLength: 1,
                       keyboardType: TextInputType.number,
@@ -186,6 +181,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                   SizedBox(
                     width: 50,
                     child: TextField(
+                      style: GoogleFonts.montserrat(),
                       autofocus: true,
                       controller: otpChar2Controller,
                       maxLength: 1,
@@ -213,6 +209,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                   SizedBox(
                     width: 50,
                     child: TextField(
+                      style: GoogleFonts.montserrat(),
                       controller: otpChar3Controller,
                       maxLength: 1,
                       keyboardType: TextInputType.number,
@@ -239,6 +236,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                   SizedBox(
                     width: 50,
                     child: TextField(
+                      style: GoogleFonts.montserrat(),
                       controller: otpChar4Controller,
                       focusNode: otpChar4FocusNode,
                       keyboardType: TextInputType.number,
@@ -273,27 +271,26 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                     resendOtpTimerHide
                         ? Row(
                             children: [
-                              Text(
-                                "Dont recieve the OTP ?",
-                                style: GoogleFonts.varela(color: Colors.grey),
+                              const customTextForWeather(
+                                title: "Dont recieve the OTP ?",
+                                color: Constants.subtitleclr,
                               ),
                               InkWell(
-                                onTap: () {
-                                  saveOTP();
-                                  setState(() {});
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r)),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 12),
-                                  child: Text(
-                                    "Resend OTP",
-                                    style:
-                                        GoogleFonts.varela(color: Colors.red),
-                                  ),
-                                ),
-                              ),
+                                  onTap: () {
+                                    saveOTP();
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r)),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 12),
+                                    child: const customTextForWeather(
+                                      title: "Resend OTP",
+                                      color: Constants.darkBlue,
+                                    ),
+                                  )),
                             ],
                           )
                         : Padding(
@@ -326,11 +323,11 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
               SizedBox(
                 width: 300,
                 child: ThemeButton(
-                  color: Constants.blue,
+                  color: Constants.darkBlue,
                   radious: 8.r,
                   // disabled: vrifyButtonDisabled,
                   onPressed: () async {
-                    await varifyOTP();
+                    await verifyOTP();
                     ref.refresh(
                         fetchAllApplicantProvider); //TODO:: refresh when new user login
                     ref.refresh(fetchAllApplyProvider);
@@ -346,6 +343,8 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                     ref.refresh(fetchAllTalentPoolProvider);
                     ref.refresh(fetchAllTeamData);
                     ref.refresh(fetchAllManagerProvider);
+                    ref.refresh(ProfileDataProvider);
+                    ref.refresh(PartnerProfileData);
                   },
                   text: "Verify & Proceed",
                 ),
@@ -449,7 +448,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
     );
   }
 
-  varifyOTP() async {
+/*   varifyOTP() async {
     SharedPreferences pres = await Utils.getSharedPreferences();
 
     String mobileno = await Utils.getPreferencesValue(
@@ -511,6 +510,132 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
             title: "OTP Verified Successfully", error: false));
       }
     }
+  } */
+
+  Future<void> verifyOTP() async {
+    //TODO:: New function to validate otp...
+    // Fetch mobile number from shared preferences
+    SharedPreferences pres = await Utils.getSharedPreferences();
+    /*  String mobileNumber = await Utils.getPreferencesValue(
+        pres, ESharedPreferences.user_mobile.name); */
+
+    // Combine the OTP from text fields
+    String otp = otpChar1Controller.text +
+        otpChar2Controller.text +
+        otpChar3Controller.text +
+        otpChar4Controller.text;
+
+    // Construct the API URL with query parameters
+    String baseUrl = GlobalConstants.API_Host_one;
+    String endpoint = "/api/otp/v1/validate";
+    Uri url = Uri.http(baseUrl, endpoint, {"mobile": widget.no, "otp": otp});
+
+    try {
+      // Make HTTP GET request
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      var response = await http.post(url, headers: headers);
+
+      // Handle HTTP response
+      if (response.statusCode == 200) {
+        var res = jsonDecode(response.body);
+
+        if (res['resultKey'] == 'SUCCESS') {
+          var data = res['resultData'];
+          var datafinal = res['resultData']['userOtpResponse'];
+
+          if (data.containsKey('msg')) {
+            // Create and save user model
+            CardModel model = CardModel();
+            model.mobile = widget.no;
+            model.cardName = "${datafinal['firstName']}";
+            model.firstName = datafinal['firstName'];
+            model.role = datafinal['role'];
+            // model.cardName = "${datafinal['firstName']} ${data['lastName']}";
+            // model.lastName = datafinal['lastName'];
+            // model.email = datafinal['email'];
+            // model.gender = datafinal['gender'];
+            // model.report_to = datafinal['report_to'];
+            /*   await Utils.setPreference(
+                pres, ESharedPreferences.user_id.name, datafinal['id'] ?? ""); */
+            /* await Utils.setPreference(pres, ESharedPreferences.report_to.name,
+                datafinal['report_to'] ?? ""); */
+            await Utils.setPreference(pres, ESharedPreferences.user_id.name,
+                datafinal['userId'].toString());
+            await Utils.setPreference(pres,
+                ESharedPreferences.user_rawData.name, jsonEncode(datafinal));
+            await Utils.setPreference(
+                pres, ESharedPreferences.role.name, datafinal['role'] ?? 0);
+            await Utils.setPreference(pres, ESharedPreferences.user_type.name,
+                datafinal['usertype'] ?? 0);
+            await Utils.setPreference(pres, ESharedPreferences.user_mobile.name,
+                datafinal['mobile'] ?? 0);
+            await Utils.setPreference(
+                pres, ESharedPreferences.role.name, datafinal['role'] ?? 0);
+            await Utils.setPreference(pres, ESharedPreferences.user_data.name,
+                jsonEncode(model.toJson()));
+            await Utils.setPreference(pres, ESharedPreferences.user_token.name,
+                    data['token'] ?? "")
+                .then((_) {
+              Utils.gotoScreen(context, datafinal, model.mobile);
+              ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
+                  title: "OTP Verified Successfully", error: false));
+            });
+
+            //
+            //
+            //
+            //
+            /*   await Utils.setPreference(pres, ESharedPreferences.user_type.name,
+                int.parse(datafinal['usertype'] ?? ""));
+            await Utils.setPreference(
+                pres, ESharedPreferences.role.name, datafinal['role'] ?? "");
+            await Utils.setPreference(
+                    pres, ESharedPreferences.user_token.name, data['token']) ??
+                "";
+            await Utils.setPreference(pres, ESharedPreferences.user_data.name,
+                jsonEncode(model.toJson()));
+
+            // Navigate to the appropriate screen
+            Utils.gotoScreen(context, datafinal, model.mobile);
+
+            // Show success snackbar
+            ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
+                title: "OTP Verified Successfully", error: false)); */
+            //
+            //
+            //
+            //
+            // Clear OTP fields and show error message
+          } else {
+            // Save user data to shared preferences
+            clearOTPText();
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text("Invalid OTP. Please try again"),
+            ));
+          }
+        } else {
+          // Show error message if resultKey is not SUCCESS
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(res['errorMessage'] ?? "Unknown error occurred"),
+          ));
+        }
+      } else {
+        // Handle HTTP errors
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("HTTP Error: ${response.statusCode}"),
+        ));
+      }
+    } catch (e) {
+      // Handle exceptions
+      print("Error in verifyOTP: $e");
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Something went wrong. Please try again."),
+      ));
+    }
   }
 
   saveOTP() async {
@@ -521,9 +646,16 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
       otpChar1FocusNode.requestFocus();
       timerCountdown = startTimer();
     });
+
+    String baseUrl = GlobalConstants.API_Host_one;
+    String endpoint = "/api/otp/v1/generate";
+    Uri url = Uri.http(baseUrl, endpoint, {
+      "mobile": await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_mobile.name)
+    });
     // setState(() {});
 
-    var result = await UserDataService().authenticate({
+    /* var result = await UserDataService().authenticate({
       "mobile": await Utils.getPreferencesValue(
           null, ESharedPreferences.user_mobile.name)
     });
@@ -531,6 +663,38 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("OTP Resend Successfully"),
       ));
+    } */
+    try {
+      // Headers for the HTTP request
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      // Send the GET request to the API
+      var response = await http.post(url, headers: headers);
+
+      // Handle the API response
+      if (response.statusCode == 200) {
+        // Parse the response body
+        var res = jsonDecode(response.body);
+
+        if (res['resultKey'] == 'SUCCESS') {
+          // Display OTP message if available
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("OTP Resend Successfully"),
+          ));
+        } else {
+          // Handle failure response
+          print("Failed to generate OTP: ${res['errorMessage']}");
+        }
+      } else {
+        // Handle HTTP errors
+        print("HTTP Error: ${response.statusCode}, Body: ${response.body}");
+      }
+    } catch (e) {
+      // Handle exceptions
+      print("Error in generateOTP: $e");
     }
   }
 

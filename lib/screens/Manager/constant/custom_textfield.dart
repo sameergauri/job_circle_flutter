@@ -14,7 +14,7 @@ class CustomStatusManager extends StatefulWidget {
   final TextEditingController? controller;
   BuildContext contextIn;
   final Function(bool) onChanged;
- 
+
   final Function(String) getHrStatusID;
   final void Function(String)? onSubmit;
 
@@ -23,7 +23,6 @@ class CustomStatusManager extends StatefulWidget {
       required this.controller,
       required this.contextIn,
       required this.getHrStatusID,
-   
       required this.onChanged,
       required this.onSubmit});
 
@@ -186,7 +185,6 @@ class _CustomStatusManagerState extends State<CustomStatusManager> {
             setState(() {
               controller!.text = suggestion.value.toString();
               widget.getHrStatusID(suggestion.id.toString());
-             
             });
           },
           noItemsFoundBuilder: (value) {
@@ -197,6 +195,360 @@ class _CustomStatusManagerState extends State<CustomStatusManager> {
             return Text(message);
           },
         ),
+      ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class JobPostingPageAppBarTitle extends StatelessWidget {
+  JobPostingPageAppBarTitle({super.key, this.title});
+  String? title;
+  @override
+  Widget build(BuildContext context) {
+    return customTextForWeather(
+      title: title ?? "Job Posting",
+      fontSize: 16.sp,
+      color: Constants.black,
+      fontWeight: FontWeight.w700,
+    );
+  }
+}
+
+class OnboardingAppBarHeading extends StatelessWidget {
+  const OnboardingAppBarHeading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      children: [
+        customTextForWeather(
+          title: "Welcome to ",
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        ),
+        customTextForWeather(
+          title: "JOB",
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: Constants.darkBlue,
+        ),
+        customTextForWeather(
+          title: "CIRCLE",
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+        )
+      ],
+    );
+  }
+}
+
+class OnboardingAppBarSubTitle extends StatelessWidget {
+  const OnboardingAppBarSubTitle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const customTextForWeather(
+      title: "Start building your professional profile",
+    );
+  }
+}
+
+class OnboardingTitle extends StatelessWidget {
+  final String title;
+  const OnboardingTitle({super.key, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: 5.h, bottom: 5.h),
+      child: customTextForWeather(
+        title: title,
+        fontSize: 18,
+        color: Constants.black,
+        fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+class customText extends StatelessWidget {
+  final String title;
+  final double? fontSize;
+  final Color? color;
+  final FontWeight? fontWeight;
+
+  const customText(
+      {super.key,
+      required this.title,
+      this.fontSize,
+      this.color,
+      this.fontWeight});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: 5.h, bottom: 5.h),
+      child: Text(
+        title,
+        style: GoogleFonts.varela(
+          fontSize: fontSize,
+          color: color,
+          fontWeight: fontWeight,
+          decoration: TextDecoration.none,
+        ),
+      ),
+    );
+  }
+}
+
+class customTextForAll extends StatelessWidget {
+  final String title;
+  final double? fontSize;
+  final Color? color;
+  final FontWeight? fontWeight;
+  final bool? softwrap;
+  final TextAlign? textAlign;
+  final int? maxlines;
+  final FontStyle? fontStyle;
+  final TextOverflow? overflow;
+
+  const customTextForAll(
+      {super.key,
+      required this.title,
+      this.fontSize,
+      this.color,
+      this.fontWeight,
+      this.softwrap,
+      this.textAlign,
+      this.maxlines,
+      this.fontStyle,
+      this.overflow});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      softWrap: softwrap,
+      textAlign: textAlign,
+      maxLines: maxlines,
+      overflow: overflow,
+      style: GoogleFonts.varela(
+        fontSize: fontSize,
+        color: color,
+        fontWeight: fontWeight,
+        decoration: TextDecoration.none,
+        fontStyle: fontStyle,
+      ),
+    );
+  }
+}
+
+class customTextForSignika extends StatelessWidget {
+  final String title;
+  final double? fontSize;
+  final Color? color;
+  final FontWeight? fontWeight;
+  final bool? softwrap;
+  final TextAlign? textAlign;
+  final int? maxlines;
+  final FontStyle? fontStyle;
+  final TextOverflow? overflow;
+
+  const customTextForSignika(
+      {super.key,
+      required this.title,
+      this.fontSize,
+      this.color,
+      this.fontWeight,
+      this.softwrap,
+      this.textAlign,
+      this.maxlines,
+      this.fontStyle,
+      this.overflow});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      softWrap: softwrap,
+      textAlign: textAlign,
+      maxLines: maxlines,
+      overflow: overflow,
+      style: GoogleFonts.signika(
+        fontSize: fontSize,
+        color: color,
+        fontWeight: fontWeight,
+        decoration: TextDecoration.none,
+        fontStyle: fontStyle,
+      ),
+    );
+  }
+}
+
+class customTextForWeather extends StatelessWidget {
+  final String title;
+  final double? fontSize;
+  final Color? color;
+  final FontWeight? fontWeight;
+  final bool? softwrap;
+  final TextAlign? textAlign;
+  final int? maxlines;
+  final FontStyle? fontStyle;
+  final TextOverflow? overflow;
+
+  const customTextForWeather(
+      {required this.title,
+      super.key,
+      this.fontSize,
+      this.color,
+      this.fontWeight,
+      this.softwrap,
+      this.textAlign,
+      this.maxlines,
+      this.fontStyle,
+      this.overflow});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      softWrap: softwrap,
+      textAlign: textAlign,
+      maxLines: maxlines,
+      overflow: overflow,
+      style: GoogleFonts.merriweather(
+        fontSize: fontSize ?? 12,
+        color: color ?? Colors.black,
+        fontWeight: fontWeight,
+        decoration: TextDecoration.none,
+        fontStyle: fontStyle,
+      ),
+    );
+  }
+}
+
+class customTextForMonst extends StatelessWidget {
+  final String title;
+  final double? fontSize;
+  final Color? color;
+  final FontWeight? fontWeight;
+  final bool? softwrap;
+  final TextAlign? textAlign;
+  final int? maxlines;
+  final FontStyle? fontStyle;
+  final TextOverflow? overflow;
+
+  const customTextForMonst(
+      {super.key,
+      required this.title,
+      this.fontSize,
+      this.color,
+      this.fontWeight,
+      this.softwrap,
+      this.textAlign,
+      this.maxlines,
+      this.fontStyle,
+      this.overflow});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      softWrap: softwrap,
+      textAlign: textAlign,
+      maxLines: maxlines,
+      overflow: overflow,
+      style: GoogleFonts.montserrat(
+        fontSize: fontSize ?? 12,
+        color: color ?? Constants.black,
+        fontWeight: fontWeight,
+        decoration: TextDecoration.none,
+        fontStyle: fontStyle,
+      ),
+    );
+  }
+}
+
+class customTextForHind extends StatelessWidget {
+  final String title;
+  final double? fontSize;
+  final Color? color;
+  final FontWeight? fontWeight;
+  final bool? softwrap;
+  final TextAlign? textAlign;
+  final int? maxlines;
+  final FontStyle? fontStyle;
+  final TextOverflow? overflow;
+
+  const customTextForHind(
+      {super.key,
+      required this.title,
+      this.fontSize,
+      this.color,
+      this.fontWeight,
+      this.softwrap,
+      this.textAlign,
+      this.maxlines,
+      this.fontStyle,
+      this.overflow});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      softWrap: softwrap,
+      textAlign: textAlign,
+      maxLines: maxlines,
+      overflow: overflow,
+      style: GoogleFonts.hind(
+        fontSize: fontSize ?? 12,
+        color: color ?? Constants.black,
+        fontWeight: fontWeight,
+        decoration: TextDecoration.none,
+        fontStyle: fontStyle,
+      ),
+    );
+  }
+}
+
+class customTextForRoboto extends StatelessWidget {
+  final String title;
+  final double? fontSize;
+  final Color? color;
+  final FontWeight? fontWeight;
+  final bool? softwrap;
+  final TextAlign? textAlign;
+  final int? maxlines;
+  final FontStyle? fontStyle;
+  final TextOverflow? overflow;
+
+  const customTextForRoboto(
+      {required this.title,
+      super.key,
+      this.fontSize,
+      this.color,
+      this.fontWeight,
+      this.softwrap,
+      this.textAlign,
+      this.maxlines,
+      this.fontStyle,
+      this.overflow});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      softWrap: softwrap,
+      textAlign: textAlign,
+      maxLines: maxlines,
+      overflow: overflow,
+      style: GoogleFonts.roboto(
+        fontSize: fontSize ?? 12,
+        color: color ?? Colors.black,
+        fontWeight: fontWeight,
+        decoration: TextDecoration.none,
+        fontStyle: fontStyle,
       ),
     );
   }

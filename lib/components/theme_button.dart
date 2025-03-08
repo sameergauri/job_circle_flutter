@@ -1,8 +1,8 @@
 // ignore_for_file: use_super_parameters
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 
 class ThemeButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -69,22 +69,19 @@ class ThemeButton extends StatelessWidget {
                   Expanded(
                     flex: 1,
                     child: Center(
-                      child: Text(
-                        text!,
-                        style: GoogleFonts.varela(
-                          color: isText == true ? Colors.black87 : Colors.white,
-                          fontSize: fontsize! > 0
-                              ? fontsize
-                              : (themeButtonSize == ThemeButtonSize.large
-                                  ? 20
-                                  : themeButtonSize == ThemeButtonSize.small
-                                      ? 15
-                                      : themeButtonSize ==
-                                              ThemeButtonSize.xsmall
-                                          ? 11
-                                          : 19),
-                          fontWeight: FontWeight.bold,
-                        ),
+                      child: customTextForWeather(
+                        title: text!,
+                        color: isText == true ? Colors.black87 : Colors.white,
+                        fontSize: fontsize! > 0
+                            ? fontsize
+                            : (themeButtonSize == ThemeButtonSize.large
+                                ? 20
+                                : themeButtonSize == ThemeButtonSize.small
+                                    ? 15
+                                    : themeButtonSize == ThemeButtonSize.xsmall
+                                        ? 11
+                                        : 19),
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

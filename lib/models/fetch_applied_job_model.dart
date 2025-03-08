@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, avoid_print, camel_case_types
 
+import 'package:intl/intl.dart';
+
 class FetchAppliedJobModel {
   String resultKey;
   ResultData resultData;
@@ -289,6 +291,11 @@ class Applicant {
   });
 
   factory Applicant.fromJson(Map<String, dynamic> json) {
+    DateTime? dateTime = json['dateofbirth'] != null
+        ? DateTime.fromMillisecondsSinceEpoch(json['dateofbirth'])
+        : null;
+    String formattedDate =
+        DateFormat('yyyy-MM-dd').format(dateTime ?? DateTime.now());
     return Applicant(
       spocContactNo: json['spoc_contact_no'],
       rid: json['rid'],
@@ -330,7 +337,7 @@ class Applicant {
       companyNameRecent: json['company_name_recent'],
       process: json['process'],
       isExperienced: json['is_experienced'],
-      dateOfBirth: json['dateofbirth'],
+      dateOfBirth: formattedDate,
       jobId: json['jobid'],
       uid: json['uid'],
       userLocation: json['user_location'],
@@ -340,7 +347,9 @@ class Applicant {
       inteviewrounds: _parseSkills(json['inteviewrounds']),
       availabilityPrevious: json['availability_previous'],
       lastWorkingDateRecent: json['last_working_date_recent'],
-      doj: json['doj'] != null ? DateTime.parse(json['doj']) : null,
+      doj: json['doj'] != null
+          ? DateTime.fromMicrosecondsSinceEpoch(json['doj'])
+          : null,
       mode_document: json['mode_document'],
       document_status: json['document_status'],
       short_list_for: json['short_list_for'],
@@ -348,7 +357,9 @@ class Applicant {
       last_name: json['last_name'],
       source_name: json['source_name'],
       company_resumeId: json['z'],
-      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      dol: json['dol'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(json['dol'])
+          : null,
       gender: json['gender'],
       sub_source: json['sub_source'],
       apply_feedback1: json['apply_feedback1'],
@@ -406,7 +417,7 @@ class Applicant {
       spoc_name: json['spoc_name'],
       official_no: json['official_no'],
       report_to_official_no: json['report_to_official_no'],
-      client_resume_id:json['client_resume_id'],
+      client_resume_id: json['client_resume_id'],
     );
   }
 

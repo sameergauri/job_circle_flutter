@@ -7,26 +7,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/profile/profile_summary.dart';
-import 'package:job_circle/screens/profile/screen3.dart';
+import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/profile/user_profile.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 
 import '../../constants/gobal.dart';
 import '../../models/autocompleteCheckBoxModel.dart';
-import '../../models/profileSummary.dart';
 import '../../themes/colors.dart';
 
 class LanguageMulti extends ConsumerStatefulWidget {
-  final ProfileSummaryModel? prevPageModel;
-  final List<dynamic>? languageList;
-  final bool isFirst;
+  final List<String> languageList;
+  final int userid;
 
   // final bool? expirieanceFlag;
   // final List<Experience> experienceList;
 
   const LanguageMulti(
-      {Key? key, this.prevPageModel, this.languageList, required this.isFirst})
+      {Key? key, required this.languageList, required this.userid})
       : super(key: key);
   @override
   ConsumerState<LanguageMulti> createState() => _LanguageMultiState();
@@ -34,7 +32,7 @@ class LanguageMulti extends ConsumerStatefulWidget {
 
 class _LanguageMultiState extends ConsumerState<LanguageMulti> {
   late Widget previousWidget;
-
+  bool isLoading = false;
   late TextEditingController LanguageController = TextEditingController();
   List<dynamic> fetchApiLanguages = [];
   List<dynamic> selectedValuesList = [];
@@ -46,18 +44,19 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
 
   @override
   void callApiFunction() async {
+    setState(() {
+      isLoading = true;
+    });
     await getJobTitle(
       "",
     );
     LanguageController = TextEditingController();
-    if (widget.prevPageModel != null &&
-        widget.prevPageModel!.languages != null) {
-      selectedlist = widget.prevPageModel!.languages!.toSet().toList();
-      suggestions.removeWhere((suggestion) =>
-          widget.prevPageModel!.languages!.contains(suggestion));
-      expID = widget.prevPageModel!.id;
+    if (widget.languageList.isNotEmpty) {
+      selectedlist = widget.languageList.toSet().toList();
+      suggestions.removeWhere(
+          (suggestion) => widget.languageList.contains(suggestion));
     }
-    for (dynamic language in widget.languageList!) {
+    for (dynamic language in widget.languageList) {
       if (language != null) {
         selectedValues.addAll(language);
       }
@@ -72,12 +71,7 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
     callApiFunction();
   }
 
-  @override
-  void dispose() {
-    LanguageController.dispose();
-    super.dispose();
-  }
-
+ 
   /* void initState() {
     super.initState();
     LanguageController = TextEditingController();
@@ -94,31 +88,8 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
     });
   }
 
-  static Future<void> updateLanguages(
-      Map<String, dynamic> jsonData, int id) async {
-    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/$id/languges';
-
-    try {
-      var response = await http.put(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(jsonData),
-      );
-
-      if (response.statusCode == 200) {
-        // Successful request
-        // print('Data posted successfully');
-      } else {
-        // Request failed
-        // print('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      // print('Error: $e');
-    }
-  }
-
   List<dynamic> suggestions = [];
-  List<dynamic> selectedlist = [];
+  List<String> selectedlist = [];
   Future<List<dynamic>> getJobTitle(
     String pattern,
   ) async {
@@ -139,7 +110,9 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
           if (!uniqueValues.contains(value)) {
             uniqueValues.add(value);
             suggestions.add(value);
-            setState(() {});
+            setState(() {
+              isLoading = false;
+            });
           }
         }
       }
@@ -194,104 +167,22 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
   }
 
   void save() async {
-    if (selectedlist.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(customSnackbar("Add atleast one language.", true));
-      /* showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.0),
-            ),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    "Error",
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                    ),
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text("Add atleast one language"),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      ); */
+    ProfileUpdateRequestDto profileUpdateRequestDto =
+        ProfileUpdateRequestDto(id: widget.userid, languages: selectedlist);
 
-      print("Add atleast one language");
-      /* ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: SnackBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        content: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Row(
-            children: const [
-              Icon(
-                Icons.error_outline_outlined,
-                color: Colors.red,
-                size: 15.0, // Adjust the size to your preference
-              ),
-              SizedBox(width: 8.0),
-              Text(
-                "Add atleast one languages",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.0,
-                ),
-              ),
-            ],
-          ),
-        ),
-        duration: const Duration(seconds: 3),
-      ))); */
-    } else {
-      List<dynamic> languages = selectedlist;
-      var useID = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_id.name);
+    UserUpdateRequestModel userUpdateRequestModel = UserUpdateRequestModel(
+        certificationsRequestDtos: null,
+        educationRequestDtos: null,
+        experienceRequestDtos: null,
+        profileUpdateRequestDto: profileUpdateRequestDto);
 
-      ProfileSummaryModel model = ProfileSummaryModel(
-        id: expID,
-        languages: languages,
-      );
-      Map<String, dynamic> jsonData = model.toJson();
-      await updateLanguages(jsonData, useID!);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          customSnackbar("Your Language has been updated.", false));
-      if (widget.prevPageModel == null) {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Screen3(
-                      isFirst: false,
-                    )));
-      } else {
-        ref.refresh(userDataProvider);
-        Navigator.pop(context);
-      }
-    }
+    await JobPostApiService.PostUserInfo(
+      userUpdateRequestModel,
+    );
+    ref.refresh(ProfileDataProvider);
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context)
+        .showSnackBar(customSnackbar("Your Language has been updated.", false));
   }
 
   @override
@@ -331,29 +222,12 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
       ),
       backgroundColor: Colors.white,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        automaticallyImplyLeading: true,
+        backgroundColor: Constants.borderColor,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Edit Languages",
-              style: GoogleFonts.varela(
-                fontSize: 18.sp,
-                color: Constants.themeBgColor,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              "Let recruiter know your value as a potential candidate",
-              style: GoogleFonts.varela(
-                  color: Colors.grey.shade600,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.normal),
-            )
-          ],
+        title: const OnboardingTitle(
+          title: "Edit Languages",
         ),
       ),
       body: SingleChildScrollView(
@@ -361,7 +235,7 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
           padding: EdgeInsets.only(
             left: 20.w,
             right: 20.w,
-            top: 5,
+            top: 10.h,
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -370,7 +244,7 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
                   icon: const Icon(
                     Icons.lightbulb_outline,
                   ),
-                  hint: "English",
+                  hint: "Type for search",
                   label: "Language",
                   focusNode: FocusNode(),
                   controller: LanguageController),
@@ -404,9 +278,9 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
                           },
                           child: Container(
                             margin: const EdgeInsets.only(
-                                bottom: 2, top: 2, left: 2, right: 2),
+                                bottom: 2, left: 2, right: 2),
                             decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
+                                color: Constants.borderColor,
                                 borderRadius: BorderRadius.circular(8.r)),
                             padding: EdgeInsets.symmetric(
                                 vertical: 6.h, horizontal: 10.w),
@@ -421,54 +295,81 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
                     const Divider(thickness: 0.8),
                   ],
                 ),
-              if (suggestions.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Suggestions",
-                      style: GoogleFonts.varela(
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.sp,
-                          color: Constants.themeBgColor),
-                    ),
-                    SizedBox(
-                      height: 5.h,
-                    ),
-                    Wrap(
-                      children: suggestions.map((suggestion) {
-                        return InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (!selectedlist.contains(suggestion)) {
-                                selectedlist.add(suggestion);
-                                suggestions.remove(suggestion);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        '$suggestion Already added in the list.'),
-                                  ),
-                                );
-                              }
-                            });
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.only(
-                                bottom: 2, top: 2, left: 2, right: 2),
-                            decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(8.r)),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 6.h, horizontal: 10.w),
-                            child: Text(suggestion.toString()),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Suggestions",
+                    style: GoogleFonts.varela(
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12.sp,
+                        color: Constants.black),
+                  ),
+                  SizedBox(
+                    height: 5.h,
+                  ),
+                  isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Constants.themeBgColor,
                           ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
+                        )
+                      : Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.only(
+                            top: 10.h,
+                            bottom: 40.h,
+                            left: 10.w,
+                          ),
+                          decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.shade300,
+                                    blurRadius: 2.1,
+                                    spreadRadius: 3.2,
+                                    offset: const Offset(4.0, 8.0))
+                              ],
+                              borderRadius: BorderRadius.circular(8.r)),
+                          child: Wrap(
+                            children: suggestions.map((suggestion) {
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    if (!selectedlist.contains(suggestion)) {
+                                      selectedlist.add(suggestion);
+                                      suggestions.remove(suggestion);
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                              '$suggestion Already added in the list.'),
+                                        ),
+                                      );
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(
+                                      bottom: 6, top: 2, left: 6, right: 2),
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8.r)),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 6.h, horizontal: 10.w),
+                                  child: Text(suggestion.toString(),
+                                      style: GoogleFonts.varela(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.grey.shade500)),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                ],
+              ),
               const SizedBox(height: 20),
             ],
           ),
@@ -576,28 +477,23 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
               // Otherwise, filter suggestions based on user input
               suggestions.clear();
               getJobTitle(controller.text);
-              setState(() {});
+              setState(() {
+                isLoading = true;
+              });
             }
           });
         },
         onTap: (() {}),
-        style: GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+        style: GoogleFonts.varela(color: Constants.black, fontSize: 12.sp),
         decoration: InputDecoration(
             /*  filled: isPrimaryNumber! ? true : false,
             fillColor:
                 isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent, */
-            prefixIcon: icon,
+
             prefixIconColor: Constants.themeBgColor,
-            suffix: isOptional != null && isOptional
-                ? const Text("(Optional)")
-                : const SizedBox(),
             contentPadding:
                 const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
             counterText: '',
-            labelText: label,
-            labelStyle: const TextStyle(
-              color: Constants.themeBgColor,
-            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
               borderSide: const BorderSide(color: Color(0xffff0eceb)),
@@ -606,12 +502,12 @@ class _LanguageMultiState extends ConsumerState<LanguageMulti> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
               borderSide: const BorderSide(
-                color: Constants.themeBgColor,
+                color: Constants.black,
               ),
             ),
             hintText: hint,
             hintStyle: GoogleFonts.sourceSansPro(
-                color: Constants.hintColor, fontSize: 15.sp)),
+                color: Constants.hintColor, fontSize: 12.sp)),
       ),
     );
   }

@@ -15,26 +15,23 @@ class FileUploadService extends ServiceBase {
   }
 
   Future<void> deleteSingleFile(String filename) async {
+    const String baseUrl =
+        "http://${GlobalConstants.API_Host}/api/files/v1/multiUpload";
+    final String encodedFileName =
+        Uri.encodeComponent(filename); // Encode file name
+    final Uri url = Uri.parse("$baseUrl?fileName=%22$encodedFileName%22");
+
     try {
-      final response = await http.delete(
-        Uri.parse(
-            "http://${GlobalConstants.API_Host}/files/v1/delete?fileName=$filename"), // Provide the API endpoint URL for deleting the image
-        headers: {
-          // Add any required headers (e.g., authorization headers) here
-          'Authorization': 'Bearer YourAccessToken',
-        },
-      );
+      final response = await http.delete(url);
 
       if (response.statusCode == 200) {
-        // Image deletion successful
-        print('Image deleted successfully');
+        print("File deleted successfully");
       } else {
-        // Image deletion failed
-        print('Failed to delete image. Status code: ${response.statusCode}');
+        print(
+            "Failed to delete file: ${response.statusCode}, ${response.body}");
       }
     } catch (e) {
-      // Handle any network or API-related errors here
-      print('Error deleting image: $e');
+      print("Error deleting file: $e");
     }
   }
 }

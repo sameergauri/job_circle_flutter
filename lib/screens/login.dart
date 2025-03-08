@@ -1,21 +1,25 @@
 // ignore_for_file: prefer_final_fields, use_build_context_synchronously, unused_element, use_full_hex_values_for_flutter_colors
 // ignore_for_file: todo
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:job_circle/common/app_utils.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/bottom_dialog.dart';
 import 'package:job_circle/components/theme_button.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/otp.dart';
 import 'package:job_circle/themes/colors.dart';
 
-import '../common/utils.dart';
-import '../service/UserDataService.dart';
-
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final int? number;
+  const Login({this.number, super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -58,6 +62,12 @@ class _LoginState extends State<Login> {
   void initState() {
     super.initState();
 
+    if (widget.number != null) {
+      setState(() {
+        otpcontroller.text = widget.number.toString();
+      });
+    }
+
     // if (!kIsWeb && Platform.isAndroid) {
     //   MobileNumber.listenPhonePermission((isPermissionGranted) {
     //     if (isPermissionGranted) {
@@ -79,148 +89,148 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Stack(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Column(
-            children: [
-              Container(
-                height: 160.0,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(60),
-                      bottomRight: Radius.circular(60)),
-                  color:
-                      Colors.white, ////TODO: logo background container color.
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.white,
-                        spreadRadius:
-                            3), //TODO: Border color of ogin page of background container.
+          Container(
+              margin:
+                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 8),
+              width: MediaQuery.of(context).size.width / 1.8,
+              color: Colors.white,
+              child: Image.asset(
+                "assets/images/jclogo.png",
+                fit: BoxFit.cover,
+              )),
+          /*   Container(
+            height: 160.0,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(60),
+                  bottomRight: Radius.circular(60)),
+              color:
+                  Colors.white, ////TODO: logo background container color.
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.white,
+                    spreadRadius:
+                        3), //TODO: Border color of ogin page of background container.
+              ],
+            ),
+          ), */
+          /*  Container(
+            margin: EdgeInsets.only(top: 180.h),
+            // height: .h,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(60),
+                  bottomRight: Radius.circular(60)),
+              color: Colors.transparent,
+              boxShadow: [
+                BoxShadow(color: Colors.transparent, spreadRadius: 3),
+              ],
+            ),
+          ),
+          RichText(
+            text: TextSpan(
+                text: "JOB",
+                style: GoogleFonts.signika(
+                  fontSize: 40,
+                  color: Constants.blue,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.none,
+                ),
+                children: <TextSpan>[
+                  TextSpan(
+                    text: "CIRCLE",
+                    style: GoogleFonts.signika(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                      decoration: TextDecoration.none,
+                    ),
+                  )
+                ]),
+          ), */
+          GestureDetector(
+            onTap: (() => Future.delayed(Duration.zero, () {
+                  BottomDialog().showBottomDialog(
+                      context, _buildDialogContent(context), false);
+                })),
+            child: const Text(
+              "",
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.none,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: SizedBox(
+                height: 100,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const customTextForWeather(
+                            title: 'Made in',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Constants.black),
+                        const SizedBox(
+                          width: 7,
+                        ),
+                        Image.asset(
+                          "./assets/images/india.png",
+                          height: 22,
+                        ),
+                        const SizedBox(
+                          width: 7,
+                        ),
+                        const customTextForWeather(
+                            title: 'with',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Constants.black),
+                        const SizedBox(
+                          width: 7,
+                        ),
+                        Image.asset(
+                          "./assets/images/heart.png",
+                          height: 22,
+                          //color: Constants.blue,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const customTextForMonst(
+                        title: '@ All rights reserved - 2025-26',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        color: Constants.black),
+
+                    // TextButton(
+                    //     onPressed: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) =>
+                    //                   const MasterOfMasterView()));
+                    //     },
+                    //     child: const Text('Opem Moms Page'))
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 120,
-              ),
-              GestureDetector(
-                onTap: (() => Future.delayed(Duration.zero, () {
-                      BottomDialog().showBottomDialog(
-                          context, _buildDialogContent(context), false);
-                    })),
-                child: const Text(
-                  "",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.none,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: SizedBox(
-                    height: 100,
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'MADE IN ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  decoration: TextDecoration.none,
-                                  color: Colors.black87),
-                            ),
-                            const SizedBox(
-                              width: 7,
-                            ),
-                            Image.asset(
-                              "./assets/images/india.png",
-                              height: 22,
-                            ),
-                            const SizedBox(
-                              width: 7,
-                            ),
-                            const Text(
-                              ' WITH ',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  decoration: TextDecoration.none,
-                                  color: Colors.black87),
-                            ),
-                            const SizedBox(
-                              width: 7,
-                            ),
-                            Image.asset(
-                              "./assets/images/heart.png",
-                              height: 22,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          '@ All rights reserved - 2022-23',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                              decoration: TextDecoration.none,
-                              color: Colors.black54),
-                        ),
-                        // TextButton(
-                        //     onPressed: () {
-                        //       Navigator.push(
-                        //           context,
-                        //           MaterialPageRoute(
-                        //               builder: (context) =>
-                        //                   const MasterOfMasterView()));
-                        //     },
-                        //     child: const Text('Opem Moms Page'))
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              Positioned(
-                top: 110,
-                height: 170,
-                child: Container(
-                  height: 170,
-                  width: 170,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(100)),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                          offset: Offset(0, -6),
-                          color: Color(0xffce3538),
-                          spreadRadius: 2,
-                          blurStyle: BlurStyle.inner,
-                          blurRadius: 10),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Image.asset(
-                      "assets/images/job-logo.png",
-                      height: 100,
-                      width: 100,
-                    ),
-                  ),
-                ),
-              )
-            ],
+            ),
           ),
         ],
       ),
@@ -272,43 +282,40 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildContinueText() {
-    return const Text(
-      'Enter Mobile Number',
-      style: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-      ),
+    return const customTextForWeather(
+      title: 'Enter Mobile Number',
+      fontSize: 22,
+      fontWeight: FontWeight.w600,
     );
   }
 
   Widget _buildEmapleText() {
-    return const Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'We will send you the ',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
+    return const Expanded(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          customTextForWeather(
+            title: 'We will send you the ',
+            fontSize: 15,
+            color: Constants.subtitleclr,
             fontWeight: FontWeight.w500,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        Text(
-          ' 4 digit ',
-          style: TextStyle(
-            fontSize: 16,
+          customTextForSignika(
+            title: '4 digit ',
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            overflow: TextOverflow.ellipsis,
+          ),
+          customTextForWeather(
+            title: 'verification code',
+            color: Constants.subtitleclr,
+            fontSize: 15,
             fontWeight: FontWeight.w500,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        Text(
-          'verification code',
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -418,7 +425,8 @@ class _LoginState extends State<Login> {
               border: OutlineInputBorder(),
               hintText: 'Enter your mobile number',
             ), */
-            style: GoogleFonts.varela(),
+            style: GoogleFonts.montserrat(
+                color: Constants.black, fontWeight: FontWeight.w500),
             decoration: InputDecoration(
                 counterText: '',
                 contentPadding: const EdgeInsets.only(
@@ -428,11 +436,10 @@ class _LoginState extends State<Login> {
                 // Icons.workspace_premium
                 // label: const Text("Company Name *"),
                 //border: OutlineInputBorder(),
-                prefix: Text(
-                  "+91 ",
-                  style: GoogleFonts.varela(
-                    color: Colors.grey,
-                  ),
+                prefix: const customTextForMonst(
+                  title: "+91 ",
+                  color: Constants.subtitleclr,
+                  fontSize: 14,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -455,23 +462,23 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 labelText: "Mobile",
-                labelStyle: const TextStyle(
-                  color: Colors.grey,
+                labelStyle: GoogleFonts.montserrat(
+                  color: Constants.subtitleclr,
                 ),
                 hintText: '865156****',
-                hintStyle: GoogleFonts.sourceSansPro(
-                    color: Constants.subtitleclr, fontSize: 15.sp)
+                hintStyle: GoogleFonts.montserrat(
+                    color: Constants.subtitleclr, fontSize: 15)
                 //  prefixIcon: Icon(Icons.list)
                 ),
           ),
         ),
         const SizedBox(height: 20),
         ThemeButton(
-          color: Constants.blue,
+          color: Constants.darkBlue,
           radious: 8.r,
           text: "Get OTP",
           onPressed: () {
-            saveOTP(otpcontroller.text);
+            generateOTP(otpcontroller.text);
 
             // setState(() {
             //   isManual = true;
@@ -485,7 +492,7 @@ class _LoginState extends State<Login> {
     );
   }
 
-  saveOTP(String no) async {
+  /* saveOTP(String no) async {
     bool validate = _formKey2.currentState!.validate();
     if (!validate) {
       return;
@@ -531,5 +538,151 @@ class _LoginState extends State<Login> {
       // Navigator.pushNamedAndRemoveUntil(
       //     context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
     }
+  } */
+
+  Future<void> generateOTP(String mobileNumber) async {
+    //TODO:: New function to generate otp....
+    // Construct the API URL
+    String baseUrl = GlobalConstants.API_Host_one;
+    String endpoint = "/api/otp/v1/generate";
+    Uri url = Uri.http(baseUrl, endpoint, {"mobile": mobileNumber});
+
+    try {
+      // Headers for the HTTP request
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      // Send the GET request to the API
+      var response = await http.post(url, headers: headers);
+
+      // Handle the API response
+      if (response.statusCode == 200) {
+        // Parse the response body
+        var res = jsonDecode(response.body);
+
+        if (res['resultKey'] == 'SUCCESS') {
+          var otp = res['resultData']['userOtpResponse']['otp'];
+          print("OTP:$otp");
+          // Display OTP message if avail17able
+          await Utils.setPreference(
+              null, ESharedPreferences.user_mobile.name, mobileNumber);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OTPScreen(no: mobileNumber),
+            ),
+          );
+        } else {
+          // Handle failure response
+          print("Failed to generate OTP: ${res['errorMessage']}");
+          showAlert(context, "Error",
+              res['errorMessage'] ?? "Unknown error occurred");
+        }
+      } else {
+        // Handle HTTP errors
+        print("HTTP Error: ${response.statusCode}, Body: ${response.body}");
+        showAlert(
+            context, "Error", "Failed to generate OTP. Please try again.");
+      }
+    } catch (e) {
+      // Handle exceptions
+      print("Error in generateOTP: $e");
+      showAlert(context, "Error", "Something went wrong. Please try again.");
+    }
+  }
+
+  /* Future<void> generateAndHandleOTP(String mobileNumber) async {
+    // Validate form inputs
+    bool validate = _formKey2.currentState!.validate();
+    if (!validate) {
+      print("Form validation failed");
+      return;
+    }
+
+    // API Call to generate OTP
+    try {
+      var result =
+          await UserDataService().authenticate({"mobile": mobileNumber});
+      var res = Utils.parseResponse(result);
+
+      if (res.resultKey == 'SUCCESS') {
+        // Handle response with val == 0 (e.g., alert user)
+        if (res.resultData['val'] == 0) {
+          showOTPAlert(context, res.resultData['otpmsg']);
+        }
+        // Handle response with val == 1 (e.g., new user flow)
+        else if (res.resultData['val'] == 1) {
+          await Utils.setPreference(
+              null, ESharedPreferences.user_mobile.name, mobileNumber);
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OTPScreen(no: mobileNumber),
+            ),
+          );
+        }
+        // Handle unexpected val values
+        else {
+          print("Unexpected value for 'val': ${res.resultData['val']}");
+          showAlert(context, "Error", "Unexpected server response.");
+        }
+      }
+      // Handle API response failure
+      else {
+        showAlert(
+            context, "Error", "Failed to generate OTP: ${res.errorMessage}");
+      }
+    } catch (e) {
+      print("Error while generating OTP: $e");
+      showAlert(context, "Error", "Something went wrong. Please try again.");
+    }
+  } */
+
+  void showOTPAlert(BuildContext context, String message) {
+    Widget continueButton = TextButton(
+      child: const Text("Ok"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: const Text("!!Alert!!"),
+      content: Text(message),
+      actions: [continueButton],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void showAlert(BuildContext context, String title, String message) {
+    Widget closeButton = TextButton(
+      child: const Text("Close"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [closeButton],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }

@@ -2,37 +2,42 @@
 // ignore_for_file: todo
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
-import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/constants/customTextfield.dart';
+import 'package:job_circle/constants/custom_textfield_for_jobLocation.dart';
+import 'package:job_circle/constants/customwidget_upload_file.dart';
+import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/models/autocompleteCheckBoxModel.dart';
 import 'package:job_circle/models/autocompleteModel.dart';
 import 'package:job_circle/models/card_model.dart';
-import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_container_for_gender.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-
+import 'package:job_circle/screens/new_jobs/profile_model.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
-import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/screens/profile/user_profile.dart';
+import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../components/autolistviewmodal.dart';
 import '../../constants/customSelection.dart';
-import '../../constants/customTextfield.dart';
 import '../../constants/gobal.dart';
-import '../../models/api_response.dart';
-import '../../service/FileUploadService.dart';
 import '../../service/job_post_api_service.dart';
 
 class Screen1 extends ConsumerStatefulWidget {
@@ -41,11 +46,15 @@ class Screen1 extends ConsumerStatefulWidget {
       this.prevPageModel,
       required this.isbio,
       required this.isfirst,
+      required this.userid,
+      required this.profileskill,
       this.primaryNumberValue});
   final bool isbio;
-  late ProfileSummaryModel? prevPageModel;
+  late ProfileModel? prevPageModel;
   final bool isfirst;
   final String? primaryNumberValue;
+  final int userid;
+  final List<String> profileskill;
   // Pr ofileSummaryModel profilemodel;
   @override
   ConsumerState<Screen1> createState() => _Screen1State();
@@ -53,6 +62,8 @@ class Screen1 extends ConsumerStatefulWidget {
 
 class _Screen1State extends ConsumerState<Screen1> {
   late Widget previousWidget;
+
+  bool isLoading = false;
 
   // Veriable Declaration
   // DropdownModel ddlModel;
@@ -70,7 +81,7 @@ class _Screen1State extends ConsumerState<Screen1> {
   TextEditingController skillsController = TextEditingController();
   TextEditingController localityController = TextEditingController();
   TextEditingController primaryNumber = TextEditingController();
-  TextEditingController secondaryNumber = TextEditingController();
+  TextEditingController alternateNumber = TextEditingController();
   TextEditingController otpChar1Controller = TextEditingController();
   TextEditingController otpChar2Controller = TextEditingController();
   TextEditingController otpChar3Controller = TextEditingController();
@@ -132,7 +143,7 @@ class _Screen1State extends ConsumerState<Screen1> {
   late bool resendOtpTimerHide = false;
   bool isPresent = false;
   String vaccination = "";
-  bool vaccination_certificate = false;
+  String? vaccination_certificate;
 
   // focus node;
 
@@ -152,7 +163,6 @@ class _Screen1State extends ConsumerState<Screen1> {
   Timer? timerCountdown;
 
   // Ticker object to handle the countdown timer
-  late Ticker ticker;
 
   String get timerText =>
       '${(currentSeconds ~/ 60).toString().padLeft(2, '0')}: ${(currentSeconds % 60).toString().padLeft(2, '0')}';
@@ -177,6 +187,17 @@ class _Screen1State extends ConsumerState<Screen1> {
     });
   }
 
+  String removeDuplicates(String input) {
+    // Split the string into a list of locations
+    List<String> locations = input.split(', ');
+
+    // Remove duplicates by converting to a Set and back to a List
+    List<String> uniqueLocations = locations.toSet().toList();
+
+    // Join the list back into a string
+    return uniqueLocations.join(', ');
+  }
+
   Future<List> getJobTitle(String pattern, String? name) async {
     final response = await http.get(Uri.parse(
         'http://${GlobalConstants.API_Host}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=100'));
@@ -197,135 +218,100 @@ class _Screen1State extends ConsumerState<Screen1> {
     }
   }
 
-  @override
-  void dispose() {
-    // Cancel the countdown timer when the widget is disposed
-    ticker.dispose();
-    super.dispose();
+  List<dynamic> suggestions = [];
+  List<String> selectedlist = [];
+
+  Future<List<dynamic>> getJobTitleLanguage(
+    String pattern,
+  ) async {
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=language&pageNumber=1&pageSize=100'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      // List<JobTitleModel1> suggestions = [];
+      Set<String> uniqueValues = {};
+
+      List<dynamic> content = data['resultData']['content'];
+
+      for (var entry in content) {
+        String? value = entry['value']?.toString();
+        if (value != null &&
+            value.toLowerCase().startsWith(pattern.toLowerCase())) {
+          if (!uniqueValues.contains(value)) {
+            uniqueValues.add(value);
+            suggestions.add(value);
+            setState(() {});
+          }
+        }
+      }
+
+      return suggestions;
+    } else {
+      throw Exception('Failed to retrieve suggestions');
+    }
   }
 
+  @override
   DateTime lastDate = DateTime.now().subtract(const Duration(days: 365 * 35));
   DateTime firstDate = DateTime.now().subtract(const Duration(days: 365 * 18));
 
   String? displayName;
 
+  String formatLocality(String locality) {
+    // Split the string by comma
+    List<String> parts = locality.split(',');
+
+    if (parts.length >= 2) {
+      // Trim any leading or trailing spaces/tabs from both parts
+      String part1 = parts[0].trim();
+      String part2 = parts[1].trim();
+
+      // Combine the parts with a single space after the comma
+      return '$part1, $part2';
+    }
+
+    // If there's no comma, return the original string
+    return locality;
+  }
+
   @override
   void initState() {
     super.initState();
+    getJobTitleLanguage("");
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // primaryNumber = await Utils.getPreferencesValue(
-      //     null, ESharedPreferences.user_mobile.name);
-
       setState(() {
-        primaryNumber.text = widget.isfirst
-            ? widget.primaryNumberValue.toString()
-            : primaryNumber.text;
+        primaryNumber.text =
+            widget.primaryNumberValue!.toString().replaceAll('"', '');
       });
     });
-    if (widget.isbio) {
-      aboutmefocus.requestFocus();
-    }
-
-    primaryNumberFocus.addListener(() {
-      if (!primaryNumberFocus.hasFocus) {
-        // The user left the text field; perform your specific operation here
-        //performSpecificOperation();
-      }
-    });
-
-    otpChar1FocusNode = FocusNode();
-    //otpChar1FocusNode.requestFocus();
-    otpChar2FocusNode = FocusNode();
-    otpChar3FocusNode = FocusNode();
-    otpChar4FocusNode = FocusNode();
-
-    otpChar1Controller = TextEditingController();
-    otpChar2Controller = TextEditingController();
-    otpChar3Controller = TextEditingController();
-    otpChar4Controller = TextEditingController();
-    // startTimer();
-
-    ticker = Ticker((_) => updateTimerDisplay());
 
     bindLocation();
-    //dateOfBirth.text = DateFormat('dd-MM-yyyy').format(DateTime.now());
-
-    //dt = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-
-    industryFocus.requestFocus();
     getJobTitle("pattern", "language").then((_) {
       isSelected = List<bool>.filled(jobTitleSuggestion.length, false);
       setState(() {});
     });
 
-    setState(() {
-      isFirstName = true;
-    });
-    setState(() {
-      isMiddleName = true;
-    });
-    setState(() {
-      isLastName = true;
-    });
-    setState(() {
-      isPrimaryNumberVerified = true;
-    });
-    setState(() {
-      isSecondaryNumber = true;
-    });
-    setState(() {
-      isEmail = true;
-    });
-
     if (widget.prevPageModel != null) {
       setState(() {
-        isNumberOfOpenings = true;
-
-        firstName.text = widget.prevPageModel!.first_name.toString();
-        setState(() {
-          userID = widget.prevPageModel!.id;
-        });
-        middleName.text = widget.prevPageModel!.middle_name.toString();
-        lastName.text = widget.prevPageModel!.last_name.toString();
-        vaccination = widget.prevPageModel!.vaccination_certificate.toString();
-        resideAt =
-            "${widget.prevPageModel!.user_locality.toString()}, ${widget.prevPageModel!.user_location.toString()}";
-        /*  selectedLocation = widget.prevPageModel?.user_location == null
-            ? AutoCompleteModel("", "", {})
-            : AutoCompleteModel(
-                widget.prevPageModel!.user_location.toString(), "", {});
-        jobLocationController.text = widget.prevPageModel?.user_location == null
-            ? ''
-            : widget.prevPageModel!.user_location.toString(); */
-        if (widget.prevPageModel!.user_location != null) {
-          localityController.text =
-              "${widget.prevPageModel!.user_locality.toString()}, ${widget.prevPageModel!.user_location.toString()}";
+        userID = widget.prevPageModel!.id;
+        firstName.text = widget.prevPageModel!.firstName.toString();
+        middleName.text = widget.prevPageModel!.middleName != " "
+            ? widget.prevPageModel!.middleName.toString()
+            : "";
+        lastName.text = widget.prevPageModel!.lastName.toString();
+        if (widget.prevPageModel!.alternateNo != null &&
+            widget.prevPageModel!.alternateNo != "" &&
+            widget.prevPageModel!.alternateNo != " " &&
+            widget.prevPageModel!.alternateNo != 1 &&
+            widget.prevPageModel!.alternateNo != 0) {
+          alternateNumber.text = widget.prevPageModel!.alternateNo.toString();
         }
-        cityname = widget.prevPageModel!.user_location.toString();
-        Localityfinal = widget.prevPageModel!.user_locality.toString();
-        data = widget.prevPageModel!.vaccination_certificate.toString();
-        displayName =
-            "${widget.prevPageModel!.user_locality.toString()},${widget.prevPageModel!.user_location.toString()}";
-
-        locationController.text = displayName.toString();
-        setState(() {
-          isLocality = true;
-        });
-
-        setState(() {
-          isCity = true;
-        });
-
-        emailadr.text = widget.prevPageModel!.email.toString();
-        primaryNumber.text = widget.prevPageModel!.mobile.toString();
-        if (widget.prevPageModel!.alternate_no != null &&
-            widget.prevPageModel!.alternate_no != 0) {
-          secondaryNumber.text = widget.prevPageModel!.alternate_no.toString();
+        if (widget.prevPageModel!.gmail != null &&
+            widget.prevPageModel!.gmail != "null" &&
+            widget.prevPageModel!.gmail != "") {
+          emailadr.text = widget.prevPageModel!.gmail.toString();
         }
-        if (widget.prevPageModel!.bio != null) {
-          bio.text = widget.prevPageModel!.bio.toString();
-        }
-
         if (widget.prevPageModel!.gender == "Male") {
           setState(() {
             ismale = true;
@@ -339,33 +325,51 @@ class _Screen1State extends ConsumerState<Screen1> {
             istranse = true;
           });
         }
-
-        if (widget.prevPageModel!.martial_status == "Single") {
-          single = true;
-        } else if (widget.prevPageModel!.martial_status == "Married") {
-          married = true;
-        } else if (widget.prevPageModel!.martial_status == "Divorced") {
-          divorced = true;
-        } else if (widget.prevPageModel!.martial_status == "Widowed") {
-          widowed = true;
-        } else if (widget.prevPageModel!.martial_status == "Separated") {
-          separated = true;
+        //
+        //TODO:: Date of birth
+        var dob = widget.prevPageModel!.dob;
+        dob = dob!.replaceAll(RegExp(r'(st|nd|rd|th)'), '');
+        DateFormat inputFormat = DateFormat("dd MMMM yyyy");
+        DateFormat outputFormat = DateFormat("dd-MM-yyyy");
+        DateTime date = inputFormat.parse(dob);
+        String formattedDate = outputFormat.format(date);
+        dataOfBirthValue = date;
+        dateOfBirth.text = formattedDate;
+        //
+        //TODO:: Location
+        List<String> dataList =
+            widget.prevPageModel!.userFullLocation!.split(", ");
+        resideAt =
+            formatLocality(widget.prevPageModel!.userLocality.toString());
+        locationController.text = removeDuplicates(resideAt.toString());
+        Localityfinal = resideAt.toString();
+        cityname = resideAt!.split(',').last;
+        //
+        //TODO:: Pin code
+        if (widget.prevPageModel!.pinCode != null &&
+            widget.prevPageModel!.pinCode != "null") {
+          pincode = widget.prevPageModel!.pinCode;
+          pincodecontroller.text = widget.prevPageModel!.pinCode.toString();
         }
 
-        if (widget.prevPageModel!.vaccination == true) {
-          setState(() {
-            isPresent = true;
-          });
+        //
+        //TODO:: Language.
+        selectedlist = widget.prevPageModel!.languagesKnown != null
+            ? widget.prevPageModel!.languagesKnown!
+            : [];
+        //
+        //TODO:: vaccination certificate.
+        if (widget.prevPageModel!.vaccination_certificate != null &&
+            widget.prevPageModel!.vaccination_certificate != "" &&
+            widget.prevPageModel!.vaccination_certificate != " " &&
+            widget.prevPageModel!.vacination == true) {
+          vaccination_certificate =
+              widget.prevPageModel!.vaccination_certificate;
         }
-        if (widget.prevPageModel!.dateofbirth != null) {
-          dataOfBirthValue =
-              DateTime.parse(widget.prevPageModel!.dateofbirth.toString());
+        if (widget.prevPageModel?.vacination != null &&
+            widget.prevPageModel!.vacination != "") {
+          isPresent = widget.prevPageModel!.vacination!;
         }
-        dateOfBirth.text = DateFormat("dd-MM-yyyy").format(dataOfBirthValue);
-        fetchApiskill = widget.prevPageModel!.skills!;
-        selectedValuesList = widget.prevPageModel!.skills!;
-        // fetchApiLanguages = widget.prevPageModel!.languages!.cast<String>();
-        selectedLanguages = fetchApiLanguages;
       });
     }
   }
@@ -384,7 +388,7 @@ class _Screen1State extends ConsumerState<Screen1> {
 
       pickedDate = await showDatePicker(
         context: context,
-        initialDate: firstDate,
+        initialDate: initialDate ?? DateTime.now(),
         firstDate: firstDate,
         lastDate: lastDate,
       );
@@ -423,8 +427,8 @@ class _Screen1State extends ConsumerState<Screen1> {
           stateList.add(AutoCompleteModel(e['id'].toString(), e['value'], e));
         } else if (e['group_name'] == 'language') {
           e['checked'] = false;
-          if (widget.prevPageModel?.languages != null) {
-            if (widget.prevPageModel!.languages!.contains(e['value'])) {
+          if (widget.prevPageModel?.languagesKnown != null) {
+            if (widget.prevPageModel!.languagesKnown!.contains(e['value'])) {
               e['checked'] = true;
             }
           }
@@ -488,197 +492,110 @@ class _Screen1State extends ConsumerState<Screen1> {
   }
 
   TextEditingController locationController = TextEditingController();
+  TextEditingController pincodecontroller = TextEditingController();
+  String? pincode;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        resizeToAvoidBottomInset: true, // Add this line
-        backgroundColor: Colors.white,
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          //iconTheme: const IconThemeData(color: Colors.black),
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Edit Intro",
-                style: GoogleFonts.varela(
-                  fontSize: 18.sp,
-                  color: Constants.themeBgColor,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                "Introduce yourself to the recruiters",
-                style: GoogleFonts.varela(
-                    color: Constants.hintColor,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.normal),
-              )
-            ],
-          ),
-        ),
-        bottomNavigationBar: InkWell(
-          onTap: () {
-            if (firstName.text.isEmpty) {
-              //final snackBar = customSnackbar();
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                  customSnackbar("First name is compulsory.", true));
-            } else if (lastName.text.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  customSnackbar("Last name is compulsory.", true));
-            } else if (primaryNumber.text.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  customSnackbar("Primary number is compulsory.", true));
-            } else if (ismale == false && isfemale == false) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Select Gender.", true));
-            } else if (dateOfBirth.text.isEmpty) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("add Date of birth.", true));
-            } else if (resideAt != null && resideAt!.isEmpty) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  customSnackbar("Add Current Residence City?", true));
-            } else if (secondaryNumber.text.isNotEmpty &&
-                secondaryNumber.text.length < 10 &&
-                !widget.isfirst) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  customSnackbar("Incorrect alternate contact number.", true));
-            } else if (!isEmailValid(emailadr.text) && !widget.isfirst) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Invalid E-Mail", true));
-            } else if (emailadr.text.isEmpty) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(customSnackbar("Invalid E-Mail", true));
-              /*  if (!emailadr.text.contains("@")) {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(customSnackbar("Invalid email"));
-              } else {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(customSnackbar("Invalid email"));
-              } */
-            } else {
-              save();
-            }
-
-            /*  if (basicForm.currentState!.validate()) {
-              save();
-            } else {
-              log("fill all detail");
-            } */
-          },
-          child: Container(
-            margin:
-                const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
-            decoration: BoxDecoration(
-                color: Constants.themeBgColor,
-                borderRadius: BorderRadius.circular(8.r)),
-            width: double.maxFinite,
-            padding: const EdgeInsets.only(bottom: 8, top: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Save",
-                  style: GoogleFonts.varela(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        /* Container(
-            color: Constants.bgPanelColor,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: ThemeButton(
-                color: Constants.borderColor,
-                /* icon: const Icon(
-                  Icons.arrow_forward,
-                  color: Color(0xffffffff),
-                  size: 25,
-                ), */
-                radious: 15,
-                isText: true,
-                onPressed: () {
-                  if (basicForm.currentState!.validate()) {
-                    save();
-                  }
-                },
-                text: widget.prevPageModel == null ? "Next" : "Save",
-                themeButtonSize: ThemeButtonSize.medium,
-              ),
-            ),
-          ), */
-        // backgroundColor: ,
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return SingleChildScrollView(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: Column(
-                  // shrinkWrap: true,
-                  children: [basicInfo()],
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
-  SnackBar customSnackbar(String title, bool error) {
-    return SnackBar(
-      elevation: 1.0,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 5),
-      backgroundColor: Constants.themeBgColorLight,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      ),
-      padding: const EdgeInsets.symmetric(
-          horizontal: 10, vertical: 8), // Remove shadow
-      content: Row(
+      child: Stack(
         children: [
-          error
-              ? Icon(
-                  Icons.error_outline_outlined,
-                  color: Colors.red,
-                  size: 15.h,
-                )
-              : Image.asset(
-                  "assets/images/check.png",
-                  color: Constants.themeBgColor,
-                  height: 15.h,
-                ),
-          /* Icon(
-                  Icons.check,
-                  color: Constants.themeBgColor,
-                  size: 15.h,
-                ),  */ // Add an icon if needed
-          const SizedBox(width: 8.0), // Add spacing between icon and text
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.black, // Text color
-              fontSize: 14.0, // Text size
+          Scaffold(
+            resizeToAvoidBottomInset: true, // Add this line
+            backgroundColor: Colors.white,
+            extendBodyBehindAppBar: true,
+            appBar: AppBar(
+              automaticallyImplyLeading: true,
+              backgroundColor: Constants.borderColor,
+              elevation: 0,
+              iconTheme: const IconThemeData(color: Colors.black),
+              title: const OnboardingTitle(
+                title: "Personal Detail",
+              ),
+            ),
+            bottomNavigationBar: CustomButtonForSave(
+              title: "Save",
+              onTap: () {
+                if (firstName.text.isEmpty) {
+                  //final snackBar = customSnackbar();
+
+                  CustomSnackbar.show("First name is compulsory.", true);
+                } else if (lastName.text.isEmpty) {
+                  CustomSnackbar.show("Last name is compulsory.", true);
+                } else if (dateOfBirth.text.isEmpty) {
+                  CustomSnackbar.show("add Date of birth.", true);
+                } else if (!isEmailValid(emailadr.text) &&
+                    !widget.isfirst &&
+                    emailadr.text != "" &&
+                    emailadr.text.isNotEmpty) {
+                  CustomSnackbar.show("Invalid E-Mail", true);
+                } else if (locationController.text.isEmpty) {
+                  CustomSnackbar.show("Add Current Residence City?", true);
+                } else if (pincode == null && pincode == "") {
+                  CustomSnackbar.show("Add Pin Code?", true);
+                } else if (selectedlist.isEmpty) {
+                  CustomSnackbar.show(
+                      "Select atleast one langauge to continue.?", true);
+                } else if (alternateNumber.text.isNotEmpty &&
+                    alternateNumber.text.length < 10) {
+                  CustomSnackbar.show("Provide proper alternate number.", true);
+                } else if (pincodecontroller.text.length < 6) {
+                  CustomSnackbar.show("Provide proper pin code.", true);
+                } else if (alternateNumber.text.isNotEmpty &&
+                    alternateNumber.text.startsWith("0")) {
+                  CustomSnackbar.show(
+                      "Alternate number start with 0 that is not accepted",
+                      true);
+                } else {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  save();
+                }
+              },
+            ),
+            body: SafeArea(
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: Stack(
+                      // shrinkWrap: true,
+                      children: [
+                        basicInfo(),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
+          if (isLoading)
+            Positioned.fill(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Blur Effect
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      color: Colors.black
+                          .withOpacity(0.2), // Semi-transparent overlay
+                    ),
+                  ),
+                  // Circular Progress Indicator
+                  const CircularProgressIndicator(
+                    color: Constants.darkBlue,
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
-      // duration: const Duration(seconds: 3),
     );
   }
 
@@ -701,294 +618,115 @@ class _Screen1State extends ConsumerState<Screen1> {
                   const SizedBox(
                     height: 10,
                   ),
-                  CustomTextField(
-                      isDisabled: widget.prevPageModel!.is_verify ==
-                                  1 && //TODO:: Disable name field when user banking detail verification done...
-                              widget.prevPageModel!.is_verify != null
-                          ? false
-                          : true,
-                      focusNode: firstNameFocus,
-                      controller: firstName,
-                      hint: "Sameer",
-                      label: "First Name",
-                      icon: const Icon(Icons.person)),
-                  SizedBox(
-                    height: 20.h,
+                  const customTextForWeather(
+                    title: "First Name*",
                   ),
-                  CustomTextField(
-                      isDisabled: widget.prevPageModel!.is_verify ==
-                                  1 && //TODO:: Disable name field when user banking detail verification done...
-                              widget.prevPageModel!.is_verify != null
-                          ? false
-                          : true,
-                      focusNode: middleNameFocus,
-                      controller: middleName,
-                      hint: "Jameel",
-                      label: "Middle Name",
-                      icon: const Icon(Icons.person)),
-                  const SizedBox(
-                    height: 20,
+                  CustomTextFieldforAll(
+                    focusNode: firstNameFocus,
+                    controller: firstName,
+                    hint: "Enter Your First Name",
                   ),
-                  CustomTextField(
-                      isDisabled: widget.prevPageModel!.is_verify ==
-                                  1 && //TODO:: Disable name field when user banking detail verification done...
-                              widget.prevPageModel!.is_verify != null
-                          ? false
-                          : true,
-                      focusNode: lastNameFocus,
-                      controller: lastName,
-                      hint: "Gauri",
-                      label: "Last Name",
-                      icon: const Icon(Icons.person)),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  CustomTextField(
-                      focusNode: aboutmefocus,
-                      controller: bio,
-                      hint: "I am software developer",
-                      label: "About me",
-                      icon: const Icon(Icons.info_outline)),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : SizedBox(
-                          height: 10.h,
-                        ),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : Stack(
-                          alignment: Alignment.center,
-                          children: <Widget>[
-                            const Divider(
-                              color: Colors
-                                  .black, // Customize the Divider as needed
-                            ),
-                            Container(
-                              color:
-                                  Colors.white, // Background color of the text
-                              padding: const EdgeInsets.all(
-                                  8.0), // Adjust padding as needed
-                              child: Text(
-                                "Contact Detail",
-                                style: GoogleFonts.varela(
-                                    color: Constants.themeBgColor,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : SizedBox(
-                          height: 10.h,
-                        ),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : CustomTextField(
-                          isDisabled: false,
-                          isPrimaryNumber: true,
-                          focusNode: primaryNumberFocus,
-                          controller: primaryNumber,
-                          hint: "844******2",
-                          label: "Primary Number",
-                          maxLength: 10,
-                          isNumber: true,
-                          icon: const Icon(Icons.phone_android_rounded)),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : SizedBox(
-                          height: 20.h,
-                        ),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : CustomTextField(
-                          focusNode: secondaryNumberFocus,
-                          controller: secondaryNumber,
-                          hint: "844******2",
-                          label: "Alternate Number",
-                          maxLength: 10,
-                          isNumber: true,
-                          isOptional: true,
-                          icon: const Icon(Icons.phone_android_rounded)),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : SizedBox(
-                          height: 20.h,
-                        ),
-                  widget.isfirst
-                      ? const SizedBox()
-                      : CustomTextField(
-                          focusNode: emailfocus,
-                          controller: emailadr,
-                          hint: "sameer***@gmail.com",
-                          label: "Email ID",
-                          isgmail: true,
-                          // maxLength: 10,
-                          // isNumber: true,
-                          icon: const Icon(Icons.email_outlined)),
                   SizedBox(
                     height: 10.h,
                   ),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: <Widget>[
-                      const Divider(
-                        color: Colors.black, // Customize the Divider as needed
-                      ),
-                      Container(
-                        color: Colors.white, // Background color of the text
-                        padding: const EdgeInsets.all(
-                            8.0), // Adjust padding as needed
-                        child: Text(
-                          "Basic Detail",
-                          style: GoogleFonts.varela(
-                              color: Constants.themeBgColor,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+                  const customTextForWeather(
+                    title: "Middle Name",
                   ),
-
-                  /*  Row(
-                    children: [
-                      Text(
-                        "Gender",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ), */
-
+                  CustomTextFieldforAll(
+                    focusNode: middleNameFocus,
+                    controller: middleName,
+                    hint: "Enter Your Middle Name",
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const customTextForWeather(
+                    title: "Last Name*",
+                  ),
+                  CustomTextFieldforAll(
+                    focusNode: lastNameFocus,
+                    controller: lastName,
+                    hint: "Enter Your Last Name",
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  const customTextForWeather(
+                    title: "Contact No*",
+                  ),
+                  CustomTextFieldforAll(
+                    isDisabled: false,
+                    isPrimaryNumber: true,
+                    focusNode: primaryNumberFocus,
+                    controller: primaryNumber,
+                    hint: "844******2",
+                    maxLength: 10,
+                    isNumber: true,
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  const customTextForWeather(
+                    title: "Alternate No",
+                  ),
+                  CustomTextFieldforAll(
+                    focusNode: secondaryNumberFocus,
+                    controller: alternateNumber,
+                    hint: "Enter Your Alternate Number",
+                    maxLength: 10,
+                    isNumber: true,
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  const customTextForWeather(
+                    title: "Email ID",
+                  ),
+                  CustomTextFieldforAll(
+                    isGmail: true,
+                    keyboardType: true,
+                    focusNode: emailfocus,
+                    controller: emailadr,
+                    hint: "Enter Your Email ID",
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  const customTextForWeather(
+                    title: "Gender*",
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      customContainerMale(
-                          onPressed: () {
-                            setState(() {
-                              istranse = false;
-                              ismale = true;
-                              isfemale = false;
-                            });
-                          },
-                          isSelect: ismale,
-                          title: "Male",
-                          img: "assets/images/male1.png"),
-                      customContainerMale(
-                          onPressed: () {
-                            setState(() {
-                              istranse = false;
-                              ismale = false;
-                              isfemale = true;
-                            });
-                          },
-                          isSelect: isfemale,
-                          title: "Female",
-                          img: "assets/images/female1.png"),
-                      /*  customContainerSelect(
-                        isAnother: true,
+                      CustomContainerForGender(
                         onPressed: () {
                           setState(() {
-                            istranse = true;
-                            ismale = false;
+                            istranse = false;
+                            ismale = true;
                             isfemale = false;
                           });
                         },
-                        isSelect: istranse,
-                        title: "Transgender",
-                      ), */
+                        isSelect: ismale,
+                        title: "Male",
+                      ),
+                      CustomContainerForGender(
+                        onPressed: () {
+                          setState(() {
+                            istranse = false;
+                            ismale = false;
+                            isfemale = true;
+                          });
+                        },
+                        isSelect: isfemale,
+                        title: "Female",
+                      ),
                     ],
                   ),
-
-                  /* Row(
-                    children: [
-                      Text(
-                        "Marital Status",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Wrap(
-                    children: [
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            single = true;
-                            married = false;
-                            divorced = false;
-                            widowed = false;
-                            separated = false;
-                          });
-                        },
-                        isSelect: single,
-                        title: "Single",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            single = false;
-                            married = true;
-                            divorced = false;
-                            widowed = false;
-                            separated = false;
-                          });
-                        },
-                        isSelect: married,
-                        title: "Married",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            single = false;
-                            married = false;
-                            divorced = true;
-                            widowed = false;
-                            separated = false;
-                          });
-                        },
-                        isSelect: divorced,
-                        title: "Divorced",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            single = false;
-                            married = false;
-                            divorced = false;
-                            widowed = true;
-                            separated = false;
-                          });
-                        },
-                        isSelect: widowed,
-                        title: "Widowed",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            single = false;
-                            married = false;
-                            divorced = false;
-                            widowed = false;
-                            separated = true;
-                          });
-                        },
-                        isSelect: separated,
-                        title: "Separated",
-                      ),
-                    ],
-                  ), */
-
                   const SizedBox(
-                    height: 5,
+                    height: 10,
+                  ),
+                  const customTextForWeather(
+                    title: "Date of Birth*",
                   ),
                   InkWell(
                     onTap: () {
@@ -999,769 +737,224 @@ class _Screen1State extends ConsumerState<Screen1> {
                       margin: EdgeInsets.only(bottom: 5.h),
                       // width: MediaQuery.of(context).size.width / 1.8,
                       // height: 35,
-                      color: Colors.white,
-                      child: TextFormField(
-                        enabled: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "This Text field Cant be empty";
-                          }
-                          return null;
-                        },
-                        // focusNode: firstNameFocus,
-                        /*  onFieldSubmitted: (value) {
-                          dateOfBirth.text.isNotEmpty
-                              ? setState(() {
-                                  isDateOfBirth = true;
-                                })
-                              : null;
-                        },
-                        onTapOutside: (event) {
-                          dateOfBirth.text.isNotEmpty
-                              ? setState(() {
-                                  isDateOfBirth = true;
-                                })
-                              : null;
-                        },
-                        onEditingComplete: () {
-                          dateOfBirth.text.isNotEmpty
-                              ? setState(() {
-                                  isDateOfBirth = true;
-                                })
-                              : null;
-                        }, */
-                        keyboardType: TextInputType.text,
-                        controller: dateOfBirth,
-                        /* onTap: () {
-                          selectDate();
-                        }, */
-                        style: GoogleFonts.varela(color: Constants.subtitleclr),
-                        decoration: InputDecoration(
-                            prefixIcon:
-                                const Icon(Icons.calendar_month_outlined),
-                            prefixIconColor: Constants.themeBgColor,
-                            contentPadding: const EdgeInsets.only(
-                                top: 8, bottom: 8, left: 10, right: 10),
-                            counterText: '',
-                            suffix: Text(
-                              "${calculateAge(dateOfBirth.text).toString()} yrs",
-                            ),
-                            labelText: "Date of Birth",
-                            labelStyle: const TextStyle(
-                              color: Constants.themeBgColor,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                              borderSide: const BorderSide(
-                                  color: Constants.themeBgColor),
-                            ),
-                            focusColor: const Color(0xffff0eceb),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                              borderSide: const BorderSide(
-                                color: Constants.themeBgColor,
+//color: Colors.white,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          //  enabled: true,
+                          readOnly: true,
+                          keyboardType: TextInputType.text,
+                          controller: dateOfBirth,
+                          style: GoogleFonts.montserrat(
+                              color: Constants.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500),
+                          decoration: InputDecoration(
+                              prefixIcon: const Icon(
+                                Icons.calendar_month_outlined,
+                                color: Constants.darkBlue,
                               ),
-                            ),
-                            hintText: "26-Jan-2023",
-                            hintStyle: GoogleFonts.sourceSansPro(
-                                color: Constants.hintColor, fontSize: 15.sp)),
+                              prefixIconColor: Constants.themeBgColor,
+                              contentPadding: const EdgeInsets.only(
+                                  top: 6, bottom: 6, left: 10, right: 10),
+                              counterText: '',
+                              suffix: Text(
+                                "${calculateAge(dateOfBirth.text).toString()} yrs",
+                              ),
+                              //  labelText: "Date of birth",
+
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide:
+                                    const BorderSide(color: Color(0xffff0eceb)),
+                              ),
+                              focusColor: const Color(0xffff0eceb),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.r),
+                                borderSide: const BorderSide(
+                                  color: Constants.black,
+                                ),
+                              ),
+                              hintText: "Enter your date of birth",
+                              hintStyle: GoogleFonts.montserrat(
+                                  color: Constants.hintColor, fontSize: 14)),
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(
                     height: 10.h,
                   ),
-                  CustomJobFormTextFieldRespOneProfile(
-                    onIDSelected: () {},
-                    // isSelected: isIndustry,
+                  const customTextForWeather(
+                    title: "Location*",
+                  ),
+                  CustomTextfieldForJobLocation(
+                    name: "location",
                     focusNode: localityFocus,
                     controller: locationController,
+                    hintText: "Mumbai",
+                    onSubmit: (p0) {
+                      setState(() {
+                        locationController.text = p0;
+                        cityname = p0.split(',').last;
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  const customTextForWeather(
+                    title: "Pin Code*",
+                  ),
+                  CustomJobTitleForExperience(
+                    onIDSelected: () {},
+                    // isSelected: isIndustry,
+                    //focusNode: titleFocus,
                     role: "",
                     isCompany: false,
                     isIndustry: true,
-                    name: "location",
-                    title: "locality",
-                    //controller: localityController,
-                    onChanged: (p0) {
-                      setState(() {
-                        isLocality = true;
-                      });
-                    },
-                    onCitySubmit: (p0) {
-                      setState(() {
-                        cityname = p0;
-                      });
-                    },
-                    onSubmit: (p0) {
-                      setState(() {
-                        Localityfinal = p0;
-                      });
-                    },
+                    name: "pin_code",
+                    title: "Pin Code",
+                    controller: pincodecontroller,
+                    onChanged: (p0) {},
+                    getid: (p0) {},
                     contextIn: context,
-                    hintText:
-                        widget.isfirst ? "Thane, Mumbai" : resideAt.toString(),
+                    hintText: "Type to searchy",
                   ),
-
-                  /* Flexible(
-                        child: isLocality
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Locality",
-                                    style: GoogleFonts.sourceSansPro(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  customContainerSelect1(
-                                    true,
-                                    localityController.text,
-                                    true,
-                                    () {
-                                      setState(() {
-                                        isLocality = false;
-                                        localityFocus.requestFocus();
-                                        localityController.clear();
-                                      });
-                                    },
-                                  ),
-                                ],
-                              )
-                            : CustomJobFormTextFieldRespOne(
-                                onIDSelected: () {},
-                                // isSelected: isIndustry,
-                                focusNode: localityFocus,
-                                role: "",
-                                isCompany: false,
-                                isIndustry: true,
-                                name: "location",
-                                title: "locality",
-                                controller: localityController,
-                                onChanged: (p0) {
-                                  setState(() {
-                                    isLocality = true;
-                                  });
-                                },
-                                contextIn: context,
-                                hintText: "Thane",
-                              ),
-                      ), */
-                  // SizedBox(width: 10),
-
-                  // Text(
-                  //   "Reside at",
-                  //   style: GoogleFonts.varela(
-                  //     fontSize: 13.sp,
-                  //     fontWeight: FontWeight.w600,
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: 10.h,
-                  // ),
-                  // SizedBox(
-                  //   height: 35,
-                  //   width: 180.w,
-                  //   child: TextFormField(
-                  //     validator: (value) {
-                  //       if (value == null || value.isEmpty) {
-                  //         return 'Please select any job location';
-                  //       }
-                  //       return null;
-                  //     },
-                  //     controller: jobLocationController,
-                  //     enabled: true,
-                  //     onTap: (() {
-                  //       showDialog(
-                  //         context: context,
-                  //         builder: (BuildContext context) {
-                  //           return DialogList(
-                  //             tile: null,
-                  //             dialogTitle: "Select State",
-                  //             onSelected: (AutoCompleteModel model) async {
-                  //               await selectCity(model.value);
-                  //             },
-                  //             itemsData: stateList,
-                  //           );
-                  //         },
-                  //       );
-                  //     }),
-                  //     decoration: InputDecoration(
-                  //       contentPadding: const EdgeInsets.only(
-                  //         top: 10,
-                  //         left: 10,
-                  //       ),
-                  //       suffixIcon: const Icon(Icons.arrow_drop_down),
-                  //       focusedBorder: OutlineInputBorder(
-                  //         borderSide: BorderSide(
-                  //           color: Colors.grey.shade300,
-                  //         ),
-                  //         borderRadius: const BorderRadius.all(
-                  //           Radius.circular(20),
-                  //         ),
-                  //       ),
-                  //       border: OutlineInputBorder(
-                  //         borderSide: BorderSide(
-                  //           color: Colors.grey.shade300,
-                  //         ),
-                  //         borderRadius: const BorderRadius.all(
-                  //           Radius.circular(20),
-                  //         ),
-                  //       ),
-                  //       hintText: 'Select Job City',
-                  //     ),
-                  //   ),
-                  // ),
-
-/*                   Row(
-                    children: [
-                      Text(
-                        "Blood Group",
-                        style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                  SizedBox(
+                    height: 20.h,
+                  ),
+                  const customTextForWeather(
+                    title: "Language Known*",
                   ),
                   Wrap(
+                    children: suggestions.map((suggestion) {
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            if (!selectedlist.contains(suggestion)) {
+                              selectedlist.add(suggestion);
+                              // suggestions.remove(suggestion);
+                            } else {
+                              selectedlist.remove(suggestion);
+                            }
+                          });
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(
+                              bottom: 6.h, top: 2.h, right: 15.sp),
+                          decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: selectedlist.contains(suggestion)
+                                      ? Colors.transparent
+                                      : Colors.grey.shade400),
+                              color: !selectedlist.contains(suggestion)
+                                  ? Colors.transparent
+                                  : Constants.borderColor,
+                              borderRadius: BorderRadius.circular(8.r)),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 6.h, horizontal: 12.w),
+                          child: customTextForWeather(
+                              title: suggestion.toString(),
+                              fontWeight: selectedlist.contains(suggestion)
+                                  ? FontWeight.bold
+                                  : FontWeight.normal),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(
+                    height: 10.h,
+                  ),
+                  Row(
                     children: [
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = true;
-                            isANeg = false;
-                            isBPos = false;
-                            isBNeg = false;
-                            isOPos = false;
-                            isONeg = false;
-                            isABPos = false;
-                            isABNeg = false;
-                          });
-                        },
-                        isSelect: isAPos,
-                        title: "A+",
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color:
+                                // selectedKeyResponsible.contains(item)
+                                Colors.grey,
+                            width: 1.5,
+                          ),
+                        ),
+                        height: 16,
+                        width: 20,
+                        child: Theme(
+                          data: ThemeData(
+                            unselectedWidgetColor: Colors.white,
+                          ),
+                          child: Checkbox(
+                            side: const BorderSide(color: Colors.white),
+                            activeColor: Colors.white,
+                            checkColor: Constants.darkBlue,
+                            visualDensity: VisualDensity.compact,
+                            value: isPresent,
+                            onChanged: (newValue) {
+                              setState(() {
+                                //     vaccination_certificate = null;
+                                isPresent = !isPresent;
+                              }); // Notify Flutter that the state has changed
+                            },
+                          ),
+                        ),
                       ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = false;
-                            isANeg = false;
-                            isBPos = true;
-                            isBNeg = false;
-                            isOPos = false;
-                            isONeg = false;
-                            isABPos = false;
-                            isABNeg = false;
-                          });
-                        },
-                        isSelect: isBPos,
-                        title: "B+",
+                      SizedBox(
+                        width: 10.w,
                       ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = false;
-                            isANeg = false;
-                            isBPos = false;
-                            isBNeg = false;
-                            isOPos = true;
-                            isONeg = false;
-                            isABPos = false;
-                            isABNeg = false;
-                          });
-                        },
-                        isSelect: isOPos,
-                        title: "O+",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = false;
-                            isANeg = false;
-                            isBPos = false;
-                            isBNeg = false;
-                            isOPos = false;
-                            isONeg = false;
-                            isABPos = true;
-                            isABNeg = false;
-                          });
-                        },
-                        isSelect: isABPos,
-                        title: "AB+",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = false;
-                            isANeg = true;
-                            isBPos = false;
-                            isBNeg = false;
-                            isOPos = false;
-                            isONeg = false;
-                            isABPos = false;
-                            isABNeg = false;
-                          });
-                        },
-                        isSelect: isANeg,
-                        title: "A-",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = false;
-                            isANeg = false;
-                            isBPos = false;
-                            isBNeg = true;
-                            isOPos = false;
-                            isONeg = false;
-                            isABPos = false;
-                            isABNeg = false;
-                          });
-                        },
-                        isSelect: isBNeg,
-                        title: "B-",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = false;
-                            isANeg = false;
-                            isBPos = false;
-                            isBNeg = false;
-                            isOPos = false;
-                            isONeg = true;
-                            isABPos = false;
-                            isABNeg = false;
-                          });
-                        },
-                        isSelect: isONeg,
-                        title: "O-",
-                      ),
-                      customContainerSelect(
-                        isAnother: true,
-                        onPressed: () {
-                          setState(() {
-                            isAPos = false;
-                            isANeg = false;
-                            isBPos = false;
-                            isBNeg = false;
-                            isOPos = false;
-                            isONeg = false;
-                            isABPos = false;
-                            isABNeg = true;
-                          });
-                        },
-                        isSelect: isABNeg,
-                        title: "AB-",
+                      customTextForWeather(
+                        title: "I am fully Covid-vaccinated.",
+                        color: isPresent ? Colors.black : Constants.subtitleclr,
                       ),
                     ],
-                  ), */
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  if (isPresent)
+                    if (vaccination_certificate != null &&
+                        vaccination_certificate != "")
+                      CustomContainerSelectToViewDoc(
+                        title: "Vaccination Certificate",
+                        onPressed: () {
+                          showModalBottomSheet(
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) {
+                              return CustomPDFViewerDialog(
+                                pdfUrl:
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/$vaccination_certificate",
+                                onRemove: () async {
+                                  await FileUploadService().deleteSingleFile(
+                                      vaccination_certificate!);
+                                  setState(() {
+                                    vaccination_certificate = null;
+                                  });
+                                },
+                                onReplace: () {},
+                              );
+                            },
+                          );
+                        },
+                      ),
+                  if (isPresent)
+                    if (vaccination_certificate == null)
+                      CustomDocumentUploadButton(
+                        onTab: () async {
+                          FileUploader fileUploader = FileUploader();
+
+                          vaccination_certificate =
+                              await fileUploader.uploadFile(
+                                  context, ['pdf'], "vacinationCertificate");
+                          setState(() {});
+                        },
+                        title: "Add Vaccination Certificate",
+                      ),
                   SizedBox(
                     height: 10.h,
                   ),
                   SizedBox(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      // selectedKeyResponsible.contains(item)
-                                      Colors.grey,
-                                  width: 1.5,
-                                ),
-                              ),
-                              height: 16,
-                              width: 20,
-                              child: Theme(
-                                data: ThemeData(
-                                  unselectedWidgetColor: Colors.transparent,
-                                ),
-                                child: Checkbox(
-                                  side: const BorderSide(color: Colors.white),
-                                  activeColor: Colors.white,
-                                  checkColor: Constants.themeBgColor,
-                                  visualDensity: VisualDensity.compact,
-                                  value: isPresent,
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      isPresent = !isPresent;
-                                      if (isPresent) {
-                                        vaccination = "1";
-                                      } else {
-                                        vaccination = "0";
-                                      }
-                                      if (newValue == false) {
-                                        data = null;
-                                      }
-                                    }); // Notify Flutter that the state has changed
-                                  },
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            /* GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  isPresent = !isPresent;
-                                  if (isPresent) {
-                                    vaccination = "1";
-                                  } else {
-                                    vaccination = "0";
-                                  }
-                                });
-                              },
-                              child: Container(
-                                width: 22,
-                                height: 22,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                  borderRadius: BorderRadius.circular(3),
-                                  color: isPresent
-                                      ? Colors.red
-                                      : Colors
-                                          .white, // Change background color based on isPresent
-                                ),
-                                child: isPresent
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 20,
-                                      )
-                                    : Container(),
-                              ),
-                            ), */
-                            Text(
-                              "I am fully Covid-vaccinated.",
-                              style: GoogleFonts.varela(
-                                color: isPresent
-                                    ? Colors.black
-                                    : Colors.grey.shade400,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const Spacer(),
-                            if (data != "null" && data != null)
-                              InkWell(
-                                onTap: () {
-                                  //  log("message");
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return Scaffold(
-                                        floatingActionButton: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            InkWell(
-                                              onTap: () {
-                                                setState(() {
-                                                  data = null;
-                                                });
-                                                Navigator.pop(context);
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 4.h,
-                                                    horizontal: 8.r),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.r),
-                                                    border: Border.all(
-                                                        color: Constants
-                                                            .themeBgColor)),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.cancel_outlined,
-                                                      size: 15.h,
-                                                      color: Constants
-                                                          .themeBgColor,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 4.w,
-                                                    ),
-                                                    const Text("Remove"),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            InkWell(
-                                              onTap: () async {
-                                                setState(() async {
-                                                  data =
-                                                      await uploadFile(['pdf']);
-
-                                                  /*  var payload = {
-                                          "stage": "upload_cv",
-                                          "data": {
-                                            "id": await Utils.getPreferencesValue(
-                                              null,
-                                              ESharedPreferences.user_id.name,
-                                            ),
-                                            "cv_link": data['fileName'],
-                                          },
-                                        }; */
-                                                  // await save(data['fileName'], payload);
-                                                });
-                                                Navigator.pop(context);
-                                              },
-                                              child: Container(
-                                                margin:
-                                                    EdgeInsets.only(left: 20.w),
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 4.h,
-                                                    horizontal: 8.r),
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.r),
-                                                    border: Border.all(
-                                                        color: Constants
-                                                            .themeBgColor)),
-                                                child: Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.upload_file,
-                                                      size: 15.h,
-                                                      color: Constants
-                                                          .themeBgColor,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 4.w,
-                                                    ),
-                                                    const Text("Replace"),
-                                                  ],
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                        body: Container(
-                                          child: FutureBuilder<PDFDocument>(
-                                            future: PDFDocument.fromURL(
-                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$data"),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.done) {
-                                                if (snapshot.hasData) {
-                                                  return PDFViewer(
-                                                    scrollDirection:
-                                                        Axis.vertical,
-                                                    panLimit: 1.1,
-                                                    document: snapshot.data!,
-                                                    zoomSteps: 3,
-                                                    showNavigation: false,
-                                                    showPicker: false,
-
-                                                    // numberPickerConfirmWidget: f,
-                                                  );
-                                                } else {
-                                                  return const Center(
-                                                      child: Text(
-                                                          'Failed to load PDF'));
-                                                }
-                                              } else {
-                                                return const Center(
-                                                    child:
-                                                        CircularProgressIndicator());
-                                              }
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                                child: Container(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10.w),
-                                    child: const Icon(
-                                      Icons.visibility_outlined,
-                                      color: Constants.themeBgColor,
-                                    )),
-                              )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-
-                        // customDocumnet(
-                        //   "Vaccination Certificate",
-                        // ),
-                        if (isPresent)
-                          Column(
-                            children: [
-                              // Text(
-                              //   "Please Upload Your Vaccination Certificate",
-                              //   style: GoogleFonts.varela(
-                              //     color: isPresent
-                              //         ? Colors.black
-                              //         : Colors.grey.shade400,
-                              //     fontWeight: FontWeight.w400,
-                              //   ),
-                              // ),
-                              if (data == null || data == "null")
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() async {
-                                          data = await uploadFile(['pdf']);
-                                          setState(() {});
-
-                                          /*  var payload = {
-                                          "stage": "upload_cv",
-                                          "data": {
-                                            "id": await Utils.getPreferencesValue(
-                                              null,
-                                              ESharedPreferences.user_id.name,
-                                            ),
-                                            "cv_link": data['fileName'],
-                                          },
-                                        }; */
-                                          // await save(data['fileName'], payload);
-                                        });
-                                      },
-                                      child: Container(
-                                        margin:
-                                            const EdgeInsets.only(right: 10),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          border: Border.all(
-                                              color: Constants.borderColor),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 0, vertical: 5),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 4),
-                                              child: Text(
-                                                  /*
-                                                ? widget.prevPageModel!
-                                                    .vaccination_certificate
-                                                    .toString()
-                                                : */
-                                                  "Upload Vaccination Certificate"),
-                                            ),
-                                            const SizedBox(
-                                                width:
-                                                    4), // Adjust the spacing between text and icon
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  right: 4),
-                                              child: Image.asset(
-                                                "assets/images/cv.png",
-                                                height: 18.h,
-                                              ),
-                                            ),
-
-                                            // Replace Icons.file_upload with your desired icon
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            ],
-                          )
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(
                     height: MediaQuery.of(context).size.height / 10.h,
                   ),
-
-                  // Row(
-                  //   children: [
-                  //     Text(
-                  //       "Language Known",
-                  //       style: GoogleFonts.sourceSansPro(
-                  //         fontSize: 18.sp,
-                  //         fontWeight: FontWeight.w600,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // Container(
-                  //   width: double.maxFinite,
-                  //   margin: const EdgeInsets.only(top: 10, bottom: 12),
-                  //   child: Wrap(
-                  //     direction: Axis.horizontal,
-                  //     spacing: 5,
-                  //     runSpacing: 5,
-                  //     children: List.generate(
-                  //       jobTitleSuggestion.length,
-                  //       (index) {
-                  //         String title = jobTitleSuggestion[index];
-                  //         bool isSelected = selectedLanguages.contains(title);
-
-                  //         JobTitleItem item = JobTitleItem(
-                  //           getJobTitle1isSelected: null,
-                  //           ismulti: false,
-                  //           title: title,
-                  //           isSelected: isSelected,
-                  //           onTap: (selected) {
-                  //             setState(() {
-                  //               if (selected) {
-                  //                 selectedLanguages.add(title);
-                  //               } else {
-                  //                 selectedLanguages.remove(title);
-                  //               }
-                  //             });
-                  //           },
-                  //           isVisible: true,
-                  //           onlyOneIcon: false,
-                  //         );
-
-                  //         jobTitleItems.add(item);
-                  //         return item;
-                  //       },
-                  //     ),
-                  //   ),
-                  // ),
-                  // SizedBox(
-                  //   height: 6.h,
-                  // ),
-                  // const Divider(
-                  //   thickness: 1.5,
-                  // ),
-                  // SizedBox(
-                  //   height: 3.h,
-                  // ),
-                  // CustomFormTextFieldMultiSelect(
-                  //   name: "skills",
-                  //   isSkill: true,
-                  //   fetchApiskill: fetchApiskill,
-                  //   title: "Skills Required",
-                  //   controller: skillsController,
-                  //   selectedValuesList: selectedValuesList,
-                  //   callback: updateSelectedValues,
-                  //   contextIn: context,
-                  //   hintText: "Advance Excel",
-                  // ),
                 ],
               ),
             ),
@@ -1771,444 +964,6 @@ class _Screen1State extends ConsumerState<Screen1> {
     );
   }
 
-  void performSpecificOperation() {
-    // Replace this with your specific operation logic
-    if (primaryNumber.text != widget.prevPageModel!.mobile) {
-      setState(() {
-        saveOTP();
-      });
-    }
-  }
-
-  Widget CustomTextField(
-      {Icon? icon,
-      required String hint,
-      required String label,
-      required FocusNode focusNode,
-      bool? isgmail,
-      bool? isPrimaryNumber = false,
-      String? img,
-      bool? isImage = false,
-      int? maxLength,
-      bool isNumber = false,
-      bool? keyboardType,
-      bool? isDisabled = true,
-      bool? isOptional = false,
-      required TextEditingController controller}) {
-    // bool isError = false;
-    return SizedBox(
-      height: MediaQuery.of(context).size.height / 24,
-      child: TextFormField(
-        enabled: isDisabled,
-        // autofocus: focusNode.canRequestFocus,
-        focusNode: focusNode,
-        inputFormatters: isNumber
-            ? <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly,
-              ]
-            : isgmail != null && isgmail
-                ? <TextInputFormatter>[
-                    FilteringTextInputFormatter.singleLineFormatter,
-                  ]
-                : <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-                  ],
-        /*  validator: (value) {
-          if (value == null || value.isEmpty) {
-            //return "This Text field Cant be empty";
-          }
-          return null;
-        }, */
-        maxLength: maxLength,
-        keyboardType: isNumber ? TextInputType.phone : TextInputType.name,
-        //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-        textCapitalization: TextCapitalization.sentences,
-        controller: controller.text != "0" ? controller : null,
-        onTap: (() {}),
-        style:
-            GoogleFonts.varela(color: Constants.subtitleclr, fontSize: 14.sp),
-        decoration: InputDecoration(
-            filled: isPrimaryNumber! ? true : false,
-            fillColor:
-                isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent,
-            prefixIcon: icon,
-            prefixIconColor: Constants.themeBgColor,
-            suffix: isOptional != null && isOptional
-                ? const Text("(Optional)")
-                : const SizedBox(),
-            contentPadding:
-                const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
-            counterText: '',
-            labelText: label,
-            labelStyle: const TextStyle(
-              color: Constants.themeBgColor,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: Color(0xffff0eceb)),
-            ),
-            focusColor: const Color(0xffff0eceb),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(
-                color: Constants.themeBgColor,
-              ),
-            ),
-            hintText: hint,
-            hintStyle: GoogleFonts.sourceSansPro(
-                color: Constants.hintColor, fontSize: 15.sp)),
-      ),
-    );
-  }
-
-  Row customDocumnet(
-    String title,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          child: Row(
-            children: [
-              InkWell(
-                  onTap: () {
-                    setState(() {
-                      vaccination_certificate = !vaccination_certificate;
-                    });
-                  },
-                  child: vaccination_certificate
-                      ? Image.asset(
-                          "assets/images/currentworking.png",
-                          height: 15.h,
-                        )
-                      : Icon(
-                          Icons.circle_outlined,
-                          color: Colors.grey,
-                          size: 16.h,
-                        )),
-              SizedBox(
-                width: 5.w,
-              ),
-              vaccination_certificate
-                  ? Text(
-                      title,
-                      style: GoogleFonts.varela(
-                          color: Colors.black, fontWeight: FontWeight.w400),
-                    )
-                  : Text(
-                      title,
-                      style: GoogleFonts.varela(color: Colors.grey.shade400),
-                    )
-            ],
-          ),
-        ),
-        vaccination_certificate
-            ? Image.asset(
-                "assets/images/file_upload.png",
-                height: 26.h,
-              )
-            : const SizedBox(),
-      ],
-    );
-  }
-
-  void showOTPVerificationPopup() {
-    FocusNode initialFocusNode = otpChar1FocusNode;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            // startTimer();
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'Enter OTP',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        buildOTPDigitTextField(
-                          otpChar1Controller,
-                          otpChar1FocusNode,
-                          otpChar2FocusNode,
-                        ),
-                        buildOTPDigitTextField(
-                          otpChar2Controller,
-                          otpChar2FocusNode,
-                          otpChar3FocusNode,
-                        ),
-                        buildOTPDigitTextField(
-                          otpChar3Controller,
-                          otpChar3FocusNode,
-                          otpChar4FocusNode,
-                        ),
-                        buildOTPDigitTextField(
-                          otpChar4Controller,
-                          otpChar4FocusNode,
-                          null,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        // Add your logic to handle OTP verification here
-                        handleOTPVerification(getEnteredOTP());
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Constants.themeBgColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        width: 120,
-                        padding: const EdgeInsets.only(bottom: 7, top: 7),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Verify OTP',
-                              style: GoogleFonts.varela(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      timerText,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) {
-      otpChar1Controller.text = "";
-      otpChar2Controller.text = "";
-      otpChar3Controller.text = "";
-      otpChar4Controller.text = "";
-      initialFocusNode.requestFocus();
-    });
-  }
-
-  void updateTimerDisplay() {
-    setState(() {
-      if (currentSeconds <= 0) {
-        ticker.stop();
-      }
-    });
-  }
-
-  /*  void startTimer() {   //TODO:: To avoid memory leak...
-    var duration = const Duration(seconds: 1);
-    currentSeconds = timerMaxSeconds;
-    ticker = Ticker((elapsed) {
-      setState(() {
-        currentSeconds = timerMaxSeconds - elapsed.inSeconds;
-        updateTimerDisplay();
-      });
-    });
-    ticker.start();
-  } */
-
-  void _onOTPDigitChanged(
-      String value, FocusNode currentFocusNode, FocusNode nextFocusNode) {
-    if (value.isNotEmpty) {
-      currentFocusNode.unfocus();
-      nextFocusNode.requestFocus();
-    }
-  }
-
-  Widget buildOTPDigitTextField(
-    TextEditingController controller,
-    FocusNode currentFocusNode,
-    FocusNode? nextFocusNode,
-  ) {
-    return SizedBox(
-      width: 50,
-      child: TextField(
-        controller: controller,
-        maxLength: 1,
-        keyboardType: TextInputType.number,
-        inputFormatters: <TextInputFormatter>[
-          FilteringTextInputFormatter.digitsOnly
-        ],
-        focusNode: currentFocusNode,
-        onChanged: (value) {
-          _onOTPDigitChanged(value, currentFocusNode, nextFocusNode!);
-          print(
-              "Current Focus Node: $currentFocusNode, Next Focus Node: $nextFocusNode");
-        },
-        textAlign: TextAlign.center,
-        decoration: const InputDecoration(
-          counterText: '',
-        ),
-      ),
-    );
-  }
-
-  void validateOtp() {
-    if (otpChar1Controller.text != "" &&
-        otpChar2Controller.text != "" &&
-        otpChar3Controller.text != "" &&
-        otpChar4Controller.text != "") {
-      vrifyButtonDisabled = false;
-    } else {
-      vrifyButtonDisabled = true;
-    }
-    setState(() {});
-  }
-
-  String getEnteredOTP() {
-    return otpChar1Controller.text +
-        otpChar2Controller.text +
-        otpChar3Controller.text +
-        otpChar4Controller.text;
-  }
-
-  saveOTP() async {
-    //bool validate = basicForm.currentState!.validate();
-    /* if (!validate) {
-      return;
-    } */
-    var result =
-        await UserDataService().authenticate({"mobile": primaryNumber.text});
-    var res = Utils.parseResponse(result);
-    if (res.resultKey == 'SUCCESS') {
-      if (res.resultData['val'] == 0) {
-        Widget continueButton = TextButton(
-          child: const Text("Ok"),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        );
-
-        AlertDialog alert = AlertDialog(
-          title: const Text("!!Alert!!"),
-          content: Text(res.resultData['otpmsg']),
-          actions: [continueButton],
-        );
-
-        // show the dialog
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return alert;
-          },
-        );
-      } else {
-        // prefs.remove('userid');
-        // prefs.remove('user_mob');
-        // prefs.setInt('userid',Utils.parseResponse(result).resultData[1]);
-        Utils.setPreference(
-            null, ESharedPreferences.user_mobile.name, primaryNumber.text);
-
-        // Call loginUser() when the user successfully logs in
-        // loginUser();
-        showOTPVerificationPopup();
-        //   Navigator.pushNamed(context, ERoute.otpscreen.name);
-      }
-      // Navigator.pushNamedAndRemoveUntil(
-      //     context, ERoute.otpscreen.name, (Route<dynamic> route) => false);
-    }
-  }
-
-  void handleOTPVerification(String enteredOTP) async {
-    SharedPreferences pres = await Utils.getSharedPreferences();
-    String primaryNumber = await Utils.getPreferencesValue(
-        pres, ESharedPreferences.user_mobile.name);
-
-    var result = await UserDataService().validateOTP({
-      "mobile": primaryNumber,
-      "otp": enteredOTP,
-    });
-    RequestResult res = Utils.parseResponse(result);
-    if (res.resultKey == 'SUCCESS') {
-      dynamic data = res.resultData;
-
-      if (res.resultData.containsKey('msg')) {
-        clearOTPText();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Invalid OTP. Please try again."),
-        ));
-      } else {
-        // await Utils.setPreference(
-        /*      pres, ESharedPreferences.user_id.name, data['id']);
-        await Utils.setPreference(pres, ESharedPreferences.user_type.name,
-            int.parse(data['usertype']));
-
-        CardModel model = CardModel();
-        model.mobile = primaryNumber;
-        model.cardName = (data['firstName'] + " " + data['lastName']);
-        model.firstName = data['firstName'];
-        model.lastName = data['lastName'];
-        model.email = data['email'];
-        model.role = data['role'];
-        model.gender = data['gender'];
-
-        await Utils.setPreference(
-            pres, ESharedPreferences.role.name, data['role']);
-        await Utils.setPreference(pres, ESharedPreferences.user_data.name,
-            jsonEncode(model.toJson()));
-        await Utils.setPreference(
-            pres, ESharedPreferences.user_rawData.name, jsonEncode(data)); */
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("OTP Verified Successfully"),
-        ));
-      }
-    } else {
-      // Handle the case when the OTP verification fails
-      clearOTPText();
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Invalid OTP. Please try again."),
-      ));
-    }
-  }
-
-  void clearOTPText() {
-    otpChar1Controller.text = "";
-    otpChar2Controller.text = "";
-    otpChar3Controller.text = "";
-    otpChar4Controller.text = "";
-  }
-
-  /*  calculateAge(String birthDate) {
-    DateTime currentDate = DateTime.now();
-    int age = currentDate.year - birthDate.year;
-    int month1 = currentDate.month;
-    int month2 = birthDate.month;
-    if (month2 > month1) {
-      age--;
-    } else if (month1 == month2) {
-      int day1 = currentDate.day;
-      int day2 = birthDate.day;
-      if (day2 > day1) {
-        age--;
-      }
-    }
-    return age;
-  } */
   int calculateAge(String dateOfBirthText) {
     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
     DateTime dateOfBirth = DateTime.now();
@@ -2327,46 +1082,37 @@ class _Screen1State extends ConsumerState<Screen1> {
     }
   }
 
-  InkWell customContainerMale(
+  /* InkWell customContainerMale(
       {required final VoidCallback onPressed,
       required bool isSelect,
       required String title,
-      required String img,
       bool? isSalary = false}) {
     return InkWell(
         onTap: onPressed,
         child: Container(
-            width: MediaQuery.of(context).size.width / 2.5.w,
-
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: const EdgeInsets.all(8),
+            width: MediaQuery.of(context).size.width / 2.3,
+            height: MediaQuery.of(context).size.height / 22.h,
+            margin: const EdgeInsets.only(
+              top: 5,
+              bottom: 5,
+            ),
             decoration: BoxDecoration(
-                color:
-                    // isSelect ? const Color(0xfff310d44) :
-                    Colors.grey.shade200,
+                color: isSelect ? Constants.borderColor : Colors.white,
+                // isSelect ? const Color(0xfff310d44) :
+
                 borderRadius: BorderRadius.circular(8),
                 border: isSelect
-                    ? Border.all(color: Constants.themeBgColor)
-                    : null),
+                    ? Border.all(color: Constants.borderColor)
+                    : Border.all(
+                        color: const Color.fromARGB(255, 200, 194, 193))),
             // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  img,
-                  height: 20,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(title,
-                    style: GoogleFonts.sourceSansPro(
-                        color: Constants.themeBgColor, fontSize: 15.sp)),
-              ],
+            child: Center(
+              child: customTextForWeather(
+                title: title,
+                fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
+              ),
             )));
-  }
+  } */
 
   InkWell customContainerSelect(
       {required final VoidCallback onPressed,
@@ -2434,73 +1180,6 @@ class _Screen1State extends ConsumerState<Screen1> {
                     style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
   }
 
-  Future<String?> uploadFile(
-    allowExt,
-  ) async {
-    Utils.showLoaderDialog(context, "");
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: allowExt,
-      withReadStream: true,
-    );
-
-    if (result != null) {
-      try {
-        var res = await FileUploadService()
-            .uploadSingleFile("salarySlip", result.files.single);
-        var resultD = Utils.parseResponse(res);
-
-        if (resultD.resultKey == 'SUCCESS') {
-          String filePath = result.files.single.path ?? '';
-          String filename = resultD.resultData[0]["fileName"];
-          print(filename);
-          print("Filename: $filePath");
-
-          // Close the loading dialog when the upload is successful
-          Navigator.pop(context);
-          //save(filename, data);
-
-          return filename;
-        } else {
-          // Close the loading dialog when there is an error
-          Navigator.pop(context);
-
-          // Handle the case where the server returns an error
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Error while uploading cv"),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Ok"),
-                  ),
-                ],
-              );
-            },
-          );
-          return null;
-        }
-      } catch (e) {
-        // Close the loading dialog in case of exceptions
-        Navigator.pop(context);
-
-        // Handle any exceptions that occur during the upload
-        print("Error during file upload: $e");
-        return null;
-      }
-    } else {
-      // Close the loading dialog when the user cancels file selection
-      Navigator.pop(context);
-
-      // Handle the case where the user cancels file selection
-      return null;
-    }
-  }
-
   save() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
 
@@ -2531,93 +1210,78 @@ class _Screen1State extends ConsumerState<Screen1> {
     } else {
       vaccination = "0";
     }
-
-    var mobilenumber = await Utils.getPreferencesValue(
-        prefs, ESharedPreferences.user_mobile.name);
-
-    //if(primaryNumber.text.isNotEmpty&&firstName.te){}
-    var params = {
-      "stage": "basic_info",
-      "data": {
-        "id": await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name),
-        "mobile": primaryNumber.text,
-        "alternate_no": secondaryNumber.text,
-        "first_name": firstName.text.trim(),
-        "middle_name": middleName.text.trim(),
-        "last_name": lastName.text.trim(),
-        "gender": genderValue,
-        // "languages": selectedLanguages,
-        // "skills": fetchApiskill,
-        "user_location": cityname,
-        "user_locality": Localityfinal, // <-- Update here
-        "email": emailadr.text.toLowerCase(), // <-- Update here
-        // "martial_status": martialStatusValue,
-        "vaccination": vaccination,
-        "dateofbirth": dataOfBirthValue.toIso8601String(),
-        // DateFormat("yyyy-MM-dd").format(dataOfBirthValue).toString(),
-        "bio": bio.text.trim().isEmpty ? null : bio.text,
-        "usertype": await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_type.name),
-        "vaccination_certificate":
-            data != null && vaccination != "0" ? data : null,
-        "report_to": widget.prevPageModel!.report_to,
+    String getDaySuffix(int day) {
+      if (day >= 11 && day <= 13) {
+        return 'th';
       }
-    };
+      switch (day % 10) {
+        case 1:
+          return 'st';
+        case 2:
+          return 'nd';
+        case 3:
+          return 'rd';
+        default:
+          return 'th';
+      }
+    }
 
-    // Continue with the remaining logic...
+    // Define the desired format
+    String dateOfBirth = DateFormat('dd MMMM yyyy').format(dataOfBirthValue);
 
-    CardModel model = CardModel(
-        alternate_no: secondaryNumber.text,
-        middle_name: middleName.text.isNotEmpty ? middleName.text : null,
-        firstName: firstName.text,
-        lastName: lastName.text,
-        mobile: primaryNumber.text,
-        email: emailadr.text,
+    // Add the suffix (st, nd, rd, th) to the day
+    String day = dataOfBirthValue.day.toString();
+    String suffix = getDaySuffix(dataOfBirthValue.day);
+    dateOfBirth = dateOfBirth.replaceFirst(day, '$day$suffix');
+
+    print('Date of Birth: $dateOfBirth');
+
+    /*  var mobilenumber = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_mobile.name); */
+
+    ProfileUpdateRequestDto profileUpdateRequestDto = ProfileUpdateRequestDto(
+        id: widget.userid,
+        firstName: firstName.text.trim(),
+        lastName: lastName.text.trim(),
+        middleName: middleName.text == "" ? " " : middleName.text.trim(),
+        alternateNo:
+            alternateNumber.text == "" ? 1 : int.tryParse(alternateNumber.text),
+        email: emailadr.text == "" ? "null" : emailadr.text,
         gender: genderValue,
-        dateofbirth: dateOfBirth.text,
-        bio: bio.text,
-        location: localityController.text,
-        vaccination: int.parse(vaccination),
-        vaccination_certificate:
-            data != null && vaccination != 0 ? data : null);
+        dateOfBirth: dateOfBirth,
+        userLocation: cityname,
+        userLocality: locationController.text,
+        pinCode: pincodecontroller.text,
+        vaccination: isPresent,
+        vaccinationCertificate:
+            isPresent == true ? vaccination_certificate : " ",
+        languages: selectedlist,
+        skills: widget.profileskill
 
-    print(params);
-    final jsonData = model.toJson();
+        //bio: bio.text.trim().isEmpty ? null : bio.text,
+        );
+
+    UserUpdateRequestModel userUpdateRequestModel = UserUpdateRequestModel(
+        certificationsRequestDtos: null,
+        educationRequestDtos: null,
+        experienceRequestDtos: null,
+        profileUpdateRequestDto: profileUpdateRequestDto);
+
     await JobPostApiService.PostUserInfo(
-      params,
+      userUpdateRequestModel,
     );
-    /* var result = await UserDataService().saveUserStages(model.toJson());
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      await Utils.setPreference(
-          prefs, ESharedPreferences.user_data.name, jsonEncode(model)); */
-    /* if (widget.prevPageModel == null) {
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const LanguageMulti(isFirst: true,)));
-      // Navigator.pushNamed(context, ERoute.screen2.name);
-    }  */
-    /* widget.prevPageModel!.first_name = firstName.text;
-        widget.prevPageModel!.last_name = lastName.text;
-        widget.prevPageModel!.alternate_no = int.parse(secondaryNumber.text);
-        widget.prevPageModel!.user_location = localityController.text;
-        /* widget.prevPageModel.job_location_id =
-            int.parse(selectedLocation.value); */
-        widget.prevPageModel!.bio = bio.text;
 
-        widget.prevPageModel!.gender = gender;
-
-        //  widget.prevPageModel!.martial_status = martialStatus;
-        //   widget.prevPageModel!.languages = selectedLanguages;
-        // widget.prevPageModel!.skills = fetchApiskill;
-        widget.prevPageModel!.dateofbirth =
-            DateFormat("yyyy-MM-dd").format(dataOfBirthValue); */
     ref.refresh(userDataProvider);
     Navigator.pop(
       context,
     );
-    ref.refresh(userDataProvider);
-    
+    ref.refresh(ProfileDataProvider);
+
     ref.refresh(profileSummaryProvider);
+    setState(() {
+      isLoading = false;
+    });
+    CustomSnackbar.show("User Details updated Succesfully", false);
 
     Utils.setCacheData('firstName', firstName.text);
   }

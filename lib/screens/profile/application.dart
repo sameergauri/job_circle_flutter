@@ -89,7 +89,7 @@ class ApplicationFormState extends State<ApplicationForm> {
   AutoCompleteModel selectedInterview = AutoCompleteModel("", "", {});
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
 
-   GlobalKey<FormState> _formKey4 = GlobalKey<FormState>();
+  GlobalKey<FormState> _formKey4 = GlobalKey<FormState>();
 
   // dynamic applicantName = {};
   String mobileno = "";
@@ -227,7 +227,7 @@ class ApplicationFormState extends State<ApplicationForm> {
         profileCv.profile_cv_link = Utils.resolveImage(profilemodel.cv_link);
         profileCv.profile_cv_file =
             Utils.getFileName(profileCv.profile_cv_link);
-        profileCv.cv_upladted_date = profilemodel.cv_upladted_date;
+        profileCv.cv_upladted_date = profilemodel.cv_upladted_date!;
         profileCv.cv_link = profilemodel.cv_link;
       }
     }

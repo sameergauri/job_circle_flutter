@@ -1,336 +1,440 @@
 // ignore_for_file: unused_result, unused_local_variable, avoid_unnecessary_containers, non_constant_identifier_names, use_build_context_synchronously, avoid_print
 
+import 'dart:convert';
+import 'dart:ui';
+
 import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/customwidget_upload_file.dart';
+import 'package:job_circle/constants/dialogue_for_add_resume.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/models/user_data_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/home.dart';
-import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddCv extends ConsumerStatefulWidget {
+  final int userID;
+  final UserRequest introData;
+  final ExperienceRequest? experience;
+  final EducationRequest? educationRequest;
+  final bool isexperience;
+  final bool isUnderGraduate;
+  final List<dynamic>? selectedSkillSet;
+  final CertificationRequest? certificationRequest;
+
   /*  final Map<String, dynamic> params;
   final int userID; */
   // const AddCv({super.key, required this.params, required this.userID});
-  const AddCv({super.key});
+  const AddCv(
+      {required this.userID,
+      required this.introData,
+      required this.isexperience,
+      required this.isUnderGraduate,
+      this.educationRequest,
+      this.certificationRequest,
+      this.experience,
+      this.selectedSkillSet,
+      super.key});
 
   @override
   ConsumerState<AddCv> createState() => _AddCvState();
 }
 
 class _AddCvState extends ConsumerState<AddCv> {
+  FileUploader fileUploader = FileUploader();
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
   String? resume;
+
+  bool isloading = false;
 
   @override
   Widget build(BuildContext context) {
     return resume != null
-        ? Scaffold(
-            floatingActionButton: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+        ? WillPopScope(
+            onWillPop: () async {
+              // Returning false disables the back button
+              return false;
+            },
+            child: Stack(
               children: [
-                InkWell(
-                  onTap: () async {
-                    resume = await Delete(true);
-                    var payload = {
-                      "stage": "upload_cv",
-                      "data": {
-                        "id": await Utils.getPreferencesValue(
-                            null, ESharedPreferences.user_id.name),
-                        "cv_link": null
-                      }
-                    };
-                    await save(null, payload);
-                    ref.refresh(userDataProvider);
-                    // Navigator.pop(context);
-                    setState(() {});
-
-                    /*  setState(() {
-                                    resume = Delete(true).toString();
-                                  }); */
-                  },
-                  child: Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.r),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Constants.themeBgColor)),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.cancel_outlined,
-                          size: 15.h,
-                          color: Constants.themeBgColor,
-                        ),
-                        SizedBox(
-                          width: 4.w,
-                        ),
-                        const Text("Remove"),
-                      ],
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () async {
-                    resume = await uploadFile(['pdf'], "cv");
-                    var payload = {
-                      "stage": "upload_cv",
-                      "data": {
-                        "id": await Utils.getPreferencesValue(
-                            null, ESharedPreferences.user_id.name),
-                        "cv_link": resume
-                      }
-                    };
-                    await save(resume, payload);
-                    ref.refresh(userDataProvider);
-                    // Navigator.pop(context);
-                    setState(() {});
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(left: 20.w),
-                    padding:
-                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.r),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Constants.themeBgColor)),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.upload_file,
-                          size: 15.h,
-                          color: Constants.themeBgColor,
-                        ),
-                        SizedBox(
-                          width: 4.w,
-                        ),
-                        const Text("Replace"),
-                      ],
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () async {
-                    ref.refresh(fetchAllApplyProvider);
-                    ref.refresh(fetchAllTalentPoolProvider);
-                    ref.refresh(userDataProvider);
-                    ref.refresh(profileSummaryProvider);
-                    ref.refresh(fetchAllApplicantProvider);
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                        (route) => false);
-                    /* resume = await uploadFile(['pdf'], "cv");
-                    var payload = {
-                      "stage": "upload_cv",
-                      "data": {
-                        "id": await Utils.getPreferencesValue(
-                            null, ESharedPreferences.user_id.name),
-                        "cv_link": resume
-                      }
-                    };
-                    save(resume, payload);
-                    Navigator.pop(context);
-                    setState(() {}); */
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(left: 20.w),
-                    padding:
-                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.r),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        border: Border.all(color: Constants.themeBgColor)),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.arrow_forward_ios_rounded,
-                          size: 15.h,
-                          color: Constants.themeBgColor,
-                        ),
-                        SizedBox(
-                          width: 4.w,
-                        ),
-                        const Text("Submit"),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
-            body: Container(
-              child: FutureBuilder<PDFDocument>(
-                future: PDFDocument.fromURL(
-                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/$resume"),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    if (snapshot.hasData) {
-                      return PDFViewer(
-                        scrollDirection: Axis.vertical,
-                        panLimit: 1.1,
-                        document: snapshot.data!,
-                        zoomSteps: 3,
-                        showNavigation: false,
-                        showPicker: false,
-
-                        // numberPickerConfirmWidget: f,
-                      );
-                    } else {
-                      return const Center(child: Text('Failed to load PDF'));
-                    }
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                },
-              ),
-            ),
-          )
-        : Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              elevation: 0,
-              backgroundColor: Colors.white,
-              actions: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => HomeScreen()),
-                            (route) => false);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 20),
-                        child: Text(
-                          "Skip",
-                          style:
-                              GoogleFonts.varela(color: Constants.themeBgColor),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            body: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 0,
-                    child: Text(
-                      "Recruiters identify prospective candidates through their CV.",
-                      textAlign: TextAlign.center,
-                      softWrap: true,
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold,
-                          color: Constants.themeBgColor,
-                          fontSize: 16.sp),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                Scaffold(
+                  floatingActionButton: Row(
+                    //  mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.r),
-                          color: Colors.white,
-                          /*  boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey.shade400,
-                                //  blurRadius: 10,
-                                blurRadius: 15.0,
-                                offset: const Offset(1, 1))
-                          ], */ //"assets/images/cv_doc.png"
-                        ),
-                        child: Image.asset(
-                          "assets/images/profiledata.gif",
-                          height: 300.0,
-                          fit: BoxFit.contain,
-                          errorBuilder: (BuildContext context, Object exception,
-                              StackTrace? stackTrace) {
-                            // If there's an error loading the image, you can return an error image or message here.
-                            return Image.asset(
-                              "assets/images/cv.png",
-                              height: 200,
-                            ); // Replace 'assets/error_image.png' with your error image.
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: IconButton(
+                            onPressed: () async {
+                              await FileUploadService()
+                                  .deleteSingleFile(resume!);
+                              ref.refresh(userDataProvider);
+                              // Navigator.pop(context);
+                              setState(() {
+                                resume = null;
+                              });
+                            },
+                            icon: const Icon(Icons.delete_outline_outlined,
+                                color: Constants.darkBlue)),
+                      ),
+
+                      /*  SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: CustomButtonForSave(
+                          isBorder: true,
+                          textColor: Constants.darkBlue,
+                          buttonColor: Colors.white,
+                          title: "Update",
+                          onTap: () async {
+                            resume = await fileUploader.uploadFile(
+                                context, ['pdf'], "resume");
+                            setState(() {});
                           },
                         ),
-                        /*  child: Image.network(
-                          "https://cdn.discordapp.com/attachments/1095606068614283337/1169234100503191562/Profile_data.gif?ex=6554a91c&is=6542341c&hm=7d792b032b842e88e73481281c9281d951545f3e8d8988abd07ed4f91b85ff41&",
-                          height: 300.h,
-                          fit: BoxFit.contain,
-                        ), */
-                      ),
+                      ), */
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: CustomButtonForSave(
+                            onTap: () {
+                              Save();
+                            },
+                            title: "Submit"),
+                      )
                     ],
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      resume = await uploadFile(['pdf'], "cv");
-                      var payload = {
-                        "stage": "upload_cv",
-                        "data": {
-                          "id": await Utils.getPreferencesValue(
-                              null, ESharedPreferences.user_id.name),
-                          "cv_link": resume
+                  body: Container(
+                    child: FutureBuilder<PDFDocument>(
+                      future: PDFDocument.fromURL(
+                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/$resume"),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapshot.hasData) {
+                            return PDFViewer(
+                              scrollDirection: Axis.vertical,
+                              panLimit: 1.1,
+                              document: snapshot.data!,
+                              zoomSteps: 3,
+                              showNavigation: false,
+                              showPicker: false,
+
+                              // numberPickerConfirmWidget: f,
+                            );
+                          } else {
+                            return const Center(
+                                child: Text('Failed to load PDF'));
+                          }
+                        } else {
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
-                      };
-                      save(resume, payload);
-                      setState(() {});
-                    },
-                    child: Container(
-                      margin:
-                          const EdgeInsets.only(top: 20, left: 15, right: 15),
-                      width: double.maxFinite,
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
-                      decoration: BoxDecoration(
-                          color: Constants.themeBgColor,
-                          borderRadius: BorderRadius.circular(8.r)),
-                      child: Center(
-                          child: Text(
-                        "Add Resume",
-                        style: GoogleFonts.varela(
-                            fontSize: 16.sp,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
-                      )),
+                      },
                     ),
                   ),
-                  Text(
-                    "Never miss adding your resume",
-                    style: GoogleFonts.varela(
-                        fontSize: 14.sp, color: Constants.subtitleclr),
-                  ),
-                ],
-              ),
+                ),
+                isloading
+                    ? BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                        child: Container(
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      )
+                    : const SizedBox(),
+                isloading
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          color: Constants.themeBgColor,
+                        ),
+                      )
+                    : const SizedBox()
+              ],
             ),
+          )
+        : Stack(
+            children: [
+              Scaffold(
+                bottomNavigationBar: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (resume == null)
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: CustomButtonForSave(
+                            isBorder: true,
+                            textColor: Constants.darkBlue,
+                            buttonColor: Colors.white,
+                            onTap: () async {
+                              Skip();
+                            },
+                            title: "Skip"),
+                      ),
+                    if (resume != null)
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 3,
+                        child: CustomButtonForSave(
+                          title: "Submit",
+                          onTap: () {
+                            Save();
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+                backgroundColor: Colors.white,
+                appBar: AppBar(
+                  backgroundColor: Constants.borderColor,
+                  automaticallyImplyLeading: true,
+                  elevation: 0,
+                  iconTheme: const IconThemeData(color: Constants.black),
+                  title: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OnboardingAppBarHeading(),
+                      OnboardingAppBarSubTitle()
+                    ],
+                  ),
+                ),
+                body: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 10.sp, left: 10.sp, right: 10.sp),
+                        child: LinearProgressIndicator(
+                          value: resume != null ? 1 : 0.835,
+                          // value: _calculateProgress(, // Set progress value
+                          backgroundColor: Colors.grey[300],
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Constants.darkBlue),
+                          minHeight: 9.9.sp,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 20.sp, top: 10.sp, bottom: 10.sp, right: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const OnboardingTitle(
+                              title: "Upload your Resume",
+                            ),
+                            SizedBox(
+                              height: 20.h,
+                            ),
+                            CustomDocumentUploadButton(
+                                onTab: () async {
+                                  resume = await fileUploader.uploadFile(
+                                      context, ['pdf'], "resume");
+
+                                  /*  resume = await uploadFile(['pdf'], "cv"); */
+                                  /*  var payload = {
+                                    "stage": "upload_cv",
+                                    "data": {
+                                      "id": await Utils.getPreferencesValue(
+                                          null, ESharedPreferences.user_id.name),
+                                      "cv_link": resume
+                                    }
+                                  };
+                                  save(resume, payload); */
+                                  setState(() {});
+                                },
+                                title: "Add Resume"),
+                            SizedBox(
+                              height: 10.h,
+                            ),
+                            const customTextForWeather(
+                              title:
+                                  "- Uploading your resume increases your visibility to recruiters, enhancing your job search experience.\n\n- Ensure your resume is up-to-date and relevant to maximize your opportunities.",
+                              fontSize: 10,
+                              color: Constants.subtitleclr,
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              isloading
+                  ? BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                      child: Container(
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                    )
+                  : const SizedBox(),
+              isloading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                        color: Constants.themeBgColor,
+                      ),
+                    )
+                  : const SizedBox()
+            ],
           );
   }
 
-  Future<String?> Delete(bool iscv) async {
+  Skip() async {
+    setState(() {
+      isloading = true;
+    });
+    var prefs = await Utils.getSharedPreferences();
+
+    var userTocken = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_token.name);
+
+    UserRequest updatedUser = widget.introData.copyWith(
+      cvUpdatedDate: "2025-01-27",
+      reportTo: 0,
+    );
+    UserData userData = UserData(
+      userRequest: updatedUser,
+      certificationsRequest: widget.certificationRequest != null
+          ? [widget.certificationRequest!]
+          : [],
+      /*    ? [widget.certificationRequest!]
+          : [], */ // Use an empty list if null
+      educationRequest:
+          widget.educationRequest != null ? [widget.educationRequest!] : [],
+      experienceRequest: widget.experience != null ? [widget.experience!] : [],
+    );
+    await saveUserData(userData, userTocken);
+    /* ref.refresh(fetchAllApplyProvider);
+    ref.refresh(fetchAllTalentPoolProvider);
+    ref.refresh(userDataProvider);
+    ref.refresh(profileSummaryProvider);
+    ref.refresh(fetchAllApplicantProvider); */
+  }
+
+  Save() async {
+    setState(() {
+      isloading = true;
+    });
+    var prefs = await Utils.getSharedPreferences();
+
+    var userTocken = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_token.name);
+    UserRequest updatedUser = widget.introData.copyWith(
+      cvLink: resume,
+      cvUpdatedDate: "2025-01-27",
+      reportTo: 0,
+    );
+    UserData userData = UserData(
+      userRequest: updatedUser,
+      certificationsRequest: widget.certificationRequest != null
+          ? [widget.certificationRequest!]
+          : [], // Use an empty list if null
+      educationRequest:
+          widget.educationRequest != null ? [widget.educationRequest!] : [],
+      experienceRequest: widget.experience != null ? [widget.experience!] : [],
+    );
+    await saveUserData(userData, userTocken);
+    /*  ref.refresh(fetchAllApplyProvider);
+    ref.refresh(fetchAllTalentPoolProvider);
+    ref.refresh(userDataProvider);
+    ref.refresh(profileSummaryProvider);
+    ref.refresh(fetchAllApplicantProvider); */
+  }
+
+  Future<void> saveUserData(UserData requestBody, String token) async {
+    SharedPreferences pres = await Utils.getSharedPreferences();
+    String url =
+        'http://${GlobalConstants.API_Host}/users/v1/save?token=$token';
+
+    try {
+      // Headers
+      Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      // Make the POST request
+      http.Response response = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(requestBody),
+      );
+
+      // Handle the response
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("User data saved successfully!");
+        Utils.clearAllSharedPreferences;
+        print("Response: ${response.body}");
+
+        final parsedResponse = await json.decode(response.body);
+        print("User Body:$parsedResponse");
+        final userType = await parsedResponse['resultData']['profile']
+            ['userResponse']['userType'];
+        await Utils.setPreference(
+            pres, ESharedPreferences.user_type.name, userType.toString());
+        final userId = parsedResponse['resultData']['profile']['userResponse']
+                ['id']
+            .toString();
+        await Utils.setPreference(
+            pres, ESharedPreferences.user_id.name, userId.toString());
+        var rawdata =
+            await parsedResponse['resultData']['profile']['userResponse'];
+        await Utils.setPreference(
+            pres, ESharedPreferences.user_data.name, rawdata);
+        int mobile = await parsedResponse['resultData']['profile']
+            ['userResponse']['mobile'];
+        await Utils.setPreference(
+            pres, ESharedPreferences.user_mobile.name, mobile.toString());
+        int usertype = await parsedResponse['resultData']['profile']
+            ['userResponse']['userType'];
+        ref.refresh(profileSummaryProvider);
+
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+            (route) => false);
+        setState(() {
+          isloading = false;
+        });
+      } else {
+        var jsonResponse = jsonDecode(response.body);
+        showDialog(
+          context: context,
+          builder: (context) {
+            return CustomDialogueForAddResume(
+                error: true,
+                onClose: () {
+                  setState(() {
+                    isloading = false;
+                  });
+                  Navigator.pop(context);
+                },
+                subtitle: jsonResponse['errorMessage']
+                // "Error while doing signup process please try after some time",
+                );
+          },
+        );
+        print(
+            "Signu Up Failed to save user data. Status code: ${response.statusCode}");
+        print("Error: ${response.body}");
+        print("Response: ${response.headers}");
+      }
+    } catch (e) {
+      print("An error occurred: $e");
+    }
+  }
+
+  /* Future<String?> Delete(bool iscv) async {
     try {
       var res = await FileUploadService().deleteSingleFile(iscv
           ? profilemodel.cv_link.toString()
@@ -344,72 +448,7 @@ class _AddCvState extends ConsumerState<AddCv> {
       return null;
     }
     return null;
-  }
-
-  Future<String?> uploadFile(allowExt, String folder) async {
-    Utils.showLoaderDialog(context, "");
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: allowExt,
-      withReadStream: true,
-    );
-
-    if (result != null) {
-      try {
-        var res = await FileUploadService()
-            .uploadSingleFile(folder, result.files.single);
-        var resultD = Utils.parseResponse(res);
-
-        if (resultD.resultKey == 'SUCCESS') {
-          String filePath = result.files.single.path ?? '';
-          String filename = resultD.resultData[0]["fileName"];
-          print(filename);
-          print("Filename: $filePath");
-
-          // Close the loading dialog when the upload is successful
-          Navigator.pop(context);
-          //save(filename, data);
-
-          return filename;
-        } else {
-          // Close the loading dialog when there is an error
-          Navigator.pop(context);
-
-          // Handle the case where the server returns an error
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Error while uploading cv"),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Ok"),
-                  ),
-                ],
-              );
-            },
-          );
-          return null;
-        }
-      } catch (e) {
-        // Close the loading dialog in case of exceptions
-        Navigator.pop(context);
-
-        // Handle any exceptions that occur during the upload
-        print("Error during file upload: $e");
-        return null;
-      }
-    } else {
-      // Close the loading dialog when the user cancels file selection
-      Navigator.pop(context);
-
-      // Handle the case where the user cancels file selection
-      return profilemodel.profile_pic;
-    }
-  }
+  } */
 
   save(filePath, data) async {
     var result = await UserDataService().saveUserStages(data);

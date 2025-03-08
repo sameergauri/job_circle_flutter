@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:timelines/timelines.dart';
 
@@ -139,28 +139,28 @@ class _RestrictedButtonState extends State<RestrictedButton> {
           ? widget.onTap
           : () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                     elevation: 1.0,
                     behavior: SnackBarBehavior.floating,
-                    duration: const Duration(seconds: 5),
+                    duration: Duration(seconds: 5),
                     backgroundColor: Constants.borderColor,
-                    shape: const RoundedRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     // margin: const EdgeInsets.all(5),
-                    content: Text(
-                      'Recruiter are available on Monday to Saturday between 9:00 AM to 7:00 PM.',
-                      style: GoogleFonts.varela(color: Colors.grey.shade700),
+                    content: customTextForWeather(
+                      title:
+                          'Recruiter are available on Monday to Saturday between 9:00 AM to 7:00 PM.',
+                      color: Constants.subtitleclr,
                     )),
               );
             },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.black)),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Constants.subtitleclr)),
         child: widget.isChat
             ? Row(
                 children: [
@@ -172,26 +172,24 @@ class _RestrictedButtonState extends State<RestrictedButton> {
                   const SizedBox(
                     width: 3,
                   ),
-                  Text(
-                    "Chat",
-                    style: GoogleFonts.varela(fontWeight: FontWeight.bold),
+                  const customTextForWeather(
+                    title: "Chat",
+                    fontWeight: FontWeight.bold,
                   )
                 ],
               )
-            : Row(
+            : const Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.phone_android,
                     size: 14,
-                    color: Constants.themeBgColor,
+                    color: Constants.darkBlue,
                   ),
-                  const SizedBox(
+                  SizedBox(
                     width: 3,
                   ),
-                  Text(
-                    "Call ",
-                    style: GoogleFonts.varela(fontWeight: FontWeight.bold),
-                  )
+                  customTextForWeather(
+                      title: "Call ", fontWeight: FontWeight.bold)
                 ],
               ),
       ),

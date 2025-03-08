@@ -8,18 +8,19 @@ class JobLocationModel {
   final int? id;
   final String? city;
   final int? active;
+  final String? formateData;
   final String? group_name;
 
-  JobLocationModel({
-    required this.id,
-    required this.code,
-    required this.value,
-    required this.active,
-    required this.city,
-    required this.group_name,
-    required this.orderno,
-    required this.parentid,
-  });
+  JobLocationModel(
+      {required this.id,
+      required this.code,
+      required this.value,
+      required this.active,
+      required this.city,
+      required this.group_name,
+      required this.orderno,
+      required this.parentid,
+      required this.formateData});
 
   factory JobLocationModel.fromJson(Map<String, dynamic> json) {
     return JobLocationModel(
@@ -30,10 +31,11 @@ class JobLocationModel {
         city: json['city'],
         group_name: json['group_name'],
         orderno: json['orderno'],
+        formateData: json['formateData'],
         parentid: json[""]);
   }
   @override
   String toString() {
-    return 'JobTitleModel{id: $id, code: $code, value: $value, active: $active,city: $city,group_name: $group_name,orderno:$orderno,parentid:$parentid}';
+    return 'JobTitleModel{id: $id, code: $code, value: $value, active: $active,city: $city,group_name: $group_name,orderno:$orderno,parentid:$parentid,formateData:$formateData}';
   }
 }

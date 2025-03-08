@@ -1,14 +1,16 @@
 // ignore_for_file: depend_on_referenced_packages
 // ignore_for_file: todo
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/Manager/manager_home.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/onboarding/add_intoduction.dart';
+import 'package:job_circle/screens/partnerhome.dart';
+import 'package:job_circle/themes/colors.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -107,7 +109,9 @@ class Utils {
     AlertDialog alert = AlertDialog(
       content: Row(
         children: [
-          const CircularProgressIndicator(),
+          const CircularProgressIndicator(
+            color: Constants.darkBlue,
+          ),
           Container(
               margin: const EdgeInsets.only(left: 7),
               child: Text(message == "" ? "Loading..." : message)),
@@ -139,82 +143,59 @@ class Utils {
     );
   }
 
-  static gotoScreen(context, data, String? primNumber) {
-    if (data['usertype'] != null) {
-      final String usertype = data['usertype'].toString();
-
+  static gotoScreen(
+    context,
+    data,
+    String? primNumber,
+  ) async {
+    var type = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_type.name);
+    int? usertype = int.tryParse(type.toString());
+    // ignore: unnecessary_null_comparison
+    if (usertype != 0) {
       if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
-        //TODO:: New Candidate
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => AddIntoduction()),
-            (route) => false);
-        if (data['firstName'] == '') {
+        if (data['firstName'] == null || data['firstName'] == "") {
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => AddIntoduction()),
               (route) => false);
-          //nextRoute = ERoute.screen1;
-        } /* else if (data['education'] == null || data['education'] == 0) {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => AddEducation()));
-        } else if (data['experience'] == null || data['experience'] != 1) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => AddIntoduction()));
-        } */
-        else {
+        } else {
           Navigator.pushAndRemoveUntil(
               //TODO:: Existing candidate
               context,
               MaterialPageRoute(builder: (context) => HomeScreen()),
               (route) => false);
-          // nextRoute = ERoute.home;
         }
-        /*   Navigator.pushNamedAndRemoveUntil(
-            context, nextRoute.value, (Route<dynamic> route) => false); */
-        // Future.delayed(const Duration(seconds: 1), () {
-        //   // Navigator.pushReplacementNamed(context, nextRoute.value);
-        // });
       } else if (usertype.toString() == //TODO:: For Employee
-              EUserType.businessPartner.value.toString() ||
+              EUserType.employee.value.toString() ||
           usertype.toString() == EUserType.employee.value.toString()) {
         //Future.delayed(const Duration(seconds: 1), () {
-        Navigator.pushNamedAndRemoveUntil(
-            context, ERoute.partnerHome.name, (Route<dynamic> route) => false);
-        // Navigator.pushReplacementNamed(
-        //     context, ERoute.businesspartner_confirmation.name);
-        // });
-      } /* else if (usertype.toString() == "5") {
-        //TODO:: For Manager
-        Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const ManagerHomeScreen()),
-              (route) => false);
-          // nextRoute = ERoute.home;
-        });
-      } */ else {
-        Future.delayed(const Duration(seconds: 1), () async {
-          await Utils.setPreference(null, ESharedPreferences.user_type.name,
-              EUserType.jobSeeker.value);
-          Utils.setCacheData("usertype", EUserType.jobSeeker.value);
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => AddIntoduction()),
-              (route) => false);
-          // Navigator.pushNamed(context, ERoute.screen1.value);
-          /*        Navigator.pushNamedAndRemoveUntil(    //TODO: code to send user to the usertype selection page.
-              context, ERoute.logintype.name, (Route<dynamic> route) => false); */
-          //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
-        });
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PartnerHomeScreen(
+                      role: data['role'],
+                      userid: data['userId'],
+                      usertype: data['usertype'],
+                    )),
+            (route) => false);
+        /*  Navigator.pushNamedAndRemoveUntil(
+            context, ERoute.partnerHome.name, (Route<dynamic> route) => false); */
+      } else {
+        Timer(
+            const Duration(seconds: 1),
+            () => Navigator.pushNamedAndRemoveUntil(
+                context, ERoute.login.name, (Route<dynamic> route) => false)
+            // Navigator.pushNamedAndRemoveUntil(
+            //     context, ERoute.login.name, (Route<dynamic> route) => false)
+            );
       }
     } else {
-      Future.delayed(const Duration(seconds: 1), () {
-        Navigator.pushNamedAndRemoveUntil(
-            context, ERoute.logintype.name, (Route<dynamic> route) => false);
-        //Navigator.pushReplacementNamed(context, ERoute.logintype.name);
-      });
+      Navigator.pushAndRemoveUntil(
+          //TODO:: Existing candidate
+          context,
+          MaterialPageRoute(builder: (context) => AddIntoduction()),
+          (route) => false);
     }
   }
 

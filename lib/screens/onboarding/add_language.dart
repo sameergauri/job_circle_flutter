@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:job_circle/screens/onboarding/add_experience.dart';
+import 'package:job_circle/models/user_data_model.dart';
+import 'package:job_circle/screens/onboarding/select_exp_education.dart';
 
 import '../../constants/gobal.dart';
 import '../../models/autocompleteCheckBoxModel.dart';
@@ -17,7 +18,7 @@ class AddLanguage extends StatefulWidget {
   final ProfileSummaryModel? prevPageModel;
   final List<dynamic>? languageList;
 
-  final Map<String, dynamic> params;
+  final UserRequest params;
   final int userID;
 
   // final bool? expirieanceFlag;
@@ -70,10 +71,7 @@ class _AddLanguageState extends State<AddLanguage> {
   }
 
   @override
-  void dispose() {
-    LanguageController.dispose();
-    super.dispose();
-  }
+  
 
   /* void initState() {
     super.initState();
@@ -161,14 +159,21 @@ class _AddLanguageState extends State<AddLanguage> {
       const SnackBar(content: Text('language saved successfully')),
     ); */
 
-    await Navigator.push(
+    /* await Navigator.push(  // TODO :: Before add the page between experience and laguage known.
         context,
         MaterialPageRoute(
             builder: (context) => AddExperience(
                   languageModel: jsonData,
                   introData: widget.params,
                   userID: widget.userID,
-                )));
+                ))); */
+    await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SelectExpEducation(
+              
+                userID: widget.userID,
+                introData: widget.params)));
   }
 
   SnackBar customSnackbar(String title) {

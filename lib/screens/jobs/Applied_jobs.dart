@@ -29,7 +29,7 @@ import '../../themes/colors.dart';
 
 final fetchAllApplyProvider = FutureProvider<List<Applicant>>((ref) {
   Future.delayed(const Duration(milliseconds: 10));
-  return _AppliedJobState.fetchApplicantsByUserId();
+  return _AppliedJobState.fetchApplyedjobbyuserid();
 });
 //enum Issue { no, incorrect, recruiter, other }
 
@@ -84,12 +84,12 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
 
   Future<void> bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-      await Utils.getPreferencesValue(
-        prefs,
-        ESharedPreferences.user_id.name,
-      ),
+    var type = await Utils.getPreferencesValue(
+      prefs,
+      ESharedPreferences.user_id.name,
     );
+    int? usertype = int.tryParse(type.toString());
+    var result = await UserDataService().getUserProfileSummary(usertype!);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       setState(() {
@@ -104,11 +104,12 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
     }
   }
 
-  static Future<List<Applicant>> fetchApplicantsByUserId() async {
+  static Future<List<Applicant>> fetchApplyedjobbyuserid() async {
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     var number = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_mobile.name);
+
     final url = Uri.parse(
         'http://${GlobalConstants.API_Host_one}/leads/v1/getAllAppliedJobByUserId?userId=$userid&mobile=$number&page=1&size=1000'
 
@@ -133,41 +134,6 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
       return [];
     }
   }
-
-  /* String convertSalaryFormat(String input) {
-    // Extract numeric values from the input string
-    List<int> salaryValues = [
-      for (var value in input.split('-'))
-        if (int.tryParse(value.trim().replaceAll(RegExp(r'[^\d]'), '')) != null)
-          int.parse(value.trim().replaceAll(RegExp(r'[^\d]'), ''))
-    ];
-
-    if (salaryValues.length == 2) {
-      int startValue = salaryValues[0];
-      int endValue = salaryValues[1];
-
-      if (input.contains('Per Month')) {
-        if (startValue >= 1000) {
-          double shortStartValue = startValue / 100000.0;
-          double shortEndValue = endValue / 100000.0;
-          return '${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 1)}k - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 1)}k Per Month';
-        } else {
-          return '$startValue - $endValue Per Month';
-        }
-      } else if (input.contains("Lac's P.A")) {
-        if (startValue >= 100000) {
-          double shortStartValue = startValue / 10000000.0;
-          double shortEndValue = endValue / 10000000.0;
-          return "${shortStartValue.toStringAsFixed(shortStartValue.truncateToDouble() == shortStartValue ? 0 : 2)} Lac's - ${shortEndValue.toStringAsFixed(shortEndValue.truncateToDouble() == shortEndValue ? 0 : 2)} Lac's P.A";
-        } else {
-          return '$startValue - $endValue Per Year';
-        }
-      }
-    }
-
-    // Handle other cases, or return the input as it is if it doesn't match any pattern
-    return input;
-  } */
 
   String convertSalaryFormat(String input) {
     // Extract numeric values from the input string
@@ -452,7 +418,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                             child: Container(
                               margin: const EdgeInsets.only(top: 20),
                               decoration: BoxDecoration(
-                                  color: Constants.themeBgColor,
+                                  color: Constants.darkBlue,
                                   borderRadius: BorderRadius.circular(8.r)),
                               padding: const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 20),
@@ -470,13 +436,23 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                 }
               }, error: (error, stackTrace) {
                 return const Center(
-                  child: Text(
-                      "Oops! Something went wrong on our end. Our team is working to fix the issue. Please be patient and bear with us as we resolve this. Thank you for your understanding."),
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                        "Oops! Something went wrong on our end. Our team is working to fix the issue. Please be patient and bear with us as we resolve this. Thank you for your understanding."),
+                  ),
                 );
               }, loading: () {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                    child: CircularProgressIndicator(
+                  color: Constants.darkBlue,
+                ));
               })
-            : const Center(child: SizedBox()));
+            : const Center(
+                child: CircularProgressIndicator(
+                  color: Constants.darkBlue,
+                ),
+              ));
   }
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue) {
@@ -507,8 +483,9 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
             pref, ESharedPreferences.user_type.name);
         var userrole =
             await Utils.getPreferencesValue(pref, ESharedPreferences.role.name);
-        var userid = await Utils.getPreferencesValue(
+        var id = await Utils.getPreferencesValue(
             pref, ESharedPreferences.user_id.name);
+        int? userid = int.tryParse(id);
         if (item.status_id == 1 ||
             (item.hr_status_id == 12) ||
             item.status_id == 4 ||
@@ -517,8 +494,8 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
             builder: (context) {
               return JobDetailsForCandidate(
                 hint: 0,
-                userrole: userrole,
-                userid: userid,
+                userrole: userrole.toString(),
+                userid: userid!,
                 userType: userType,
                 Applies: false,
                 referal: true,
@@ -838,7 +815,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                               child: Text(
                                                 "Application referred for interview.",
                                                 style: GoogleFonts.varela(
-                                                    color: Constants.blue,
+                                                    color: Constants.darkBlue,
                                                     fontWeight: FontWeight.w600,
                                                     fontSize: 14.sp),
                                                 softWrap: true,
@@ -863,7 +840,8 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                                               .s2ApplyFeedback1
                                                               .toString(),
                                                       style: GoogleFonts.varela(
-                                                          color: Constants.blue,
+                                                          color: Constants
+                                                              .darkBlue,
                                                           fontWeight:
                                                               FontWeight.w600,
                                                           fontSize: 14.sp),
@@ -873,7 +851,8 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                                 : Text(
                                                     "Status Not Found",
                                                     style: GoogleFonts.varela(
-                                                        color: Constants.blue,
+                                                        color:
+                                                            Constants.darkBlue,
                                                         fontWeight:
                                                             FontWeight.w600,
                                                         fontSize: 14.sp),
@@ -1050,7 +1029,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                 Image.asset(
                                   "assets/images/verified.png",
                                   height: 16.h,
-                                  color: Constants.themeBgColor,
+                                  color: Constants.darkBlue,
                                 ),
                                 const SizedBox(
                                   width: 2,

@@ -1,59 +1,74 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first, unused_result, unused_local_variable, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, collection_methods_unrelated_type, use_build_context_synchronously
+// ignore_for_file: public_member_api_docs, sort_constructors_first, unused_result, unused_local_variable, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, collection_methods_unrelated_type, use_build_context_synchronously, avoid_types_as_parameter_names, unrelated_type_equality_checks
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:job_circle/screens/profile/profile_summary.dart';
+import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
+import 'package:job_circle/screens/profile/user_profile.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 
 import '../../constants/gobal.dart';
-import '../../models/profileSummary.dart';
 import '../../themes/colors.dart';
 
 class SkillsMulti extends ConsumerStatefulWidget {
-  final ProfileSummaryModel? prevPageModel;
-
+  final bool isEdit;
   // final bool? expirieanceFlag;
-  final List<Experience> experienceList;
-  final List<String> initialSkills;
+  final List<String> Skill;
+  final List<String>? expskill;
+  final int userid;
+  final ExperienceRequestDto? experienceRequestDto;
+  final ProfileUpdateRequestDto? profileUpdateRequestDto;
+  final bool? needpop;
 
   const SkillsMulti(
       {super.key,
-      required this.prevPageModel,
-      required this.experienceList,
-      required this.initialSkills});
+      required this.Skill,
+      required this.userid,
+      required this.isEdit,
+      this.expskill,
+      this.needpop,
+      this.experienceRequestDto,
+      this.profileUpdateRequestDto});
   @override
   ConsumerState<SkillsMulti> createState() => _SkillsMultiState();
 }
 
 class _SkillsMultiState extends ConsumerState<SkillsMulti> {
-  late Widget previousWidget;
-
   late TextEditingController skillsController = TextEditingController();
   List<String> fetchApiskill = [];
   List<dynamic> selectedValuesList = [];
   List<dynamic> selectedKeySkills = [];
   List<String> selectedValues = [];
-  int? expID;
+
+  bool isLoading = false;
+  bool isMainLoading = false;
+
+  FocusNode skillfocus = FocusNode();
 
   void callApiFunction() async {
+    setState(() {
+      isLoading = true;
+    });
     await getSkills(
       "",
     );
     skillsController = TextEditingController();
-    if (widget.prevPageModel != null) {
-      selectedlist = widget.prevPageModel!.skills!.toSet().toList();
-      suggestions.removeWhere(
-          (suggestion) => widget.prevPageModel!.skills!.contains(suggestion));
-      expID = widget.prevPageModel!.id;
+    if (widget.experienceRequestDto != null) {
+      selectedlist = widget.experienceRequestDto!.skillsExp?.toSet().toList();
+    } else {
+      selectedlist = widget.Skill.toSet().toList();
     }
-    for (var experience in widget.experienceList) {
-      if (experience.skills_exp != null) {
-        selectedValues.addAll(experience.skills_exp!);
-      }
-    }
+
+    suggestions.removeWhere((suggestion) => widget.Skill.contains(suggestion));
+
     selectedValues.addAll(fetchApiskill);
     selectedValues = selectedValues.toSet().toList();
   }
@@ -65,150 +80,97 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
   }
 
   @override
-  void dispose() {
-    skillsController.dispose();
-    super.dispose();
-  }
-
-  void updateSelectedValues(String value) {
-    setState(() {
-      selectedValues.add(value);
-    });
-  }
-
-  static Future<void> updateSkills(
-      Map<String, dynamic> jsonData, int id) async {
-    String apiUrl = 'http://${GlobalConstants.API_Host}/users/v1/$id';
-
-    try {
-      var response = await http.put(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(jsonData),
-      );
-
-      if (response.statusCode == 200) {
-        // Successful request
-        // print('Data posted successfully');
-      } else {
-        // Request failed
-        // print('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      // print('Error: $e');
-    }
-  }
-
   void save() async {
-    ProfileSummaryModel model =
-        ProfileSummaryModel(id: expID, skills: selectedlist);
-    Map<String, dynamic> jsonData = model.toJson();
-    await updateSkills(jsonData, expID!);
-    ref.refresh(userDataProvider);
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-        customSnackbar("Your skill set has been updated.", false));
-  }
+    if (widget.profileUpdateRequestDto != null &&
+        widget.profileUpdateRequestDto != null) {
+      List<String> allSkills = widget.Skill + selectedlist!;
+      ProfileUpdateRequestDto updateRequestDto =
+          widget.profileUpdateRequestDto!.copyWith(skills: allSkills);
+      ExperienceRequestDto updateExperienceDto =
+          widget.experienceRequestDto!.copyWith(skillsExp: selectedlist ?? []);
+      UserUpdateRequestModel userUpdateRequestModel = UserUpdateRequestModel(
+          certificationsRequestDtos: null,
+          educationRequestDtos: null,
+          experienceRequestDtos: [updateExperienceDto],
+          profileUpdateRequestDto: updateRequestDto);
+      await JobPostApiService.PostUserInfo(
+        userUpdateRequestModel,
+      );
+      ref.refresh(ProfileDataProvider);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      if (widget.needpop != null && widget.needpop == true) {
+        Navigator.pop(context);
+      }
+      setState(() {
+        isMainLoading = false;
+      });
+      CustomSnackbar.show(
+          widget.isEdit
+              ? "Expperience Updated Succesfully"
+              : "Experience Added Succesfully.",
+          false);
+    } else {
+      ProfileUpdateRequestDto profileUpdateRequestDto =
+          ProfileUpdateRequestDto(id: widget.userid, skills: selectedlist ?? []
+              //bio: bio.text.trim().isEmpty ? null : bio.text,
+              );
 
-  SnackBar customSnackbar(String title, bool error) {
-    return SnackBar(
-      elevation: 1.0,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 5),
-      backgroundColor: Constants.themeBgColorLight,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      ),
-      padding: const EdgeInsets.symmetric(
-          horizontal: 10, vertical: 8), // Remove shadow
-      content: Row(
-        children: [
-          error
-              ? Icon(
-                  Icons.error_outline_outlined,
-                  color: Colors.red,
-                  size: 15.h,
-                )
-              : Image.asset(
-                  "assets/images/check.png",
-                  color: Constants.themeBgColor,
-                  height: 15.h,
-                ),
-          /* Icon(
-                  Icons.check,
-                  color: Constants.themeBgColor,
-                  size: 15.h,
-                ),  */ // Add an icon if needed
-          const SizedBox(width: 8.0), // Add spacing between icon and text
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.black, // Text color
-              fontSize: 14.0, // Text size
-            ),
-          ),
-        ],
-      ),
-      // duration: const Duration(seconds: 3),
-    );
+      UserUpdateRequestModel userUpdateRequestModel = UserUpdateRequestModel(
+          certificationsRequestDtos: null,
+          educationRequestDtos: null,
+          experienceRequestDtos: null,
+          profileUpdateRequestDto: profileUpdateRequestDto);
+
+      await JobPostApiService.PostUserInfo(
+        userUpdateRequestModel,
+      );
+      ref.refresh(ProfileDataProvider);
+
+      Navigator.pop(context);
+      setState(() {
+        isMainLoading = false;
+      });
+
+      CustomSnackbar.show(
+          widget.isEdit == false
+              ? "Your skills set added succesfully"
+              : "Your skill set has been updated.",
+          false);
+    }
   }
 
   List<String> suggestions = [];
   List<String>? selectedlist;
 
-  /*  Future<List<Skill>> getJobTitle(String pattern, String name) async {
-    final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/jobs/v1/skills?pageNumber=1&pageSize=100'));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      // List<JobTitleModel1> suggestions = [];
-      Set<String> uniqueValues = {};
-
-      List<dynamic> content = data['resultData']['content'];
-
-      for (var entry in content) {
-        String? value = entry['skills']?.toString();
-        if (value != null &&
-            value.toLowerCase().startsWith(pattern.toLowerCase())) {
-          if (!uniqueValues.contains(value)) {
-            uniqueValues.add(value);
-            Skill skill = Skill.fromJson(entry);
-            suggestions.add(skill);
-          }
-        }
-      }
-
-      return suggestions;
-    } else {
-      throw Exception('Failed to retrieve suggestions');
-    }
-  } */
-
-  Future<List<String>> getSkills(
-    String pattern,
-  ) async {
-    final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/jobs/v1/skills?pageNumber=1&pageSize=1000'));
+  Future<List<String>> getSkills(String pattern) async {
+    final response = await http.post(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/api/master/v1/getMasterDataByGroupName?groupNmae=Skills&pageNumber=1&pageSize=1000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       Set<String> uniqueValues = {};
-      List<dynamic> content = data['resultData']['content'];
+
+      List<dynamic> content = data['resultData']["masterData"]['content'];
 
       for (var entry in content) {
-        String? value = entry['skills']?.toString();
+        String? value = entry['value']?.toString();
         if (value != null &&
             value.toLowerCase().startsWith(pattern.toLowerCase())) {
           if (!uniqueValues.contains(value)) {
             uniqueValues.add(value);
-            suggestions.add(value);
-            setState(() {});
           }
+          // Add unique values
         }
       }
 
-      return suggestions;
+      suggestions.addAll(uniqueValues); // Add all unique values at once
+
+      setState(() {
+        isLoading = false;
+      });
+
+      return suggestions.toSet().toList();
     } else {
       throw Exception('Failed to retrieve suggestions');
     }
@@ -216,209 +178,229 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: InkWell(
-        onTap: save,
-        child: Container(
-          margin:
-              const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
-          decoration: BoxDecoration(
-              color: Constants.themeBgColor,
-              borderRadius: BorderRadius.circular(8.r)),
-          width: double.maxFinite,
-          padding: const EdgeInsets.only(bottom: 8, top: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Save",
-                style: GoogleFonts.varela(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              ),
-            ],
+    return Stack(
+      children: [
+        Scaffold(
+          bottomNavigationBar: CustomButtonForSave(
+            title: "Save",
+            onTap: () {
+              if (selectedlist!.isEmpty) {
+                CustomSnackbar.show("Add Atleast one skill to save", true);
+              } else {
+                setState(() {
+                  isMainLoading = true;
+                });
+                save();
+              }
+            },
+          ), //  backgroundColor: Constants.themeBgColorLight,
+          appBar: AppBar(
+            automaticallyImplyLeading: true,
+            backgroundColor: Constants.borderColor,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.black),
+            title: OnboardingTitle(
+              title: widget.isEdit ? "Edit Skills" : "Add Skills",
+            ),
           ),
-        ),
-      ),
-      //  backgroundColor: Constants.themeBgColorLight,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Edit Skills",
-              style: GoogleFonts.varela(
-                fontSize: 18.sp,
-                color: Constants.themeBgColor,
-                fontWeight: FontWeight.w600,
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 10.h),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  CustomTextFieldforAll(
+                      onChanged: (text) {
+                        // Update the suggestions based on user input
+                        setState(() {
+                          if (skillsController.text.isEmpty) {
+                            getSkills("");
+                            suggestions = suggestions;
+                          } else {
+                            // Otherwise, filter suggestions based on user input
+                            suggestions.clear();
+                            getSkills(skillsController.text);
+                            setState(() {
+                              isLoading = true;
+                            });
+                          }
+                        });
+                      },
+                      onTabOutside: (event) {
+                        FocusScope.of(context).unfocus();
+                        skillsController.clear();
+                        getSkills("");
+                      },
+                      onEditingComplete: () {
+                        FocusScope.of(context).unfocus();
+                        skillsController.clear();
+                        getSkills("");
+                      },
+                      onFieldSubmitted: (value) {
+                        setState(() {
+                          // Increase maxLines when the "Enter" key is pressed
+
+                          skillsController.clear();
+                        });
+                      },
+                      hint: "Enter your skill that match your role",
+                      focusNode: skillfocus,
+                      controller: skillsController),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  if (selectedlist != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 5.h,
+                        ),
+                        if (selectedlist != null)
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.start,
+                            alignment: WrapAlignment.start,
+                            children: selectedlist!.toSet().map((suggestion) {
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    if (!selectedlist!.contains(suggestions)) {
+                                      selectedlist!.remove(suggestion);
+                                      suggestions.add(suggestion);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.only(
+                                      bottom: 2, left: 2, right: 2),
+                                  decoration: BoxDecoration(
+                                      color: Constants.borderColor,
+                                      borderRadius: BorderRadius.circular(8.r)),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 6.h, horizontal: 10.w),
+                                  child: customTextForWeather(
+                                    title: suggestion.toString(),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        SizedBox(
+                          height: 05.h,
+                        ),
+                        const Divider(thickness: 0.8),
+                      ],
+                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const customTextForWeather(
+                        title: "Suggestions",
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      SizedBox(
+                        height: 5.h,
+                      ),
+                      isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Constants.themeBgColor,
+                              ),
+                            )
+                          : Container(
+                              width: MediaQuery.of(context).size.width,
+                              padding: EdgeInsets.only(
+                                top: 10.h,
+                                bottom: 40.h,
+                                left: 10.w,
+                              ),
+                              decoration: BoxDecoration(
+                                  color: Constants.lightdull,
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.shade300,
+                                        blurRadius: 2.1,
+                                        spreadRadius: 3.2,
+                                        offset: const Offset(4.0, 8.0))
+                                  ],
+                                  borderRadius: BorderRadius.circular(8.r)),
+                              child: Wrap(
+                                children:
+                                    suggestions.take(20).map((suggestion) {
+                                  return InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        if (!selectedlist!
+                                            .contains(suggestion)) {
+                                          selectedlist!.add(suggestion);
+                                          suggestions.remove(suggestion);
+                                        } else {
+                                          CustomSnackbar.show(
+                                              "'$suggestion Already added in the list.'",
+                                              true);
+                                        }
+                                      });
+                                    },
+                                    child: Container(
+                                        margin: const EdgeInsets.only(
+                                            bottom: 6,
+                                            top: 2,
+                                            left: 6,
+                                            right: 2),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(8.r)),
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 6.h, horizontal: 10.w),
+                                        child: customTextForWeather(
+                                            title: suggestion.toString(),
+                                            fontWeight: FontWeight.w400,
+                                            color: Constants.subtitleclr)),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      const customTextForWeather(
+                          title:
+                              'We recommend adding your top 5 skill used in this role',
+                          fontSize: 12,
+                          color: Constants.subtitleclr),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-            Text(
-              "Let recruiter know your value as a potential candidate",
-              style: GoogleFonts.varela(
-                  color: Colors.grey.shade600,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.normal),
-            )
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(left: 20.w, right: 20.w, top: 5),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              CustomTextField(
-                  icon: const Icon(
-                    Icons.lightbulb_outline,
-                  ),
-                  hint: "Advance Excel",
-                  label: "Skills",
-                  focusNode: FocusNode(),
-                  controller: skillsController),
-              const SizedBox(
-                height: 10,
-              ),
-              if (selectedlist != null)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /* Text(
-                      "Selected Skills",
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.w500, fontSize: 16.sp),
-                    ), */
-                    SizedBox(
-                      height: 5.h,
-                    ),
-                    if (selectedlist != null)
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.start,
-                        alignment: WrapAlignment.start,
-                        children: selectedlist!.toSet().map((suggestion) {
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                if (!selectedlist!.contains(suggestions)) {
-                                  selectedlist!.remove(suggestion);
-                                  suggestions.add(suggestion);
-                                }
-                              });
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(
-                                  bottom: 2, top: 2, left: 2, right: 2),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(8.r)),
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 6.h, horizontal: 10.w),
-                              child: Text(suggestion.toString()),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    SizedBox(
-                      height: 05.h,
-                    ),
-                    const Divider(thickness: 0.8),
-                  ],
-                ),
-              if (suggestions.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Suggestions",
-                      style: GoogleFonts.varela(
-                          fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15.sp,
-                          color: Constants.themeBgColor),
-                    ),
-                    SizedBox(
-                      height: 5.h,
-                    ),
-                    if (selectedlist != null)
-                      Wrap(
-                        /* children: Set<Widget>.from(
-                          suggestions.map((suggestion) {
-                            return InkWell(
-                              onTap: () {
-                                setState(() {
-                                  if (!selectedlist!.contains(suggestion)) {
-                                    selectedlist!.add(suggestion);
-                                    suggestions.remove(suggestion);
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            '$suggestion Already added in the list.'),
-                                      ),
-                                    );
-                                  }
-                                });
-                              },
-                              child: Container(
-                                margin: const EdgeInsets.only(
-                                    bottom: 2, top: 2, left: 2, right: 2),
-                                decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    borderRadius: BorderRadius.circular(8.r)),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 6.h, horizontal: 10.w),
-                                child: Text(suggestion.toString()),
-                              ),
-                            );
-                          }),
-                        ).toList(), */
-                        children: suggestions.toSet().map((suggestion) {
-                          return InkWell(
-                            onTap: () {
-                              setState(() {
-                                if (!selectedlist!.contains(suggestion)) {
-                                  selectedlist!.add(suggestion);
-                                  suggestions.remove(suggestion);
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          '$suggestion Already added in the list.'),
-                                    ),
-                                  );
-                                }
-                              });
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(
-                                  bottom: 2, top: 2, left: 2, right: 2),
-                              decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
-                                  borderRadius: BorderRadius.circular(8.r)),
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 6.h, horizontal: 10.w),
-                              child: Text(suggestion.toString()),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                  ],
-                ),
-              if (suggestions.isEmpty)
-                const Center(
-                  child: Text("No data found"),
-                ),
-              const SizedBox(height: 20),
-            ],
           ),
         ),
-      ),
+        if (isMainLoading)
+          Positioned.fill(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Blur Effect
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.2), // Semi-transparent overlay
+                  ),
+                ),
+                // Circular Progress Indicator
+                const CircularProgressIndicator(
+                  color: Constants.darkBlue,
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -459,10 +441,21 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
         //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
         textCapitalization: TextCapitalization.sentences,
         controller: controller,
+        onTapOutside: (event) {
+          FocusScope.of(context).unfocus();
+          controller.clear();
+          getSkills("");
+        },
+        onEditingComplete: () {
+          FocusScope.of(context).unfocus();
+          controller.clear();
+          getSkills("");
+        },
         onFieldSubmitted: (value) {
           setState(() {
             // Increase maxLines when the "Enter" key is pressed
             maxLines += 1;
+            controller.clear();
           });
         },
 
@@ -476,28 +469,22 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
               // Otherwise, filter suggestions based on user input
               suggestions.clear();
               getSkills(controller.text);
-              setState(() {});
+              setState(() {
+                isLoading = true;
+              });
             }
           });
         },
         onTap: (() {}),
-        style: GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+        style: GoogleFonts.varela(color: Constants.black, fontSize: 12.sp),
         decoration: InputDecoration(
             /*  filled: isPrimaryNumber! ? true : false,
             fillColor:
                 isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent, */
-            prefixIcon: icon,
-            prefixIconColor: Constants.themeBgColor,
-            suffix: isOptional != null && isOptional
-                ? const Text("(Optional)")
-                : const SizedBox(),
+
             contentPadding:
                 const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
             counterText: '',
-            labelText: label,
-            labelStyle: const TextStyle(
-              color: Constants.themeBgColor,
-            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
               borderSide: const BorderSide(color: Color(0xffff0eceb)),
@@ -506,12 +493,12 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.r),
               borderSide: const BorderSide(
-                color: Constants.themeBgColor,
+                color: Constants.black,
               ),
             ),
             hintText: hint,
             hintStyle: GoogleFonts.sourceSansPro(
-                color: Constants.hintColor, fontSize: 15.sp)),
+                color: Constants.hintColor, fontSize: 12.sp)),
       ),
     );
   }

@@ -490,8 +490,8 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                     preferredSize: Size(
                         double.maxFinite,
                         isSearchEnable
-                            ? kTextTabBarHeight * 1.60.sp
-                            : kToolbarHeight / 1.4.sp),
+                            ? kTextTabBarHeight * 1.60
+                            : kToolbarHeight / 1.3),
                     child: AppBar(
                       automaticallyImplyLeading: false,
                       elevation: 0,
@@ -2084,12 +2084,12 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
   ProfileSummaryModel profilemodel = ProfileSummaryModel();
   Future<void> bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-      await Utils.getPreferencesValue(
-        prefs,
-        ESharedPreferences.user_id.name,
-      ),
+    var userid = await Utils.getPreferencesValue(
+      prefs,
+      ESharedPreferences.user_id.name,
     );
+    var result =
+        await UserDataService().getUserProfileSummary(int.tryParse(userid)!);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       setState(() {
@@ -2434,7 +2434,7 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                               Visibility(
                                   visible: item.hr_status_id == 12 ||
                                       item.s2DdHrStatusId == 12, //TODO:: Assign
-                                  child: GestureDetector(
+                                  child: InkWell(
                                     onDoubleTap: () async {
                                       SharedPreferences pref =
                                           await Utils.getSharedPreferences();
@@ -2476,7 +2476,7 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                                   visible: item.hr_status_id == 14 ||
                                       item.s2DdHrStatusId ==
                                           14, //TODO:: InterViewBay
-                                  child: GestureDetector(
+                                  child: InkWell(
                                     onDoubleTap: () async {
                                       SharedPreferences pref =
                                           await Utils.getSharedPreferences();
@@ -2520,7 +2520,7 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                                       item.s2DdHrStatusId ==
                                           20, //TODO:: Line-up
 
-                                  child: GestureDetector(
+                                  child: InkWell(
                                     onDoubleTap: () async {
                                       SharedPreferences pref =
                                           await Utils.getSharedPreferences();
@@ -2562,7 +2562,7 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                               Visibility(
                                   visible: item.dd_hr_status_id == 13 ||
                                       item.s2DdHrStatusId == 13, //TODO:: Select
-                                  child: GestureDetector(
+                                  child: InkWell(
                                     onDoubleTap: () async {
                                       SharedPreferences pref =
                                           await Utils.getSharedPreferences();
@@ -2608,7 +2608,7 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                                       item.hr_status_id == 18 ||
                                       item.hr_status_id == 19,
                                   //TODO:: Hiring Hold/Closed
-                                  child: GestureDetector(
+                                  child: InkWell(
                                     onDoubleTap: () async {
                                       SharedPreferences pref =
                                           await Utils.getSharedPreferences();
@@ -2620,9 +2620,11 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
+
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -2631,9 +2633,10 @@ class _NewInterviewBayCCState extends ConsumerState<NewInterviewBayCC>
                                                     report_to: reportTo,
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                   )));

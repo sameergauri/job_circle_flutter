@@ -5,15 +5,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/screens/profile/profile_summary.dart';
-import 'package:job_circle/service/UserDataService.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/profile/user_profile.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EducationSelectionDialog extends ConsumerStatefulWidget {
   final int id;
-  const EducationSelectionDialog({super.key, required this.id});
+  final String text;
+  final String type;
+  final int? explegth;
+  const EducationSelectionDialog(
+      {super.key,
+      required this.id,
+      required this.text,
+      required this.type,
+      this.explegth});
 
   @override
   _EducationSelectionDialogState createState() =>
@@ -28,78 +37,76 @@ class _EducationSelectionDialogState
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      elevation: 1,
       contentPadding:
-          EdgeInsets.only(top: 10.h, left: 14, right: 14, bottom: 8),
-      content: Container(
+          const EdgeInsets.only(top: 20, left: 14, right: 14, bottom: 20),
+      content: SizedBox(
+        // width: MediaQuery.of(context).size.width / 3,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Level of ",
-                  style: GoogleFonts.varela(
-                      fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "Education",
-                  style: GoogleFonts.varela(
-                      color: Colors.blue,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.bold),
-                )
-              ],
+            customTextForWeather(
+                title: "Delete ${widget.text} Permanently?",
+                fontSize: 16,
+                softwrap: true,
+                fontWeight: FontWeight.bold),
+            SizedBox(
+              height: 10.h,
             ),
+            customTextForHind(
+                title:
+                    "If you delete this ${widget.text}, you won't be able to recover it. Do you want to delete it?",
+                fontSize: 12,
+                softwrap: true,
+                color: Constants.subtitleclr,
+                fontWeight: FontWeight.normal),
             SizedBox(
               height: 10.h,
             ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 InkWell(
                   onTap: () {
-                    setState(() {
-                      isUnderGraduate = true;
-                      isGraduate = false;
-                    });
+                    _handleDeleteAction();
                   },
                   child: Container(
+                    margin: const EdgeInsets.only(right: 10),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Constants.themeBgColor),
-                      color: isUnderGraduate
-                          ? Constants.themeBgColor
-                          : Colors.white,
+                      border: Border.all(color: Constants.darkBlue),
+                      color: Constants.darkBlue,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8),
                     child: Text(
-                      "H.S.C",
+                      "Yes",
                       style: GoogleFonts.varela(
                         fontWeight: isUnderGraduate
                             ? FontWeight.bold
                             : FontWeight.normal,
-                        color: isUnderGraduate ? Colors.white : Colors.black,
+                        color: Colors.white,
                       ),
                     ),
                   ),
                 ),
                 InkWell(
                   onTap: () {
-                    setState(() {
-                      isGraduate = true;
-                      isUnderGraduate = false;
-                    });
+                    Navigator.pop(context);
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Constants.themeBgColor),
-                      color: isGraduate ? Constants.themeBgColor : Colors.white,
+                      border: Border.all(color: Constants.subtitleclr),
+                      color: isGraduate ? Constants.darkBlue : Colors.white,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8),
                     child: Text(
-                      "Graduate or above",
+                      "No",
                       style: GoogleFonts.varela(
                         fontWeight:
                             isGraduate ? FontWeight.bold : FontWeight.normal,
@@ -110,101 +117,53 @@ class _EducationSelectionDialogState
                 ),
               ],
             ),
-            if (isGraduate || isUnderGraduate)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  InkWell(
-                      onTap: () async {
-                        var payload = {
-                          "stage": "education",
-                          "data": {
-                            "id": await Utils.getPreferencesValue(
-                                null, ESharedPreferences.user_id.name),
-                            "education": isGraduate ? 1 : 0,
-                          }
-                        };
-
-                        await saveEducation(payload);
-                        await JobPostApiService.DeletExperience(
-                            widget.id, context, "edu");
-                        ScaffoldMessenger.of(context).showSnackBar(
-                            customSnackbar(
-                                "Experience Deleted Succesfully.", true));
-                        ref.refresh(userDataProvider);
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(top: 20),
-                        decoration: const BoxDecoration(),
-                        child: Text("Submit",
-                            style: GoogleFonts.varela(
-                                fontWeight: FontWeight.bold,
-                                color: Constants.subtitleclr)),
-                      ))
-                ],
-              )
           ],
         ),
       ),
     );
   }
 
-  SnackBar customSnackbar(String title, bool error) {
-    return SnackBar(
-      elevation: 1.0,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 5),
-      backgroundColor: Constants.themeBgColorLight,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8)),
-      ),
-      padding: const EdgeInsets.symmetric(
-          horizontal: 10, vertical: 8), // Remove shadow
-      content: Expanded(
-        child: Row(
-          children: [
-            error
-                ? Icon(
-                    Icons.error_outline_outlined,
-                    color: Colors.red,
-                    size: 15.h,
-                  )
-                : Image.asset(
-                    "assets/images/check.png",
-                    color: Constants.themeBgColor,
-                    height: 15.h,
-                  ),
-            /* Icon(
-                    Icons.check,
-                    color: Constants.themeBgColor,
-                    size: 15.h,
-                  ),  */ // Add an icon if needed
-            const SizedBox(width: 8.0), // Add spacing between icon and text
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.black, // Text color
-                  fontSize: 14.0,
-                  // Text size
-                ),
-                softWrap: true,
-                maxLines: 2,
-              ),
-            ),
-          ],
-        ),
-      ),
-      // duration: const Duration(seconds: 3),
-    );
-  }
+  Future<void> _handleDeleteAction() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    String message;
+    if (widget.type == "exp") {
+      if (widget.explegth != null && widget.explegth == 1) {
+        /*  ProfileUpdateRequestDto profileUpdateRequestDto =   //TODO:: uncomment when experience field added to api..
+            ProfileUpdateRequestDto(
+                id: await Utils.getPreferencesValue(
+                    prefs, ESharedPreferences.user_id.name),
+                experience: 0);
 
-  saveEducation(data) async {
-    var result = await UserDataService().saveUserStages(data);
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      print("done");
+        UserUpdateRequestModel userUpdateRequestModel = UserUpdateRequestModel(
+            certificationsRequestDtos: null,
+            educationRequestDtos: null,
+            experienceRequestDtos: null,
+            profileUpdateRequestDto: profileUpdateRequestDto);
+        await JobPostApiService.PostUserInfo(
+          userUpdateRequestModel,
+        ); */
+        await JobPostApiService.DeletExperience(
+            widget.id, context, "deleteExpById");
+      } else {
+        await JobPostApiService.DeletExperience(
+            widget.id, context, "deleteExpById");
+      }
+
+      message = "Experience Deleted Successfully.";
+    } else if (widget.type == "edu") {
+      await JobPostApiService.DeletEducaton(widget.id, context);
+      message = "Qualification Deleted Successfully.";
+    } else {
+      await JobPostApiService.DeletExperience(
+          widget.id, context, "deleteCertById");
+      message = "Certificate Deleted Successfully.";
     }
-    setState(() {});
+
+    CustomSnackbar.show(message, true);
+    ref.refresh(ProfileDataProvider);
+    Navigator.pop(context);
+    if (widget.explegth != null && widget.explegth != 1) {
+      Navigator.pop(context);
+    }
   }
 }

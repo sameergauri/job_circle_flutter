@@ -41,7 +41,7 @@ class JobDetailsForCC extends ConsumerStatefulWidget {
   int? id;
   bool Applies;
   bool referal;
-  int is_freelancer;
+  // int is_freelancer;
   int? userType;
   String? userrole;
   int userid;
@@ -51,7 +51,7 @@ class JobDetailsForCC extends ConsumerStatefulWidget {
       this.id,
       required this.Applies,
       required this.referal,
-      required this.is_freelancer,
+      // required this.is_freelancer,
       required this.userid,
       this.userType,
       this.userrole});
@@ -144,9 +144,11 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
 
   bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-        await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name));
+    var userid =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    var result =
+        await UserDataService().getUserProfileSummary(int.tryParse(userid)!);
+
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromJson(dataResult);
@@ -159,7 +161,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
   void initState() {
     super.initState();
     bindProfileSummary();
-    fillCacheData();
+    // fillCacheData();
     _tabController = TabController(length: 3, vsync: this);
     // benefit();
     //   const RestrictedButton();
@@ -211,10 +213,10 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
     });
   }
 
-  fillCacheData() async {
+  /* fillCacheData() async {
     partner_request = await Utils.getCacheData('partner_request');
     setState(() {});
-  }
+  } */
 
   getJobDetails(id) async {
     try {
@@ -400,12 +402,11 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
               Visibility(
                   visible: (usertype == EUserType.jobSeeker.value ||
                           usertype == EUserType.businessPartner.value) &&
-                      (!widget.Applies && !widget.referal) &&
-                      (widget.is_freelancer == 1 ||
-                          widget.is_freelancer == 0 ||
-                          widget.is_freelancer == null),
+                      (!widget.Applies && !widget.referal),
                   child: InkWell(
                     onTap: () async {
+                      String id = await Utils.getPreferencesValue(
+                          null, ESharedPreferences.user_id.name);
 //
 //
 //
@@ -442,13 +443,12 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                             diff) {
                           if (profilemodel.cv_link != null) {
                             await JobPostApiService.postJobApply(
+                               addcv: false,
                               context: context,
                               jobId: int.parse(jobDetailsModel.id.toString()),
                               // userId: int.parse(profilemodel.id.toString()
                               userId: await Utils.getPreferencesValue(
                                   null, ESharedPreferences.user_id.name),
-                              number: await Utils.getPreferencesValue(
-                                  null, ESharedPreferences.user_mobile.name),
                             );
                             ref.refresh(fetchAllApplyProvider);
                             ref.refresh(fetchAllTalentPoolProvider);
@@ -459,6 +459,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                                   MaterialPageRoute(
                                       builder: (context) => AddCvtoApply(
                                             jobId: jobDetailsModel.id!.toInt(),
+                                            userid: int.tryParse(id)!,
                                           )));
                             }
                           }
@@ -481,11 +482,9 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                       } else {
                         if (profilemodel.cv_link != null) {
                           await JobPostApiService.postJobApply(
+                            addcv: false,
                               jobId: jobDetailsModel.id!.toInt(),
-                              userId: await Utils.getPreferencesValue(
-                                  null, ESharedPreferences.user_id.name),
-                              number: await Utils.getPreferencesValue(
-                                  null, ESharedPreferences.user_mobile.name),
+                              userId: int.tryParse(id)!,
                               context: context);
                           ref.refresh(fetchAllApplyProvider);
                           ref.refresh(fetchAllTalentPoolProvider);
@@ -496,6 +495,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                                 MaterialPageRoute(
                                     builder: (context) => AddCvtoApply(
                                           jobId: jobDetailsModel.id!.toInt(),
+                                          userid: int.tryParse(id)!,
                                         )));
                           }
                         }
@@ -530,7 +530,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                         context,
                         MaterialPageRoute(
                             builder: (context) => AddResume(
-                                  report_to: profilemodel.report_to!.toInt(),
+                                  // report_to: profilemodel.report_to!.toInt(),
                                   company_name: jobDetailsModel.name.toString(),
                                   role: jobDetailsModel.rolename.toString(),
                                   process: jobDetailsModel.process.toString(),
@@ -539,9 +539,9 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                                   company_id:
                                       jobDetailsModel.compnayid!.toInt(),
                                   jobId: jobDetailsModel.id!.toInt(),
-                                  sourceId: profilemodel.id!.toInt(),
-                                  sourceName:
-                                      "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
+                                  // sourceId: profilemodel.id!.toInt(),
+                                  // sourceName:
+                                  //     "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                                   isRefer: false,
                                   spocId: jobDetailsModel.spoc!.toInt(),
                                   is90: jobDetailsModel.payment_clause ==
@@ -918,6 +918,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                         id: widget.id,
                         Applies: widget.Applies,
                         referal: widget.referal,
+                        jobDetailsModel: jobDetailsModel,
                       ),
                       InterviewFaqPage(
                         crpfid: jobDetailsModel.crpf_id!.toInt(),

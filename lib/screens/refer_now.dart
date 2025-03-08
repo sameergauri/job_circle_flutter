@@ -80,12 +80,12 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
 
   Future<void> bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-      await Utils.getPreferencesValue(
-        prefs,
-        ESharedPreferences.user_id.name,
-      ),
+    var type = await Utils.getPreferencesValue(
+      prefs,
+      ESharedPreferences.user_id.name,
     );
+    int? usertype = int.tryParse(type.toString());
+    var result = await UserDataService().getUserProfileSummary(usertype!);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       setState(() {
@@ -104,7 +104,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userid&pageNumber=1&pageSize=100');
+        'http://${GlobalConstants.API_Host_one}/leads/v1/getReferralJobsByUser?userId=$userid&pageNumber=1&pageSize=1000');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -309,7 +309,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                             child: Icon(
                               Icons.search,
                               size: 30.sp,
-                              color: Constants.blue,
+                              color: Constants.darkBlue,
                             ),
                             onPressed: () {
                               setState(() {
@@ -357,7 +357,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                         counterText: '',
                                         // labelText: "Remark",
                                         labelStyle: const TextStyle(
-                                          color: Constants.themeBgColor,
+                                          color: Constants.darkBlue,
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderRadius:
@@ -626,9 +626,16 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                   child: Text("Error while fetching the data"),
                 );
               }, loading: () {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                    child: CircularProgressIndicator(
+                  color: Constants.darkBlue,
+                ));
               })
-            : const SizedBox());
+            : const Center(
+                child: CircularProgressIndicator(
+                  color: Constants.darkBlue,
+                ),
+              ));
   }
 
   Widget listViewItem_new(BuildContext context, Applicant item, bool isTrue) {
@@ -657,8 +664,9 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
             pref, ESharedPreferences.user_type.name);
         var userrole =
             await Utils.getPreferencesValue(pref, ESharedPreferences.role.name);
-        var userid = await Utils.getPreferencesValue(
+        var id = await Utils.getPreferencesValue(
             pref, ESharedPreferences.user_id.name);
+        int? userid = int.tryParse(id);
 
         if (item.status_id == 1 ||
             (item.hr_status_id == 12) ||
@@ -668,8 +676,8 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
             builder: (context) {
               return JobDetailsForCandidate(
                 hint: 0,
-                userrole: userrole,
-                userid: userid,
+                userrole: userrole.toString(),
+                userid: userid!,
                 userType: userType,
                 Applies: false,
                 referal: true,
@@ -1276,7 +1284,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                                                 : item.s2ReferralFeedback1
                                                     .toString(),
                                             style: GoogleFonts.varela(
-                                                color: Constants.blue,
+                                                color: Constants.darkBlue,
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 14.sp),
                                             softWrap: true,

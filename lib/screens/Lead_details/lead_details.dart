@@ -115,9 +115,10 @@ class _LeadDetailPageState extends ConsumerState<LeadDetailPage>
 
   bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-        await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name));
+    var userid =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    var result =
+        await UserDataService().getUserProfileSummary(int.tryParse(userid)!);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromJson(dataResult);
@@ -846,6 +847,7 @@ class _LeadDetailPageState extends ConsumerState<LeadDetailPage>
                             id: widget.id,
                             Applies: false,
                             referal: false,
+                            jobDetailsModel: jobDetailsModel,
                           ),
                           InterviewFaqPage(
                             crpfid: jobDetailsModel.crpf_id!.toInt(),

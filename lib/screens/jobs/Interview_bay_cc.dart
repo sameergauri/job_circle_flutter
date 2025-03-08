@@ -1477,9 +1477,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1488,9 +1489,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                                     report_to: report_to,
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                   )));
@@ -1519,9 +1521,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
+
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1530,9 +1534,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                                     report_to: report_to,
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                   )));
@@ -1563,9 +1568,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
+
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1574,9 +1581,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                                     report_to: report_to,
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                   )));
@@ -1605,9 +1613,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
+
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1616,9 +1626,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                                     report_to: report_to,
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                   )));
@@ -1651,9 +1662,11 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
+
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1662,9 +1675,10 @@ class _InterViewBayCCState extends ConsumerState<InterViewBayCC>
                                                     report_to: report_to,
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                   )));

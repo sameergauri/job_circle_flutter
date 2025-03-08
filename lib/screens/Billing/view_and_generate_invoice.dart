@@ -56,8 +56,8 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
 
         // Filter the list based on the condition invoice_no == null
         List<ViewAndGenerateBillingModel> applicants = contentList
-            .where((json) => json['invoice_no'] == null)
-            .map((json) => ViewAndGenerateBillingModel.fromJson(json))
+            //.where((json) => json['invoice_no'] == null)
+            .map((json) => ViewAndGenerateBillingModel.fromJson(json))    
             .toList();
 
         return applicants;
@@ -231,7 +231,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => BankingDetals(
-                                            fromInvoice: true,
+                                                fromInvoice: true,
                                                 gender: widget.gender,
                                                 name: widget.name,
                                                 profilePic: widget.profilePic,

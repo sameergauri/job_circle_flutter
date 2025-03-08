@@ -1,6 +1,5 @@
 // ignore_for_file: must_be_immutable, unused_local_variable, use_build_context_synchronously, dead_code, unused_result, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, prefer_typing_uninitialized_variables, unused_element, curly_braces_in_flow_control_structures, unrelated_type_equality_checks, avoid_unnecessary_containers, avoid_print
 // ignore_for_file: todo
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,14 +7,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:job_circle/constants/custom_popup_for_location.dart';
 import 'package:job_circle/constants/custom_textfield_for_profile.dart';
-import 'package:job_circle/constants/customdialogue_for_experience.dart';
+import 'package:job_circle/constants/customdialogue_for_education_selecton.dart';
+import 'package:job_circle/constants/customwidget_upload_file.dart';
+import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
-import 'package:job_circle/screens/profile/profile_summary.dart';
+import 'package:job_circle/screens/Manager/constant/custom_autosize_textfield.dart';
+import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/new_jobs/profile_model.dart';
+import 'package:job_circle/screens/profile/screen5.dart';
 import 'package:job_circle/service/FileUploadService.dart';
-import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/service/masterService.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,15 +37,27 @@ import '../../service/UserDataService.dart';
 class Screen3 extends ConsumerStatefulWidget {
   Screen3(
       {super.key,
+      this.id,
       this.prevPageModel,
       this.expirieanceFlag,
       this.experiencelist,
       this.isEdit,
+      this.needpop,
+      required this.expelength,
+      this.profileHeadline,
+      required this.userid,
+      required this.skills,
       required this.isFirst});
   final bool? expirieanceFlag;
+  final int? id;
+  final String? profileHeadline;
+  final bool? needpop;
+  final int userid;
   // final dynamic prevPageModel;
+  int expelength;
   bool? isEdit;
   final bool isFirst;
+  final List<String> skills;
   late Experience? prevPageModel;
   late List<Experience>? experiencelist;
 
@@ -45,6 +66,7 @@ class Screen3 extends ConsumerStatefulWidget {
 }
 
 class _Screen3State extends ConsumerState<Screen3> {
+  FileUploader fileUploader = FileUploader();
   late Widget previousWidget;
   // CardModel model = CardModel();
   //bool expirieanceFlag = false;
@@ -53,6 +75,10 @@ class _Screen3State extends ConsumerState<Screen3> {
   var ddlValues;
   late TextEditingController jobTitleController = TextEditingController();
   late TextEditingController companyController = TextEditingController();
+  late TextEditingController industry = TextEditingController();
+
+  late TextEditingController functionalArea = TextEditingController();
+
   late TextEditingController companyLocationController =
       TextEditingController();
   late TextEditingController companyWebsiteController = TextEditingController();
@@ -62,6 +88,7 @@ class _Screen3State extends ConsumerState<Screen3> {
   late TextEditingController joiningDataController = TextEditingController();
   late TextEditingController lastWorkingController = TextEditingController();
   late TextEditingController description = TextEditingController();
+  late TextEditingController profileHeadline = TextEditingController();
 
   late List<AutoCompleteModel> jobTitleList = [];
   late List<AutoCompleteModel> totalExperienceList = [];
@@ -79,6 +106,7 @@ class _Screen3State extends ConsumerState<Screen3> {
   FocusNode salaryFocus = FocusNode();
   FocusNode skillFocus = FocusNode();
   FocusNode descriptionFocus = FocusNode();
+  FocusNode headlineFocus = FocusNode();
 
   FocusNode joiningDateFocus = FocusNode();
 
@@ -158,7 +186,7 @@ class _Screen3State extends ConsumerState<Screen3> {
     );
 
     String formatDate(DateTime date) {
-      final formatter = DateFormat('dd-MMM-yyyy');
+      final formatter = DateFormat('dd-MM-yyyy');
       return formatter.format(date);
     }
 
@@ -238,16 +266,39 @@ class _Screen3State extends ConsumerState<Screen3> {
     );
 
     String formatDate(DateTime date) {
-      final formatter = DateFormat('dd-MMM-yyyy');
+      final formatter = DateFormat('dd-MM-yyyy');
       return formatter.format(date);
     }
 
-    if (pickedDate != null) {
+    /*  if (pickedDate != null) {
       setState(() {
         selectedLastWorkingDate = pickedDate;
         lastWorkingController.text = formatDate(pickedDate);
         //  dataOfBirthValue = pickedDate; // Update the TextFormField text
       });
+    } */
+    if (pickedDate != null) {
+      // Check if pickedDate is earlier than selectedJoiningDate
+      if (selectedJoiningDate != null &&
+          pickedDate.isBefore(selectedJoiningDate!)) {
+        // Show dialog if pickedDate is earlier
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CustomDialogueForAddResume(
+                subtitle: "Last working date cannot be before joining date.",
+                onClose: () {
+                  Navigator.pop(context);
+                },
+                error: true);
+          },
+        );
+      } else {
+        setState(() {
+          selectedLastWorkingDate = pickedDate;
+          lastWorkingController.text = formatDate(pickedDate);
+        });
+      }
     }
   }
 
@@ -289,16 +340,18 @@ class _Screen3State extends ConsumerState<Screen3> {
 
   bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserDetails(
-        await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name));
+
+    var stringid =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    int? userid = int.tryParse(stringid.toString());
+
+    var result = await UserDataService().getUserDetails(userid!);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       var userData = dataResult["users"];
 
       profilemodel = ProfileSummaryModel.fromJson(userData);
     }
-    setState(() {});
   }
 
   @override
@@ -310,236 +363,103 @@ class _Screen3State extends ConsumerState<Screen3> {
     titleFocus.requestFocus();
 
     final DateFormat dateFormatter = DateFormat('dd-MMM-yyyy');
-
-    if (widget.prevPageModel != null) {
-      companyController.text = widget.prevPageModel!.company_name ?? '';
+    if (widget.profileHeadline != null && widget.profileHeadline != "null") {
       setState(() {
-        expID = widget.prevPageModel!.id;
-        isEdit1 = true;
-        isEdit2 = true;
-      });
-      setState(() {
+        profileHeadline.text = widget.profileHeadline.toString();
         //  userID = widget.prevPageModel!.userId;
       });
-      if (companyController.text.isNotEmpty) {
-        setState(() {
-          isCompanyName = true;
-        });
-      }
-      companyLocationController.text =
-          widget.prevPageModel!.company_location ?? '';
-      if (companyLocationController.text.isNotEmpty) {
-        setState(() {
-          isCompanyLocation = true;
-        });
+    }
+
+    if (widget.prevPageModel != null) {
+      String addBulletPoints(String input) {
+        // Split the text into lines, then add bullet points to each line.
+        return input.split('\n').map((line) {
+          return '• ${line.trim()}'; // Add bullet point to each line, trimming excess spaces
+        }).join('\n'); // Join the lines back into a single string
       }
 
-      if (companyWebsiteController.text.isNotEmpty) {
-        setState(() {
-          isCOmpanyWebsite = true;
-        });
-      }
-
-      if (widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          yes = true;
-          currentlyWorking = true;
-        });
-      } else {
-        setState(() {
-          no = true;
-        });
-      }
-      if (widget.prevPageModel!.description != null) {
-        description.text = widget.prevPageModel!.description!;
-      }
       setState(() {
-        widget.prevPageModel!.work_type == "OnSite"
+        jobTitleController.text = widget.prevPageModel!.jobTitle.toString();
+        companyController.text = widget.prevPageModel!.companyName ?? '';
+        industry.text = widget.prevPageModel!.industry.toString();
+        functionalArea.text = widget.prevPageModel!.functionalArea.toString();
+        //
+        //
+        //TODO:: Emp Type.
+        widget.prevPageModel!.empType == "FullTime"
+            ? isFullTime = true
+            : widget.prevPageModel!.empType == "PartTime"
+                ? isPartTime = true
+                : widget.prevPageModel!.empType == "Contractual"
+                    ? isContract = true
+                    : widget.prevPageModel!.empType == "Internship"
+                        ? isIntern = true
+                        : widget.prevPageModel!.empType == "freelancer"
+                            ? freelancer = true
+                            : widget.prevPageModel!.empType == "Trainee"
+                                ? trainee = true
+                                : widget.prevPageModel!.empType ==
+                                        "SelfEmployee"
+                                    ? selfemp = true
+                                    : null;
+        //
+        //
+        //TODO:: Mode of work
+        widget.prevPageModel!.workType == "OnSite"
             ? isOnsite = true
-            : widget.prevPageModel!.work_type == "Hybrid"
+            : widget.prevPageModel!.workType == "Hybrid"
                 ? isHybrid = true
-                : widget.prevPageModel!.work_type == "WFH"
+                : widget.prevPageModel!.workType == "WFH"
                     ? isWfh = true
                     : null;
-      });
-      if (widget.prevPageModel!.joining_date != null) {
-        setState(() {
-          selectedJoiningDate = widget.prevPageModel!.joining_date;
-        });
-      }
-      if (no && widget.prevPageModel!.last_working_date != null) {
-        setState(() {
-          selectedLastWorkingDate = widget.prevPageModel!.last_working_date;
-        });
-      }
-      setState(() {
-        jobtitleId = widget.prevPageModel!.jobid;
-        workcityId = widget.prevPageModel!.city_id;
-      });
-      setState(() {
-        widget.prevPageModel!.emptype == "FullTime"
-            ? isFullTime = true
-            : widget.prevPageModel!.emptype == "PartTime"
-                ? isPartTime = true
-                : widget.prevPageModel!.emptype == "Contractual"
-                    ? isContract = true
-                    : widget.prevPageModel!.emptype == "Internship"
-                        ? isIntern = true
-                        : null;
-      });
-      if (widget.prevPageModel!.offer_letter != null) {
-        setState(() {
-          offerLetter = widget.prevPageModel!.offer_letter;
-        });
-      }
-      if (widget.prevPageModel!.appointment_letter != null) {
-        setState(() {
-          appointmentLetter = widget.prevPageModel!.appointment_letter;
-        });
-      }
-      if (widget.prevPageModel!.salary_slip != null) {
-        setState(() {
-          alarySlip = widget.prevPageModel!.salary_slip;
-        });
-      }
-      if (widget.prevPageModel!.increment_letter != null) {
-        setState(() {
-          incrementLetter = widget.prevPageModel!.increment_letter;
-        });
-      }
-      if (widget.prevPageModel!.experience_lettter != null) {
-        setState(() {
-          experienceLetter = widget.prevPageModel!.experience_lettter;
-        });
-      }
+        //
+        //
+        companyLocationController.text =
+            widget.prevPageModel!.jobLocation.toString();
+        //
 
-      currentSalaryController.text = widget.prevPageModel!.salary ?? '';
-      if (currentSalaryController.text.isNotEmpty) {
-        setState(() {
-          isCurrentSalary = true;
-        });
-      }
-
-      joiningDataController.text = widget.prevPageModel!.joining_date != null
-          ? dateFormatter.format(widget.prevPageModel!.joining_date!)
-          : '';
-      if (widget.prevPageModel!.isCurrent == 1) if (widget
-                  .prevPageModel!.availability !=
-              null &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          apportunities = true;
-        });
-      }
-      setState(() {
-        companyid = widget.prevPageModel!.companyid;
-      });
-
-      lastWorkingController.text =
-          widget.prevPageModel!.last_working_date != null
-              ? dateFormatter.format(widget.prevPageModel!.last_working_date!)
-              : '';
-
-      work_type = widget.prevPageModel!.work_type.toString();
-      jobTitleController.text = widget.prevPageModel!.job_title.toString();
-      if (widget.prevPageModel!.job_title!.isNotEmpty) {
-        isJobTitlle = true;
-      }
-      if (widget.prevPageModel!.work_type == "On-Site") {
-        setState(() {
-          isOnsite = true;
-        });
-      } else if (widget.prevPageModel!.work_type == "Hybrid") {
-        setState(() {
-          isHybrid = true;
-        });
-      } else if (widget.prevPageModel!.work_type == "WFH") {
-        setState(() {
-          isWfh = true;
-        });
-      }
-
-      // Check if "I am currently working" is selected
-      if (widget.prevPageModel!.isCurrent == "I am currently working") {
-        setState(() {
-          isPresent = true;
-          working = "I am currently working";
-        });
-      }
-
-      if (widget.prevPageModel!.availability == "Immediate" &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          imd = true;
-        });
-      } else if (widget.prevPageModel!.availability == "15Days or less" &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          day15 = true;
-          apportunities = true;
-        });
-      } else if (widget.prevPageModel!.availability == "1 Month" &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          day30 = true;
-          apportunities = true;
-        });
-      } else if (widget.prevPageModel!.availability == "2 Month" &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          day60 = true;
-        });
-      } else if (widget.prevPageModel!.availability == "3 month or more" &&
-          widget.prevPageModel!.isCurrent == 1) {
-        setState(() {
-          day90 = true;
-        });
-      }
-
-      setState(() {
-        if (widget.prevPageModel!.ismonthly == true) {
-          isMonthly = true;
-        } else if (widget.prevPageModel!.ismonthly == false) {
-          isMonthly = false;
+        if (widget.prevPageModel!.jobRole != "" &&
+            widget.prevPageModel!.jobRole != null) {
+          description.text =
+              addBulletPoints(widget.prevPageModel!.jobRole.toString());
         }
+        //
+        selectedJoiningDate = widget.prevPageModel!.joiningDate;
+        joiningDataController.text = widget.prevPageModel!.joiningDate != null
+            ? (DateFormat('dd-MM-yyyy')
+                    .format(widget.prevPageModel!.joiningDate!))
+                .toString()
+            : '';
+
+        lastWorkingController.text =
+            widget.prevPageModel!.lastWorkingDate != null
+                ? DateFormat('dd-MM-yyyy')
+                    .format(widget.prevPageModel!.lastWorkingDate!)
+                : '';
+        //
+        if (widget.prevPageModel!.isCurrent == 1) {
+          setState(() {
+            currentlyWorking = true;
+          });
+        }
+        //
+        currentSalaryController.text = widget.prevPageModel!.salary ?? '';
+        //
+        if (widget.profileHeadline != null &&
+            widget.profileHeadline != "null") {
+          setState(() {
+            profileHeadline.text = widget.profileHeadline.toString();
+            //  userID = widget.prevPageModel!.userId;
+          });
+        }
+        //
+
+        offerLetter = widget.prevPageModel!.offerletter?.toString();
+        experienceLetter = widget.prevPageModel!.expLetter?.toString();
+        appointmentLetter = widget.prevPageModel!.appointmentLetter?.toString();
+        incrementLetter = widget.prevPageModel!.increamentLetter?.toString();
+        alarySlip = widget.prevPageModel!.salarySlip?.toString();
       });
-
-      jobTitleController.text = widget.prevPageModel!.job_title ?? '';
-      fetchApiskill = widget.prevPageModel!.skills_exp!;
-      selectedValuesList = widget.prevPageModel!.skills_exp!;
-
-      if (widget.prevPageModel!.ismonthly == 1 &&
-          widget.prevPageModel!.isCurrent == 1 &&
-          widget.prevPageModel!.salary != "") {
-        setState(() {
-          isMonthly = true;
-        });
-      } else if (widget.prevPageModel!.ismonthly == 0 &&
-          widget.prevPageModel!.isCurrent == 1 &&
-          widget.prevPageModel!.salary != "") {
-        setState(() {
-          isYearly = true;
-        });
-      }
-
-      /*  if (widget.prevPageModel!.ismonthly == 1 &&
-          widget.prevPageModel!.isCurrent == 1 &&
-          (currentSalaryController.text.isNotEmpty ||
-              currentSalaryController != null)) {
-        setState(() {
-          isMonthly = true;
-        });
-      } else {
-        setState(() {
-          isYearly = true;
-        });
-      } */
-
-      if (widget.prevPageModel!.isCurrent != 1) {
-        currentSalaryController.clear();
-        isYearly = false;
-        isMonthly = false;
-      }
     }
 
     super.initState();
@@ -556,10 +476,6 @@ class _Screen3State extends ConsumerState<Screen3> {
           .map<AutoCompleteModel>(
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
-
-      setState(() {
-        //selectedJobTitle = AutoCompleteModel("0", "", {});
-      });
     }
   }
 
@@ -574,10 +490,6 @@ class _Screen3State extends ConsumerState<Screen3> {
           .map<AutoCompleteModel>(
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
-
-      setState(() {
-        // selectedtotalExperience = AutoCompleteModel("0", "", {});
-      });
     }
   }
 
@@ -592,10 +504,6 @@ class _Screen3State extends ConsumerState<Screen3> {
           .map<AutoCompleteModel>(
               (e) => AutoCompleteModel(e['id'].toString(), e['value'], e))
           .toList();
-
-      setState(() {
-        //selectedcurrentSalary = AutoCompleteModel("0", "", {});
-      });
     }
   }
 
@@ -626,154 +534,70 @@ class _Screen3State extends ConsumerState<Screen3> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // companyController.clear();
-        jobTitleController.clear();
-      },
-      child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            iconTheme: const IconThemeData(color: Constants.themeBgColor),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                widget.prevPageModel == null
-                    ? Text(
-                        "Add Experience",
-                        style: GoogleFonts.varela(
-                          fontSize: 18.sp,
-                          color: Constants.themeBgColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    : Text(
-                        "Edit Experience",
-                        style: GoogleFonts.varela(
-                          fontSize: 18.sp,
-                          color: Constants.themeBgColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                Text(
-                  "Adding role and companies you've worked with, help employers to understand your professional background.",
-                  softWrap: true,
-                  maxLines: 2,
-                  style: GoogleFonts.varela(
-                      color: Constants.hintColor,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.normal),
-                ),
-                //const Spacer(),
-              ],
-            ),
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          automaticallyImplyLeading: true,
+          backgroundColor: Constants.borderColor,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Constants.black),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              widget.prevPageModel == null
+                  ? const OnboardingTitle(
+                      title: "Add Experience",
+                    )
+                  : const OnboardingTitle(
+                      title: "Edit Experience",
+                    ),
+
+              //const Spacer(),
+            ],
           ),
-          extendBodyBehindAppBar: true,
-          bottomNavigationBar: (jobTitleController.text.isNotEmpty &&
-                      companyController.text.isNotEmpty) &&
-                  (yes || no)
-              ? InkWell(
-                  onTap: () async {
-                    if (jobTitleController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Job title is not optional", true));
-                    } else if (companyController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Company is not optional", true));
-                    } else if (!yes && !no) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Select any one option from yes and no", true));
-                    } else if (!isPartTime &&
-                        !isFullTime &&
-                        !isContract &&
-                        !isIntern) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Specify your Employment type.", true));
-                    } else if (companyLocationController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Provide your work city", true));
-                    } else if (!isOnsite && !isHybrid && !isWfh) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Specify your Work Mode / Type", true));
-                    } else if (fetchApiskill.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Add skills that match your Job Responsibilities.",
-                          true));
-                    } else if (joiningDataController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Enter your employment Start date", true));
-                    } else if (no && lastWorkingController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Enter your employment End date", true));
-                    } else if (currentSalaryController.text.isNotEmpty &&
-                        (!isMonthly && !isYearly) &&
-                        yes) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                          "Specify whether the salary is on a per month (pm) or per annum (pa) basis?.",
-                          true));
-                    } else if (currentSalaryController.text.isEmpty &&
-                        yes &&
-                        (isMonthly || isYearly)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          customSnackbar("Specify your current salary.", true));
-                    } else if (apportunities &&
-                        (!imd && !day15 && !day30 && !day60 && !day90)) {
-                      ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-                        "Specify your availability to join.",
-                        true,
-                      ));
-                    } else {
-                      var payload = {
-                        "stage": "experience",
-                        "data": {
-                          "id": await Utils.getPreferencesValue(
-                              null, ESharedPreferences.user_id.name),
-                          "experience": 1,
-                        }
-                      };
-                      await saveExperience(payload);
-                      save();
-                    }
-                  },
-                  child: isLoading == false
-                      ? Container(
-                          margin: const EdgeInsets.only(
-                              top: 10, left: 20, right: 20, bottom: 10),
-                          decoration: BoxDecoration(
-                              color: Constants.themeBgColor,
-                              borderRadius: BorderRadius.circular(8.r)),
-                          width: double.maxFinite,
-                          padding: const EdgeInsets.only(bottom: 8, top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Save",
-                                style: GoogleFonts.varela(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        )
-                      : const SizedBox(),
-                )
-              : const SizedBox(),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(children: [
-                isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : _education(),
-              ]),
-            ),
-          )),
-    );
+        ),
+        extendBodyBehindAppBar: true,
+        bottomNavigationBar: CustomButtonForSave(
+          title: "Next",
+          onTap: () {
+            if (jobTitleController.text.isEmpty) {
+              CustomSnackbar.show("Job title is not optional", true);
+            } else if (companyController.text.isEmpty) {
+              CustomSnackbar.show("Company is not optional", true);
+            } else if (industry.text.isEmpty) {
+              CustomSnackbar.show("Industry is not optional", true);
+            } else if (functionalArea.text.isEmpty) {
+              CustomSnackbar.show("Functional Area is not optional", true);
+            } else if (!isPartTime &&
+                !isFullTime &&
+                !isContract &&
+                !isIntern &&
+                !freelancer &&
+                !trainee &&
+                !selfemp) {
+              CustomSnackbar.show("Specify your Employment type.", true);
+            } else if (companyLocationController.text.isEmpty) {
+              CustomSnackbar.show("Provide your work city", true);
+            } else if (joiningDataController.text.isEmpty) {
+              CustomSnackbar.show("Enter your employment Start date", true);
+            } else if (!currentlyWorking &&
+                lastWorkingController.text.isEmpty) {
+              CustomSnackbar.show("Enter your employment End date", true);
+            } else if (currentSalaryController.text.isEmpty) {
+              CustomSnackbar.show("Specify your annual slary", true);
+            } else if (!isHybrid && !isOnsite && !isWfh) {
+              CustomSnackbar.show("Specify your mode of work", true);
+            } else {
+              save();
+            }
+          },
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: _education(),
+          ),
+        ));
   }
 
   SnackBar customSnackbar(String title, bool error) {
@@ -840,64 +664,32 @@ class _Screen3State extends ConsumerState<Screen3> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                isEdit1
-                    ? SizedBox(
-                        height: MediaQuery.of(context).size.height / 25.h,
-                        child: TextField(
-                          enabled: false,
-                          decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.badge_outlined),
-                              prefixIconColor: Constants.themeBgColor,
-                              contentPadding: const EdgeInsets.only(
-                                  top: 8, bottom: 8, left: 10, right: 10),
-                              counterText: '',
-                              labelText: jobTitleController.text,
-                              labelStyle: const TextStyle(
-                                color: Constants.themeBgColor,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.r),
-                                borderSide:
-                                    const BorderSide(color: Color(0xffff0eceb)),
-                              ),
-                              focusColor: const Color(0xffff0eceb),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.r),
-                                borderSide: const BorderSide(
-                                  color: Constants.themeBgColor,
-                                ),
-                              ),
-                              // hintText: hint,
-                              hintStyle: GoogleFonts.sourceSansPro(
-                                  color: Constants.hintColor, fontSize: 15.sp)),
-                        ),
-                      )
-                    : SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: CustomJobTitleForExperience(
-                          onIDSelected: () {},
-                          // isSelected: isIndustry,
-                          // focusNode: titleFocus,
-                          role: "",
-                          isCompany: false,
-                          isIndustry: true,
-                          name: "job_role",
-                          title: "Job Title",
-                          controller: jobTitleController,
+                const customTextForWeather(
+                  title: "Job Title*",
+                ),
+                CustomJobTitleForExperience(
+                  onIDSelected: () {},
+                  // isSelected: isIndustry,
+                  // focusNode: titleFocus,
+                  role: "",
+                  isCompany: false,
+                  isIndustry: true,
+                  name: "job_role",
+                  title: "Job Title",
+                  controller: jobTitleController,
 
-                          onChanged: (p0) {
-                            //  isEdit1 = true;
-                          },
-                          getid: (p0) {
-                            jobtitleId = p0;
-                            print(jobtitleId);
-                          },
-                          contextIn: context,
-                          hintText: "Sales Manager",
-                        ),
-                      ),
+                  onChanged: (p0) {
+                    //  isEdit1 = true;
+                  },
+                  getid: (p0) {
+                    jobtitleId = p0;
+                    print(jobtitleId);
+                  },
+                  contextIn: context,
+                  hintText: "Sales Manager",
+                ),
                 const SizedBox(height: 10),
-                isEdit2
+                /*  isEdit2
                     ? SizedBox(
                         height: MediaQuery.of(context).size.height / 25.h,
                         child: TextField(
@@ -929,34 +721,95 @@ class _Screen3State extends ConsumerState<Screen3> {
                                   color: Constants.hintColor, fontSize: 15.sp)),
                         ),
                       )
-                    : customCompanyforExperience(
-                        onTapCallback: () {},
-                        // focusNode: cmpnyFocusNode,
-                        isCompany: true,
-                        name: "company",
-                        getid: getSuggestionList,
-                        /* onFocusNodeRequested: (p0) {
+                    : */
+                const customTextForWeather(
+                  title: "Company Name*",
+                ),
+                customCompanyforExperience(
+                    onTapCallback: () {},
+                    // focusNode: cmpnyFocusNode,
+                    isCompany: true,
+                    name: "company",
+                    getid: getSuggestionList,
+                    /* onFocusNodeRequested: (p0) {
                                 focusNode.requestFocus();
                               }, */
-                        title: "Client Name",
-                        controller: companyController,
-                        // isEdit: isEdit,
-                        //  focusNode: focusNode,
-                        onChanged: (p0) {
-                          setState(() {
-                            isEdit2 = true;
-                            isEdit1 = true;
-                          });
-                        },
-                        contextIn: context,
-                        onSubmit: (p0) {
-                          setState(() {
-                            companyid = int.tryParse(p0);
-                          });
-                        },
-                        hintText: "Aditya birla Health Insurance",
-                        // getSuggestions: getSuggestions,
-                        onIDSelected: () {}),
+                    title: "Client Name",
+                    controller: companyController,
+                    // isEdit: isEdit,
+                    //  focusNode: focusNode,
+                    onChanged: (p0) {
+                      setState(() {
+                        isEdit2 = true;
+                        isEdit1 = true;
+                      });
+                    },
+                    contextIn: context,
+                    onSubmit: (p0) {
+                      setState(() {
+                        companyid = int.tryParse(p0);
+                      });
+                    },
+                    hintText: "Aditya birla Health Insurance",
+                    // getSuggestions: getSuggestions,
+                    onIDSelected: () {}),
+                SizedBox(
+                  height: 7.h,
+                ),
+
+                const customTextForWeather(
+                  title: "Industry*",
+                ),
+                /*   CustomTextField(
+                        focusNode: functionalAreaFocus,
+                        controller: functionalArea,
+                        hint: "Domain on which the company operates",
+                        label: "Indusry",
+                        isdescription: false,
+                        icon: const Icon(Icons.description)), */
+                CustomJobTitleForExperience(
+                  onIDSelected: () {},
+                  // isSelected: isIndustry,
+                  //focusNode: titleFocus,
+                  role: "",
+                  isCompany: false,
+                  isIndustry: true,
+                  name: "industry",
+                  title: "industry",
+                  controller: industry,
+                  onChanged: (p0) {},
+                  getid: (p0) {},
+                  contextIn: context,
+                  hintText: "Industry",
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                const customTextForWeather(
+                  title: "Functional Area*",
+                ),
+                CustomJobTitleForExperience(
+                  onIDSelected: () {},
+                  // isSelected: isIndustry,
+                  //focusNode: titleFocus,
+                  role: "",
+                  isCompany: false,
+                  isIndustry: true,
+                  name: "functional_area",
+                  title: "Functional Area",
+                  controller: functionalArea,
+                  onChanged: (p0) {
+                    setState(() {
+                      isEdit1 = p0;
+                    });
+                  },
+                  getid: (p0) {
+                    jobtitleId = p0;
+                    print(p0);
+                  },
+                  contextIn: context,
+                  hintText: "Functional Area",
+                ),
 
                 /*                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1070,7 +923,226 @@ class _Screen3State extends ConsumerState<Screen3> {
                             )),
                   ],
                 ), */
-                if (isEdit2 && isEdit1 && widget.isEdit == false)
+
+                SizedBox(
+                  height: 10.h,
+                ),
+                const customTextForWeather(
+                  title: "Employment Type*",
+                ),
+                SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      customContainerSelectForEmpType(
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = true;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = false;
+                              freelancer = false;
+                              trainee = false;
+                              selfemp = false;
+                            });
+                          },
+                          isSelect: isFullTime,
+                          title: "Full Time"),
+                      customContainerSelectForEmpType(
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = true;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = false;
+                              freelancer = false;
+                              trainee = false;
+                              selfemp = false;
+                            });
+                          },
+                          isSelect: isPartTime,
+                          title: "Part Time"),
+                      customContainerSelectForEmpType(
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = true;
+                              isIntern = false;
+                              temporary = false;
+                              freelancer = false;
+                              trainee = false;
+                              selfemp = false;
+                            });
+                          },
+                          isSelect: isContract,
+                          title: "Contractual"),
+                      customContainerSelectForEmpType(
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = true;
+                              temporary = false;
+                              freelancer = false;
+                              trainee = false;
+                              selfemp = false;
+                            });
+                          },
+                          isSelect: isIntern,
+                          title: "Internship"),
+                      customContainerSelectForEmpType(
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = false;
+                              freelancer = true;
+                              trainee = false;
+                              selfemp = false;
+                            });
+                          },
+                          isSelect: freelancer,
+                          title: "Freelancer"),
+                      customContainerSelectForEmpType(
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = false;
+                              freelancer = false;
+                              trainee = true;
+                              selfemp = false;
+                            });
+                          },
+                          isSelect: trainee,
+                          title: "Trainee"),
+                      customContainerSelectForEmpType(
+                          onPressed: () {
+                            setState(() {
+                              isPartTime = false;
+                              isFullTime = false;
+                              isContract = false;
+                              isIntern = false;
+                              temporary = false;
+                              freelancer = false;
+                              trainee = false;
+                              selfemp = true;
+                            });
+                          },
+                          isSelect: selfemp,
+                          title: "Self Employee"),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 10.h,
+                ),
+                const customTextForWeather(
+                  title: "Mode of Work*",
+                ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    children: [
+                      CustomPopUpForLocation(
+                        isSelect: isOnsite,
+                        title: "On-Site",
+                        name: "location",
+                        hintText: "Mumbai",
+                        onSubmit: (p0) {
+                          setState(() {
+                            companyLocationController.text = p0;
+                            isHybrid = false;
+                            isOnsite = true;
+                            isWfh = false;
+                          });
+                        },
+                      ),
+                      CustomPopUpForLocation(
+                        isSelect: isHybrid,
+                        title: "Hybrid",
+                        name: "location",
+                        hintText: "Mumbai",
+                        onSubmit: (p0) {
+                          setState(() {
+                            companyLocationController.text = p0;
+                            isHybrid = true;
+                            isOnsite = false;
+                            isWfh = false;
+                          });
+                        },
+                      ),
+                      CustomPopUpForLocation(
+                        isSelect: isWfh,
+                        title: "WFH",
+                        name: "city",
+                        hintText: "Mumbai",
+                        onSubmit: (p0) {
+                          setState(() {
+                            companyLocationController.text = p0;
+                            isHybrid = false;
+                            isOnsite = false;
+                            isWfh = true;
+                          });
+                        },
+                      ),
+                      /*  customContainerSelectForWorkingType(
+                        onPressed: () {
+                          setState(() {
+                            isHybrid = false;
+                            isOnsite = true;
+                            isWfh = false;
+                          });
+                        },
+                        isSelect: isOnsite,
+                        title: "On-Site",
+                      ),
+                      customContainerSelectForWorkingType(
+                        onPressed: () {
+                          setState(() {
+                            isHybrid = true;
+                            isOnsite = false;
+                            isWfh = false;
+                          });
+                        },
+                        isSelect: isHybrid,
+                        title: "Hybrid",
+                      ),
+                      customContainerSelectForWorkingType(
+                        onPressed: () {
+                          setState(() {
+                            isHybrid = false;
+                            isOnsite = false;
+                            isWfh = true;
+                          });
+                        },
+                        isSelect: isWfh,
+                        title: "WFH",
+                      ), */
+                    ],
+                  ),
+                ),
+
+                //
+                //
+                //
+                //
+                //
+                //
+                //
+                //
+                //
+                /*       if (isEdit2 && isEdit1 && widget.isEdit == false)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -1136,9 +1208,2668 @@ class _Screen3State extends ConsumerState<Screen3> {
                         ),
                       ),
                     ],
-                  ),
+                  ), */
 
-                if (jobTitleController.text.isNotEmpty &&
+                /*  */
+                if (isHybrid || isOnsite || isWfh)
+                  SizedBox(
+                    height: 5.h,
+                  ),
+                if (isHybrid || isOnsite || isWfh)
+                  Text(
+                    "Job Location",
+                    style: GoogleFonts.varela(
+                      color: Constants.black,
+                      fontSize: 10.sp,
+                    ),
+                  ),
+                if (isHybrid || isOnsite || isWfh)
+                  customContainerSelectForWorkingType(
+                      isSelect: true,
+                      onPressed: () {},
+                      title: companyLocationController.text),
+                /* CustomPopUpForLocation(
+                    isSelect: isWfh,
+                    title: "WFH",
+                    name: isOnsite
+                        ? "location"
+                        : isHybrid
+                            ? "location"
+                            : "city",
+                    //  focusNode: cityFocus,
+                    // controller: companyLocationController,
+                    hintText: "Mumbai",
+                    onSubmit: (p0) {
+                      setState(() {
+                        companyLocationController.text = p0;
+                      });
+                    },
+                  ), */
+                SizedBox(
+                  height: 10.h,
+                ),
+
+//TODO: All the details view only when any one option from current company is selected.
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const customTextForWeather(
+                      title: "Job Role",
+                    ),
+                    // QuillEditorPage(),
+                    /* BulletPointTextField(
+                      maxlength: 1200,
+                      controller: description,
+                      hintText: "My Job Profile is",
+                    ), */
+                    CustomAutoSizeTextField(
+                      controller: description,
+                      hintText: "My job profile is",
+                      maxline: 5,
+                      maxLength: 1200,
+                    ),
+                    /*  CustomTextField(
+                        focusNode: descriptionFocus,
+                        controller: description,
+                        hint: "My Job profile is......",
+                        label: "Job Responsibilities",
+                        maxline: 4,
+                        isdescription: true,
+                        icon: const Icon(Icons.description)), */
+                    SizedBox(
+                      height: 10.h,
+                    ),
+/* 
+                    CustomFormTextFieldMultiSelectForProfile(
+                      name: "skills",
+                      focusNode: skillFocus,
+                      isSkill: true,
+                      fetchApiskill: fetchApiskill,
+                      title: "Skills Required",
+                      controller: skillsController,
+                      selectedValuesList: selectedValuesList,
+                      callback: updateSelectedValues,
+                      contextIn: context,
+                      hintText: "Advance Excel",
+                    ),
+                    SizedBox(
+                      height: 6.h,
+                    ), */
+
+                    // TODO: old code for company location.
+                    /* Row(  
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Company Location",
+                          style: GoogleFonts.sourceSansPro(
+                              fontSize: 18.sp,
+                              // color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        isCompanyLocation
+                            ? customContainerSelect(
+                                isVacancy: true,
+                                isCross: true,
+                                isNumOfOpening: false,
+                                isEmails: true,
+                                onPressed: () {
+                                  setState(() {
+                                    isCompanyLocation = false;
+                                    // FocusScope.of(context).autofocus(focusNode);
+                                    companyLocationController.clear();
+                                    titleFocus.requestFocus();
+                                  });
+                                },
+                                isSelect: true,
+                                title: companyLocationController.text)
+                            : Container(
+                                width: double.maxFinite,
+                                // height: 55,
+                                margin: const EdgeInsets.only(bottom: 5),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(bottom: 5.h),
+                                      width:
+                                          MediaQuery.of(context).size.width /
+                                              2.32,
+                                      height: 35,
+                                      color: Colors.white,
+                                      child: TextFormField(
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.isEmpty) {
+                                            return "This Text field Cant be empty";
+                                          }
+                                          return null;
+                                        },
+
+                                        // focusNode: titleFocus,
+                                        // maxLength: 3,
+                                        onFieldSubmitted: (value) {
+                                          companyLocationController
+                                                  .text.isNotEmpty
+                                              ? setState(() {
+                                                  isCompanyLocation = true;
+                                                  // _showContainer1 = value.isEmpty;
+                                                })
+                                              : null;
+                                        },
+                                        onChanged: (value) {
+                                          setState(() {});
+                                        },
+                                        onTapOutside: (event) {
+                                          companyLocationController
+                                                  .text.isNotEmpty
+                                              ? setState(() {
+                                                  isCompanyLocation = true;
+                                                  // _showContainer1 = value.isEmpty;
+                                                })
+                                              : null;
+                                        },
+                                        onEditingComplete: () {
+                                          companyLocationController
+                                                  .text.isNotEmpty
+                                              ? setState(() {
+                                                  isCompanyLocation = true;
+                                                  // _showContainer1 = value.isEmpty;
+                                                })
+                                              : null;
+                                        },
+                                        keyboardType: TextInputType.text,
+                                        controller: companyLocationController,
+                                        // enabled: enableShortListFor,
+                                        onTap: (() {}),
+                                        decoration: InputDecoration(
+                                            counterText: '',
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              borderSide: const BorderSide(
+                                                  color: Color(0xffff0eceb)),
+                                            ),
+                                            focusColor:
+                                                const Color(0xffff0eceb),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: const BorderSide(
+                                                  color: Color.fromARGB(
+                                                      255, 122, 113, 111)),
+                                            ),
+                                            hintText: "Mumbai",
+                                            hintStyle:
+                                                GoogleFonts.sourceSansPro(
+                                                    color:
+                                                        Constants.subtitleclr,
+                                                    fontSize: 15.sp)
+                                            //  prefixIcon: Icon(Icons.list)
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                      ],
+                    ),
+                    SizedBox(
+                      width: 10.h,
+                    ),
+                    /*  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Company Website",
+                          style: GoogleFonts.sourceSansPro(
+                              fontSize: 18.sp,
+                              // color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        isCOmpanyWebsite
+                            ? customContainerSelect(
+                                isVacancy: true,
+                                isCross: true,
+                                isNumOfOpening: false,
+                                isEmails: true,
+                                onPressed: () {
+                                  setState(() {
+                                    isCOmpanyWebsite = false;
+                                    // FocusScope.of(context).autofocus(focusNode);
+                                    companyWebsiteController.clear();
+                                    titleFocus.requestFocus();
+                                  });
+                                },
+                                isSelect: true,
+                                title: companyWebsiteController.text)
+                            : Container(
+                                width:
+                                    MediaQuery.of(context).size.width / 2.32,
+                                // height: 55,
+                                margin: const EdgeInsets.only(bottom: 5),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(bottom: 5.h),
+                                      width:
+                                          MediaQuery.of(context).size.width /
+                                              2.32,
+                                      height: 35,
+                                      color: Colors.white,
+                                      child: TextFormField(
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.isEmpty) {
+                                            return "This Text field Cant be empty";
+                                          }
+                                          return null;
+                                        },
+                                        // inputFormatters: [
+                                        //   FilteringTextInputFormatter.deny(
+                                        //       RegExp(r'[.]')),
+                                        //   FilteringTextInputFormatter.
+                                        // ],
+                                        // focusNode: titleFocus,
+                                        // maxLength: 3,
+                                        onFieldSubmitted: (value) {
+                                          companyWebsiteController
+                                                  .text.isNotEmpty
+                                              ? setState(() {
+                                                  isCOmpanyWebsite = true;
+                                                  // _showContainer1 = value.isEmpty;
+                                                })
+                                              : null;
+                                        },
+                                        onChanged: (value) {
+                                          setState(() {});
+                                        },
+                                        onTapOutside: (event) {
+                                          companyWebsiteController
+                                                  .text.isNotEmpty
+                                              ? setState(() {
+                                                  isCOmpanyWebsite = true;
+                                                  // _showContainer1 = value.isEmpty;
+                                                })
+                                              : null;
+                                        },
+                                        onEditingComplete: () {
+                                          companyWebsiteController
+                                                  .text.isNotEmpty
+                                              ? setState(() {
+                                                  isCOmpanyWebsite = true;
+                                                  // _showContainer1 = value.isEmpty;
+                                                })
+                                              : null;
+                                        },
+                                        keyboardType: TextInputType.text,
+                                        controller: companyWebsiteController,
+                                        // enabled: enableShortListFor,
+                                        onTap: (() {}),
+                                        decoration: InputDecoration(
+                                            counterText: '',
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                    top: 8,
+                                                    bottom: 8,
+                                                    left: 10,
+                                                    right: 10),
+                                            // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
+                                            // Icons.workspace_premium
+                                            // label: const Text("Company Name *"),
+                                            //border: OutlineInputBorder(),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              borderSide: const BorderSide(
+                                                  color: Color(0xffff0eceb)),
+                                            ),
+                                            focusColor:
+                                                const Color(0xffff0eceb),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              borderSide: const BorderSide(
+                                                  color: Color.fromARGB(
+                                                      255, 122, 113, 111)),
+                                            ),
+                                            hintText: "www.jobcircle.co.in",
+                                            hintStyle:
+                                                GoogleFonts.sourceSansPro(
+                                                    color:
+                                                        Constants.subtitleclr,
+                                                    fontSize: 15.sp)
+                                            //  prefixIcon: Icon(Icons.list)
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                )),
+                      ],
+                    ), */
+                  ],
+                ), */
+
+                    /*  Text(
+                      "Job Location*",
+                      style: GoogleFonts.varela(
+                        color: Constants.black,
+                        fontSize: 10.sp,
+                      ),
+                    ),
+
+                    CustomTextfieldForJobLocation(
+                      name: "city",
+                      focusNode: cityFocus,
+                      controller: companyLocationController,
+                      hintText: "Mumbai",
+                      onSubmit: (p0) {
+                        setState(() {
+                          companyLocationController.text = p0;
+                        });
+                      },
+                    ),
+
+                    //TODO: new, joining and lastworking date
+                    SizedBox(
+                      height: 10.h,
+                    ), */
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const customTextForWeather(
+                              title: "Joining Date*",
+                            ),
+                            InkWell(
+                              onTap: () {
+                                selectDateForJoiningDay();
+                              },
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    // width: MediaQuery.of(context).size.width / 2.5,
+                                    height:
+                                        MediaQuery.of(context).size.height / 25,
+                                    width:
+                                        MediaQuery.of(context).size.width / 2.5,
+                                    margin: EdgeInsets.only(bottom: 5.h),
+                                    // width: MediaQuery.of(context).size.width / 1.8,
+                                    // height: 35,
+                                    color: Colors.white,
+                                    child: AbsorbPointer(
+                                      child: TextFormField(
+                                        focusNode: joiningDateFocus,
+                                        readOnly: true,
+                                        //enabled: false,
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "This Text field Cant be empty";
+                                          }
+                                          return null;
+                                        },
+                                        keyboardType: TextInputType.text,
+                                        controller: joiningDataController,
+                                        style: GoogleFonts.montserrat(
+                                            color: Constants.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                        decoration: InputDecoration(
+                                            prefixIcon: const Icon(
+                                              Icons.calendar_month_outlined,
+                                              color: Constants.darkBlue,
+                                            ),
+                                            prefixIconColor:
+                                                Constants.themeBgColor,
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                    top: 8,
+                                                    bottom: 8,
+                                                    left: 10,
+                                                    right: 10),
+                                            counterText: '',
+                                            // labelText: "Joining Date",
+                                            labelStyle: const TextStyle(
+                                              color: Constants.themeBgColor,
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              borderSide: const BorderSide(
+                                                  color: Color(0xffff0eceb)),
+                                            ),
+                                            focusColor:
+                                                const Color(0xffff0eceb),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              borderSide: const BorderSide(
+                                                color: Constants.black,
+                                              ),
+                                            ),
+                                            hintText: "Enter start date",
+                                            hintStyle: GoogleFonts.montserrat(
+                                                color: Constants.subtitleclr,
+                                                fontSize: 14)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            if (joiningDataController.text.isNotEmpty)
+                              const customTextForWeather(
+                                title: "LWD",
+                              ),
+                            if (joiningDataController.text.isNotEmpty)
+                              InkWell(
+                                onTap: () {
+                                  currentlyWorking
+                                      ? null
+                                      : selectDateForLastWorkingDay();
+                                },
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      // width: MediaQuery.of(context).size.width / 2.5,
+                                      width: MediaQuery.of(context).size.width /
+                                          2.5,
+                                      height:
+                                          MediaQuery.of(context).size.height /
+                                              25,
+                                      margin: EdgeInsets.only(bottom: 5.h),
+                                      // width: MediaQuery.of(context).size.width / 1.8,
+                                      // height: 35,
+                                      color: Colors.white,
+                                      child: AbsorbPointer(
+                                        child: TextFormField(
+                                          focusNode: joiningDateFocus,
+                                          readOnly: true,
+                                          //  enabled: false,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "This Text field Cant be empty";
+                                            }
+                                            return null;
+                                          },
+                                          keyboardType: TextInputType.text,
+                                          controller: lastWorkingController,
+                                          style: GoogleFonts.montserrat(
+                                              color: Constants.black,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500),
+                                          decoration: InputDecoration(
+                                              prefixIcon: const Icon(
+                                                Icons.calendar_month_outlined,
+                                                color: Constants.darkBlue,
+                                              ),
+                                              prefixIconColor:
+                                                  Constants.themeBgColor,
+                                              contentPadding:
+                                                  const EdgeInsets.only(
+                                                      top: 8,
+                                                      bottom: 8,
+                                                      left: 10,
+                                                      right: 10),
+                                              counterText: '',
+                                              // labelText: "Joining Date",
+                                              labelStyle: const TextStyle(
+                                                color: Constants.themeBgColor,
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                borderSide: const BorderSide(
+                                                    color: Color(0xffff0eceb)),
+                                              ),
+                                              focusColor:
+                                                  const Color(0xffff0eceb),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.r),
+                                                borderSide: const BorderSide(
+                                                  color: Constants.black,
+                                                ),
+                                              ),
+                                              hintText:
+                                                  "Enter Last working date",
+                                              hintStyle: GoogleFonts.montserrat(
+                                                  color: Constants.subtitleclr,
+                                                  fontSize: 14)),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        )
+                      ],
+                    ),
+
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    if (joiningDataController.text.isNotEmpty)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color:
+                                    // selectedKeyResponsible.contains(item)
+                                    Colors.grey,
+                                width: 1.5,
+                              ),
+                            ),
+                            height: 16,
+                            width: 20,
+                            child: Theme(
+                              data: ThemeData(
+                                unselectedWidgetColor: Colors.transparent,
+                              ),
+                              child: Checkbox(
+                                  side: const BorderSide(color: Colors.white),
+                                  activeColor: Colors.white,
+                                  checkColor: Constants.themeBgColor,
+                                  visualDensity: VisualDensity.compact,
+                                  value: currentlyWorking,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      currentlyWorking = !currentlyWorking;
+                                      lastWorkingController.clear();
+                                    });
+                                    /* else {
+                                      for (var e in widget.experiencelist!) {
+                                        if (newValue == true) {
+                                          if (e.last_working_date == null &&
+                                              e.isCurrent == 1 &&
+                                              widget.prevPageModel!
+                                                      .companyName !=
+                                                  e.companyName) {
+                                            showDialog(
+                                                barrierDismissible: false,
+                                                context: context,
+                                                builder: (context) {
+                                                  return MyCustomDialogForExperience(
+                                                    e: e,
+                                                    onYes: (p0) {
+                                                      setState(() {
+                                                        yes = p0;
+                                                        currentlyWorking = p0;
+                                                      });
+                                                    },
+                                                    onNo: (p0) {
+                                                      setState(() {
+                                                        currentlyWorking = p0;
+                                                        no = p0;
+                                                      });
+                                                    },
+                                                    onDateSelected: (p0) {
+                                                      setState(() {
+                                                        currentlyWorking =
+                                                            !currentlyWorking;
+                                                        selectedLastDateofPrevious =
+                                                            p0;
+                                                      });
+                                                    },
+                                                    selectedDate:
+                                                        DateTime.now(),
+                                                  );
+                                                });
+                                          } else {
+                                            setState(() {
+                                              no = false;
+                                              yes = true;
+                                              currentlyWorking = true;
+                                            });
+                                          }
+                                        } else {
+                                          setState(() {
+                                            yes = false;
+                                            no = true;
+                                            currentlyWorking = false;
+                                          });
+                                        }
+                                      }
+                                    } */
+                                  }),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 10.w,
+                          ),
+                          const customTextForWeather(
+                              title: "I am currently working here."),
+                        ],
+                      ),
+                    SizedBox(
+                      height: 10.h,
+                    ),
+
+                    const customTextForWeather(
+                      title: "Annual Salary*",
+                    ),
+
+                    Container(
+                        margin: const EdgeInsets.only(bottom: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(bottom: 5.h),
+                              height: MediaQuery.of(context).size.height / 25,
+                              color: Colors.white,
+                              child: TextFormField(
+                                maxLength: 8,
+                                focusNode: salaryFocus,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "This Text field Cant be empty";
+                                  }
+                                  return null;
+                                },
+
+                                // focusNode: titleFocus,
+                                // maxLength: 3,
+                                /*   onFieldSubmitted: (value) {
+                                  currentSalaryController.text.isNotEmpty
+                                      ? setState(() {
+                                          isCurrentSalary = true;
+                                          // _showContainer1 = value.isEmpty;
+                                        })
+                                      : null;
+                                },
+
+                                onChanged: (value) {
+                                  setState(() {
+                                    currentSalaryController.text.isEmpty
+                                        ? isMonthly = false
+                                        : isYearly = false;
+                                    currentSalaryController.text.length <= 3
+                                        ? isMonthly = false
+                                        : isYearly = false;
+                                  });
+                                },
+                                onTapOutside: (event) {
+                                  currentSalaryController.text.isNotEmpty
+                                      ? setState(() {
+                                          isCurrentSalary = true;
+                                          // _showContainer1 = value.isEmpty;
+                                        })
+                                      : null;
+                                },
+                                onEditingComplete: () {
+                                  currentSalaryController.text.isNotEmpty
+                                      ? setState(() {
+                                          isCompanyLocation = true;
+                                          // _showContainer1 = value.isEmpty;
+                                        })
+                                      : null;
+                                }, */
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                                controller: currentSalaryController,
+                                // enabled: enableShortListFor,
+
+                                style: GoogleFonts.montserrat(
+                                    color: Constants.black,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500),
+                                decoration: InputDecoration(
+                                  counterText: '',
+
+                                  //label: Text("Reside at"),
+                                  prefixText: "Rs. ",
+                                  hintText: "Enter your salary",
+                                  hintStyle: GoogleFonts.montserrat(
+                                    color: Constants.subtitleclr,
+                                    fontSize: 14,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                        color: Constants.themeBgColor),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: const BorderSide(
+                                      color: Color(0xffff0eceb),
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  contentPadding:
+                                      const EdgeInsets.only(left: 15),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )),
+                    SizedBox(
+                      height: 5.h,
+                    ),
+                    const customTextForWeather(
+                      title: "Profile Headline",
+                    ),
+                    CustomAutoSizeTextField(
+                      maxLength: 120,
+                      controller: profileHeadline,
+                      hintText: "Enter your profile headline",
+                      maxline: 3,
+                    )
+                    /* CustomTextFieldforAll(
+                      maxline: 4,
+                      maxLength: 120,
+                      focusNode: headlineFocus,
+                      controller: profileHeadline,
+                      hint: "Enter your profile headline",
+                    ), */
+
+                    /* Row(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Joining Date",
+                                style: GoogleFonts.sourceSansPro(
+                                    fontSize: 18.sp,
+                                    // color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              isJoiningDate
+                                  ? Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        customContainerSelect(
+                                          isVacancy: true,
+                                          isCross: true,
+                                          isAnother: false,
+                                          isEmails: false,
+                                          isNumOfOpening: true,
+                                          onPressed: () async {
+                                            setState(() {
+                                              isJoiningDate = false;
+                                            });
+                                            DateTime? pickedDate =
+                                                await showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now().add(
+                                                const Duration(
+                                                    days: -(365 * 50)),
+                                              ),
+                                              lastDate: DateTime.now(),
+                                              currentDate: joiningDateValue,
+                                              firstDate: DateTime.now(),
+                                            );
+
+                                            if (pickedDate != null) {
+                                              String formattedDate =
+                                                  DateFormat('dd-MM-yyyy')
+                                                      .format(pickedDate);
+                                              joiningDateValue = pickedDate;
+                                              setState(() {
+                                                joiningDataController.text =
+                                                    formattedDate;
+                                                dt = DateFormat(
+                                                        'yyyy-MM-dd HH:mm:ss')
+                                                    .format(pickedDate);
+                                                year = (dt - DateTime.now());
+                                                isJoiningDate = false;
+                                                joiningDataController.clear();
+                                              });
+                                            } else {
+                                              print("Date is not selected");
+                                            }
+                                          },
+                                          isSelect: true,
+                                          title: joiningDataController.text,
+                                        ),
+                                      ],
+                                    )
+                                  : Container(
+                                      width:
+                                          MediaQuery.of(context).size.width /
+                                              3,
+                                      // height: 55,
+                                      margin:
+                                          const EdgeInsets.only(bottom: 5),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          Container(
+                                            margin:
+                                                EdgeInsets.only(bottom: 5.h),
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3,
+                                            height: 35,
+                                            color: Colors.white,
+                                            child: TextFormField(
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return "This Text field Cant be empty";
+                                                }
+                                                return null;
+                                              },
+                                              // focusNode: firstNameFocus,
+                                              onFieldSubmitted: (value) {
+                                                joiningDataController
+                                                        .text.isNotEmpty
+                                                    ? setState(() {
+                                                        isJoiningDate = true;
+                                                      })
+                                                    : null;
+                                              },
+                                              onTapOutside: (event) {
+                                                joiningDataController
+                                                        .text.isNotEmpty
+                                                    ? setState(() {
+                                                        isJoiningDate = true;
+                                                      })
+                                                    : null;
+                                              },
+                                              onEditingComplete: () {
+                                                joiningDataController
+                                                        .text.isNotEmpty
+                                                    ? setState(() {
+                                                        isJoiningDate = true;
+                                                      })
+                                                    : null;
+                                              },
+                                              keyboardType:
+                                                  TextInputType.text,
+                                              controller:
+                                                  joiningDataController,
+                                              onTap: () {
+                                                selectDate();
+                                              },
+                                              decoration: InputDecoration(
+                                                counterText: '',
+                                                contentPadding:
+                                                    const EdgeInsets.only(
+                                                        top: 8,
+                                                        bottom: 8,
+                                                        left: 10,
+                                                        right: 10),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8),
+                                                  borderSide:
+                                                      const BorderSide(
+                                                          color: Color(
+                                                              0xffff0eceb)),
+                                                ),
+                                                focusColor:
+                                                    const Color(0xffff0eceb),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          10),
+                                                  borderSide:
+                                                      const BorderSide(
+                                                          color:
+                                                              Color.fromARGB(
+                                                                  255,
+                                                                  122,
+                                                                  113,
+                                                                  111)),
+                                                ),
+                                                hintText:
+                                                    "Enter joining date ",
+                                                hintStyle:
+                                                    GoogleFonts.sourceSansPro(
+                                                        color: Constants
+                                                            .subtitleclr,
+                                                        fontSize: 15.sp),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                            ],
+                          ),
+                          const SizedBox(width: 10),
+                          if (!isPresent && no)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Last Working Date",
+                                  style: GoogleFonts.sourceSansPro(
+                                      fontSize: 18.sp,
+                                      // color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.w600),
+                                ),
+                                isLastWorkingDate
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          customContainerSelect(
+                                            isVacancy: true,
+                                            isCross: true,
+                                            isAnother: false,
+                                            isEmails: false,
+                                            isNumOfOpening: true,
+                                            onPressed: () async {
+                                              setState(() {
+                                                isLastWorkingDate = false;
+                                              });
+                                              DateTime? pickedDate =
+                                                  await showDatePicker(
+                                                context: context,
+                                                initialDate:
+                                                    DateTime.now().add(
+                                                  const Duration(
+                                                      days: -(365 * 50)),
+                                                ),
+                                                lastDate: DateTime.now(),
+                                                currentDate:
+                                                    lastWorkingDateValue,
+                                                firstDate: DateTime.now(),
+                                              );
+
+                                              if (pickedDate != null) {
+                                                String formattedDate =
+                                                    DateFormat('dd-MM-yyyy')
+                                                        .format(pickedDate);
+                                                lastWorkingDateValue =
+                                                    pickedDate;
+                                                setState(() {
+                                                  lastWorkingController.text =
+                                                      formattedDate;
+                                                  dt = DateFormat(
+                                                          'yyyy-MM-dd HH:mm:ss')
+                                                      .format(pickedDate);
+                                                  year =
+                                                      (dt - DateTime.now());
+                                                  isJoiningDate = false;
+                                                  lastWorkingController
+                                                      .clear();
+                                                });
+                                              } else {
+                                                print("Date is not selected");
+                                              }
+                                            },
+                                            isSelect: true,
+                                            title: lastWorkingController.text,
+                                          ),
+                                        ],
+                                      )
+                                    : Container(
+                                        width: MediaQuery.of(context)
+                                                .size
+                                                .width /
+                                            3,
+                                        // height: 55,
+                                        margin:
+                                            const EdgeInsets.only(bottom: 5),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const SizedBox(
+                                              height: 5,
+                                            ),
+                                            Container(
+                                              margin: EdgeInsets.only(
+                                                  bottom: 5.h),
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  3,
+                                              height: 35,
+                                              color: Colors.white,
+                                              child: TextFormField(
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return "This Text field Cant be empty";
+                                                  }
+                                                  return null;
+                                                },
+                                                // focusNode: firstNameFocus,
+                                                onFieldSubmitted: (value) {
+                                                  lastWorkingController
+                                                          .text.isNotEmpty
+                                                      ? setState(() {
+                                                          isLastWorkingDate =
+                                                              true;
+                                                        })
+                                                      : null;
+                                                },
+                                                onTapOutside: (event) {
+                                                  lastWorkingController
+                                                          .text.isNotEmpty
+                                                      ? setState(() {
+                                                          isLastWorkingDate =
+                                                              true;
+                                                        })
+                                                      : null;
+                                                },
+                                                onEditingComplete: () {
+                                                  lastWorkingController
+                                                          .text.isNotEmpty
+                                                      ? setState(() {
+                                                          isLastWorkingDate =
+                                                              true;
+                                                        })
+                                                      : null;
+                                                },
+                                                keyboardType:
+                                                    TextInputType.text,
+                                                controller:
+                                                    lastWorkingController,
+                                                onTap: () {
+                                                  selectDate();
+                                                },
+                                                decoration: InputDecoration(
+                                                  counterText: '',
+                                                  contentPadding:
+                                                      const EdgeInsets.only(
+                                                          top: 8,
+                                                          bottom: 8,
+                                                          left: 10,
+                                                          right: 10),
+                                                  border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            8),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color: Color(
+                                                                0xffff0eceb)),
+                                                  ),
+                                                  focusColor: const Color(
+                                                      0xffff0eceb),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color: Color
+                                                                .fromARGB(
+                                                                    255,
+                                                                    122,
+                                                                    113,
+                                                                    111)),
+                                                  ),
+                                                  hintText:
+                                                      "Enter last working date ",
+                                                  hintStyle: GoogleFonts
+                                                      .sourceSansPro(
+                                                          color: Constants
+                                                              .subtitleclr,
+                                                          fontSize: 15.sp),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                              ],
+                            ),
+                        ],
+                      ), */
+                    /*   const SizedBox(
+                      // width: MediaQuery.of(context).size.width / 2.2.w,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /* Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                isPresent = !isPresent;
+                                if (isPresent) {
+                                  // apportunities = false;
+                                  working = "I am currently working";
+                                } else {
+                                  working = "";
+                                }
+                              });
+                            },
+                            child: isPresent
+                                ? Image.asset(
+                                    "assets/images/currentworking.png",
+                                    height: 16.h,
+                                  )
+                                : Icon(
+                                    Icons.circle_outlined,
+                                    color: Colors.grey,
+                                    size: 16.h,
+                                  ),
+                          ),
+                          SizedBox(
+                            width: 5.w,
+                          ),
+                          isPresent
+                              ? Text(
+                                  "I am currently working. ",
+                                  style: GoogleFonts.varela(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                )
+                              : Text(
+                                  "I am currently working. ",
+                                  style: GoogleFonts.varela(
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ),
+                        ],
+                      ), */
+                          //   if (isPresent)
+                        ],
+                      ),
+                    ), */
+                  ],
+                ),
+                SizedBox(
+                  height: 20.h,
+                ),
+                /*   if ((jobTitleController.text.isNotEmpty &&
+                    companyController.text.isNotEmpty)) */
+                const customTextForWeather(
+                  title: "Career Assets",
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      children: [
+                        offerLetter != null && offerLetter != ""
+                            ? CustomContainerSelectToViewDoc(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return CustomPDFViewerDialog(
+                                        pdfUrl:
+                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/$offerLetter",
+                                        onRemove: () async {
+                                          await FileUploadService()
+                                              .deleteSingleFile(offerLetter!);
+                                          setState(() {
+                                            offerLetter = null;
+                                          });
+                                          // Add your logic for removing here
+                                        },
+                                        onReplace: () {
+                                          /*  offerLetter =
+                                              await fileUploader.uploadFile(
+                                                  context,
+                                                  ['pdf'],
+                                                  "offerLetter");
+                                          setState(() {});
+                                          /* setState(() async {
+                                            offerLetter = await uploadFile(
+                                                allowExt: ['pdf'],
+                                                isoffer: true);
+
+                                            // Add your logic for replacing here
+                                          }); */ */
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                title: "Offer Letter")
+                            : const SizedBox(),
+                        /* customContainerSelect(
+                                  isAnother: true,
+                                  onPressed: () async {
+                                    setState(() async {
+                                      // offerletter = true;
+                                      offerLetter = await uploadFile(
+                                          allowExt: ["pdf"], isoffer: true);
+                                    });
+                                  },
+                                  isSelect: offerletter,
+                                  title: offerLetter != null
+                                      ? offerLetter.toString()
+                                      : "Offer letter"), */
+                        appointmentLetter != null && appointmentLetter != ""
+                            ? CustomContainerSelectToViewDoc(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return CustomPDFViewerDialog(
+                                        pdfUrl:
+                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/$appointmentLetter",
+                                        onRemove: () async {
+                                          await FileUploadService()
+                                              .deleteSingleFile(
+                                                  appointmentLetter!);
+                                          setState(() {
+                                            appointmentLetter = null;
+                                          });
+                                          // Add your logic for removing here
+                                        },
+                                        onReplace: () {
+                                          /*  appointmentLetter =
+                                              await fileUploader.uploadFile(
+                                                  context,
+                                                  ['pdf'],
+                                                  "appointmentLetter");
+                                          setState(() {});
+                                          /*  setState(() async {
+                                            appointmentLetter =
+                                                await uploadFile(
+                                                    allowExt: ['pdf'],
+                                                    isappointment: true);
+
+                                            // Add your logic for replacing here
+                                          }); */ */
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                title: "Appointment letter")
+                            : /* customContainerSelect(
+                                  isAnother: true,
+                                  onPressed: () async {
+                                    setState(() async {
+                                      // appontment = true;
+                                      appointmentLetter = await uploadFile(
+                                          allowExt: ["pdf"],
+                                          isappointment: true);
+                                    });
+                                  },
+                                  isSelect: appontment,
+                                  title: "Appointment letter"), */
+                            const SizedBox(),
+                        alarySlip != null && alarySlip != ""
+                            ? CustomContainerSelectToViewDoc(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return CustomPDFViewerDialog(
+                                        pdfUrl:
+                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/$alarySlip",
+                                        onRemove: () async {
+                                          await FileUploadService()
+                                              .deleteSingleFile(alarySlip!);
+                                          setState(() {
+                                            alarySlip = null;
+                                          });
+                                          // Add your logic for removing here
+                                        },
+                                        onReplace: () async {
+                                          alarySlip =
+                                              await fileUploader.uploadFile(
+                                                  context,
+                                                  ['pdf'],
+                                                  "alarySlip");
+                                          setState(() {});
+                                          /*  setState(() async {
+                                            alarySlip = await uploadFile(
+                                                allowExt: ['pdf'],
+                                                issalry: true);
+
+                                            // Add your logic for replacing here
+                                          }); */
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                title: "Salary Slip")
+                            : /* customContainerSelect(
+                                  isAnother: true,
+                                  onPressed: () async {
+                                    setState(() async {
+                                      // salrysleep = true;
+                                      alarySlip = await uploadFile(
+                                          allowExt: ['pdf'], issalry: true);
+                                    });
+                                  },
+                                  isSelect: salrysleep,
+                                  title: "Salary slips"), */
+                            const SizedBox(),
+                        incrementLetter != null && incrementLetter != ""
+                            ? CustomContainerSelectToViewDoc(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return CustomPDFViewerDialog(
+                                        pdfUrl:
+                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/$incrementLetter",
+                                        onRemove: () async {
+                                          await FileUploadService()
+                                              .deleteSingleFile(
+                                                  incrementLetter!);
+                                          setState(() {
+                                            incrementLetter = null;
+                                          });
+                                          // Add your logic for removing here
+                                        },
+                                        onReplace: () async {
+                                          incrementLetter =
+                                              await fileUploader.uploadFile(
+                                                  context,
+                                                  ['pdf'],
+                                                  "incrementLetter");
+                                          setState(() {});
+                                          /* setState(() async {
+                                            incrementLetter = await uploadFile(
+                                                allowExt: ['pdf'],
+                                                isincrement: true);
+
+                                            // Add your logic for replacing here
+                                          }); */
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                title: "Increment letter")
+                            : /* customContainerSelect(
+                                  isAnother: true,
+                                  onPressed: () async {
+                                    setState(() async {
+                                      //  increament = true;
+                                      incrementLetter = await uploadFile(
+                                          allowExt: ['pdf'], isincrement: true);
+                                    });
+                                  },
+                                  isSelect: increament,
+                                  title: "Increment letter"), */
+                            const SizedBox(),
+                        experienceLetter != null && experienceLetter != ""
+                            ? CustomContainerSelectToViewDoc(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) {
+                                      return CustomPDFViewerDialog(
+                                        pdfUrl:
+                                            "https://s3.ap-south-1.amazonaws.com/job-circle-2/$experienceLetter",
+                                        onRemove: () async {
+                                          await FileUploadService()
+                                              .deleteSingleFile(
+                                                  experienceLetter!);
+                                          setState(() {
+                                            experienceLetter = null;
+                                          });
+                                          // Add your logic for removing here
+                                        },
+                                        onReplace: () async {
+                                          experienceLetter =
+                                              await fileUploader.uploadFile(
+                                                  context,
+                                                  ['pdf'],
+                                                  "experienceLetter");
+                                          setState(() {});
+                                          /*  setState(() async {
+                                              experienceLetter =
+                                                  await uploadFile(
+                                                      allowExt: ['pdf'],
+                                                      isexperience: true);
+
+                                              // Add your logic for replacing here
+                                            }); */
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                                title: "Experience letter")
+                            : /* customContainerSelect(
+                                    isAnother: true,
+                                    onPressed: () async {
+                                      setState(() async {
+                                        //   experienceletter = true;
+                                        experienceLetter = await uploadFile(
+                                            allowExt: ['pdf'],
+                                            isexperience: true);
+                                      });
+                                    },
+                                    isSelect: experienceletter,
+                                    title: "Experience / Relieving letter"), */
+                            const SizedBox(),
+                      ],
+                    ),
+                    if ((offerLetter == null && offerLetter != "") ||
+                        (appointmentLetter == null &&
+                            appointmentLetter != "") ||
+                        (alarySlip == null && alarySlip != "") ||
+                        (incrementLetter == null && incrementLetter != "") ||
+                        (lastWorkingController.text.isNotEmpty &&
+                            experienceLetter == null &&
+                            experienceLetter != ""))
+                      CustomDocumentUploadButton(
+                          onTab: () {
+                            showModalBottomSheet(
+                              context: context,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20)),
+                              ),
+                              builder: (context) {
+                                return _buildBottomSheetContent(context);
+                              },
+                            );
+                          },
+                          title: "Add Document"),
+                    /* if (yes)
+                        Container(
+                          padding: EdgeInsets.only(top: 6.h),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text("Looking for better opportunities.",
+                                      style: GoogleFonts.varela(
+                                        color: Colors.black,
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.w400,
+                                      )),
+                                  const Spacer(),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color:
+                                            // selectedKeyResponsible.contains(item)
+                                            Colors.grey,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    height: 16,
+                                    width: 20,
+                                    child: Theme(
+                                      data: ThemeData(
+                                        unselectedWidgetColor:
+                                            Colors.transparent,
+                                      ),
+                                      child: Checkbox(
+                                        side: const BorderSide(
+                                            color: Colors.white),
+                                        activeColor: Colors.white,
+                                        checkColor: Constants.themeBgColor,
+                                        visualDensity: VisualDensity.compact,
+                                        value: apportunities,
+                                        onChanged: (newValue) {
+                                          for (var e
+                                              in widget.experiencelist!) {
+                                            if (newValue == true) {
+                                              setState(() {
+                                                e.availability.toString() ==
+                                                        "Immediate"
+                                                    ? imd = true
+                                                    : e.availability
+                                                                .toString() ==
+                                                            "15Days or less"
+                                                        ? day15 = true
+                                                        : e.availability
+                                                                    .toString() ==
+                                                                "1 Month"
+                                                            ? day30 = true
+                                                            : e.availability
+                                                                        .toString() ==
+                                                                    "2 Month"
+                                                                ? day60 = true
+                                                                : e.availability
+                                                                            .toString() ==
+                                                                        "3 month or more"
+                                                                    ? day90 =
+                                                                        true
+                                                                    : null; // Add the item to the list
+                                                apportunities = true;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                apportunities = false;
+                                                imd = false;
+                                                day15 = false;
+                                                day30 = false;
+                                                day60 = false;
+                                                day90 = false;
+                                              });
+                                            }
+                                          }
+                                          // Notify Flutter that the state has changed
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              /* InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        apportunities = !apportunities;
+                                      });
+                                    },
+                                    child: Row(
+                                      children: [
+                                        apportunities
+                                            ? Image.asset(
+                                                "assets/images/currentworking.png",
+                                                height: 15.h,
+                                              )
+                                            : Icon(
+                                                Icons.circle_outlined,
+                                                color: Colors.grey,
+                                                size: 16.h,
+                                              ),
+                                        SizedBox(
+                                          width: 5.w,
+                                        ),
+                                        apportunities
+                                            ? Text(
+                                                "Looking for better opportunities.",
+                                                style: GoogleFonts.varela(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                              )
+                                            : Text(
+                                                "Looking for better opportunities?",
+                                                style: GoogleFonts.varela(
+                                                  color: Colors.grey.shade400,
+                                                ),
+                                              ),
+                                      ],
+                                    ),
+                                  ), */
+                              if (apportunities)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    SizedBox(
+                                      height: 10.h,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          "Availability to join?",
+                                          style: GoogleFonts.varela(
+                                              color: Constants.themeBgColor),
+                                        ),
+                                      ],
+                                    ),
+                                    Wrap(
+                                      children: [
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "Immediate";
+                                              imd = !imd;
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: imd,
+                                          title: "Immediate",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "15 Days or less";
+                                              imd = false;
+                                              day15 = !day15;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day15,
+                                          title: "15 Days or less",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "1 Month";
+                                              day15 = false;
+                                              day30 = !day30;
+                                              day60 = false;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day30,
+                                          title: "1 Month",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "2 Months";
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = !day60;
+                                              day90 = false;
+                                            });
+                                          },
+                                          isSelect: day60,
+                                          title: "2 Months",
+                                        ),
+                                        customContainerSelect(
+                                          isAnother: true,
+                                          onPressed: () {
+                                            setState(() {
+                                              working = "2 Months";
+                                              day15 = false;
+                                              day30 = false;
+                                              day60 = false;
+                                              day90 = !day90;
+                                            });
+                                          },
+                                          isSelect: day90,
+                                          title: "3 Months or more",
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ), */
+
+                    /* customDocumnet(
+                            "Offer / Appointment letter.",
+                          ),
+                          SizedBox(
+                            height: 5.h,
+                          ),
+                          customDocumnet1("6 months Salary Slip. "),
+                          SizedBox(
+                            height: 5.h,
+                          ),
+                          customDocumnet2("6 months Bank statement. "),
+                          SizedBox(
+                            height: 5.h,
+                          ),
+                          if (no)
+                            customDocumnet3(
+                                "Experience / Relieving letter."), */
+                  ],
+                )
+                // const SizedBox(height: 200),
+              ],
+            ),
+            if (!widget.isFirst)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10, top: 20),
+                    child: InkWell(
+                        onTap: () async {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return EducationSelectionDialog(
+                                explegth: widget.expelength,
+                                type: "exp",
+                                text: "Experience",
+                                id: widget.prevPageModel!.id!.toInt(),
+                              );
+                            },
+                          );
+                          /*  if (widget.experiencelist!.length <= 1) {
+                            var payload = {
+                              "stage": "experience",
+                              "data": {
+                                "id": await Utils.getPreferencesValue(
+                                    null, ESharedPreferences.user_id.name),
+                                "experience": 0,
+                              }
+                            };
+                            await saveExperience(payload);
+                            JobPostApiService.DeletExperience(
+                                widget.prevPageModel!.id!.toInt(),
+                                context,
+                                "exp");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackbar(
+                                    "Experience Deleted Succesfully.", true));
+                            ref.refresh(userDataProvider);
+
+                            // Navigator.pop(context);
+                          } else {
+                            await JobPostApiService.DeletExperience(
+                                widget.prevPageModel!.id!.toInt(),
+                                context,
+                                "exp");
+                            ref.refresh(userDataProvider);
+                          } */
+                        },
+                        /* () async {
+                          await JobPostApiService.DeletExperience(
+                              widget.prevPageModel!.id!.toInt(),
+                              context,
+                              "exp");
+                          ref.refresh(userDataProvider);
+                        }, */
+                        child: Image.asset(
+                          "assets/images/bin.gif",
+                          height: 40.h,
+                        )
+                        /*  child: Text(
+                          "Delete Experience",
+                          style: GoogleFonts.varela(color: Colors.red),
+                        ) */
+                        ),
+                  ),
+                ],
+              )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Row customDocumnet(
+    String title,
+  ) {
+    // bool offerletter = false;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          child: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    setState(() {
+                      offerletter = !offerletter;
+                    });
+                  },
+                  child: offerletter
+                      ? Image.asset(
+                          "assets/images/currentworking.png",
+                          height: 15.h,
+                        )
+                      : Icon(
+                          Icons.circle_outlined,
+                          color: Colors.grey,
+                          size: 16.h,
+                        )),
+              SizedBox(
+                width: 5.w,
+              ),
+              offerletter
+                  ? Text(
+                      title,
+                      style: GoogleFonts.varela(
+                          color: Colors.black, fontWeight: FontWeight.w400),
+                    )
+                  : Text(
+                      title,
+                      style: GoogleFonts.varela(color: Colors.grey.shade400),
+                    )
+            ],
+          ),
+        ),
+        offerletter
+            ? Image.asset(
+                "assets/images/file_upload.png",
+                height: 16.h,
+              )
+            : const SizedBox(),
+      ],
+    );
+  }
+
+  Row customDocumnet1(
+    String title,
+  ) {
+    // bool offerletter = false;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          child: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    setState(() {
+                      salrysleep = !salrysleep;
+                    });
+                  },
+                  child: salrysleep
+                      ? Image.asset(
+                          "assets/images/currentworking.png",
+                          height: 15.h,
+                        )
+                      : Icon(
+                          Icons.circle_outlined,
+                          color: Colors.grey,
+                          size: 16.h,
+                        )),
+              SizedBox(
+                width: 5.w,
+              ),
+              salrysleep
+                  ? Text(
+                      title,
+                      style: GoogleFonts.varela(
+                          color: Colors.black, fontWeight: FontWeight.w400),
+                    )
+                  : Text(
+                      title,
+                      style: GoogleFonts.varela(color: Colors.grey.shade400),
+                    )
+            ],
+          ),
+        ),
+        salrysleep
+            ? Image.asset(
+                "assets/images/file_upload.png",
+                height: 16.h,
+              )
+            : const SizedBox(),
+      ],
+    );
+  }
+
+  Row customDocumnet2(
+    String title,
+  ) {
+    // bool offerletter = false;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          child: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    setState(() {
+                      bankstmt = !bankstmt;
+                    });
+                  },
+                  child: bankstmt
+                      ? Image.asset(
+                          "assets/images/currentworking.png",
+                          height: 15.h,
+                        )
+                      : Icon(
+                          Icons.circle_outlined,
+                          color: Colors.grey,
+                          size: 16.h,
+                        )),
+              SizedBox(
+                width: 5.w,
+              ),
+              bankstmt
+                  ? Text(
+                      title,
+                      style: GoogleFonts.varela(
+                          color: Colors.black, fontWeight: FontWeight.w400),
+                    )
+                  : Text(
+                      title,
+                      style: GoogleFonts.varela(color: Colors.grey.shade400),
+                    )
+            ],
+          ),
+        ),
+        bankstmt
+            ? Image.asset(
+                "assets/images/file_upload.png",
+                height: 16.h,
+              )
+            : const SizedBox(),
+      ],
+    );
+  }
+
+  Row customDocumnet3(
+    String title,
+  ) {
+    // bool offerletter = false;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          child: Row(
+            children: [
+              InkWell(
+                  onTap: () {
+                    setState(() {
+                      experienceletter = !experienceletter;
+                    });
+                  },
+                  child: experienceletter
+                      ? Image.asset(
+                          "assets/images/currentworking.png",
+                          height: 15.h,
+                        )
+                      : Icon(
+                          Icons.circle_outlined,
+                          color: Colors.grey,
+                          size: 16.h,
+                        )),
+              SizedBox(
+                width: 5.w,
+              ),
+              experienceletter
+                  ? Text(
+                      title,
+                      style: GoogleFonts.varela(
+                          color: Colors.black, fontWeight: FontWeight.w400),
+                    )
+                  : Text(
+                      title,
+                      style: GoogleFonts.varela(color: Colors.grey.shade400),
+                    )
+            ],
+          ),
+        ),
+        experienceletter
+            ? Image.asset(
+                "assets/images/file_upload.png",
+                height: 16.h,
+              )
+            : const SizedBox(),
+      ],
+    );
+  }
+
+  bool isPartTime = false,
+      isFullTime = false,
+      isContract = false,
+      isIntern = false,
+      freelancer = false,
+      trainee = false,
+      selfemp = false,
+      temporary = false;
+
+  InkWell customContainerSelectForEmpType({
+    required final VoidCallback onPressed,
+    required bool isSelect,
+    required String title,
+  }) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            //width: MediaQuery.of(context).size.width / 2.2,
+
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: EdgeInsets.only(bottom: 6.h, top: 2.h, right: 15.sp),
+            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 12.w),
+            decoration: BoxDecoration(
+              border: Border.all(
+                  color:
+                      isSelect ? Constants.borderColor : Colors.grey.shade400),
+              color: isSelect ? Constants.borderColor : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: customTextForWeather(
+                title: title,
+                color: isSelect ? Constants.black : Colors.grey.shade400,
+                fontSize: 12,
+                fontWeight: isSelect ? FontWeight.bold : FontWeight.normal)));
+  }
+
+  saveExperience(data) async {
+    var result = await UserDataService().saveUserStages(data);
+    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
+      print("done");
+    }
+    setState(() {});
+  }
+
+  save() async {
+    DateFormat format = DateFormat('dd-MM-yyyy');
+
+    // Parse the string into a DateTime object
+    DateTime joiningDate = format.parse(joiningDataController.text);
+    DateTime? lastDate;
+    if (currentlyWorking == false) {
+      lastDate = format.parse(lastWorkingController.text);
+    }
+
+    String empType = (isFullTime)
+        ? "FullTime"
+        : (isPartTime)
+            ? "PartTime"
+            : (isContract)
+                ? "Contractual"
+                : (isIntern)
+                    ? "Internship"
+                    : freelancer
+                        ? "freelancer"
+                        : trainee
+                            ? "Trainee"
+                            : selfemp
+                                ? "SelfEmployee"
+                                : "FullTime";
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+
+    ProfileUpdateRequestDto profileUpdateRequestDto = ProfileUpdateRequestDto(
+      id: widget.userid,
+      skills: widget.skills,
+      profileHeadline:
+          profileHeadline.text == "" ? "null" : profileHeadline.text,
+    );
+
+    ExperienceRequestDto experienceRequestDto = ExperienceRequestDto(
+      id: widget.isEdit == true ? widget.prevPageModel!.id : null,
+      userId: widget.userid,
+      companyName: companyController.text,
+      industry: industry.text,
+      functionalArea: functionalArea.text,
+      empType: empType,
+
+/*       empType: isFullTime
+          ? "FullTime"
+          : isPartTime
+              ? "PartTime"
+              : isContract
+                  ? "Contractual"
+                  : isIntern
+                      ? "Internship"
+                      : "FullTime", */
+      workType: isOnsite
+          ? "OnSite"
+          : isHybrid
+              ? "Hybrid"
+              : isWfh
+                  ? "WFH"
+                  : "",
+      jobTitle: jobTitleController.text,
+      jobLocation: companyLocationController.text,
+      jobRole: description.text == "• " || description.text == ""
+          ? null
+          : description.text.replaceAll(RegExp(r'•\s*'), ''),
+      joiningDate: joiningDate,
+      isCurrent: currentlyWorking ? 1 : 0,
+      lastWorkingDate: currentlyWorking ? null : lastDate,
+      salary: currentSalaryController.text,
+      appointmentLetter: appointmentLetter,
+      experienceLettter: experienceLetter,
+      incrementLetter: incrementLetter,
+      offerLetter: offerLetter,
+      salarySlip: alarySlip,
+      skillsExp: widget.isEdit == true ? widget.prevPageModel!.skillsExp : [],
+    );
+
+    /*   UserUpdateRequestModel userUpdateRequestModel = UserUpdateRequestModel(  //TODO:: use this function if u want to save data on experience page.
+        certificationsRequestDtos: null,
+        educationRequestDtos: null,
+        experienceRequestDtos: [experienceRequestDto],
+        profileUpdateRequestDto: profileUpdateRequestDto);
+    await JobPostApiService.PostUserInfo(
+      userUpdateRequestModel,
+    );
+    ref.refresh(userDataProvider);
+    ref.refresh(ProfileDataProvider);
+    CustomSnackbar.show(
+        widget.isEdit!
+            ? "Experience updated Succesfully."
+            : "New Experience added Succesfully.",
+        false);
+  
+     */
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => SkillsMulti(
+                  isEdit: widget.isEdit!,
+                  needpop: widget.needpop,
+                  Skill: widget.skills,
+                  userid: widget.userid,
+                  experienceRequestDto: experienceRequestDto,
+                  profileUpdateRequestDto: profileUpdateRequestDto,
+                )));
+    // Retrieve the form data
+
+    // Create a new instance of the model and assign the values
+    /* Experience experience1 = Experience(
+      id: expID,
+      userId: profilemodel.id,
+      /*   city_id: workcityId,
+      jobid: jobtitleId,
+      job_title: jobTitleController.text,
+      company_name: companyController.text,
+      isCurrent: yes ? 1 : 0,
+      description: description.text == "" ? null : description.text,
+      skills_exp: fetchApiskill,
+
+      work_type: isOnsite
+          ? "OnSite"
+          : isHybrid
+              ? "Hybrid"
+              : isWfh
+                  ? "WFH"
+                  : "",
+      company_location: companyLocationController.text,
+      emptype: isFullTime
+          ? "FullTime"
+          : isPartTime
+              ? "PartTime"
+              : isContract
+                  ? "Contractual"
+                  : isIntern
+                      ? "Internship"
+                      : null,
+      joining_date: selectedJoiningDate,
+      last_working_date: no ? selectedLastWorkingDate : null,
+      salary: yes ? currentSalaryController.text : null,
+      ismonthly: yes ? 1 : 0,
+      offer_letter: offerLetter,
+      appointment_letter: appointmentLetter,
+      salary_slip: alarySlip,
+      increment_letter: incrementLetter,
+      experience_lettter: experienceLetter,
+      companyid: companyid, */
+      availability: apportunities
+          ? imd
+              ? "Immediate"
+              : day15
+                  ? "15Days or less"
+                  : day30
+                      ? "1 Month"
+                      : day60
+                          ? "2 Month"
+                          : day90
+                              ? "3 month or more"
+                              : null
+          : null,
+
+      // working: working,
+    ); */
+
+    // Create an instance of UserDataService
+
+    // }
+  }
+
+  InkWell customContainerSelectForWorkingType({
+    required final VoidCallback onPressed,
+    required bool isSelect,
+    required String title,
+  }) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: EdgeInsets.only(bottom: 6.h, top: 2.h, right: 15.sp),
+            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 20.w),
+            decoration: BoxDecoration(
+                color: isSelect ? Constants.borderColor : Colors.transparent,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: isSelect
+                        ? Constants.borderColor
+                        : Colors.grey.shade400)),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: customTextForWeather(
+                title: title,
+                color: isSelect ? Constants.black : Colors.grey.shade400,
+                fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
+                fontSize: 12)));
+  }
+
+  InkWell customContainerSelect(
+      {required final VoidCallback onPressed,
+      required bool isSelect,
+      required String title,
+      bool isHalf = false,
+      bool isVacancy = false,
+      bool isNumOfOpening = false,
+      bool isAnother = false,
+      bool isEmails = false,
+      bool isCross = false,
+      bool? isSalary = false}) {
+    return InkWell(
+        onTap: onPressed,
+        child: Container(
+            width: isAnother
+                ? null
+                : isNumOfOpening
+                    ? MediaQuery.of(context).size.width / 2.449
+                    : isEmails
+                        ? MediaQuery.of(context).size.width / 2.437
+                        : MediaQuery.of(context).size.width,
+            //height: MediaQuery.of(context).size.height / 30,
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
+            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
+            decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: isSelect
+                        ? Constants.themeBgColor
+                        : Colors.transparent)),
+            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: isSelect
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      isSalary!
+                          ? const Icon(
+                              Icons.currency_rupee_rounded,
+                              color: Colors.white,
+                              size: 15,
+                            )
+                          : const SizedBox(),
+                      Text(title,
+                          style: GoogleFonts.sourceSansPro(
+                              color: Constants.themeBgColor, fontSize: 15.sp)),
+                      isVacancy ? const Spacer() : const SizedBox(),
+
+                      /*  isCross
+                          ? Image.asset(
+                              "assets/images/close.png",
+                              height: 12,
+                            )
+                          : const Icon(
+                              Icons.check,
+                              size: 15,
+                              color: Colors.white,
+                            ) */
+                    ],
+                  )
+                : Text(title,
+                    style: GoogleFonts.sourceSansPro(
+                        color: Constants.themeBgColor, fontSize: 15.sp))));
+  }
+
+  InkWell customContainerSelect1(
+      bool isSelect, String text, bool isFetch, Function() onTab) {
+    return InkWell(
+        onTap: onTab,
+        child: Container(
+            width: double.maxFinite,
+            // height: MediaQuery.of(context).size.height / 26.h,
+            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            /* decoration: BoxDecoration(
+                //310D44   color code for dark purple
+                //3D3635   color code for greybrown
+                color: isSelect ? const Color(0xfff310d44) : null,
+                border: isSelect
+                    ? null
+                    : Border.all(
+                        color: isSelect
+                            ? Colors.deepOrange.shade400
+                            : Colors.grey),
+                borderRadius: BorderRadius.circular(18)), */
+            //  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+            child: isSelect
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(text,
+                          style: GoogleFonts.sourceSansPro(
+                              // fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 15.sp)),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      isFetch
+                          ? Image.asset(
+                              "assets/images/close.png",
+                              height: 12,
+                            )
+                          : const Icon(
+                              Icons.check,
+                              size: 15,
+                              color: Colors.white,
+                            )
+                    ],
+                  )
+                : Text(text,
+                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
+  }
+
+  handleReadOnlyInputClick() async {
+    DateTime? pickedDate = await showDialog<DateTime>(
+      context: context,
+      builder: (context) {
+        DateTime tempPickedDate;
+        return AlertDialog(
+          content: SizedBox(
+            height: 250,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    CupertinoButton(
+                      child: const Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    CupertinoButton(
+                      child: const Text('Done'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+                const Divider(
+                  height: 0,
+                  thickness: 1,
+                ),
+                Expanded(
+                  child: SizedBox(
+                    width: double.maxFinite,
+                    child: CupertinoDatePicker(
+                      maximumYear: 2023,
+                      //  maximumDate: DateTime.now(),
+                      //minimumDate: DateTime.now(),
+                      mode: CupertinoDatePickerMode.date,
+                      onDateTimeChanged: (DateTime dateTime) {
+                        tempPickedDate = dateTime;
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (pickedDate != null && pickedDate != _selectedDate) {
+      setState(() {
+        _selectedDate = pickedDate;
+        totalOfExpController.text = pickedDate.toString();
+      });
+    }
+  }
+
+  String? offerLetter;
+  String? appointmentLetter;
+  String? alarySlip;
+  String? incrementLetter;
+  String? experienceLetter;
+
+  Widget CustomTextField(
+      {Icon? icon,
+      required String hint,
+      required String label,
+      required FocusNode focusNode,
+      bool? isPrimaryNumber = false,
+      String? img,
+      bool? isImage = false,
+      int? maxLength,
+      bool? isdescription,
+      bool isNumber = false,
+      bool? keyboardType,
+      bool? isDisabled = true,
+      bool? isOptional = false,
+      int? maxline,
+      required TextEditingController controller}) {
+    int maxLines = 1;
+    // bool isError = false;
+    return SizedBox(
+      height:
+          maxline == null ? MediaQuery.of(context).size.height / 25.h : null,
+      child: TextFormField(
+        enabled: isDisabled,
+        // autofocus: focusNode.canRequestFocus,
+        maxLength: maxLength,
+        focusNode: focusNode,
+
+        /*  validator: (value) {
+          if (value == null || value.isEmpty) {
+            //return "This Text field Cant be empty";
+          }
+          return null;
+        }, */
+        //  maxLength: maxLength,
+
+        maxLines: maxline,
+        keyboardType: TextInputType.name,
+        //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
+        textCapitalization: TextCapitalization.sentences,
+        controller: controller,
+        onFieldSubmitted: (value) {
+          setState(() {
+            // Increase maxLines when the "Enter" key is pressed
+            maxLines += 1;
+          });
+        },
+
+        onTap: (() {}),
+        style: GoogleFonts.varela(color: Constants.hintColor, fontSize: 12.sp),
+        decoration: InputDecoration(
+            /*  filled: isPrimaryNumber! ? true : false,
+            fillColor:
+                isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent, */
+
+            contentPadding:
+                const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
+            // counterText: '',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: const BorderSide(color: Color(0xffff0eceb)),
+            ),
+            focusColor: const Color(0xffff0eceb),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.r),
+              borderSide: const BorderSide(
+                color: Constants.black,
+              ),
+            ),
+            hintText: hint,
+            hintStyle: GoogleFonts.sourceSansPro(
+                color: Constants.hintColor, fontSize: 12.sp)),
+      ),
+    );
+  }
+
+  Widget _buildBottomSheetContent(BuildContext context) {
+    final List<String> options = [
+      "Offer Letter",
+      "Appointment Letter",
+      "Salary Slip",
+      "Increment Letter",
+      "Experience / Relieving Letter"
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: options.map((option) {
+          return GestureDetector(
+              onTap: () async {
+                if (option == "Offer Letter") {
+                  offerLetter = await fileUploader.uploadFile(
+                      context, ['pdf'], "offerLetter");
+                  setState(() {});
+                  Navigator.pop(context);
+                  /* setState(() async {
+                  // offerletter = true;
+                  offerLetter =
+                      await uploadFile(allowExt: ["pdf"], isoffer: true);
+                }); */
+                } else if (option == "Appointment Letter") {
+                  appointmentLetter = await fileUploader.uploadFile(
+                      context, ['pdf'], "appointmentLetter");
+                  setState(() {});
+                  Navigator.pop(context);
+                  /*  setState(() async {
+                  appointmentLetter =
+                      await uploadFile(allowExt: ["pdf"], isappointment: true);
+                }); */
+                } else if (option == "Salary Slip") {
+                  alarySlip = await fileUploader.uploadFile(
+                      context, ['pdf'], "alarySlip");
+                  setState(() {});
+                  Navigator.pop(context);
+                  /*  setState(() async {
+                  alarySlip =
+                      await uploadFile(allowExt: ['pdf'], issalry: true);
+                }); */
+                } else if (option == "Increment Letter") {
+                  incrementLetter = await fileUploader.uploadFile(
+                      context, ['pdf'], "incrementLetter");
+                  setState(() {});
+                  Navigator.pop(context);
+                  /*  setState(() async {
+                  incrementLetter =
+                      await uploadFile(allowExt: ['pdf'], isincrement: true);
+                }); */
+                } else if (option == "Experience / Relieving Letter") {
+                  experienceLetter = await fileUploader.uploadFile(
+                      context, ['pdf'], "experienceLetter");
+                  setState(() {});
+                  Navigator.pop(context);
+                  /*  setState(() async {
+                  experienceLetter =
+                      await uploadFile(allowExt: ['pdf'], isexperience: true);
+                }); */
+                }
+              },
+              child: offerLetter != null &&
+                      offerLetter != "" &&
+                      option == "Offer Letter"
+                  ? const SizedBox()
+                  : appointmentLetter != null &&
+                          appointmentLetter != "" &&
+                          option == "Appointment Letter"
+                      ? const SizedBox()
+                      : alarySlip != null &&
+                              alarySlip != "" &&
+                              option == "Salary Slip"
+                          ? const SizedBox()
+                          : incrementLetter != null &&
+                                  incrementLetter != "" &&
+                                  option == "Increment Letter"
+                              ? const SizedBox()
+                              : experienceLetter != null &&
+                                      experienceLetter != "" &&
+                                      option ==
+                                          "Experience / Relieving Letter" &&
+                                      lastWorkingController.text.isEmpty
+                                  ? const SizedBox()
+                                  : option == "Experience / Relieving Letter" &&
+                                          lastWorkingController.text.isEmpty
+                                      ? const SizedBox()
+                                      : Container(
+                                          margin:
+                                              const EdgeInsets.only(bottom: 4),
+                                          decoration: BoxDecoration(
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: Constants.subtitleclr,
+                                                offset: Offset(2, 2),
+                                                blurRadius: 4,
+                                              )
+                                            ],
+                                            color: Constants.lightdull,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: ListTile(
+                                            trailing: const Icon(Icons.add),
+                                            title: customTextForWeather(
+                                                fontSize: 12, title: option),
+                                          ),
+                                        )
+              /* Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 8.0),
+                                        padding: const EdgeInsets.all(16.0),
+                                        decoration: BoxDecoration(
+                                          color: Constants.borderColor,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.grey.shade400,
+                                              offset: const Offset(2, 2),
+                                              blurRadius: 4,
+                                            )
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: customTextForWeather(
+                                            title: option,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                        ),
+                                      ), */
+              );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+/* 
+if (jobTitleController.text.isNotEmpty &&
                     companyController.text.isNotEmpty &&
                     isEdit2 &&
                     isEdit1 &&
@@ -1715,2722 +4446,4 @@ class _Screen3State extends ConsumerState<Screen3> {
                         ],
                       ),
                     ],
-                  ),
-                const SizedBox(
-                  height: 10,
-                ),
-
-//TODO: All the details view only when any one option from current company is selected.
-
-                if (yes || no)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // QuillEditorPage(),
-                      CustomTextField(
-                          focusNode: descriptionFocus,
-                          controller: description,
-                          hint: "My Job profile is......",
-                          label: "Job Responsibilities",
-                          isdescription: true,
-                          icon: const Icon(Icons.description)),
-                      SizedBox(
-                        height: 6.h,
-                      ),
-
-                      CustomFormTextFieldMultiSelectForProfile(
-                        name: "skills",
-                        focusNode: skillFocus,
-                        isSkill: true,
-                        fetchApiskill: fetchApiskill,
-                        title: "Skills Required",
-                        controller: skillsController,
-                        selectedValuesList: selectedValuesList,
-                        callback: updateSelectedValues,
-                        contextIn: context,
-                        hintText: "Advance Excel",
-                      ),
-                      SizedBox(
-                        height: 6.h,
-                      ),
-
-                      // TODO: old code for company location.
-                      /* Row(  
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Company Location",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        isCompanyLocation
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                isNumOfOpening: false,
-                                isEmails: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isCompanyLocation = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    companyLocationController.clear();
-                                    titleFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: companyLocationController.text)
-                            : Container(
-                                width: double.maxFinite,
-                                // height: 55,
-                                margin: const EdgeInsets.only(bottom: 5),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.only(bottom: 5.h),
-                                      width:
-                                          MediaQuery.of(context).size.width /
-                                              2.32,
-                                      height: 35,
-                                      color: Colors.white,
-                                      child: TextFormField(
-                                        validator: (value) {
-                                          if (value == null ||
-                                              value.isEmpty) {
-                                            return "This Text field Cant be empty";
-                                          }
-                                          return null;
-                                        },
-
-                                        // focusNode: titleFocus,
-                                        // maxLength: 3,
-                                        onFieldSubmitted: (value) {
-                                          companyLocationController
-                                                  .text.isNotEmpty
-                                              ? setState(() {
-                                                  isCompanyLocation = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onChanged: (value) {
-                                          setState(() {});
-                                        },
-                                        onTapOutside: (event) {
-                                          companyLocationController
-                                                  .text.isNotEmpty
-                                              ? setState(() {
-                                                  isCompanyLocation = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onEditingComplete: () {
-                                          companyLocationController
-                                                  .text.isNotEmpty
-                                              ? setState(() {
-                                                  isCompanyLocation = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        keyboardType: TextInputType.text,
-                                        controller: companyLocationController,
-                                        // enabled: enableShortListFor,
-                                        onTap: (() {}),
-                                        decoration: InputDecoration(
-                                            counterText: '',
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: const BorderSide(
-                                                  color: Color(0xffff0eceb)),
-                                            ),
-                                            focusColor:
-                                                const Color(0xffff0eceb),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 122, 113, 111)),
-                                            ),
-                                            hintText: "Mumbai",
-                                            hintStyle:
-                                                GoogleFonts.sourceSansPro(
-                                                    color:
-                                                        Constants.subtitleclr,
-                                                    fontSize: 15.sp)
-                                            //  prefixIcon: Icon(Icons.list)
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                      ],
-                    ),
-                    SizedBox(
-                      width: 10.h,
-                    ),
-                    /*  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Company Website",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              // color: Colors.grey.shade500,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        isCOmpanyWebsite
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                isNumOfOpening: false,
-                                isEmails: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isCOmpanyWebsite = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    companyWebsiteController.clear();
-                                    titleFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: companyWebsiteController.text)
-                            : Container(
-                                width:
-                                    MediaQuery.of(context).size.width / 2.32,
-                                // height: 55,
-                                margin: const EdgeInsets.only(bottom: 5),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    Container(
-                                      margin: EdgeInsets.only(bottom: 5.h),
-                                      width:
-                                          MediaQuery.of(context).size.width /
-                                              2.32,
-                                      height: 35,
-                                      color: Colors.white,
-                                      child: TextFormField(
-                                        validator: (value) {
-                                          if (value == null ||
-                                              value.isEmpty) {
-                                            return "This Text field Cant be empty";
-                                          }
-                                          return null;
-                                        },
-                                        // inputFormatters: [
-                                        //   FilteringTextInputFormatter.deny(
-                                        //       RegExp(r'[.]')),
-                                        //   FilteringTextInputFormatter.
-                                        // ],
-                                        // focusNode: titleFocus,
-                                        // maxLength: 3,
-                                        onFieldSubmitted: (value) {
-                                          companyWebsiteController
-                                                  .text.isNotEmpty
-                                              ? setState(() {
-                                                  isCOmpanyWebsite = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onChanged: (value) {
-                                          setState(() {});
-                                        },
-                                        onTapOutside: (event) {
-                                          companyWebsiteController
-                                                  .text.isNotEmpty
-                                              ? setState(() {
-                                                  isCOmpanyWebsite = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        onEditingComplete: () {
-                                          companyWebsiteController
-                                                  .text.isNotEmpty
-                                              ? setState(() {
-                                                  isCOmpanyWebsite = true;
-                                                  // _showContainer1 = value.isEmpty;
-                                                })
-                                              : null;
-                                        },
-                                        keyboardType: TextInputType.text,
-                                        controller: companyWebsiteController,
-                                        // enabled: enableShortListFor,
-                                        onTap: (() {}),
-                                        decoration: InputDecoration(
-                                            counterText: '',
-                                            contentPadding:
-                                                const EdgeInsets.only(
-                                                    top: 8,
-                                                    bottom: 8,
-                                                    left: 10,
-                                                    right: 10),
-                                            // suffixIcon: const Icon(Icons.arrow_drop_down_rounded),
-                                            // Icons.workspace_premium
-                                            // label: const Text("Company Name *"),
-                                            //border: OutlineInputBorder(),
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              borderSide: const BorderSide(
-                                                  color: Color(0xffff0eceb)),
-                                            ),
-                                            focusColor:
-                                                const Color(0xffff0eceb),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              borderSide: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 122, 113, 111)),
-                                            ),
-                                            hintText: "www.jobcircle.co.in",
-                                            hintStyle:
-                                                GoogleFonts.sourceSansPro(
-                                                    color:
-                                                        Constants.subtitleclr,
-                                                    fontSize: 15.sp)
-                                            //  prefixIcon: Icon(Icons.list)
-                                            ),
-                                      ),
-                                    ),
-                                  ],
-                                )),
-                      ],
-                    ), */
-                  ],
-                ), */
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: <Widget>[
-                          const Divider(
-                            thickness: 1.5, // Customize the Divider as needed
-                          ),
-                          Container(
-                            color: Colors.white, // Background color of the text
-                            padding: const EdgeInsets.all(
-                                8.0), // Adjust padding as needed
-                            child: Text(
-                              "Work Mode",
-                              style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.start,
-                        children: [
-                          customContainerSelectForWorkingType(
-                            onPressed: () {
-                              setState(() {
-                                isHybrid = false;
-                                isOnsite = true;
-                                isWfh = false;
-                              });
-                            },
-                            isSelect: isOnsite,
-                            title: "On-Site",
-                          ),
-                          customContainerSelectForWorkingType(
-                            onPressed: () {
-                              setState(() {
-                                isHybrid = true;
-                                isOnsite = false;
-                                isWfh = false;
-                              });
-                            },
-                            isSelect: isHybrid,
-                            title: "Hybrid",
-                          ),
-                          customContainerSelectForWorkingType(
-                            onPressed: () {
-                              setState(() {
-                                isHybrid = false;
-                                isOnsite = false;
-                                isWfh = true;
-                              });
-                            },
-                            isSelect: isWfh,
-                            title: "WFH",
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 6.h,
-                      ),
-
-                      CustomTextFieldComapanyLocation(
-                        degree: false,
-                        university: false,
-                        isCompany: false,
-                        hsc: false,
-
-                        name: "city",
-                        isCity: true,
-                        focusNode: cityFocus,
-                        labelText: "Work City",
-                        /* onFocusNodeRequested: (p0) {
-                                              focusNode.requestFocus();
-                                                  }, */
-                        title: "City",
-                        role: "",
-                        controller: companyLocationController,
-                        // isEdit: isEdit,
-                        //  focusNode: focusNode,
-                        onChanged: (p0) {
-                          isEdit10 = p0;
-                        },
-                        getid: (p0) {
-                          workcityId = p0;
-                          print(workcityId);
-                        },
-                        contextIn: context,
-                        onSubmit: (p0) {},
-                        hintText: "Mumbai",
-                        icon: const Icon(Icons.pin_drop_outlined),
-                        //  onIDSelected: handleSelectedID,
-                        //   getSuggestions: getJobTitle,
-                      ),
-
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: <Widget>[
-                          const Divider(
-                            thickness: 1.5, // Customize the Divider as needed
-                          ),
-                          Container(
-                            color: Colors.white, // Background color of the text
-                            padding: const EdgeInsets.all(
-                                8.0), // Adjust padding as needed
-                            child: Text(
-                              "Emp Type",
-                              style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        children: [
-                          customContainerSelectForEmpType(
-                              onPressed: () {
-                                setState(() {
-                                  isPartTime = false;
-                                  isFullTime = true;
-                                  isContract = false;
-                                  isIntern = false;
-                                  temporary = false;
-                                });
-                              },
-                              isSelect: isFullTime,
-                              title: "Full Time"),
-                          customContainerSelectForEmpType(
-                              onPressed: () {
-                                setState(() {
-                                  isPartTime = true;
-                                  isFullTime = false;
-                                  isContract = false;
-                                  isIntern = false;
-                                  temporary = false;
-                                });
-                              },
-                              isSelect: isPartTime,
-                              title: "Part Time"),
-                          customContainerSelectForEmpType(
-                              onPressed: () {
-                                setState(() {
-                                  isPartTime = false;
-                                  isFullTime = false;
-                                  isContract = true;
-                                  isIntern = false;
-                                  temporary = false;
-                                });
-                              },
-                              isSelect: isContract,
-                              title: "Contractual"),
-                          customContainerSelectForEmpType(
-                              onPressed: () {
-                                setState(() {
-                                  isPartTime = false;
-                                  isFullTime = false;
-                                  isContract = false;
-                                  isIntern = true;
-                                  temporary = false;
-                                });
-                              },
-                              isSelect: isIntern,
-                              title: "Internship"),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 6.h,
-                      ),
-
-                      //TODO: new, joining and lastworking date
-
-                      InkWell(
-                        onTap: () {
-                          selectDateForJoiningDay();
-                        },
-                        child: Stack(
-                          children: [
-                            Container(
-                              // width: MediaQuery.of(context).size.width / 2.5,
-                              height: MediaQuery.of(context).size.height / 25,
-                              margin: EdgeInsets.only(bottom: 5.h),
-                              // width: MediaQuery.of(context).size.width / 1.8,
-                              // height: 35,
-                              color: Colors.white,
-                              child: TextFormField(
-                                focusNode: joiningDateFocus,
-                                enabled: false,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "This Text field Cant be empty";
-                                  }
-                                  return null;
-                                },
-                                keyboardType: TextInputType.text,
-                                controller: joiningDataController,
-                                /* onTap: () {
-                            selectDate();
-                      }, */
-                                style: GoogleFonts.varela(
-                                    color: Constants.hintColor,
-                                    fontSize: 14.sp),
-                                decoration: InputDecoration(
-                                    prefixIcon: const Icon(
-                                        Icons.edit_calendar_outlined),
-                                    prefixIconColor: Constants.themeBgColor,
-                                    contentPadding: const EdgeInsets.only(
-                                        top: 8, bottom: 8, left: 10, right: 10),
-                                    counterText: '',
-                                    labelText: "Joining Date",
-                                    labelStyle: const TextStyle(
-                                      color: Constants.themeBgColor,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                          color: Constants.themeBgColor),
-                                    ),
-                                    focusColor: const Color(0xffff0eceb),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      borderSide: const BorderSide(
-                                        color: Constants.themeBgColor,
-                                      ),
-                                    ),
-                                    hintText: "26-Jan-2023",
-                                    hintStyle: GoogleFonts.sourceSansPro(
-                                        color: Constants.hintColor,
-                                        fontSize: 15.sp)),
-                              ),
-                            ),
-                            if (joiningDataController.text.isNotEmpty)
-                              Positioned(
-                                right: 0,
-                                child: InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        joiningDataController.clear();
-                                        lastWorkingController.clear();
-                                      });
-                                    },
-                                    child: Icon(Icons.close,
-                                        size: 20.h,
-                                        color: Constants.themeBgColor)),
-                              ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 6.h,
-                      ),
-                      if (no &&
-                          joiningDataController.text.isNotEmpty &&
-                          !currentlyWorking)
-                        InkWell(
-                          onTap: () {
-                            selectDateForLastWorkingDay();
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                // width: MediaQuery.of(context).size.width / 2.5,
-                                height: MediaQuery.of(context).size.height / 25,
-                                margin: EdgeInsets.only(bottom: 5.h),
-                                // width: MediaQuery.of(context).size.width / 1.8,
-                                // height: 35,
-                                color: Colors.white,
-                                child: TextFormField(
-                                  focusNode: joiningDateFocus,
-                                  enabled: false,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return "This Text field Cant be empty";
-                                    }
-                                    return null;
-                                  },
-                                  keyboardType: TextInputType.text,
-                                  controller: lastWorkingController,
-                                  /* onTap: () {
-                        selectDate();
-                      }, */
-                                  style: GoogleFonts.varela(
-                                      color: Constants.hintColor,
-                                      fontSize: 14.sp),
-                                  decoration: InputDecoration(
-                                      prefixIcon: const Icon(
-                                          Icons.edit_calendar_outlined),
-                                      prefixIconColor: Constants.themeBgColor,
-                                      contentPadding: const EdgeInsets.only(
-                                          top: 8,
-                                          bottom: 8,
-                                          left: 10,
-                                          right: 10),
-                                      counterText: '',
-                                      labelText: "Last Working Date",
-                                      labelStyle: const TextStyle(
-                                        color: Constants.themeBgColor,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        borderSide: const BorderSide(
-                                            color: Constants.themeBgColor),
-                                      ),
-                                      focusColor: const Color(0xffff0eceb),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        borderSide: const BorderSide(
-                                          color: Constants.themeBgColor,
-                                        ),
-                                      ),
-                                      hintText: "26-Jan-2023",
-                                      hintStyle: GoogleFonts.sourceSansPro(
-                                          color: Constants.hintColor,
-                                          fontSize: 15.sp)),
-                                ),
-                              ),
-                              if (lastWorkingController.text.isNotEmpty)
-                                Positioned(
-                                  right: 0,
-                                  child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          lastWorkingController.clear();
-                                        });
-                                      },
-                                      child: Icon(Icons.close,
-                                          size: 20.h,
-                                          color: Constants.themeBgColor)),
-                                ),
-                            ],
-                          ),
-                        ),
-                      if (joiningDataController.text.isNotEmpty &&
-                          lastWorkingController.text.isEmpty &&
-                          widget.isEdit!)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const Text("I am currently working."),
-                            SizedBox(
-                              width: 10.w,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      // selectedKeyResponsible.contains(item)
-                                      Colors.grey,
-                                  width: 1.5,
-                                ),
-                              ),
-                              height: 16,
-                              width: 20,
-                              child: Theme(
-                                data: ThemeData(
-                                  unselectedWidgetColor: Colors.transparent,
-                                ),
-                                child: Checkbox(
-                                    side: const BorderSide(color: Colors.white),
-                                    activeColor: Colors.white,
-                                    checkColor: Constants.themeBgColor,
-                                    visualDensity: VisualDensity.compact,
-                                    value: currentlyWorking,
-                                    onChanged: (newValue) {
-                                      if (widget.experiencelist!.length <= 1) {
-                                        if (newValue == true) {
-                                          setState(() {
-                                            no = false;
-                                            yes = true;
-                                            currentlyWorking = true;
-                                            currentSalaryController.clear();
-                                            isYearly = false;
-                                            isMonthly = false;
-                                            apportunities = false;
-                                            imd = false;
-                                            day15 = false;
-                                            day30 = false;
-                                            day60 = false;
-                                            day90 = false;
-                                          });
-                                        } else {
-                                          setState(() {
-                                            no = true;
-                                            yes = false;
-                                            currentlyWorking = false;
-                                            currentSalaryController.clear();
-                                            isYearly = false;
-                                            isMonthly = false;
-                                            apportunities = false;
-                                            imd = false;
-                                            day15 = false;
-                                            day30 = false;
-                                            day60 = false;
-                                            day90 = false;
-                                          });
-                                        }
-                                      } else {
-                                        for (var e in widget.experiencelist!) {
-                                          if (newValue == true) {
-                                            if (e.last_working_date == null &&
-                                                e.isCurrent == 1 &&
-                                                widget.prevPageModel!
-                                                        .company_name !=
-                                                    e.company_name) {
-                                              showDialog(
-                                                  barrierDismissible: false,
-                                                  context: context,
-                                                  builder: (context) {
-                                                    return MyCustomDialogForExperience(
-                                                      e: e,
-                                                      onYes: (p0) {
-                                                        setState(() {
-                                                          yes = p0;
-                                                          currentlyWorking = p0;
-                                                        });
-                                                      },
-                                                      onNo: (p0) {
-                                                        setState(() {
-                                                          currentlyWorking = p0;
-                                                          no = p0;
-                                                        });
-                                                      },
-                                                      onDateSelected: (p0) {
-                                                        setState(() {
-                                                          currentlyWorking =
-                                                              !currentlyWorking;
-                                                          selectedLastDateofPrevious =
-                                                              p0;
-                                                        });
-                                                      },
-                                                      selectedDate:
-                                                          DateTime.now(),
-                                                    );
-                                                  });
-                                            } else {
-                                              setState(() {
-                                                no = false;
-                                                yes = true;
-                                                currentlyWorking = true;
-                                              });
-                                            }
-                                          } else {
-                                            setState(() {
-                                              yes = false;
-                                              no = true;
-                                              currentlyWorking = false;
-                                            });
-                                          }
-                                        }
-                                      }
-                                    }
-                                    /*  setState(() {
-                                      if (newValue == true) {
-                                        yes = true;
-                                        no = false;
-                                      } else {
-                                        no = true;
-                                        yes = false;
-                                      }
-                                      currentlyWorking = !currentlyWorking;
-                                    }); */
-                                    // Notify Flutter that the state has changed
-
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      if (yes)
-                        Container(
-
-                            // height: 55,
-                            margin: const EdgeInsets.only(bottom: 5),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Container(
-                                  margin: EdgeInsets.only(bottom: 5.h),
-                                  height:
-                                      MediaQuery.of(context).size.height / 25,
-                                  color: Colors.white,
-                                  child: TextFormField(
-                                    maxLength: 8,
-                                    focusNode: salaryFocus,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "This Text field Cant be empty";
-                                      }
-                                      return null;
-                                    },
-
-                                    // focusNode: titleFocus,
-                                    // maxLength: 3,
-                                    onFieldSubmitted: (value) {
-                                      currentSalaryController.text.isNotEmpty
-                                          ? setState(() {
-                                              isCurrentSalary = true;
-                                              // _showContainer1 = value.isEmpty;
-                                            })
-                                          : null;
-                                    },
-
-                                    onChanged: (value) {
-                                      setState(() {
-                                        currentSalaryController.text.isEmpty
-                                            ? isMonthly = false
-                                            : isYearly = false;
-                                        currentSalaryController.text.length <= 3
-                                            ? isMonthly = false
-                                            : isYearly = false;
-                                      });
-                                    },
-                                    onTapOutside: (event) {
-                                      currentSalaryController.text.isNotEmpty
-                                          ? setState(() {
-                                              isCurrentSalary = true;
-                                              // _showContainer1 = value.isEmpty;
-                                            })
-                                          : null;
-                                    },
-                                    onEditingComplete: () {
-                                      currentSalaryController.text.isNotEmpty
-                                          ? setState(() {
-                                              isCompanyLocation = true;
-                                              // _showContainer1 = value.isEmpty;
-                                            })
-                                          : null;
-                                    },
-                                    keyboardType: TextInputType.number,
-                                    inputFormatters: [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    controller: currentSalaryController,
-                                    // enabled: enableShortListFor,
-                                    onTap: (() {}),
-                                    style: GoogleFonts.varela(
-                                        color: Constants.hintColor,
-                                        fontSize: 14.sp),
-                                    decoration: InputDecoration(
-                                      counterText: '',
-                                      label: const Text("Salary"),
-                                      labelStyle: GoogleFonts.varela(
-                                          color: Constants.themeBgColor,
-                                          fontSize: 15.sp),
-                                      suffixIcon: Padding(
-                                        padding: EdgeInsets.only(right: 6.w),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            InkWell(
-                                              onTap: currentSalaryController
-                                                          .text.isNotEmpty &&
-                                                      currentSalaryController
-                                                              .text.length >=
-                                                          4
-                                                  ? () {
-                                                      setState(() {
-                                                        isMonthly = true;
-                                                        isYearly = false;
-                                                      });
-                                                    }
-                                                  : () {},
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 2.h,
-                                                    horizontal: 10.w),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey.shade200,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.r),
-                                                    border: Border.all(
-                                                        color: isMonthly
-                                                            ? Constants
-                                                                .themeBgColor
-                                                            : Colors
-                                                                .transparent)),
-                                                child: Text(
-                                                  "Per month",
-                                                  style: GoogleFonts.varela(
-                                                      color: Constants
-                                                          .themeBgColor),
-                                                ),
-                                              ),
-                                            ),
-                                            InkWell(
-                                              onTap: currentSalaryController
-                                                          .text.isNotEmpty &&
-                                                      currentSalaryController
-                                                              .text.length >=
-                                                          4
-                                                  ? () {
-                                                      setState(() {
-                                                        isMonthly = false;
-                                                        isYearly = true;
-                                                      });
-                                                    }
-                                                  : () {},
-                                              child: Container(
-                                                margin:
-                                                    EdgeInsets.only(left: 4.w),
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 2.h,
-                                                    horizontal: 10.w),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.grey.shade200,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8.r),
-                                                    border: Border.all(
-                                                        color: isYearly
-                                                            ? Constants
-                                                                .themeBgColor
-                                                            : Colors
-                                                                .transparent)),
-                                                child: Text(
-                                                  "Per annum",
-                                                  style: GoogleFonts.varela(
-                                                      color: Constants
-                                                          .themeBgColor),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      prefixIcon: const Icon(
-                                        Icons.currency_rupee_outlined,
-                                        color: Constants.themeBgColor,
-                                      ),
-                                      prefixIconColor: Constants.themeBgColor,
-                                      //label: Text("Reside at"),
-                                      hintText: "10000",
-                                      hintStyle: GoogleFonts.varela(
-                                        color: Constants.subtitleclr,
-                                        fontSize: 14.sp,
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                            color: Constants.themeBgColor),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderSide: const BorderSide(
-                                          color: Color(0xffff0eceb),
-                                        ),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.only(left: 15),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )),
-
-                      /* Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Joining Date",
-                                style: GoogleFonts.sourceSansPro(
-                                    fontSize: 18.sp,
-                                    // color: Colors.grey.shade500,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              isJoiningDate
-                                  ? Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        customContainerSelect(
-                                          isVacancy: true,
-                                          isCross: true,
-                                          isAnother: false,
-                                          isEmails: false,
-                                          isNumOfOpening: true,
-                                          onPressed: () async {
-                                            setState(() {
-                                              isJoiningDate = false;
-                                            });
-                                            DateTime? pickedDate =
-                                                await showDatePicker(
-                                              context: context,
-                                              initialDate: DateTime.now().add(
-                                                const Duration(
-                                                    days: -(365 * 50)),
-                                              ),
-                                              lastDate: DateTime.now(),
-                                              currentDate: joiningDateValue,
-                                              firstDate: DateTime.now(),
-                                            );
-
-                                            if (pickedDate != null) {
-                                              String formattedDate =
-                                                  DateFormat('dd-MM-yyyy')
-                                                      .format(pickedDate);
-                                              joiningDateValue = pickedDate;
-                                              setState(() {
-                                                joiningDataController.text =
-                                                    formattedDate;
-                                                dt = DateFormat(
-                                                        'yyyy-MM-dd HH:mm:ss')
-                                                    .format(pickedDate);
-                                                year = (dt - DateTime.now());
-                                                isJoiningDate = false;
-                                                joiningDataController.clear();
-                                              });
-                                            } else {
-                                              print("Date is not selected");
-                                            }
-                                          },
-                                          isSelect: true,
-                                          title: joiningDataController.text,
-                                        ),
-                                      ],
-                                    )
-                                  : Container(
-                                      width:
-                                          MediaQuery.of(context).size.width /
-                                              3,
-                                      // height: 55,
-                                      margin:
-                                          const EdgeInsets.only(bottom: 5),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(
-                                            height: 5,
-                                          ),
-                                          Container(
-                                            margin:
-                                                EdgeInsets.only(bottom: 5.h),
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                3,
-                                            height: 35,
-                                            color: Colors.white,
-                                            child: TextFormField(
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return "This Text field Cant be empty";
-                                                }
-                                                return null;
-                                              },
-                                              // focusNode: firstNameFocus,
-                                              onFieldSubmitted: (value) {
-                                                joiningDataController
-                                                        .text.isNotEmpty
-                                                    ? setState(() {
-                                                        isJoiningDate = true;
-                                                      })
-                                                    : null;
-                                              },
-                                              onTapOutside: (event) {
-                                                joiningDataController
-                                                        .text.isNotEmpty
-                                                    ? setState(() {
-                                                        isJoiningDate = true;
-                                                      })
-                                                    : null;
-                                              },
-                                              onEditingComplete: () {
-                                                joiningDataController
-                                                        .text.isNotEmpty
-                                                    ? setState(() {
-                                                        isJoiningDate = true;
-                                                      })
-                                                    : null;
-                                              },
-                                              keyboardType:
-                                                  TextInputType.text,
-                                              controller:
-                                                  joiningDataController,
-                                              onTap: () {
-                                                selectDate();
-                                              },
-                                              decoration: InputDecoration(
-                                                counterText: '',
-                                                contentPadding:
-                                                    const EdgeInsets.only(
-                                                        top: 8,
-                                                        bottom: 8,
-                                                        left: 10,
-                                                        right: 10),
-                                                border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8),
-                                                  borderSide:
-                                                      const BorderSide(
-                                                          color: Color(
-                                                              0xffff0eceb)),
-                                                ),
-                                                focusColor:
-                                                    const Color(0xffff0eceb),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10),
-                                                  borderSide:
-                                                      const BorderSide(
-                                                          color:
-                                                              Color.fromARGB(
-                                                                  255,
-                                                                  122,
-                                                                  113,
-                                                                  111)),
-                                                ),
-                                                hintText:
-                                                    "Enter joining date ",
-                                                hintStyle:
-                                                    GoogleFonts.sourceSansPro(
-                                                        color: Constants
-                                                            .subtitleclr,
-                                                        fontSize: 15.sp),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                            ],
-                          ),
-                          const SizedBox(width: 10),
-                          if (!isPresent && no)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Last Working Date",
-                                  style: GoogleFonts.sourceSansPro(
-                                      fontSize: 18.sp,
-                                      // color: Colors.grey.shade500,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                isLastWorkingDate
-                                    ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          customContainerSelect(
-                                            isVacancy: true,
-                                            isCross: true,
-                                            isAnother: false,
-                                            isEmails: false,
-                                            isNumOfOpening: true,
-                                            onPressed: () async {
-                                              setState(() {
-                                                isLastWorkingDate = false;
-                                              });
-                                              DateTime? pickedDate =
-                                                  await showDatePicker(
-                                                context: context,
-                                                initialDate:
-                                                    DateTime.now().add(
-                                                  const Duration(
-                                                      days: -(365 * 50)),
-                                                ),
-                                                lastDate: DateTime.now(),
-                                                currentDate:
-                                                    lastWorkingDateValue,
-                                                firstDate: DateTime.now(),
-                                              );
-
-                                              if (pickedDate != null) {
-                                                String formattedDate =
-                                                    DateFormat('dd-MM-yyyy')
-                                                        .format(pickedDate);
-                                                lastWorkingDateValue =
-                                                    pickedDate;
-                                                setState(() {
-                                                  lastWorkingController.text =
-                                                      formattedDate;
-                                                  dt = DateFormat(
-                                                          'yyyy-MM-dd HH:mm:ss')
-                                                      .format(pickedDate);
-                                                  year =
-                                                      (dt - DateTime.now());
-                                                  isJoiningDate = false;
-                                                  lastWorkingController
-                                                      .clear();
-                                                });
-                                              } else {
-                                                print("Date is not selected");
-                                              }
-                                            },
-                                            isSelect: true,
-                                            title: lastWorkingController.text,
-                                          ),
-                                        ],
-                                      )
-                                    : Container(
-                                        width: MediaQuery.of(context)
-                                                .size
-                                                .width /
-                                            3,
-                                        // height: 55,
-                                        margin:
-                                            const EdgeInsets.only(bottom: 5),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            const SizedBox(
-                                              height: 5,
-                                            ),
-                                            Container(
-                                              margin: EdgeInsets.only(
-                                                  bottom: 5.h),
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  3,
-                                              height: 35,
-                                              color: Colors.white,
-                                              child: TextFormField(
-                                                validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
-                                                    return "This Text field Cant be empty";
-                                                  }
-                                                  return null;
-                                                },
-                                                // focusNode: firstNameFocus,
-                                                onFieldSubmitted: (value) {
-                                                  lastWorkingController
-                                                          .text.isNotEmpty
-                                                      ? setState(() {
-                                                          isLastWorkingDate =
-                                                              true;
-                                                        })
-                                                      : null;
-                                                },
-                                                onTapOutside: (event) {
-                                                  lastWorkingController
-                                                          .text.isNotEmpty
-                                                      ? setState(() {
-                                                          isLastWorkingDate =
-                                                              true;
-                                                        })
-                                                      : null;
-                                                },
-                                                onEditingComplete: () {
-                                                  lastWorkingController
-                                                          .text.isNotEmpty
-                                                      ? setState(() {
-                                                          isLastWorkingDate =
-                                                              true;
-                                                        })
-                                                      : null;
-                                                },
-                                                keyboardType:
-                                                    TextInputType.text,
-                                                controller:
-                                                    lastWorkingController,
-                                                onTap: () {
-                                                  selectDate();
-                                                },
-                                                decoration: InputDecoration(
-                                                  counterText: '',
-                                                  contentPadding:
-                                                      const EdgeInsets.only(
-                                                          top: 8,
-                                                          bottom: 8,
-                                                          left: 10,
-                                                          right: 10),
-                                                  border: OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            8),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: Color(
-                                                                0xffff0eceb)),
-                                                  ),
-                                                  focusColor: const Color(
-                                                      0xffff0eceb),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    borderSide:
-                                                        const BorderSide(
-                                                            color: Color
-                                                                .fromARGB(
-                                                                    255,
-                                                                    122,
-                                                                    113,
-                                                                    111)),
-                                                  ),
-                                                  hintText:
-                                                      "Enter last working date ",
-                                                  hintStyle: GoogleFonts
-                                                      .sourceSansPro(
-                                                          color: Constants
-                                                              .subtitleclr,
-                                                          fontSize: 15.sp),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                              ],
-                            ),
-                        ],
-                      ), */
-                      const SizedBox(
-                        // width: MediaQuery.of(context).size.width / 2.2.w,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            /* Row(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              setState(() {
-                                isPresent = !isPresent;
-                                if (isPresent) {
-                                  // apportunities = false;
-                                  working = "I am currently working";
-                                } else {
-                                  working = "";
-                                }
-                              });
-                            },
-                            child: isPresent
-                                ? Image.asset(
-                                    "assets/images/currentworking.png",
-                                    height: 16.h,
-                                  )
-                                : Icon(
-                                    Icons.circle_outlined,
-                                    color: Colors.grey,
-                                    size: 16.h,
-                                  ),
-                          ),
-                          SizedBox(
-                            width: 5.w,
-                          ),
-                          isPresent
-                              ? Text(
-                                  "I am currently working. ",
-                                  style: GoogleFonts.varela(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                )
-                              : Text(
-                                  "I am currently working. ",
-                                  style: GoogleFonts.varela(
-                                    color: Colors.grey.shade400,
-                                  ),
-                                ),
-                        ],
-                      ), */
-                            //   if (isPresent)
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                if ((jobTitleController.text.isNotEmpty &&
-                        companyController.text.isNotEmpty) &&
-                    (yes || no))
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: <Widget>[
-                          const Divider(
-                            thickness: 1.5, // Customize the Divider as needed
-                          ),
-                          Container(
-                            color: Colors.white, // Background color of the text
-                            padding: const EdgeInsets.all(
-                                8.0), // Adjust padding as needed
-                            child: Text(
-                              "Career Assets",
-                              style: GoogleFonts.varela(
-                                  color: Constants.themeBgColor,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Wrap(
-                        children: [
-                          offerLetter != null
-                              ? customContainerSelectToViewDoc(
-                                  onPressed: () {
-                                    showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (context) {
-                                        return CustomPDFViewerDialog(
-                                          pdfUrl:
-                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/$offerLetter",
-                                          onRemove: () {
-                                            setState(() {
-                                              offerLetter = null;
-                                            });
-                                            // Add your logic for removing here
-                                          },
-                                          onReplace: () async {
-                                            setState(() async {
-                                              offerLetter = await uploadFile(
-                                                  allowExt: ['pdf'],
-                                                  isoffer: true);
-
-                                              // Add your logic for replacing here
-                                            });
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                  title: "Offer Letter")
-                              : customContainerSelect(
-                                  isAnother: true,
-                                  onPressed: () async {
-                                    setState(() async {
-                                      // offerletter = true;
-                                      offerLetter = await uploadFile(
-                                          allowExt: ["pdf"], isoffer: true);
-                                    });
-                                  },
-                                  isSelect: offerletter,
-                                  title: offerLetter != null
-                                      ? offerLetter.toString()
-                                      : "Offer letter"),
-                          appointmentLetter != null
-                              ? customContainerSelectToViewDoc(
-                                  onPressed: () {
-                                    showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (context) {
-                                        return CustomPDFViewerDialog(
-                                          pdfUrl:
-                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/$appointmentLetter",
-                                          onRemove: () {
-                                            setState(() {
-                                              appointmentLetter = null;
-                                            });
-                                            // Add your logic for removing here
-                                          },
-                                          onReplace: () async {
-                                            setState(() async {
-                                              appointmentLetter =
-                                                  await uploadFile(
-                                                      allowExt: ['pdf'],
-                                                      isappointment: true);
-
-                                              // Add your logic for replacing here
-                                            });
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                  title: "Appointment letter")
-                              : customContainerSelect(
-                                  isAnother: true,
-                                  onPressed: () async {
-                                    setState(() async {
-                                      // appontment = true;
-                                      appointmentLetter = await uploadFile(
-                                          allowExt: ["pdf"],
-                                          isappointment: true);
-                                    });
-                                  },
-                                  isSelect: appontment,
-                                  title: "Appointment letter"),
-                          alarySlip != null
-                              ? customContainerSelectToViewDoc(
-                                  onPressed: () {
-                                    showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (context) {
-                                        return CustomPDFViewerDialog(
-                                          pdfUrl:
-                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/$alarySlip",
-                                          onRemove: () {
-                                            setState(() {
-                                              alarySlip = null;
-                                            });
-                                            // Add your logic for removing here
-                                          },
-                                          onReplace: () async {
-                                            setState(() async {
-                                              alarySlip = await uploadFile(
-                                                  allowExt: ['pdf'],
-                                                  issalry: true);
-
-                                              // Add your logic for replacing here
-                                            });
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                  title: "Salary Slip")
-                              : customContainerSelect(
-                                  isAnother: true,
-                                  onPressed: () async {
-                                    setState(() async {
-                                      // salrysleep = true;
-                                      alarySlip = await uploadFile(
-                                          allowExt: ['pdf'], issalry: true);
-                                    });
-                                  },
-                                  isSelect: salrysleep,
-                                  title: "Salary slips"),
-                          incrementLetter != null
-                              ? customContainerSelectToViewDoc(
-                                  onPressed: () {
-                                    showModalBottomSheet(
-                                      isScrollControlled: true,
-                                      context: context,
-                                      builder: (context) {
-                                        return CustomPDFViewerDialog(
-                                          pdfUrl:
-                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/$incrementLetter",
-                                          onRemove: () {
-                                            setState(() {
-                                              incrementLetter = null;
-                                            });
-                                            // Add your logic for removing here
-                                          },
-                                          onReplace: () async {
-                                            setState(() async {
-                                              incrementLetter =
-                                                  await uploadFile(
-                                                      allowExt: ['pdf'],
-                                                      isincrement: true);
-
-                                              // Add your logic for replacing here
-                                            });
-                                          },
-                                        );
-                                      },
-                                    );
-                                  },
-                                  title: "Increment letter")
-                              : customContainerSelect(
-                                  isAnother: true,
-                                  onPressed: () async {
-                                    setState(() async {
-                                      //  increament = true;
-                                      incrementLetter = await uploadFile(
-                                          allowExt: ['pdf'], isincrement: true);
-                                    });
-                                  },
-                                  isSelect: increament,
-                                  title: "Increment letter"),
-                          if (no)
-                            experienceLetter != null
-                                ? customContainerSelectToViewDoc(
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                        isScrollControlled: true,
-                                        context: context,
-                                        builder: (context) {
-                                          return CustomPDFViewerDialog(
-                                            pdfUrl:
-                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/$experienceLetter",
-                                            onRemove: () {
-                                              setState(() {
-                                                experienceLetter = null;
-                                              });
-                                              // Add your logic for removing here
-                                            },
-                                            onReplace: () async {
-                                              setState(() async {
-                                                experienceLetter =
-                                                    await uploadFile(
-                                                        allowExt: ['pdf'],
-                                                        isexperience: true);
-
-                                                // Add your logic for replacing here
-                                              });
-                                            },
-                                          );
-                                        },
-                                      );
-                                    },
-                                    title: "Experience letter")
-                                : customContainerSelect(
-                                    isAnother: true,
-                                    onPressed: () async {
-                                      setState(() async {
-                                        //   experienceletter = true;
-                                        experienceLetter = await uploadFile(
-                                            allowExt: ['pdf'],
-                                            isexperience: true);
-                                      });
-                                    },
-                                    isSelect: experienceletter,
-                                    title: "Experience / Relieving letter"),
-                        ],
-                      ),
-                      if (yes)
-                        Container(
-                          padding: EdgeInsets.only(top: 6.h),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Text("Looking for better opportunities.",
-                                      style: GoogleFonts.varela(
-                                        color: Colors.black,
-                                        fontStyle: FontStyle.italic,
-                                        fontWeight: FontWeight.w400,
-                                      )),
-                                  const Spacer(),
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color:
-                                            // selectedKeyResponsible.contains(item)
-                                            Colors.grey,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    height: 16,
-                                    width: 20,
-                                    child: Theme(
-                                      data: ThemeData(
-                                        unselectedWidgetColor:
-                                            Colors.transparent,
-                                      ),
-                                      child: Checkbox(
-                                        side: const BorderSide(
-                                            color: Colors.white),
-                                        activeColor: Colors.white,
-                                        checkColor: Constants.themeBgColor,
-                                        visualDensity: VisualDensity.compact,
-                                        value: apportunities,
-                                        onChanged: (newValue) {
-                                          for (var e
-                                              in widget.experiencelist!) {
-                                            if (newValue == true) {
-                                              setState(() {
-                                                e.availability.toString() ==
-                                                        "Immediate"
-                                                    ? imd = true
-                                                    : e.availability
-                                                                .toString() ==
-                                                            "15Days or less"
-                                                        ? day15 = true
-                                                        : e.availability
-                                                                    .toString() ==
-                                                                "1 Month"
-                                                            ? day30 = true
-                                                            : e.availability
-                                                                        .toString() ==
-                                                                    "2 Month"
-                                                                ? day60 = true
-                                                                : e.availability
-                                                                            .toString() ==
-                                                                        "3 month or more"
-                                                                    ? day90 =
-                                                                        true
-                                                                    : null; // Add the item to the list
-                                                apportunities = true;
-                                              });
-                                            } else {
-                                              setState(() {
-                                                apportunities = false;
-                                                imd = false;
-                                                day15 = false;
-                                                day30 = false;
-                                                day60 = false;
-                                                day90 = false;
-                                              });
-                                            }
-                                          }
-                                          // Notify Flutter that the state has changed
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              /* InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        apportunities = !apportunities;
-                                      });
-                                    },
-                                    child: Row(
-                                      children: [
-                                        apportunities
-                                            ? Image.asset(
-                                                "assets/images/currentworking.png",
-                                                height: 15.h,
-                                              )
-                                            : Icon(
-                                                Icons.circle_outlined,
-                                                color: Colors.grey,
-                                                size: 16.h,
-                                              ),
-                                        SizedBox(
-                                          width: 5.w,
-                                        ),
-                                        apportunities
-                                            ? Text(
-                                                "Looking for better opportunities.",
-                                                style: GoogleFonts.varela(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                              )
-                                            : Text(
-                                                "Looking for better opportunities?",
-                                                style: GoogleFonts.varela(
-                                                  color: Colors.grey.shade400,
-                                                ),
-                                              ),
-                                      ],
-                                    ),
-                                  ), */
-                              if (apportunities)
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      height: 10.h,
-                                    ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          "Availability to join?",
-                                          style: GoogleFonts.varela(
-                                              color: Constants.themeBgColor),
-                                        ),
-                                      ],
-                                    ),
-                                    Wrap(
-                                      children: [
-                                        customContainerSelect(
-                                          isAnother: true,
-                                          onPressed: () {
-                                            setState(() {
-                                              working = "Immediate";
-                                              imd = !imd;
-                                              day15 = false;
-                                              day30 = false;
-                                              day60 = false;
-                                              day90 = false;
-                                            });
-                                          },
-                                          isSelect: imd,
-                                          title: "Immediate",
-                                        ),
-                                        customContainerSelect(
-                                          isAnother: true,
-                                          onPressed: () {
-                                            setState(() {
-                                              working = "15 Days or less";
-                                              imd = false;
-                                              day15 = !day15;
-                                              day30 = false;
-                                              day60 = false;
-                                              day90 = false;
-                                            });
-                                          },
-                                          isSelect: day15,
-                                          title: "15 Days or less",
-                                        ),
-                                        customContainerSelect(
-                                          isAnother: true,
-                                          onPressed: () {
-                                            setState(() {
-                                              working = "1 Month";
-                                              day15 = false;
-                                              day30 = !day30;
-                                              day60 = false;
-                                              day90 = false;
-                                            });
-                                          },
-                                          isSelect: day30,
-                                          title: "1 Month",
-                                        ),
-                                        customContainerSelect(
-                                          isAnother: true,
-                                          onPressed: () {
-                                            setState(() {
-                                              working = "2 Months";
-                                              day15 = false;
-                                              day30 = false;
-                                              day60 = !day60;
-                                              day90 = false;
-                                            });
-                                          },
-                                          isSelect: day60,
-                                          title: "2 Months",
-                                        ),
-                                        customContainerSelect(
-                                          isAnother: true,
-                                          onPressed: () {
-                                            setState(() {
-                                              working = "2 Months";
-                                              day15 = false;
-                                              day30 = false;
-                                              day60 = false;
-                                              day90 = !day90;
-                                            });
-                                          },
-                                          isSelect: day90,
-                                          title: "3 Months or more",
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-
-                      /* customDocumnet(
-                            "Offer / Appointment letter.",
-                          ),
-                          SizedBox(
-                            height: 5.h,
-                          ),
-                          customDocumnet1("6 months Salary Slip. "),
-                          SizedBox(
-                            height: 5.h,
-                          ),
-                          customDocumnet2("6 months Bank statement. "),
-                          SizedBox(
-                            height: 5.h,
-                          ),
-                          if (no)
-                            customDocumnet3(
-                                "Experience / Relieving letter."), */
-                    ],
-                  )
-                // const SizedBox(height: 200),
-              ],
-            ),
-            if (!widget.isFirst)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10, top: 20),
-                    child: InkWell(
-                        onTap: () async {
-                          if (widget.experiencelist!.length <= 1) {
-                            var payload = {
-                              "stage": "experience",
-                              "data": {
-                                "id": await Utils.getPreferencesValue(
-                                    null, ESharedPreferences.user_id.name),
-                                "experience": 0,
-                              }
-                            };
-                            await saveExperience(payload);
-                            JobPostApiService.DeletExperience(
-                                widget.prevPageModel!.id!.toInt(),
-                                context,
-                                "exp");
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                customSnackbar(
-                                    "Experience Deleted Succesfully.", true));
-                            ref.refresh(userDataProvider);
-
-                            // Navigator.pop(context);
-                          } else {
-                            await JobPostApiService.DeletExperience(
-                                widget.prevPageModel!.id!.toInt(),
-                                context,
-                                "exp");
-                            ref.refresh(userDataProvider);
-                          }
-                        },
-                        /* () async {
-                          await JobPostApiService.DeletExperience(
-                              widget.prevPageModel!.id!.toInt(),
-                              context,
-                              "exp");
-                          ref.refresh(userDataProvider);
-                        }, */
-                        child: Image.asset(
-                          "assets/images/bin.gif",
-                          height: 40.h,
-                        )
-                        /*  child: Text(
-                          "Delete Experience",
-                          style: GoogleFonts.varela(color: Colors.red),
-                        ) */
-                        ),
-                  ),
-                ],
-              )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Row customDocumnet(
-    String title,
-  ) {
-    // bool offerletter = false;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          child: Row(
-            children: [
-              InkWell(
-                  onTap: () {
-                    setState(() {
-                      offerletter = !offerletter;
-                    });
-                  },
-                  child: offerletter
-                      ? Image.asset(
-                          "assets/images/currentworking.png",
-                          height: 15.h,
-                        )
-                      : Icon(
-                          Icons.circle_outlined,
-                          color: Colors.grey,
-                          size: 16.h,
-                        )),
-              SizedBox(
-                width: 5.w,
-              ),
-              offerletter
-                  ? Text(
-                      title,
-                      style: GoogleFonts.varela(
-                          color: Colors.black, fontWeight: FontWeight.w400),
-                    )
-                  : Text(
-                      title,
-                      style: GoogleFonts.varela(color: Colors.grey.shade400),
-                    )
-            ],
-          ),
-        ),
-        offerletter
-            ? Image.asset(
-                "assets/images/file_upload.png",
-                height: 16.h,
-              )
-            : const SizedBox(),
-      ],
-    );
-  }
-
-  Row customDocumnet1(
-    String title,
-  ) {
-    // bool offerletter = false;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          child: Row(
-            children: [
-              InkWell(
-                  onTap: () {
-                    setState(() {
-                      salrysleep = !salrysleep;
-                    });
-                  },
-                  child: salrysleep
-                      ? Image.asset(
-                          "assets/images/currentworking.png",
-                          height: 15.h,
-                        )
-                      : Icon(
-                          Icons.circle_outlined,
-                          color: Colors.grey,
-                          size: 16.h,
-                        )),
-              SizedBox(
-                width: 5.w,
-              ),
-              salrysleep
-                  ? Text(
-                      title,
-                      style: GoogleFonts.varela(
-                          color: Colors.black, fontWeight: FontWeight.w400),
-                    )
-                  : Text(
-                      title,
-                      style: GoogleFonts.varela(color: Colors.grey.shade400),
-                    )
-            ],
-          ),
-        ),
-        salrysleep
-            ? Image.asset(
-                "assets/images/file_upload.png",
-                height: 16.h,
-              )
-            : const SizedBox(),
-      ],
-    );
-  }
-
-  Row customDocumnet2(
-    String title,
-  ) {
-    // bool offerletter = false;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          child: Row(
-            children: [
-              InkWell(
-                  onTap: () {
-                    setState(() {
-                      bankstmt = !bankstmt;
-                    });
-                  },
-                  child: bankstmt
-                      ? Image.asset(
-                          "assets/images/currentworking.png",
-                          height: 15.h,
-                        )
-                      : Icon(
-                          Icons.circle_outlined,
-                          color: Colors.grey,
-                          size: 16.h,
-                        )),
-              SizedBox(
-                width: 5.w,
-              ),
-              bankstmt
-                  ? Text(
-                      title,
-                      style: GoogleFonts.varela(
-                          color: Colors.black, fontWeight: FontWeight.w400),
-                    )
-                  : Text(
-                      title,
-                      style: GoogleFonts.varela(color: Colors.grey.shade400),
-                    )
-            ],
-          ),
-        ),
-        bankstmt
-            ? Image.asset(
-                "assets/images/file_upload.png",
-                height: 16.h,
-              )
-            : const SizedBox(),
-      ],
-    );
-  }
-
-  Row customDocumnet3(
-    String title,
-  ) {
-    // bool offerletter = false;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Container(
-          child: Row(
-            children: [
-              InkWell(
-                  onTap: () {
-                    setState(() {
-                      experienceletter = !experienceletter;
-                    });
-                  },
-                  child: experienceletter
-                      ? Image.asset(
-                          "assets/images/currentworking.png",
-                          height: 15.h,
-                        )
-                      : Icon(
-                          Icons.circle_outlined,
-                          color: Colors.grey,
-                          size: 16.h,
-                        )),
-              SizedBox(
-                width: 5.w,
-              ),
-              experienceletter
-                  ? Text(
-                      title,
-                      style: GoogleFonts.varela(
-                          color: Colors.black, fontWeight: FontWeight.w400),
-                    )
-                  : Text(
-                      title,
-                      style: GoogleFonts.varela(color: Colors.grey.shade400),
-                    )
-            ],
-          ),
-        ),
-        experienceletter
-            ? Image.asset(
-                "assets/images/file_upload.png",
-                height: 16.h,
-              )
-            : const SizedBox(),
-      ],
-    );
-  }
-
-  bool isPartTime = false,
-      isFullTime = false,
-      isContract = false,
-      isIntern = false,
-      temporary = false;
-
-  InkWell customContainerSelectForEmpType({
-    required final VoidCallback onPressed,
-    required bool isSelect,
-    required String title,
-  }) {
-    return InkWell(
-        onTap: onPressed,
-        child: Container(
-            //width: MediaQuery.of(context).size.width / 2.2,
-
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
-            decoration: BoxDecoration(
-              border: Border.all(
-                  color:
-                      isSelect ? Constants.themeBgColor : Colors.transparent),
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: Text(title,
-                style: GoogleFonts.sourceSansPro(
-                    color: Constants.themeBgColor, fontSize: 15.sp))));
-  }
-
-  saveExperience(data) async {
-    var result = await UserDataService().saveUserStages(data);
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      print("done");
-    }
-    setState(() {});
-  }
-
-  bool isLoading = false;
-
-  save() async {
-    // Retrieve the form data
-
-    // Create a new instance of the model and assign the values
-    Experience experience1 = Experience(
-      id: expID,
-      userId: profilemodel.id,
-      city_id: workcityId,
-      jobid: jobtitleId,
-      job_title: jobTitleController.text,
-      company_name: companyController.text,
-      isCurrent: yes ? 1 : 0,
-      description: description.text == "" ? null : description.text,
-      skills_exp: fetchApiskill,
-
-      work_type: isOnsite
-          ? "OnSite"
-          : isHybrid
-              ? "Hybrid"
-              : isWfh
-                  ? "WFH"
-                  : "",
-      company_location: companyLocationController.text,
-      emptype: isFullTime
-          ? "FullTime"
-          : isPartTime
-              ? "PartTime"
-              : isContract
-                  ? "Contractual"
-                  : isIntern
-                      ? "Internship"
-                      : null,
-      joining_date: selectedJoiningDate,
-      last_working_date: no ? selectedLastWorkingDate : null,
-      salary: yes ? currentSalaryController.text : null,
-      ismonthly: yes ? 1 : 0,
-      offer_letter: offerLetter,
-      appointment_letter: appointmentLetter,
-      salary_slip: alarySlip,
-      increment_letter: incrementLetter,
-      experience_lettter: experienceLetter,
-      companyid: companyid,
-      availability: apportunities
-          ? imd
-              ? "Immediate"
-              : day15
-                  ? "15Days or less"
-                  : day30
-                      ? "1 Month"
-                      : day60
-                          ? "2 Month"
-                          : day90
-                              ? "3 month or more"
-                              : null
-          : null,
-
-      // working: working,
-    );
-
-    // Create an instance of UserDataService
-    UserDataService userDataService = UserDataService();
-    setState(() {
-      isLoading = true;
-    });
-
-    // Call the saveUserExperience method on the instance
-    await JobPostApiService.PostUserExperience(experience1.toJson(), context);
-    // await userDataService.saveUserExperience(experience1.toJson()); //TODO: old service wala function which is use to save experience details.
-    if (jobtitleId == null) {
-      await JobPostApiService.saveJobRole(context, jobTitleController.text);
-    }
-    ref.refresh(userDataProvider);
-
-    ScaffoldMessenger.of(context).showSnackBar(customSnackbar(
-        widget.isEdit!
-            ? "Experience updated Succesfully."
-            : "New Experience added Succesfully.",
-        false));
-    /* if (widget.prevPageModel == null) {
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => Screen2(
-                    isFirst: false,
-                  )));
-    } else { */
-    setState(() {
-      isLoading = false;
-    });
-    Navigator.pop(context);
-    // }
-  }
-
-  InkWell customContainerSelectForWorkingType({
-    required final VoidCallback onPressed,
-    required bool isSelect,
-    required String title,
-  }) {
-    return InkWell(
-        onTap: onPressed,
-        child: Container(
-            width: MediaQuery.of(context).size.width / 3.5,
-
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
-            decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                    color: isSelect
-                        ? Constants.themeBgColor
-                        : Colors.transparent)),
-            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: Center(
-              child: Text(title,
-                  style: GoogleFonts.sourceSansPro(
-                      color: Constants.themeBgColor, fontSize: 15.sp)),
-            )));
-  }
-
-  InkWell customContainerSelectToViewDoc({
-    required final VoidCallback onPressed,
-    required String title,
-  }) {
-    return InkWell(
-        onTap: onPressed,
-        child: Container(
-
-            //height: MediaQuery.of(context).size.height / 30,
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(title,
-                    style: GoogleFonts.sourceSansPro(
-                        color: Constants.themeBgColor, fontSize: 15.sp)),
-                SizedBox(
-                  width: 6.w,
-                ),
-                Icon(
-                  Icons.visibility_outlined,
-                  color: Constants.themeBgColor,
-                  size: 18.h,
-                )
-              ],
-            )));
-  }
-
-  InkWell customContainerSelect(
-      {required final VoidCallback onPressed,
-      required bool isSelect,
-      required String title,
-      bool isHalf = false,
-      bool isVacancy = false,
-      bool isNumOfOpening = false,
-      bool isAnother = false,
-      bool isEmails = false,
-      bool isCross = false,
-      bool? isSalary = false}) {
-    return InkWell(
-        onTap: onPressed,
-        child: Container(
-            width: isAnother
-                ? null
-                : isNumOfOpening
-                    ? MediaQuery.of(context).size.width / 2.449
-                    : isEmails
-                        ? MediaQuery.of(context).size.width / 2.437
-                        : MediaQuery.of(context).size.width,
-            //height: MediaQuery.of(context).size.height / 30,
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, bottom: 5, right: 4),
-            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 10.w),
-            decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                    color: isSelect
-                        ? Constants.themeBgColor
-                        : Colors.transparent)),
-            // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: isSelect
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      isSalary!
-                          ? const Icon(
-                              Icons.currency_rupee_rounded,
-                              color: Colors.white,
-                              size: 15,
-                            )
-                          : const SizedBox(),
-                      Text(title,
-                          style: GoogleFonts.sourceSansPro(
-                              color: Constants.themeBgColor, fontSize: 15.sp)),
-                      isVacancy ? const Spacer() : const SizedBox(),
-
-                      /*  isCross
-                          ? Image.asset(
-                              "assets/images/close.png",
-                              height: 12,
-                            )
-                          : const Icon(
-                              Icons.check,
-                              size: 15,
-                              color: Colors.white,
-                            ) */
-                    ],
-                  )
-                : Text(title,
-                    style: GoogleFonts.sourceSansPro(
-                        color: Constants.themeBgColor, fontSize: 15.sp))));
-  }
-
-  InkWell customContainerSelect1(
-      bool isSelect, String text, bool isFetch, Function() onTab) {
-    return InkWell(
-        onTap: onTab,
-        child: Container(
-            width: double.maxFinite,
-            // height: MediaQuery.of(context).size.height / 26.h,
-            margin: const EdgeInsets.only(top: 5, right: 5, bottom: 5),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: isSelect ? const Color(0xfff310d44) : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            /* decoration: BoxDecoration(
-                //310D44   color code for dark purple
-                //3D3635   color code for greybrown
-                color: isSelect ? const Color(0xfff310d44) : null,
-                border: isSelect
-                    ? null
-                    : Border.all(
-                        color: isSelect
-                            ? Colors.deepOrange.shade400
-                            : Colors.grey),
-                borderRadius: BorderRadius.circular(18)), */
-            //  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-            child: isSelect
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(text,
-                          style: GoogleFonts.sourceSansPro(
-                              // fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 15.sp)),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      isFetch
-                          ? Image.asset(
-                              "assets/images/close.png",
-                              height: 12,
-                            )
-                          : const Icon(
-                              Icons.check,
-                              size: 15,
-                              color: Colors.white,
-                            )
-                    ],
-                  )
-                : Text(text,
-                    style: GoogleFonts.sourceSansPro(fontSize: 15.sp))));
-  }
-
-  handleReadOnlyInputClick() async {
-    DateTime? pickedDate = await showDialog<DateTime>(
-      context: context,
-      builder: (context) {
-        DateTime tempPickedDate;
-        return AlertDialog(
-          content: SizedBox(
-            height: 250,
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    CupertinoButton(
-                      child: const Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    CupertinoButton(
-                      child: const Text('Done'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                ),
-                const Divider(
-                  height: 0,
-                  thickness: 1,
-                ),
-                Expanded(
-                  child: SizedBox(
-                    width: double.maxFinite,
-                    child: CupertinoDatePicker(
-                      maximumYear: 2023,
-                      //  maximumDate: DateTime.now(),
-                      //minimumDate: DateTime.now(),
-                      mode: CupertinoDatePickerMode.date,
-                      onDateTimeChanged: (DateTime dateTime) {
-                        tempPickedDate = dateTime;
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-    if (pickedDate != null && pickedDate != _selectedDate) {
-      setState(() {
-        _selectedDate = pickedDate;
-        totalOfExpController.text = pickedDate.toString();
-      });
-    }
-  }
-
-  String? offerLetter;
-  String? appointmentLetter;
-  String? alarySlip;
-  String? incrementLetter;
-  String? experienceLetter;
-
-  Future<String?> uploadFile(
-      {allowExt,
-      bool isoffer = false,
-      isappointment = false,
-      issalry = false,
-      isincrement = false,
-      isexperience = false}) async {
-    Utils.showLoaderDialog(context, "");
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: allowExt,
-      withReadStream: true,
-    );
-
-    if (result != null) {
-      String? customValue;
-      try {
-        // Default value
-        // Check if you need to replace "offerLetter" with another value
-        if (isoffer) {
-          setState(() {
-            customValue = "offerLetter";
-          });
-        } else if (isappointment) {
-          setState(() {
-            customValue = "appointmentLetter";
-          });
-        } else if (issalry) {
-          setState(() {
-            customValue = "salarySlip";
-          });
-        } else if (isincrement) {
-          setState(() {
-            customValue = "incrementLetter";
-          });
-        } else if (isexperience) {
-          setState(() {
-            customValue = "experienceLetter";
-          });
-        } else {
-          setState(() {
-            customValue = "cv";
-          });
-        }
-        var res = await FileUploadService()
-            .uploadSingleFile(customValue.toString(), result.files.single);
-        var resultD = Utils.parseResponse(res);
-
-        if (resultD.resultKey == 'SUCCESS') {
-          String filePath = result.files.single.path ?? '';
-          String filename = resultD.resultData[0]["fileName"];
-          print(filename);
-          print("Filename: $filePath");
-
-          // Close the loading dialog when the upload is successful
-          Navigator.pop(context);
-          //save(filename, data);
-          setState(() {});
-          return filename;
-        } else {
-          // Close the loading dialog when there is an error
-          Navigator.pop(context);
-
-          // Handle the case where the server returns an error
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Error while uploading cv"),
-                actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Ok"),
-                  ),
-                ],
-              );
-            },
-          );
-          return null;
-        }
-      } catch (e) {
-        // Close the loading dialog in case of exceptions
-        Navigator.pop(context);
-
-        // Handle any exceptions that occur during the upload
-        print("Error during file upload: $e");
-        return null;
-      }
-    } else {
-      // Close the loading dialog when the user cancels file selection
-      Navigator.pop(context);
-      setState(() {});
-      // Handle the case where the user cancels file selection
-      return null;
-    }
-  }
-
-  Widget CustomTextField(
-      {Icon? icon,
-      required String hint,
-      required String label,
-      required FocusNode focusNode,
-      bool? isPrimaryNumber = false,
-      String? img,
-      bool? isImage = false,
-      int? maxLength,
-      bool? isdescription,
-      bool isNumber = false,
-      bool? keyboardType,
-      bool? isDisabled = true,
-      bool? isOptional = false,
-      required TextEditingController controller}) {
-    int maxLines = 1;
-    // bool isError = false;
-    return SizedBox(
-      // height: isdescription! ? MediaQuery.of(context).size.height / 24 : null,
-      child: TextFormField(
-        enabled: isDisabled,
-        // autofocus: focusNode.canRequestFocus,
-        focusNode: focusNode,
-
-        /*  validator: (value) {
-          if (value == null || value.isEmpty) {
-            //return "This Text field Cant be empty";
-          }
-          return null;
-        }, */
-        //  maxLength: maxLength,
-
-        maxLines: null,
-        keyboardType:
-            isdescription! ? TextInputType.multiline : TextInputType.name,
-        //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-        textCapitalization: TextCapitalization.sentences,
-        controller: controller,
-        onFieldSubmitted: (value) {
-          setState(() {
-            // Increase maxLines when the "Enter" key is pressed
-            maxLines += 1;
-          });
-        },
-
-        onTap: (() {}),
-        style: GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
-        decoration: InputDecoration(
-            /*  filled: isPrimaryNumber! ? true : false,
-            fillColor:
-                isPrimaryNumber ? Colors.grey.shade200 : Colors.transparent, */
-            prefixIcon: icon,
-            prefixIconColor: Constants.themeBgColor,
-            suffix: isOptional != null && isOptional
-                ? const Text("(Optional)")
-                : const SizedBox(),
-            contentPadding:
-                const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
-            counterText: '',
-            labelText: label,
-            labelStyle: const TextStyle(
-              color: Constants.themeBgColor,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: Color(0xffff0eceb)),
-            ),
-            focusColor: const Color(0xffff0eceb),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(
-                color: Constants.themeBgColor,
-              ),
-            ),
-            hintText: hint,
-            hintStyle: GoogleFonts.sourceSansPro(
-                color: Constants.hintColor, fontSize: 15.sp)),
-      ),
-    );
-  }
-}
+                  ), */

@@ -12,7 +12,7 @@ class CustomSnackbarfinal extends SnackBar {
   }) : super(
           elevation: 1.0,
           behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 5),
+          duration: const Duration(seconds: 2),
           backgroundColor: Constants.themeBgColorLight,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(8)),

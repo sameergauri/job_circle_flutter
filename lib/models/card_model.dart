@@ -13,7 +13,7 @@ class CardModel {
   String? university;
   String? mobile;
   String? email;
-  String? role;
+  int? role;
   String? alternate_no;
   String? vacination_certificate;
   String? dateofbirth;

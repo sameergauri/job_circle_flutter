@@ -23,7 +23,7 @@ class JobsModel {
   final String? isMonthly;
   final int? spoc;
   final String? city;
-  final DateTime? dol;
+  final int? dol;
   final int? isFav;
   final int? favJobId;
   final int? userId;
@@ -92,7 +92,7 @@ class JobsModel {
       isMonthly: json['ismonthly'],
       spoc: json['spoc'],
       city: json['city'],
-      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      dol: json['dol'], //!= null ? DateTime.parse(json['dol']) : null,
       isFav: json['is_fav'],
       favJobId: json['favJobId'],
       userId: json['userId'],
@@ -130,7 +130,7 @@ class JobsModel {
       'ismonthly': isMonthly,
       'spoc': spoc,
       'city': city,
-      'dol': dol?.toIso8601String(),
+      'dol': dol, //?.toIso8601String(),
       'is_fav': isFav,
       'favJobId': favJobId,
       'userId': userId,
@@ -167,7 +167,7 @@ class JobsModel {
         isMonthly: map['ismonthly'],
         spoc: map['spoc'],
         city: map['city'],
-        dol: map['dol'] != null ? DateTime.parse(map['dol']) : null,
+        dol: map['dol'], //!= null ? DateTime.parse(map['dol']) : null,
         isFav: map['is_fav'],
         favJobId: map['favJobId'],
         userId: map['userId'],
@@ -203,7 +203,7 @@ class JobsModel {
       'ismonthly': isMonthly,
       'spoc': spoc,
       'city': city,
-      'dol': dol?.toIso8601String(),
+      'dol': dol, //?.toIso8601String(),
       'is_fav': isFav,
       'favJobId': favJobId,
       'userId': userId,

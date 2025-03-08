@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:intl/intl.dart';
+
 class ViewAndGenerateBillingModel {
   final String? doj;
   final double? partnerPayout;
@@ -30,8 +32,10 @@ class ViewAndGenerateBillingModel {
   });
 
   factory ViewAndGenerateBillingModel.fromJson(Map<String, dynamic> json) {
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(json['doj']);
+    String formattedDate = DateFormat('dd-MM-yyyy').format(dateTime);
     return ViewAndGenerateBillingModel(
-      doj: json['doj'],
+      doj: formattedDate,
       partnerPayout: json['partner_payout'],
       shortCode: json['short_code'],
       lastName: json['last_name'],

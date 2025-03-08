@@ -4,9 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/routes/router.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
 import 'package:job_circle/themes/colors.dart';
 
 import 'interceptors/no_internet.dart';
+
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() {
   // FlutterError.demangleStackTrace = (stackTrace) => stackTrace;
@@ -38,6 +42,7 @@ class MyApp extends StatelessWidget {
         designSize: const Size(414, 896),
         builder: (BuildContext context, child) {
           return MaterialApp(
+             scaffoldMessengerKey: scaffoldMessengerKey,
             debugShowCheckedModeBanner: false,
             title: 'Job Circle',
             theme: ThemeData(

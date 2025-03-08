@@ -60,6 +60,7 @@ class _NoInternetState extends State<NoInternet> {
         if (userId != null) {
           var userRawData = await Utils.getPreferencesValue(
               null, ESharedPreferences.user_rawData.name);
+          
           if (userRawData != null) {
             var data = jsonDecode(userRawData);
             Timer(const Duration(seconds: 2),

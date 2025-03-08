@@ -69,11 +69,15 @@ class CCTeamModel {
       applicantName: json['applicant_name'],
       rid: json['rid'],
       hrStatus: json['hr_status'],
-      doj: json['doj'] != null ? DateTime.parse(json['doj']) : null,
+      doj: json['doj'] != null
+          ? DateTime.fromMicrosecondsSinceEpoch(json['doj'])
+          : null,
       process: json['process'],
       sourceId: json['source_id'],
       lastName: json['last_name'],
-      dol: json['dol'] != null ? DateTime.parse(json['dol']) : null,
+      dol: json['dol'] != null
+          ? DateTime.fromMicrosecondsSinceEpoch(json['dol'])
+          : null,
       attr_status: json['attr_status'],
       client_payout: json['client_payout'],
       spoc_name: json['spoc_name'],
@@ -81,7 +85,7 @@ class CCTeamModel {
       emp_id: json['emp_id'],
       salary: json['salary'],
       partner_payout: json['partner_payout'],
-      level:json['level'],
+      level: json['level'],
     );
   }
 }

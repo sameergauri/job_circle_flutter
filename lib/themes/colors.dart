@@ -5,21 +5,29 @@ import 'package:flutter/material.dart';
 class Constants {
   static const bgPanelColor = Colors.white; //Color(0xfffef1e9);
   static const bgColorWhite = Color(0xffffffff);
-  static const themeBgColor = Color(0xfff729995);
+  // static const themeBgColor = Color(0xfff729995);  //TODO:: Old theme color olive green wala
+
   static const themeBgColorLight = Color(0xffffdf7f6);
   // static const borderColor = Color(0xffffbefed);
   static const borderColor = Color(0xfffedf6f9);
   static const subtitleclr = Color(0xfff898d8c);
   static const hintColor = Color(0xfffa8a3a3);
-  static const blue = Color(0xfff5783e2);
+
+  static const blue = Color(0xfff5783e2); //TODO:: Old blue color
+  // static const blue = Color(0xfff4F7FE1);
   static const maintheme_light_color = Color(0xffb3caca);
   static const green = Color(0xff00e785);
   static const lightBlue = Color(0xff4fc3ff);
   static const yellow = Color(0xffffe96e);
   static const lightyellow = Color(0xfffff6da);
-  static final lightdull = Colors.grey.shade300;
+  static const lightdull = Color(0xffff2f2f2);
   static const navyblue = Color(0xff00308f);
   static const dullBlue = Color(0xfffccf5ff);
+  static const darkBlue = Color(0xfff018aff);
+  static const themeBgColor = Color(0xfff5783e2);
+  static const black = Color(0xfff030303);
+  static const dividercolor = Color(0xfffe9eaea);
+   static const red = Color(0xffff13724);
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,

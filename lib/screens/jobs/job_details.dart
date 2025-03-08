@@ -10,20 +10,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:job_circle/constants/customDialogue.dart';
+import 'package:job_circle/constants/customButton_for_jobPosting.dart';
 import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/cooling.dart';
 import 'package:job_circle/models/job_details_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
 import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
-import 'package:job_circle/service/data_get_api_service.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,16 +42,17 @@ class JobDetails extends ConsumerStatefulWidget {
   bool referal;
   int is_freelancer;
   int? userType;
-  String? userrole;
+  // String? userrole;
 
-  JobDetails(
-      {super.key,
-      this.id,
-      required this.Applies,
-      required this.referal,
-      required this.is_freelancer,
-      this.userType,
-      this.userrole});
+  JobDetails({
+    super.key,
+    this.id,
+    required this.Applies,
+    required this.referal,
+    required this.is_freelancer,
+    this.userType,
+    // this.userrole
+  });
 
   @override
   ConsumerState<JobDetails> createState() => _JobDetailsState();
@@ -66,7 +66,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
   late Color currentAppBarColor = appBgColor;
   late double appBarElevate = 0;
   late Color appBarIconColor = Colors.white;
-  var usertype = 0;
+  int usertype = 0;
 
   JobDetailsModel jobDetailsModel = JobDetailsModel();
   var titleText = "";
@@ -193,9 +193,11 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
 
   bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-        await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name));
+    var id =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+    int? userid = int.tryParse(id.toString());
+    var result = await UserDataService().getUserProfileSummary(userid!);
+
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
       profilemodel = ProfileSummaryModel.fromJson(dataResult);
@@ -222,13 +224,14 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
   void initState() {
     super.initState();
     bindProfileSummary();
-    fillCacheData();
+    // fillCacheData();
     // benefit();
     //   const RestrictedButton();
     fetchJobs();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      usertype = await Utils.getPreferencesValue(
+      var type = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_type.name);
+      usertype = int.tryParse(type.toString())!;
       dynamic args = ModalRoute.of(context)!.settings.arguments;
       if (widget.id != null) {
         getJobDetails(widget.id);
@@ -273,10 +276,10 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
     });
   }
 
-  fillCacheData() async {
+  /*  fillCacheData() async {
     partner_request = await Utils.getCacheData('partner_request');
     setState(() {});
-  }
+  } */
 
   getJobDetails(id) async {
     try {
@@ -483,28 +486,29 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
       //     text: "APPLY",
       //   ),
       // ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(bottom: 15, top: 15),
-        //  padding: const EdgeInsets.only(bottom: 15),
-        // height: usertype == EUserType.jobSeeker.value ? 70 : 60,
-        //width: double.maxFinite,
-        /* decoration: const BoxDecoration(
+      bottomNavigationBar: jobDetailsModel.id != null
+          ? Container(
+              padding: const EdgeInsets.only(bottom: 15, top: 15),
+              //  padding: const EdgeInsets.only(bottom: 15),
+              // height: usertype == EUserType.jobSeeker.value ? 70 : 60,
+              //width: double.maxFinite,
+              /* decoration: const BoxDecoration(
           borderRadius: BorderRadius.vertical(top: Radius.circular(0.0)),
         ), */
-        child: Padding(
-          padding: EdgeInsets.only(right: 10.w),
-          child: Row(
-            // mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (profilemodel.id == jobDetailsModel.spoc)
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const MatchingJobs()));
-                    /* JobPostApiService.postJobApply(
+              child: Padding(
+                padding: EdgeInsets.only(right: 10.w),
+                child: Row(
+                  // mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (profilemodel.id == jobDetailsModel.spoc)
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const MatchingJobs()));
+                          /* JobPostApiService.postJobApply(
                             jobId: item['id'],
                             userId: int.parse(profilemodel.id.toString()),
                             context: context);
@@ -515,37 +519,37 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                               "refer": true,
                               "cmpnyname": item['companyname'].toString()
                             }); */ */
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(right: 10, left: 20.w),
-                    padding:
-                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Constants.subtitleclr),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Matching CV",
-                          style: TextStyle(
-                            color: Constants.subtitleclr,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15.h,
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 10, left: 20.w),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.h, horizontal: 8.w),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Constants.subtitleclr),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Matching CV",
+                                style: TextStyle(
+                                  color: Constants.subtitleclr,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15.h,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-              usertype == EUserType.jobSeeker.value ||
-                      usertype == EUserType.businessPartner.value
-                  ? const SizedBox(
-                      width: 10,
-                    )
-                  : const SizedBox(),
-              /*   Visibility(   //TODO: coming soon
+                      ),
+                    usertype == EUserType.jobSeeker.value ||
+                            usertype == EUserType.businessPartner.value
+                        ? const SizedBox(
+                            width: 10,
+                          )
+                        : const SizedBox(),
+                    /*   Visibility(   //TODO: coming soon
                 visible: (usertype == EUserType.jobSeeker.value),
                 child: InkWell(
                   onTap: () {
@@ -577,20 +581,20 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                   ),
                 ),
               ), */
-              const Spacer(),
-              Visibility(
-                  visible: (usertype == EUserType.jobSeeker.value ||
-                      usertype == EUserType.businessPartner.value),
-                  child: RestrictedButton(
-                    isChat: true,
-                    onTap: () async {
-                      Uri url = Uri.parse(
-                          "whatsapp://send?phone=91${jobDetailsModel.spoc_contact}");
-                      await canLaunchUrl(url)
-                          ? await launchUrl(url)
-                          : throw "could not launch $url";
-                    },
-                  ) /* InkWell(
+                    const Spacer(),
+                    Visibility(
+                        visible: (usertype == EUserType.jobSeeker.value ||
+                            usertype == EUserType.businessPartner.value),
+                        child: RestrictedButton(
+                          isChat: true,
+                          onTap: () async {
+                            Uri url = Uri.parse(
+                                "whatsapp://send?phone=91${jobDetailsModel.spoc_contact}");
+                            await canLaunchUrl(url)
+                                ? await launchUrl(url)
+                                : throw "could not launch $url";
+                          },
+                        ) /* InkWell(
                     onTap: () async {
                       Uri url = Uri.parse(
                           "whatsapp://send?phone=91${jobDetailsModel.spoc_contact}");
@@ -623,21 +627,21 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       ),
                     ),
                   ) */
-                  ),
-              SizedBox(
-                width: 5.w,
-              ),
-              Visibility(
-                  visible: (usertype == EUserType.jobSeeker.value ||
-                      usertype == EUserType.businessPartner.value),
-                  child: RestrictedButton(
-                    isChat: false,
-                    onTap: () async {
-                      FlutterPhoneDirectCaller.callNumber(
-                          "+91${jobDetailsModel.spoc_contact}");
-                    },
-                  )
-                  /* InkWell(
+                        ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    Visibility(
+                        visible: (usertype == EUserType.jobSeeker.value ||
+                            usertype == EUserType.businessPartner.value),
+                        child: RestrictedButton(
+                          isChat: false,
+                          onTap: () async {
+                            FlutterPhoneDirectCaller.callNumber(
+                                "+91${jobDetailsModel.spoc_contact}");
+                          },
+                        )
+                        /* InkWell(
                     onTap: () {
                       FlutterPhoneDirectCaller.callNumber(
                           "+91${jobDetailsModel.spoc_contact}");
@@ -667,37 +671,93 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       ),
                     ),
                   ) */
-                  ),
-              SizedBox(
-                width: 5.w,
-              ),
-              Visibility(
-                  visible: (usertype == EUserType.jobSeeker.value ||
-                          usertype == EUserType.businessPartner.value) &&
-                      (!widget.Applies && !widget.referal) &&
-                      (widget.is_freelancer == 1 ||
-                          widget.is_freelancer == 0 ||
-                          widget.is_freelancer == null),
-                  child: InkWell(
+                        ),
+                    SizedBox(
+                      width: 5.w,
+                    ),
+                    Visibility(
+                        visible: (usertype == EUserType.jobSeeker.value ||
+                                usertype == EUserType.businessPartner.value) &&
+                            (!widget.Applies && !widget.referal) &&
+                            (widget.is_freelancer == 1 ||
+                                widget.is_freelancer == 0 ||
+                                widget.is_freelancer == null),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => AddResume(
+                                          // report_to: profilemodel.report_to!.toInt(),
+                                          company_name:
+                                              jobDetailsModel.name.toString(),
+                                          role: jobDetailsModel.rolename
+                                              .toString(),
+                                          process: jobDetailsModel.process
+                                              .toString(),
+                                          nature_of_work: jobDetailsModel
+                                              .naturofwork
+                                              .toString(),
+                                          company_id: jobDetailsModel.compnayid!
+                                              .toInt(),
+                                          jobId: jobDetailsModel.id!.toInt(),
+                                          // sourceId: profilemodel.id!.toInt(),
+                                          // sourceName:
+                                          //     "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
+                                          isRefer: true,
+                                          spocId: jobDetailsModel.spoc!.toInt(),
+                                          is90:
+                                              jobDetailsModel.payment_clause ==
+                                                      "90 Days"
+                                                  ? true
+                                                  : false,
+                                          is30:
+                                              jobDetailsModel.payment_clause ==
+                                                      "30 Days"
+                                                  ? true
+                                                  : false,
+                                          userNumber:
+                                              profilemodel.mobile!.toInt(),
+                                          useAlternateNumber: profilemodel
+                                                  .alternate_no
+                                                  ?.toInt() ??
+                                              0,
+                                          interviewRounds: jobDetailsModel
+                                              .interviewrounds!.first
+                                              .replaceAll('[', '')
+                                              .replaceAll(']', '')
+                                              .replaceAll('"', ''),
+                                        )));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6, horizontal: 15),
+                            margin: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.shade400,
+                                      //  blurRadius: 10,
+                                      blurRadius: 15.0,
+                                      offset: const Offset(1, 1))
+                                ],
+                                color: Constants.darkBlue,
+                                borderRadius: BorderRadius.circular(8.r)),
+                            child: const customTextForWeather(
+                                title: "Refer Now",
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ) /* InkWell(  //TODO:: Apply button for job apply
                     onTap: () async {
-//
-//
-//
-//
-//
                       CoolingForApply apiresult =
                           await ApplicationAPI.getStatusAndDolOfUser(
                               companyId: jobDetailsModel.compnayid!.toInt(),
                               process: jobDetailsModel.process.toString(),
                               role: jobDetailsModel.rolename.toString(),
                               now: jobDetailsModel.naturofwork.toString());
-
-//
-//
-//
-//
-////
-                      //
                       DateTime dolDate = apiresult.dol != ""
                           ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
                               .parse(apiresult.dol)
@@ -706,9 +766,6 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       int differenceInDays =
                           currentDate.difference(dolDate).inDays;
                       final diff = differenceInDays > 30;
-                      //
-                      //
-                      //
                       if (jobDetailsModel.id == apiresult.jobid) {
                         if (apiresult.status != "Interview bay" &&
                             apiresult.status != "Assign" &&
@@ -744,12 +801,6 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                   fetchDataFromApi: () {},
                                   onClose: () {
                                     Navigator.pop(context);
-                                    /*  Navigator.pushAndRemoveUntil(
-                                                                              context,
-                                                                              MaterialPageRoute(
-                                                                                builder: (context) => HomeScreen(),
-                                                                              ),
-                                                                              (route) => false); */
                                   },
                                   isFisrt: false,
                                   title: "Error",
@@ -780,29 +831,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                           }
                         }
                       }
-
-                      //
-                      //
-                      //
                     },
-                    /*  onTap: () async { //TODO: old code before 15/12/2023
-                      if (profilemodel.id != null) {
-                        await JobPostApiService.postJobApply(
-                            context: context,
-                            jobId: int.parse(jobDetailsModel.id.toString()),
-                            // userId: int.parse(profilemodel.id.toString()
-                            userId: await Utils.getPreferencesValue(
-                                null, ESharedPreferences.user_id.name));
-                        ref.refresh(fetchAllApplyProvider);
-                        ref.refresh(fetchAllTalentPool);
-                      }
-                      /*   Navigator.pushNamed(context, ERoute.application.name,
-                          arguments: {
-                            "isnew": false,
-                            "prevModel": jobDetailsModel,
-                            "refer": true
-                          }); */
-                    }, */
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           vertical: 5, horizontal: 10),
@@ -816,8 +845,8 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                  )
-                  /* /* */ ThemeButton(
+                  ) */
+                        /* /* */ ThemeButton(
                     width: 100,
                     radious: 20,
                     themeButtonSize: ThemeButtonSize.small,
@@ -830,50 +859,55 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     },
                     text: "Apply Now",
                   ) */
-                  ),
-              SizedBox(
-                width: 10.w,
-              ),
-              Visibility(
-                visible: usertype == 3,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AddResume(
-                                  report_to: profilemodel.report_to!.toInt(),
-                                  company_name: jobDetailsModel.name.toString(),
-                                  role: jobDetailsModel.rolename.toString(),
-                                  process: jobDetailsModel.process.toString(),
-                                  nature_of_work:
-                                      jobDetailsModel.naturofwork.toString(),
-                                  company_id:
-                                      jobDetailsModel.compnayid!.toInt(),
-                                  jobId: jobDetailsModel.id!.toInt(),
-                                  sourceId: profilemodel.id!.toInt(),
-                                  sourceName:
-                                      "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
-                                  isRefer: false,
-                                  spocId: jobDetailsModel.spoc!.toInt(),
-                                  is90: jobDetailsModel.payment_clause ==
-                                          "90 Days"
-                                      ? true
-                                      : false,
-                                  is30: jobDetailsModel.payment_clause ==
-                                          "30 Days"
-                                      ? true
-                                      : false,
-                                  userNumber: profilemodel.mobile!.toInt(),
-                                  useAlternateNumber:
-                                      profilemodel.alternate_no!.toInt(),
-                                  interviewRounds: jobDetailsModel
-                                      .interviewrounds!.first
-                                      .replaceAll('[', '')
-                                      .replaceAll(']', '')
-                                      .replaceAll('"', ''),
-                                )));
-                    /* JobPostApiService.postJobApply(
+                        ),
+                    SizedBox(
+                      width: 10.w,
+                    ),
+                    Visibility(
+                      visible: usertype == 3,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddResume(
+                                        // report_to: profilemodel.report_to!.toInt(),
+                                        company_name:
+                                            jobDetailsModel.name.toString(),
+                                        role:
+                                            jobDetailsModel.rolename.toString(),
+                                        process:
+                                            jobDetailsModel.process.toString(),
+                                        nature_of_work: jobDetailsModel
+                                            .naturofwork
+                                            .toString(),
+                                        company_id:
+                                            jobDetailsModel.compnayid!.toInt(),
+                                        jobId: jobDetailsModel.id!.toInt(),
+                                        // sourceId: profilemodel.id!.toInt(),
+                                        // sourceName:
+                                        //     "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
+                                        isRefer: false,
+                                        spocId: jobDetailsModel.spoc!.toInt(),
+                                        is90: jobDetailsModel.payment_clause ==
+                                                "90 Days"
+                                            ? true
+                                            : false,
+                                        is30: jobDetailsModel.payment_clause ==
+                                                "30 Days"
+                                            ? true
+                                            : false,
+                                        userNumber:
+                                            profilemodel.mobile!.toInt(),
+                                        useAlternateNumber:
+                                            profilemodel.alternate_no!.toInt(),
+                                        interviewRounds: jobDetailsModel
+                                            .interviewrounds!.first
+                                            .replaceAll('[', '')
+                                            .replaceAll(']', '')
+                                            .replaceAll('"', ''),
+                                      )));
+                          /* JobPostApiService.postJobApply(
                               jobId: item['id'],
                               userId: int.parse(profilemodel.id.toString()),
                               context: context);
@@ -884,37 +918,37 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 "refer": true,
                                 "cmpnyname": item['companyname'].toString()
                               }); */ */
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 10),
-                    padding:
-                        EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Constants.blue),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          color: Constants.blue,
-                          size: 15.h,
-                        ),
-                        Text(
-                          "Resume",
-                          style: TextStyle(
-                            color: Constants.blue,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15.h,
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 10),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 4.h, horizontal: 8.w),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Constants.blue),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.add,
+                                color: Constants.blue,
+                                size: 15.h,
+                              ),
+                              Text(
+                                "Resume",
+                                style: TextStyle(
+                                  color: Constants.blue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15.h,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              /*  Visibility(
+                    /*  Visibility(
                 child: Row(
                   children: [
                     ThemeButton(
@@ -937,15 +971,16 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     (usertype == EUserType.businessPartner.value &&
                         partner_request == EPartnerApproval.approved.value)),
               ), */
-              usertype == EUserType.businessPartner.value
-                  ? const SizedBox(
-                      width: 10,
-                    )
-                  : const SizedBox()
-            ],
-          ),
-        ),
-      ),
+                    usertype == EUserType.businessPartner.value
+                        ? const SizedBox(
+                            width: 10,
+                          )
+                        : const SizedBox()
+                  ],
+                ),
+              ),
+            )
+          : const SizedBox(),
       body: jobDetailsModel.id == null
           ? const Center(
               child: CircularProgressIndicator(),
@@ -1010,7 +1045,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     const SizedBox(
                       height: 10,
                     ), */
-                    if (jobDetailsModel.name.toString().isNotEmpty)
+                    /*  if (jobDetailsModel.name.toString().isNotEmpty)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1040,7 +1075,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 fontSize: 13.sp),
                           )
                         ],
-                      ),
+                      ), */
                     jobDetailsModel.isfresher == "Fresher"
                         ? Row(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -2136,6 +2171,110 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                         ),
                       ),
                     //  if (widget.userrole != "1")
+                    Visibility(
+                      visible: (usertype == EUserType.jobSeeker.value ||
+                              usertype == EUserType.businessPartner.value) &&
+                          (!widget.Applies && !widget.referal) &&
+                          (widget.is_freelancer == 1 ||
+                              widget.is_freelancer == 0 ||
+                              widget.is_freelancer == null),
+                      child: CustomButtonForJobPosting(
+                          buttonText: "Apply Now",
+                          onTap: () async {
+                            String id = await Utils.getPreferencesValue(
+                                null, ESharedPreferences.user_id.name);
+                            /*  CoolingForApply apiresult =
+                              await ApplicationAPI.getStatusAndDolOfUser(
+                                  companyId: jobDetailsModel.compnayid!.toInt(),
+                                  process: jobDetailsModel.process.toString(),
+                                  role: jobDetailsModel.rolename.toString(),
+                                  now: jobDetailsModel.naturofwork.toString());
+                          DateTime dolDate; */
+
+                            /*  if (apiresult.dol != null &&
+                              apiresult.dol.isNotEmpty &&
+                              apiresult.dol != "N/A") {
+                            try {
+                              dolDate =
+                                  DateFormat("yyyy-MM-dd").parse(apiresult.dol);
+                            } catch (e) {
+                              print("Invalid date format: ${apiresult.dol}");
+                              dolDate = DateTime.now(); // Default fallback date
+                            }
+                          } else {
+                            dolDate = DateTime.now(); // Default fallback date
+                          } */
+                            /*  DateTime currentDate = DateTime.now();
+                          int differenceInDays =
+                              currentDate.difference(dolDate).inDays;
+                          final diff = differenceInDays > 30; */
+                            /* if (jobDetailsModel.id == apiresult.jobid) {
+                            if (apiresult.status != "Interview bay" &&
+                                apiresult.status != "Assign" &&
+                                apiresult.status != "Application" &&
+                                diff) { */
+                            if (profilemodel.cv_link != null &&
+                                profilemodel.cv_link != " ") {
+                              await JobPostApiService.postJobApply(
+                                addcv: false,
+                                context: context,
+                                jobId: jobDetailsModel.id!,
+                                // userId: int.parse(profilemodel.id.toString()
+                                userId: int.tryParse(id)!,
+                              );
+                              ref.refresh(fetchAllApplyProvider);
+                              ref.refresh(fetchAllTalentPoolProvider);
+                            } else {
+                              if (jobDetailsModel.id != null) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddCvtoApply(
+                                              jobId:
+                                                  jobDetailsModel.id!.toInt(),
+                                              userid: int.tryParse(id)!,
+                                            )));
+                              }
+                            }
+                          } /* else {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return CustomDialog(
+                                      fetchDataFromApi: () {},
+                                      onClose: () {
+                                        Navigator.pop(context);
+                                      },
+                                      isFisrt: false,
+                                      title: "Error",
+                                      subtitle:
+                                          "Your CV is already in process in the PipeLine");
+                                },
+                              );
+                            } */
+                          /*  else {
+                            if (profilemodel.cv_link != null) {
+                              await JobPostApiService.postJobApply(
+                                  jobId: jobDetailsModel.id!,
+                                  userId: int.tryParse(id.toString())!,
+                                  context: context);
+                              ref.refresh(fetchAllApplyProvider);
+                              ref.refresh(fetchAllTalentPoolProvider);
+                            } else {
+                              if (jobDetailsModel.id != null) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AddCvtoApply(
+                                              jobId:
+                                                  jobDetailsModel.id!.toInt(),
+                                            )));
+                              }
+                            }
+                          } */
+
+                          ),
+                    ),
                     Stack(
                       children: [
                         Container(
@@ -2873,7 +3012,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                     ),
                                                   ],
                                                 ),
-                                                InkWell(
+                                                /* InkWell(
                                                   onTap: () {
                                                     Navigator.push(
                                                         context,
@@ -2977,7 +3116,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                                               FontWeight.bold),
                                                     ),
                                                   ),
-                                                )
+                                                ) */
                                               ],
                                             ),
                                           ),
@@ -3678,7 +3817,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                         ),
                                       ],
                                     ),
-                                  InkWell(
+                                  /* InkWell(
                                     onTap: () {
                                       Navigator.push(
                                           context,
@@ -3768,7 +3907,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                             fontWeight: FontWeight.bold),
                                       ),
                                     ),
-                                  )
+                                  ) */
                                 ],
                               ),
                               Positioned(

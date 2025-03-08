@@ -66,12 +66,12 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
 
   Future<void> bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-      await Utils.getPreferencesValue(
-        prefs,
-        ESharedPreferences.user_id.name,
-      ),
+    var id = await Utils.getPreferencesValue(
+      prefs,
+      ESharedPreferences.user_id.name,
     );
+    var result =
+        await UserDataService().getUserProfileSummary(int.tryParse(id)!);
     if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
       var dataResult = Utils.parseResponse(result).resultData;
 
@@ -432,14 +432,14 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                           preferredSize: Size(
                               double.maxFinite,
                               isSearchEnable
-                                  ? kTextTabBarHeight * 1.60.sp
-                                  : kToolbarHeight / 1.4.sp),
+                                  ? kTextTabBarHeight * 1.8
+                                  : kToolbarHeight / 1.1),
                           child: AppBar(
                             title: isSearchEnable
                                 ? SizedBox(
                                     // margin: EdgeInsets.only(top: 10.h),
-                                    height: MediaQuery.of(context).size.height /
-                                        26.h,
+                                    height:
+                                        MediaQuery.of(context).size.height / 26,
                                     child: TextField(
                                       focusNode: searchNode,
                                       keyboardType: TextInputType.name,
@@ -696,8 +696,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                 length: uniqueCompanyNames.length,
                                 child: Scaffold(
                                   appBar: PreferredSize(
-                                    preferredSize: Size(double.maxFinite,
-                                        kToolbarHeight / 1.4.sp),
+                                    preferredSize: const Size(
+                                        double.maxFinite, kToolbarHeight / 1.3),
                                     child: AppBar(
                                       // title: const Text("Hello"),
                                       elevation: 0,
@@ -823,8 +823,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                 length: negativeStatus.length,
                                 child: Scaffold(
                                   appBar: PreferredSize(
-                                    preferredSize: Size(double.maxFinite,
-                                        kToolbarHeight / 1.4.sp),
+                                    preferredSize: const Size(
+                                        double.maxFinite, kToolbarHeight / 1.3),
                                     child: AppBar(
                                       // title: const Text("Hello"),
                                       elevation: 0,
@@ -948,8 +948,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                 length: substatusWithData.length,
                                 child: Scaffold(
                                   appBar: PreferredSize(
-                                    preferredSize: Size(double.maxFinite,
-                                        kToolbarHeight / 1.4.sp),
+                                    preferredSize: const Size(
+                                        double.maxFinite, kToolbarHeight / 1.3),
                                     child: AppBar(
                                       // title: const Text("Hello"),
                                       elevation: 0,
@@ -1172,8 +1172,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                 length: substatusWithData.length,
                                 child: Scaffold(
                                   appBar: PreferredSize(
-                                    preferredSize: Size(double.maxFinite,
-                                        kToolbarHeight / 1.4.sp),
+                                    preferredSize: const Size(
+                                        double.maxFinite, kToolbarHeight / 1.3),
                                     child: AppBar(
                                       // title: const Text("Hello"),
                                       elevation: 0,
@@ -1387,8 +1387,8 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                 length: substatusWithData.length,
                                 child: Scaffold(
                                   appBar: PreferredSize(
-                                    preferredSize: Size(double.maxFinite,
-                                        kToolbarHeight / 1.4.sp),
+                                    preferredSize: const Size(
+                                        double.maxFinite, kToolbarHeight / 1.4),
                                     child: AppBar(
                                       // title: const Text("Hello"),
                                       elevation: 0,
@@ -1550,7 +1550,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                   );
                 },
                 loading: () {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: Constants.darkBlue,
+                  ));
                 },
               )
             : Center(
@@ -1734,7 +1737,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                               Visibility(
                                   visible: item.hr_status_id == 12 ||
                                       item.s2DdHrStatusId == 12, //TODO:: Assign
-                                  child: GestureDetector(
+                                  child: InkWell(
                                     onDoubleTap: () async {
                                       SharedPreferences pref =
                                           await Utils.getSharedPreferences();
@@ -1746,9 +1749,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1756,9 +1760,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                   LeadDetailPage(
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                     report_to: reportTo,
@@ -1775,7 +1780,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                               Visibility(
                                   visible: item.hr_status_id == 20 ||
                                       item.s2DdHrStatusId == 12, //TODO:: LineUp
-                                  child: GestureDetector(
+                                  child: InkWell(
                                     onDoubleTap: () async {
                                       SharedPreferences pref =
                                           await Utils.getSharedPreferences();
@@ -1787,9 +1792,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                       var userrole =
                                           await Utils.getPreferencesValue(pref,
                                               ESharedPreferences.role.name);
-                                      var userid =
-                                          await Utils.getPreferencesValue(pref,
-                                              ESharedPreferences.user_id.name);
+                                      var id = await Utils.getPreferencesValue(
+                                          pref,
+                                          ESharedPreferences.user_id.name);
+                                      int? userid = int.tryParse(id);
                                       Navigator.push(
                                           context,
                                           MaterialPageRoute(
@@ -1797,10 +1803,11 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                   LeadDetailPage(
                                                     source_name: sourceName,
                                                     //TODO:: Send to lead Details page
-                                                    userid: userid,
+                                                    userid: userid!,
                                                     id: item.jobId,
                                                     report_to: reportTo,
-                                                    userrole: userrole,
+                                                    userrole:
+                                                        userrole.toString(),
                                                     userType: userType,
                                                     item: item,
                                                   )));
@@ -1818,7 +1825,7 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                 visible: item.hr_status_id != 11 &&
                                     item.hr_status_id != 12 &&
                                     item.hr_status_id != 20,
-                                child: GestureDetector(
+                                child: InkWell(
                                   onDoubleTap: () async {
                                     SharedPreferences pref =
                                         await Utils.getSharedPreferences();
@@ -1828,9 +1835,9 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                     var userrole =
                                         await Utils.getPreferencesValue(
                                             pref, ESharedPreferences.role.name);
-                                    var userid =
-                                        await Utils.getPreferencesValue(pref,
-                                            ESharedPreferences.user_id.name);
+                                    var id = await Utils.getPreferencesValue(
+                                        pref, ESharedPreferences.user_id.name);
+                                    int? userid = int.tryParse(id);
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(
@@ -1838,10 +1845,10 @@ class _TalentPoolExecutiveState extends ConsumerState<TalentPoolExecutive> {
                                                 LeadDetailPage(
                                                   source_name: sourceName,
                                                   //TODO:: Send to lead Details page
-                                                  userid: userid,
+                                                  userid: userid!,
                                                   id: item.jobId,
                                                   report_to: reportTo,
-                                                  userrole: userrole,
+                                                  userrole: userrole.toString(),
                                                   userType: userType,
                                                   item: item,
                                                 )));

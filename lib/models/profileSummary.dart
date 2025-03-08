@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
 import 'package:job_circle/models/serachable.dart';
 
 class ProfileSummaryModel with Searchable {
@@ -12,7 +13,7 @@ class ProfileSummaryModel with Searchable {
   String? gender;
   String? email;
   String? martial_status;
-  String? dateofbirth;
+  int? dateofbirth;
   String? user_location;
   List<dynamic>? languages;
   List<String>? skills;
@@ -39,41 +40,40 @@ class ProfileSummaryModel with Searchable {
   String? bio;
   int? is_verify;
 
-  ProfileSummaryModel({
-    this.id,
-    this.first_name,
-    this.middle_name,
-    this.last_name,
-    this.gender,
-    this.email,
-    this.martial_status,
-    this.dateofbirth,
-    this.user_location,
-    this.languages,
-    this.skills,
-    this.cv_link,
-    this.profile_pic,
-    this.cv_upladted_date,
-    this.partner_request,
-    this.mobile,
-    this.alternate_no,
-    this.user_zone,
-    this.vaccination_certificate,
-    this.blood_group,
-    this.vaccination,
-    this.user_locality,
-    this.education,
-    this.experience,
-    this.updated_date,
-    this.createdon,
-    // this.isActive,
-    // this.lastActiveDate,
-    this.isVisible = true,
-    this.cover_pic,
-    this.bio,
-    this.report_to,
-    this.is_verify
-  });
+  ProfileSummaryModel(
+      {this.id,
+      this.first_name,
+      this.middle_name,
+      this.last_name,
+      this.gender,
+      this.email,
+      this.martial_status,
+      this.dateofbirth,
+      this.user_location,
+      this.languages,
+      this.skills,
+      this.cv_link,
+      this.profile_pic,
+      this.cv_upladted_date,
+      this.partner_request,
+      this.mobile,
+      this.alternate_no,
+      this.user_zone,
+      this.vaccination_certificate,
+      this.blood_group,
+      this.vaccination,
+      this.user_locality,
+      this.education,
+      this.experience,
+      this.updated_date,
+      this.createdon,
+      // this.isActive,
+      // this.lastActiveDate,
+      this.isVisible = true,
+      this.cover_pic,
+      this.bio,
+      this.report_to,
+      this.is_verify});
 
   factory ProfileSummaryModel.fromJson(Map<String, dynamic> json) {
     try {
@@ -87,47 +87,62 @@ class ProfileSummaryModel with Searchable {
       } else if (json['languages'] is List) {
         languagesList = List<String>.from(json['languages']);
       }
+      int timestamp = json['cv_upladted_date'] ?? 0;
+      String formattedDate = DateTime.fromMillisecondsSinceEpoch(timestamp)
+          .toLocal()
+          .toString()
+          .split(' ')[0];
+      int updatestamp = json['updated_date'] ?? 0;
+      String updateddate = DateTime.fromMillisecondsSinceEpoch(updatestamp)
+          .toLocal()
+          .toString()
+          .split(' ')[0];
       return ProfileSummaryModel(
-        id: json['id'],
-        first_name: json['first_name'],
-        middle_name: json['middle_name'],
-        last_name: json['last_name'],
-        gender: json['gender'],
-        email: json['email'],
-        martial_status: json['martial_status'],
-        dateofbirth: json['dateofbirth'],
-        user_location: json['user_location'],
-        languages: languagesList,
-        /*  languages: List<String>.from(
+          id: json['id'],
+          first_name: json['first_name'],
+          middle_name: json['middle_name'],
+          last_name: json['last_name'],
+          gender: json['gender'],
+          email: json['email'],
+          martial_status: json['martial_status'],
+          dateofbirth: json['dateofbirth'],
+          user_location: json['user_location'],
+          languages: languagesList,
+          /*  languages: List<String>.from(
               json['languages'] != null ? jsonDecode(json['languages']) : []), */
-        skills: List<String>.from(json['skills'] ?? []),
-        cv_link: json['cv_link'],
-        profile_pic: json['profile_pic'],
-        cv_upladted_date: json['cv_upladted_date'],
-        partner_request: json['partner_request'],
-        mobile: json['mobile'],
-        alternate_no: json['alternate_no'],
-        user_zone: json['user_zone'],
-        vaccination_certificate: json['vaccination_certificate'],
-        blood_group: json['blood_group'],
-        vaccination: json['vaccination'],
-        user_locality: json['user_locality'],
-        education: json['education'],
-        experience: json['experience'],
-        updated_date: json['updated_date'],
-        createdon: json['createdon'],
-        // isActive: json['active'],
-        // lastActiveDate: json["lastActive"]
-        cover_pic: json['cover_pic'],
-        bio: json['bio'],
-        report_to: json['report_to'],
-        is_verify:json['is_verify']
-      );
+          skills: List<String>.from(json['skills'] ?? []),
+          cv_link: json['cv_link'],
+          profile_pic: json['profile_pic'],
+          cv_upladted_date: formattedDate,
+          partner_request: json['partner_request'],
+          mobile: json['mobile'],
+          alternate_no: json['alternate_no'],
+          user_zone: json['user_zone'],
+          vaccination_certificate: json['vaccination_certificate'],
+          blood_group: json['blood_group'],
+          vaccination: json['vaccination'],
+          user_locality: json['user_locality'],
+          education: json['education'],
+          experience: json['experience'],
+          updated_date: updateddate,
+          // createdon: json['createdon'],
+          // isActive: json['active'],
+          // lastActiveDate: json["lastActive"]
+          cover_pic: json['cover_pic'],
+          bio: json['bio'],
+          report_to: json['report_to'],
+          is_verify: json['is_verify']);
     } catch (e) {
       print("Error parsing JSON: $e");
       return ProfileSummaryModel(); // Return a default instance or handle the error accordingly
     }
   }
+  String convertTimestampToDateString(int timestamp) {
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+    return DateFormat("dd/MM/yyyy").format(dateTime); // Change format if needed
+  }
+
+  get timestamp => null;
   /*  factory ProfileSummaryModel.fromJson(Map<String, dynamic> json) {
     return ProfileSummaryModel(
         id: json['id'],
@@ -220,7 +235,7 @@ class ProfileSummaryModel with Searchable {
   }
 }
 
-class Education with Searchable {
+/* class Education with Searchable {
   final int? id;
   String? level;
   final String? board;
@@ -369,9 +384,9 @@ class Education with Searchable {
       // For example, profile data, experience data, etc.
     };
   }
-}
+} */
 
-class Experience with Searchable {
+/* class Experience with Searchable {
   final int? id;
   final dynamic userId;
   String? job_title;
@@ -582,3 +597,4 @@ class Experience with Searchable {
     };
   }
 }
+ */

@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, unused_result, duplicate_ignore, unused_local_variable, non_constant_identifier_names, use_build_context_synchronously, avoid_unnecessary_containers, avoid_print
+// ignore_for_file: unused_field, unused_result, duplicate_ignore, unused_local_variable, non_constant_identifier_names, use_build_context_synchronously, avoid_unnecessary_containers, avoid_print, prefer_const_literals_to_create_immutables
 // ignore_for_file: todo
 import 'dart:convert';
 
@@ -17,8 +17,11 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/models/user_data_model.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
-
+import 'package:job_circle/screens/new_jobs/profile_model.dart';
+import 'package:job_circle/screens/profile/education_list.dart';
+import 'package:job_circle/screens/profile/experience_list.dart';
 import 'package:job_circle/screens/profile/screen1.dart';
 import 'package:job_circle/screens/profile/screen2.dart';
 import 'package:job_circle/screens/profile/screen3.dart';
@@ -43,8 +46,8 @@ import '../../constants/customRow.dart';
 }); */
 
 class UserDataModel {
-  final ProfileSummaryModel profileSummary;
-  final List<Education> education;
+  final ProfileModel profileSummary;
+  final List<EducationDetail> education;
   final List<Experience> experiences;
 
   UserDataModel({
@@ -63,9 +66,11 @@ class UserDataModel {
   }
 }); */
 
-final educationProvider = FutureProvider<List<Education>>((ref) async {
+final educationProvider = FutureProvider<List<EducationDetail>>((ref) async {
   final educationResponse = await _ProfileSummaryState.bindProfileEducation();
-  return (educationResponse).map((item) => Education.fromJson(item)).toList();
+  return (educationResponse)
+      .map((item) => EducationDetail.fromJson(item))
+      .toList();
 });
 
 final experienceProvider = FutureProvider<List<Experience>>((ref) async {
@@ -76,10 +81,10 @@ final experienceProvider = FutureProvider<List<Experience>>((ref) async {
 final userDataProvider = FutureProvider<UserDataModel>((ref) async {
   final profileSummary = await _ProfileSummaryState
       .bindProfileSummary(); //ref.watch(profileSummaryProvider);
-  final profileSummaryData = ProfileSummaryModel.fromJson(profileSummary);
+  final profileSummaryData = profileSummary;
   final education = await _ProfileSummaryState.bindProfileEducation();
   final educationData =
-      (education).map((item) => Education.fromJson(item)).toList();
+      (education).map((item) => EducationDetail.fromJson(item)).toList();
   final experiences = await _ProfileSummaryState.bindProfileExperience();
   final experienceData =
       (experiences).map((item) => Experience.fromJson(item)).toList(); //next ?
@@ -155,7 +160,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   var profile_cv_file = "";
   late String experienceText;
 
-  List<Education> educationList = []; // Declare educationList variable
+  List<EducationDetail> educationList = []; // Declare educationList variable
   List<Experience> experienceList = [];
   late AnimationController _animationController;
 
@@ -167,10 +172,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   TextEditingController joblocation = TextEditingController();
   TextEditingController emailadr = TextEditingController();
 
-  var usertype = 0;
+  var usertype = 1;
   String gendor = "";
   late ProfileSummaryModel profilemodel = ProfileSummaryModel();
-  late Education educationmodel = Education();
+  late EducationDetail educationmodel = EducationDetail();
   late Experience expmodel = Experience();
 
   final spinkit = const SpinKitRotatingCircle(
@@ -182,8 +187,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      usertype = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_type.name);
+      /*    usertype = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_type.name); */
 
       setState(() {});
     });
@@ -232,7 +237,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   //   setState(() {});
   // }
 
-  static Future<Map<String, dynamic>> bindProfileSummary() async {
+  /*  static Future<Map<String, dynamic>> bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
     var id =
         await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
@@ -244,6 +249,32 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
       if (parsedResponse.containsKey("resultData") &&
           parsedResponse["resultData"].containsKey("users")) {
         return parsedResponse["resultData"]["users"] as Map<String, dynamic>;
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+ */
+
+  static Future<ProfileModel> bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var id =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+
+    final response = await http.post(
+      Uri.parse(
+          "http://${GlobalConstants.API_Host_one}/users/v1/getprofileById?userId=$id"),
+    );
+
+    /*  final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/users/v1/profileSummary/$id')); */
+
+    if (response.statusCode == 200) {
+      final parsedResponse = json.decode(response.body);
+      if (parsedResponse.containsKey("resultData")) {
+        return ProfileModel.fromJson(parsedResponse["resultData"]['profile']);
       } else {
         throw Exception('Failed to load user data');
       }
@@ -425,7 +456,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
         return Scaffold(
             backgroundColor: Colors.white,
             floatingActionButton: usertype == 1 &&
-                    data.profileSummary.cv_link != null
+                    data.profileSummary.resume != null
                 ? FloatingActionButton(
                     backgroundColor: Constants.themeBgColor,
                     onPressed: () {
@@ -490,7 +521,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                       previousResume = resume;
                                     });
                                     resume = await uploadFile(['pdf'], "cv",
-                                        data.profileSummary.cv_link);
+                                        data.profileSummary.resume);
                                     if (resume != null) {
                                       var payload = {
                                         "stage": "upload_cv",
@@ -543,7 +574,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                             body: Container(
                               child: FutureBuilder<PDFDocument>(
                                 future: PDFDocument.fromURL(
-                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.cv_link}"),
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.resume}"),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.done) {
@@ -614,7 +645,17 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                 : const SizedBox(),
             extendBodyBehindAppBar: true,
             appBar: AppBar(
-                automaticallyImplyLeading: false,
+                titleSpacing: 0,
+                actions: [
+                  Padding(
+                    padding: EdgeInsets.only(right: 4.w),
+                    child: const Icon(
+                      Icons.notifications,
+                      color: Constants.themeBgColor,
+                    ),
+                  )
+                ],
+                automaticallyImplyLeading: true,
                 iconTheme: const IconThemeData(color: Colors.black),
                 backgroundColor: Colors.white,
                 elevation: 0,
@@ -624,39 +665,42 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                   // width: width / 1.10.w,
                   child: TextField(
                       style: GoogleFonts.varela(color: Constants.subtitleclr),
-                      cursorColor: Colors.grey.shade600,
+                      cursorColor: Colors.grey.shade300,
                       decoration: InputDecoration(
-                        fillColor: Colors.white,
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade400,
+                          fillColor: Colors.white,
+                          disabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: const BorderSide(
+                              color: Colors.black,
+                            ),
                           ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(color: Colors.grey.shade400),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(color: Colors.grey.shade400),
-                        ),
-                        focusColor: Colors.grey.shade400,
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                          borderSide: BorderSide(
-                            color: Colors.grey.shade400,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
                           ),
-                        ),
-                        filled: true,
-                        prefixIcon: Icon(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(color: Colors.grey.shade400),
+                          ),
+                          focusColor: Colors.grey.shade400,
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.r),
+                            borderSide: BorderSide(
+                              color: Colors.grey.shade400,
+                            ),
+                          ),
+                          filled: true,
+                          /*  prefixIcon: Icon(
                           Icons.search,
                           color: Colors.grey.shade400,
-                        ),
-                        contentPadding: const EdgeInsets.only(left: 5, top: 10),
-                        hintText:
-                            "${data.profileSummary.first_name} ${data.profileSummary.last_name}",
-                      )),
+                        ), */
+                          contentPadding:
+                              const EdgeInsets.only(left: 5, top: 10),
+                          hintText:
+                              "${capitalizeFirstLetter(data.profileSummary.firstName)} ${capitalizeFirstLetter(data.profileSummary.lastName)}",
+                          hintStyle: GoogleFonts.varela(
+                              color: Colors.grey.shade400,
+                              fontWeight: FontWeight.w600))),
                 )),
             // backgroundColor: Constants.themeBgColorLight,
             body: Column(
@@ -666,7 +710,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     thickness: 10,
                     radius: Radius.circular(8.r),
                     child: SingleChildScrollView(
-                      child: data.profileSummary.first_name == null
+                      child: data.profileSummary.firstName == null
                           ? const Center(
                               child: CircularProgressIndicator(),
                             )
@@ -688,7 +732,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                             InkWell(
                                               onTap:
                                                   data.profileSummary
-                                                              .profile_pic !=
+                                                              .profilePic !=
                                                           null
                                                       ? () {
                                                           showDialog(
@@ -717,10 +761,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                                 .themeBgColor,
                                                                         radius: height /
                                                                             6.r,
-                                                                        backgroundImage: data.profileSummary.profile_pic !=
+                                                                        backgroundImage: data.profileSummary.profilePic !=
                                                                                 null
                                                                             ? Image.network(
-                                                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}",
+                                                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profilePic}",
                                                                                 fit: BoxFit.fill,
                                                                               ).image
                                                                             : Image.asset(
@@ -747,7 +791,6 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                                               ref.refresh(profileSummaryProvider);
 
                                                                               ref.refresh(userDataProvider);
-                                                                             
 
                                                                               //  Navigator.pop(context);
                                                                               if (data != null) {
@@ -806,19 +849,19 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                         fit: BoxFit.contain)), */
                                                   backgroundImage: data
                                                               .profileSummary
-                                                              .profile_pic !=
+                                                              .profilePic !=
                                                           null
                                                       ?
                                                       // ignore: unnecessary_null_comparison
                                                       Image.network(
-                                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profile_pic}")
+                                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.profilePic}")
                                                           .image
                                                       : Image.asset(
                                                           data.profileSummary
                                                                       .gender !=
-                                                                  "Male"
-                                                              ? "assets/images/leadfemal.png"
-                                                              : "assets/images/leadmale.png",
+                                                                  "Female"
+                                                              ? "assets/images/leadmale.png"
+                                                              : "assets/images/leadfemal.png",
                                                           // height: 8.h,
                                                         ).image
                                                   /*  : Image.asset(
@@ -844,7 +887,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                         ],
                                                             "icon",
                                                             data.profileSummary
-                                                                .profile_pic);
+                                                                .profilePic);
                                                     var payload = {
                                                       "stage": "profile_pic",
                                                       "data": {
@@ -862,7 +905,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                     icon_data = data1;
                                                     ref.refresh(
                                                         userDataProvider);
-                                                   
+
                                                     ref.refresh(
                                                         profileSummaryProvider);
                                                     //  Navigator.pop(context);
@@ -876,9 +919,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                         Colors.white,
                                                     radius: 8.r,
                                                     child: Icon(
-                                                      Icons.add,
+                                                      Icons.add_circle_outlined,
                                                       size: 15.h,
-                                                      color: Colors.black,
+                                                      color: Constants
+                                                          .themeBgColor,
                                                     ),
                                                   ),
                                                 ),
@@ -913,436 +957,83 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                               ),
                                             ),
                                           ),
-                                          data.profileSummary.experience ==
-                                                  "Experience"
-                                              ? Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      Text(
-                                                        "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 18.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-
-                                                      /* if (data.experiences
-                                                          .isNotEmpty)
-                                                        Text(
-                                                          "${data.experiences.last.job_title.toString()} at ${data.experiences.last.company_name.toString()}",
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ), */
-
-                                                      /*  if ((data.profileSummary
-                                                                      .bio ==
-                                                                  null ||
-                                                              data.profileSummary
-                                                                      .bio ==
-                                                                  "") &&
-                                                          (data.experiences.any(
-                                                                      (element) =>
-                                                                          element
-                                                                              .last_working_date !=
-                                                                          null) &&
-                                                                  data.experiences
-                                                                      .isEmpty ||
-                                                              data.education
-                                                                  .isEmpty)) */
-                                                      /*  if ((data.profileSummary
-                                                                      .bio ==
-                                                                  null ||
-                                                              data.profileSummary
-                                                                      .bio ==
-                                                                  "") &&
-                                                          (data.experiences.any(
-                                                                      (element) =>
-                                                                          element
-                                                                              .isCurrent !=
-                                                                          1) &&
-                                                                  data.experiences
-                                                                      .isEmpty ||
-                                                              data.education
-                                                                  .isEmpty)) */
-                                                      /*  if (data.profileSummary//TODO: add bio button.
-                                                                  .bio ==
-                                                              null ||
-                                                          data.profileSummary
-                                                                  .bio ==
-                                                              "")
-                                                        InkWell(
-                                                          onTap: () {
-                                                            sendToBasicInfo(
-                                                                true,
-                                                                data.profileSummary);
-                                                          },
-                                                          child: Text(
-                                                            "Add Bio",
-                                                            style: GoogleFonts.varela(
-                                                                fontSize: 12.sp,
-                                                                color:
-                                                                    Colors.blue,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                fontStyle:
-                                                                    FontStyle
-                                                                        .italic),
-                                                          ),
-                                                        ), */
-                                                      /*   if ((data.profileSummary
-                                                                      .bio !=
-                                                                  null ||
-                                                              data.profileSummary
-                                                                      .bio !=
-                                                                  "") &&
-                                                          data.experiences.any(
-                                                              (element) =>
-                                                                  element.last_working_date !=
-                                                                  null) &&
-                                                          data.education
-                                                              .isEmpty &&
-                                                          data.experiences
-                                                              .isEmpty) */
-                                                      if (data.profileSummary
-                                                                  .bio !=
-                                                              null &&
-                                                          data.profileSummary
-                                                                  .bio !=
-                                                              "")
-                                                        Text(
-                                                          data.profileSummary
-                                                              .bio!,
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ),
-                                                      if (data.education
-                                                              .isNotEmpty &&
-                                                          !hasCurrentExperience)
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Text(
-                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
-                                                                softWrap: true,
-                                                                // maxLines: 3,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .varela(
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      if (data.experiences
-                                                          .isNotEmpty)
-                                                        for (final experience
-                                                            in data.experiences)
-                                                          if (experience
-                                                                  .isCurrent ==
-                                                              1)
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  "${experience.job_title.toString()} at ${experience.company_name.toString()}",
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .varela(
-                                                                    fontSize:
-                                                                        12.sp,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                      Text(
-                                                        '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  "${data.profileSummary.firstName.toString().toTitleCase()} ${data.profileSummary.lastName.toString().toTitleCase()}",
+                                                  style: GoogleFonts.varela(
+                                                    fontSize: 14.sp,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Expanded(
+                                                      child: Text(
+                                                        data.profileSummary
+                                                                    .profileHeadline !=
+                                                                null
+                                                            ? "${data.profileSummary.profileHeadline}"
+                                                            : data.profileSummary
+                                                                        .experiences !=
+                                                                    null
+                                                                ? "${data.experiences.first.jobTitle.toString()} at ${data.experiences.first.companyName}"
+                                                                : "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
                                                         softWrap: true,
-                                                        maxLines: 3,
+                                                        // maxLines: 3,
+                                                        textAlign:
+                                                            TextAlign.center,
                                                         style:
                                                             GoogleFonts.varela(
                                                           fontSize: 12.sp,
                                                           fontWeight:
-                                                              FontWeight.w400,
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )
-                                              : Expanded(
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.max,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        "${data.profileSummary.first_name.toString().toTitleCase()} ${data.profileSummary.last_name.toString().toTitleCase()}",
-                                                        style:
-                                                            GoogleFonts.varela(
-                                                          fontSize: 18.sp,
-                                                          fontWeight:
-                                                              FontWeight.bold,
+                                                              FontWeight.w500,
                                                         ),
                                                       ),
-
-                                                      /*  if ((data.profileSummary
-                                                                      .bio ==
-                                                                  null ||
-                                                              data.profileSummary
-                                                                      .bio ==
-                                                                  "") &&
-                                                          ((data.experiences.any(
-                                                                  (element) =>
-                                                                      element
-                                                                          .last_working_date !=
-                                                                      null) ||
-                                                              data.experiences
-                                                                  .isEmpty ||
-                                                              data.education
-                                                                  .isEmpty))) */
-                                                      /*  if ((data.profileSummary
-                                                                      .bio ==
-                                                                  null ||
-                                                              data.profileSummary
-                                                                      .bio ==
-                                                                  "") &&
-                                                          (data.experiences.any(
-                                                                      (element) =>
-                                                                          element
-                                                                              .isCurrent !=
-                                                                          1) &&
-                                                                  data.experiences
-                                                                      .isEmpty ||
-                                                              data.education
-                                                                  .isEmpty)) */
-                                                      /*   if (data.profileSummary//TODO: Add Bio button when bio is not present.
-                                                                  .bio ==
-                                                              null ||
-                                                          data.profileSummary
-                                                                  .bio ==
-                                                              "")
-                                                        InkWell(
-                                                          onTap: () {
-                                                            sendToBasicInfo(true,
-                                                                data.profileSummary);
-                                                          },
-                                                          child: Text(
-                                                            "Add Bio",
-                                                            style: GoogleFonts
-                                                                .varela(
-                                                                    fontSize:
-                                                                        12.sp,
-                                                                    color: Colors
-                                                                        .blue,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w600,
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .italic),
-                                                          ),
-                                                        ), */
-                                                      /* if ((data.profileSummary
-                                                                      .bio !=
-                                                                  null ||
-                                                              data.profileSummary
-                                                                      .bio !=
-                                                                  "") &&
-                                                          (data.experiences.any(
-                                                              (element) =>
-                                                                  element.last_working_date ==
-                                                                      null &&
-                                                                  data.education
-                                                                      .isEmpty &&
-                                                                  data.experiences
-                                                                      .isEmpty))) */
-                                                      /* if ((data.profileSummary
-                                                                      .bio !=
-                                                                  null ||
-                                                              data.profileSummary
-                                                                      .bio !=
-                                                                  "") &&
-                                                          (data.experiences.any(
-                                                                      (element) =>
-                                                                          element
-                                                                              .isCurrent !=
-                                                                          1) &&
-                                                                  data.experiences
-                                                                      .isEmpty ||
-                                                              data.education
-                                                                  .isEmpty)) */
-                                                      if (data.profileSummary
-                                                                  .bio !=
-                                                              null &&
-                                                          data.profileSummary
-                                                                  .bio !=
-                                                              "")
-                                                        Text(
-                                                          data.profileSummary
-                                                              .bio!,
-                                                          style: GoogleFonts
-                                                              .varela(
-                                                            fontSize: 12.sp,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                          ),
-                                                        ),
-                                                      if (data.education
-                                                              .isNotEmpty &&
-                                                          !hasCurrentExperience)
-                                                        /*  Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Text(
-                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
-                                                                softWrap: true,
-                                                                // maxLines: 3,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .varela(
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ), */
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            Expanded(
-                                                              child: Text(
-                                                                "${data.education.last.degree_spc.toString()} from ${data.education.last.university != null ? data.education.last.university.toString() : data.education.last.board}",
-                                                                softWrap: true,
-                                                                maxLines: 3,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
-                                                                style:
-                                                                    GoogleFonts
-                                                                        .varela(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontSize:
-                                                                      12.sp,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w400,
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      if (data.experiences
-                                                          .isNotEmpty)
-                                                        for (final experience
-                                                            in data.experiences)
-                                                          if (experience
-                                                                  .isCurrent ==
-                                                              1)
-                                                            Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .center,
-                                                              children: [
-                                                                Text(
-                                                                  "${experience.job_title.toString()} at ${experience.company_name.toString()}",
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .varela(
-                                                                    fontSize:
-                                                                        12.sp,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            '${capitalizeFirstLetter(data.profileSummary.user_locality)}, ${capitalizeFirstLetter(data.profileSummary.user_location)}',
-                                                            style: TextStyle(
-                                                              fontSize: 12.sp,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
+                                                Text(
+                                                  ' ${capitalizeFirstLetter(cleanLocation(data.profileSummary.userLocation.toString()))}',
+                                                  softWrap: true,
+                                                  maxLines: 3,
+                                                  style: GoogleFonts.varela(
+                                                    fontSize: 12.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
                                           InkWell(
                                             onTap: () {
                                               sendToBasicInfo(
                                                   false, data.profileSummary);
                                             },
                                             child: Container(
-                                              child: Icon(
+                                              child: Image.asset(
+                                                "assets/images/edit_user.png",
+                                                height: 20.sp,
+                                              ),
+                                              /*  Icon(
                                                 Icons.edit_outlined,
                                                 size: 18.h,
                                                 color: Colors.black,
-                                              ),
+                                              ), */
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    if (data.profileSummary.cv_link == null ||
-                                            (data.profileSummary.skills!
+                                    if (data.profileSummary.resume == null ||
+                                            (data.profileSummary.allSkills!
                                                     .isEmpty &&
                                                 data.experiences.isEmpty) ||
                                             (data.profileSummary.languages!
@@ -1355,26 +1046,22 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                         padding: const EdgeInsets.all(12.0),
                                         child: Container(
                                           width: double.infinity,
-                                          height:
-                                              data.profileSummary.cv_link ==
-                                                          null ||
-                                                      data.profileSummary
-                                                          .skills!.isEmpty ||
-                                                      (data.profileSummary
-                                                                  .languages !=
-                                                              null &&
-                                                          data
-                                                              .profileSummary
-                                                              .languages!
-                                                              .isEmpty) ||
-                                                      data.education.isEmpty &&
-                                                          data
-                                                              .experiences
-                                                              .first
-                                                              .skills_exp!
-                                                              .isEmpty
-                                                  ? 102
-                                                  : 0,
+                                          height: data.profileSummary.resume ==
+                                                      null ||
+                                                  data.profileSummary.allSkills!
+                                                      .isEmpty ||
+                                                  (data.profileSummary
+                                                              .languages !=
+                                                          null &&
+                                                      data
+                                                          .profileSummary
+                                                          .languages!
+                                                          .isEmpty) ||
+                                                  data.education.isEmpty &&
+                                                      data.experiences.first
+                                                          .skillsExp!.isEmpty
+                                              ? 102
+                                              : 0,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(15),
@@ -1389,7 +1076,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                               scrollDirection: Axis.horizontal,
                                               children: [
                                                 if (data.profileSummary
-                                                        .cv_link ==
+                                                        .resume ==
                                                     null)
                                                   Padding(
                                                     padding:
@@ -1397,6 +1084,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             left: 4,
                                                             right: 4.0),
                                                     child: CustomFieldBlock(
+                                                       height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height /
+                                                              8,
                                                       iconColor:
                                                           const Color.fromRGBO(
                                                               37, 150, 190, 0),
@@ -1411,7 +1103,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             ['pdf'],
                                                             "cv",
                                                             data.profileSummary
-                                                                .cv_link);
+                                                                .resume);
                                                         var payload = {
                                                           "stage": "upload_cv",
                                                           "data": {
@@ -1459,7 +1151,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                 // ),
 
                                                 // Block 3: Skills
-                                                if (data.profileSummary.skills!
+                                                if (data
+                                                            .profileSummary
+                                                            .allSkills!
                                                             .isEmpty &&
                                                         data.experiences
                                                             .isEmpty /*  &&
@@ -1473,8 +1167,13 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             left: 4,
                                                             right: 4.0),
                                                     child: CustomFieldBlock(
+                                                       height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height /
+                                                              8,
                                                       imageUrl:
-                                                          "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
+                                                          'https://assets.api.uizard.io/api/cdn/stream/a8ac9b17-39f2-4c95-a432-2d18cd35abd4.png',
                                                       description:
                                                           "Your skills will connect you with relevant job opportunities",
                                                       buttonText:
@@ -1503,6 +1202,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             left: 4.0,
                                                             right: 4.0),
                                                     child: CustomFieldBlock(
+                                                      height: MediaQuery.of(context).size.height/8,
                                                       imageUrl:
                                                           "https://cdn-icons-png.flaticon.com/128/3898/3898150.png",
                                                       description:
@@ -1551,6 +1251,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             right: 4.0,
                                                             left: 4),
                                                     child: CustomFieldBlock(
+                                                       height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height /
+                                                              8,
                                                       imageUrl:
                                                           "https://cdn-icons-png.flaticon.com/128/123/123402.png",
                                                       description:
@@ -1564,6 +1269,12 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                                             builder:
                                                                 (context) =>
                                                                     Screen2(
+                                                                       userid: 0,
+                                                              profileskill: [],
+                                                              edulength:
+                                                                  profilemodel
+                                                                      .education!
+                                                                      .length,
                                                               selectedLevel:
                                                                   profilemodel
                                                                       .education,
@@ -1603,6 +1314,14 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                           //experienceList
                                           data.experiences,
                                           data.education,
+                                          data.profileSummary),
+                                    ),
+                                    Visibility(
+                                      visible: (usertype == 1 ? true : false),
+                                      child: education(
+                                          // educationList
+                                          data.education,
+                                          data.experiences,
                                           data.profileSummary),
                                     ),
                                     Visibility(
@@ -1676,7 +1395,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
       error: (error, stackTrace) {
         return const Scaffold(
           body: Center(
-            child: Text("Failed to fetch data"),
+            child: Text("Failed to fetch data "),
           ),
         );
       },
@@ -1690,8 +1409,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     );
   }
 
-  Widget basicInfo(ProfileSummaryModel profileSummaryModel,
-      List<Education> educationList, List<Experience> experienceList) {
+  Widget basicInfo(ProfileModel profileSummaryModel,
+      List<EducationDetail> educationList, List<Experience> experienceList) {
     return Column(
       children: [
         const SizedBox(
@@ -1794,7 +1513,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     );
   }
 
-  Widget educationTitle(List<Education> education) {
+  Widget educationTitle(List<EducationRequest> education) {
     return titleCard('Highest Education : $education');
   }
 
@@ -1802,10 +1521,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     return titleCard('Work Status : ${profileSummaryModel.experience}');
   }
 
-  Widget education(
-      List<Education> educationList,
-      List<Experience> experienceList,
-      ProfileSummaryModel profileSummaryModel) {
+  Widget education(List<EducationDetail> educationList,
+      List<Experience> experienceList, ProfileModel profileSummaryModel) {
     bool shouldShowAddButton = educationList.isNotEmpty;
     bool showEducation = educationList.isEmpty;
 
@@ -1820,7 +1537,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
             // sendToEducation();
           },
           // icons: Icons.school_outlined, // Education icon for the card
-          imageUrl: "https://cdn-icons-png.flaticon.com/128/123/123402.png",
+          imageUrl:
+              "https://assets.api.uizard.io/api/cdn/stream/82f1da0d-aab3-4275-a9f8-d413bf45f63f.png",
           title: "Education",
           child: ListView.builder(
             shrinkWrap: true,
@@ -1835,6 +1553,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         context,
                         MaterialPageRoute(
                           builder: (context) => Screen2(
+                             userid: 0,
+                            profileskill: [],
+                            edulength: profilemodel.education!.length,
                             selectedLevel: profilemodel.education,
                             educationList: educationList,
                             isFirst: false,
@@ -1938,7 +1659,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
             // sendToEducation();
           },
           // icons: Icons.school_outlined, // Education icon for the card
-          imageUrl: "https://cdn-icons-png.flaticon.com/128/123/123402.png",
+          imageUrl:
+              'https://assets.api.uizard.io/api/cdn/stream/82f1da0d-aab3-4275-a9f8-d413bf45f63f.png',
           title: "Education",
 
           child: ListView.builder(
@@ -1974,7 +1696,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         //     color: Colors.transparent,
                         //   ),
                         // ),
-                        child: education.icon != null || education.icon != ""
+                        child:
+                            const SizedBox() //TODO:: Old code to show icon before 28/01/2025
+                        /* education.icon != null || education.icon != ""
                             ? CustomImage(
                                 imageUrl:
                                     "https://s3.ap-south-1.amazonaws.com/job-circle-2/${education.icon}",
@@ -1990,7 +1714,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                     "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
                                     //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
                                     fit: BoxFit.contain,
-                                  )
+                                  ) */
                         /* Image.network(
                         "https://cdn-icons-png.flaticon.com/128/3562/3562693.png",
                         fit: BoxFit.contain,
@@ -2008,14 +1732,14 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                 : education.university.toString(),
                             overflow: TextOverflow.ellipsis,
                             style: GoogleFonts.varela(
-                              fontSize: 15.sp,
+                              fontSize: 12.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                           Text(
                             education.degree_spc.toString(),
                             style: GoogleFonts.varela(
-                              fontSize: 12.sp,
+                              fontSize: 10.sp,
                               fontWeight: FontWeight.w400,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -2029,7 +1753,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                           Text(
                             education.firstYear.toString(),
                             style: GoogleFonts.varela(
-                              fontSize: 12.sp,
+                              fontSize: 10.sp,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -2040,7 +1764,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                           Text(
                             " - ",
                             style: GoogleFonts.varela(
-                              fontSize: 12.sp,
+                              fontSize: 10.sp,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -2048,7 +1772,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                           Text(
                             education.passingYear.toString(),
                             style: GoogleFonts.varela(
-                              fontSize: 12.sp,
+                              fontSize: 10.sp,
                               fontWeight: FontWeight.w400,
                             ),
                           ),
@@ -2147,7 +1871,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   } */
 
   Widget experience(List<Experience> experienceList,
-      List<Education> educationList, ProfileSummaryModel profileSummaryModel) {
+      List<EducationDetail> educationList, ProfileModel profileSummaryModel) {
     bool shouldShowAddButton = experienceList.isNotEmpty;
     // ignore: unused_local_variable
     bool hasExperienceData = profilemodel.experience != null;
@@ -2162,8 +1886,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
             // sendToEducation();
           },
           // icons: Icons.work_outline,
-          imageUrl: "https://cdn-icons-png.flaticon.com/128/9119/9119081.png",
-          title: "Employment Details",
+          imageUrl:
+              'https://assets.api.uizard.io/api/cdn/stream/7328db73-ddb2-46a0-a43d-67bec98eb904.png',
+          // imageUrl: "https://cdn-icons-png.flaticon.com/128/9119/9119081.png",
+          title: "Experience",
           child: ListTile(
             onTap: profilemodel.experience == "Experience" &&
                     experienceList.isNotEmpty
@@ -2172,6 +1898,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                       context,
                       MaterialPageRoute(
                         builder: (context) => Screen3(
+                          userid: profilemodel.id!,
+                          skills: [],
+                          expelength: profilemodel.experience!.length,
+                          id: experienceList.first.id!,
                           experiencelist: experienceList,
                           isEdit: false,
                           isFirst: false,
@@ -2284,8 +2014,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
             // sendToExperience(visible);
           }),
           // icons: Icons.work_outlined,
-          imageUrl: "https://cdn-icons-png.flaticon.com/128/9119/9119081.png",
-          title: "Employment Details",
+          imageUrl:
+              'https://assets.api.uizard.io/api/cdn/stream/7328db73-ddb2-46a0-a43d-67bec98eb904.png',
+
+          // imageUrl: "https://cdn-icons-png.flaticon.com/128/9119/9119081.png",
+          title: "Experience",
           child: ListView.separated(
             physics: const NeverScrollableScrollPhysics(),
             shrinkWrap: true,
@@ -2306,10 +2039,11 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
             },
             itemBuilder: (context, index) {
               String monthsDifference = "";
-              if (experienceList[index].joining_date != null &&
+              if (experienceList[index].joiningDate != null &&
                   experienceList[index].last_working_date != null) {
                 monthsDifference = calculateMonthDifference(
-                    experienceList[index].joining_date!,
+                    DateTime.now(),
+                    // experienceList[index].joiningDate!,
                     experienceList[index].last_working_date!);
               }
 
@@ -2372,8 +2106,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     //     color: Colors.transparent,
                     //   ),
                     // ),
-                    child: experienceList[index].icon == null ||
-                            experienceList[index].icon == ""
+                    child: experienceList[index].companyLogo == null ||
+                            experienceList[index].companyLogo == ""
                         ? Image.network(
                             "https://cdn-icons-png.flaticon.com/128/2098/2098316.png",
 
@@ -2382,14 +2116,14 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                           )
                         : CustomImage(
                             imageUrl:
-                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${experienceList[index].icon}",
+                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${experienceList[index].companyLogo}",
                             defaultImageUrl:
                                 "https://cdn-icons-png.flaticon.com/128/2098/2098316.png")),
                 title: Text(
-                  experienceList[index].job_title.toString(),
+                  experienceList[index].jobTitle.toString(),
                   // experience.job_title.toString(),
                   style: GoogleFonts.varela(
-                    fontSize: 15.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -2400,21 +2134,22 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     Row(
                       children: [
                         Text(
-                          experienceList[index].shortname != null &&
+                          /* experienceList[index].shortname != null &&
                                   experienceList[index].shortname != ""
                               ? experienceList[index].shortname.toString()
-                              : experienceList[index].company_name.toString(),
+                              :  */
+                          experienceList[index].companyName.toString(),
                           // experience.company_name.toString(),
                           style: GoogleFonts.varela(
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                         const Text(" · "),
                         Text(
-                          experienceList[index].emptype.toString(),
+                          experienceList[index].empType.toString(),
                           style: GoogleFonts.varela(
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w400,
                           ),
                         )
@@ -2424,16 +2159,15 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     Row(
                       children: [
                         Text(
-                          experienceList[index].joining_date != null
-                              ? DateFormat('MMM-yyyy')
-                                  .format(experienceList[index].joining_date!)
+                          experienceList[index].joiningDate != null
+                              ? (experienceList[index].joiningDate!).toString()
                               : "",
                           /*  experienceList[index].joining_date != null
                               ? experienceList[index].joining_date.toString()
                               : "", */
                           // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
                           style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -2451,7 +2185,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                     : "", */
                                   // '$formattedJoiningDate - $formattedLastWorkingDate ($experience)',
                                   style: TextStyle(
-                                    fontSize: 12.sp,
+                                    fontSize: 10.sp,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
@@ -2466,19 +2200,19 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                 Text(
                                   "Present",
                                   style: GoogleFonts.varela(
-                                    fontSize: 12.sp,
+                                    fontSize: 10.sp,
                                     fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        if (experienceList[index].joining_date != null &&
+                        if (experienceList[index].joiningDate != null &&
                             experienceList[index].last_working_date != null)
                           Text(
                             " $monthsDifference",
                             style: GoogleFonts.varela(
-                              fontSize: 12.sp,
+                              fontSize: 10.sp,
                               fontStyle: FontStyle.italic,
                               fontWeight: FontWeight.w400,
                             ),
@@ -2488,19 +2222,19 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     Row(
                       children: [
                         Text(
-                          experienceList[index].company_location.toString(),
+                          experienceList[index].jobLocation.toString(),
                           // experience.company_location.toString(),
                           style: GoogleFonts.varela(
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                         const Text(" · "),
                         Text(
-                          experienceList[index].work_type.toString(),
+                          experienceList[index].workType.toString(),
                           // experience.company_location.toString(),
                           style: GoogleFonts.varela(
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
@@ -2530,8 +2264,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     }
   }
 
-  Widget languages(
-      List<dynamic> languages, ProfileSummaryModel profileSummaryModel) {
+  Widget languages(List<dynamic> languages, ProfileModel profileSummaryModel) {
     // Filter out languages other than English, Hindi, and Marathi
     //print(profilemodel.languages);
     List filteredLanguages = languages;
@@ -2566,8 +2299,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         //   size: 16,
                         // ),
                         // // Icon(image.assets()),
-                        Image.asset(
-                          "assets/images/languages.png",
+                        Image.network(
+                          'https://assets.api.uizard.io/api/cdn/stream/0b61b3c1-890b-4231-9349-ba85ac765701.png',
                           height: 20,
                           // width: 16,
                           fit: BoxFit
@@ -2575,12 +2308,12 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                           colorBlendMode: BlendMode.clear,
                         ),
 
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 10),
                         Text(
-                          "Languages",
+                          "Language Know",
                           style: GoogleFonts.varela(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -2599,7 +2332,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                           ),
                           child: Icon(
                             Icons
-                                .add, // Replace this with the icon of your choice
+                                .edit_outlined, // Replace this with the icon of your choice
                             size:
                                 20.h, // Replace this with the size of the icon
                             // color: Colors.greenAccent,
@@ -2728,20 +2461,20 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     );
   }
 
-  Widget skills(List<Experience> experienceList, List<Education> educationList,
-      ProfileSummaryModel profileSummaryModel) {
+  Widget skills(List<Experience> experienceList,
+      List<EducationDetail> educationList, ProfileModel profileSummaryModel) {
     List<String> skills = [];
 
     // Add skills from experienceList
     for (Experience experience in experienceList) {
-      if (experience.skills_exp != null) {
-        skills.addAll(experience.skills_exp!);
+      if (experience.skillsExp != null) {
+        skills.addAll(experience.skillsExp!);
       }
     }
 
     // Add skills from profilemodel
-    if (profileSummaryModel.skills != null) {
-      skills.addAll(profileSummaryModel.skills!);
+    if (profileSummaryModel.allSkills != null) {
+      skills.addAll(profileSummaryModel.allSkills!);
     }
 
     // Remove duplicates and convert to a list
@@ -2777,7 +2510,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         //   size: 16,
                         // ),
                         Image.network(
-                          "https://cdn-icons-png.flaticon.com/128/10484/10484259.png",
+                          'https://assets.api.uizard.io/api/cdn/stream/a8ac9b17-39f2-4c95-a432-2d18cd35abd4.png',
                           width: 20,
                           height: 20,
                           fit: BoxFit.contain,
@@ -2786,8 +2519,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                         Text(
                           "Skills",
                           style: GoogleFonts.varela(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -2807,7 +2540,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                           ),
                           child: Icon(
                             Icons
-                                .add, // Replace this with the icon of your choice
+                                .edit_outlined, // Replace this with the icon of your choice
                             size:
                                 20.h, // Replace this with the size of the icon
                             // color: Colors.greenAccent,
@@ -2825,7 +2558,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                 thickness: 2.0,
                 height: 4,
               ),
-              if (skills.isEmpty)
+              if (skills.isEmpty || skills.first == "")
                 Padding(
                   padding: const EdgeInsets.only(left: 20),
                   child: Text(
@@ -2836,7 +2569,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                     ),
                   ),
                 ),
-              if (skills.isNotEmpty)
+              if (skills.isNotEmpty && skills.first != "")
                 Padding(
                   padding: const EdgeInsets.only(top: 0, left: 8, right: 8),
                   child: Wrap(
@@ -2927,17 +2660,18 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     );
   }
 
-  void sendToSkills(
-      List<String> skills,
-      ProfileSummaryModel profileSummaryModel,
+  void sendToSkills(List<String> skills, ProfileModel profileSummaryModel,
       List<Experience> experience) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SkillsMulti(
-          prevPageModel: profileSummaryModel,
+        builder: (context) => const SkillsMulti(
+          isEdit: false,
+          Skill: [],
+          userid: 1,
+          /*   prevPageModel: profileSummaryModel,
           experienceList: experience,
-          initialSkills: skills,
+          initialSkills: skills, */
         ),
       ),
     );
@@ -2948,15 +2682,17 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   }
 
   void sendToLanguges(
-      List<dynamic>? language, ProfileSummaryModel profileSummaryModel) async {
+      List<dynamic>? language, ProfileModel profileSummaryModel) async {
     // ignore: unused_local_variable
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LanguageMulti(
-          prevPageModel: profileSummaryModel,
+        builder: (context) => const LanguageMulti(
+          languageList: [],
+          userid: 1,
+          /*   prevPageModel: profileSummaryModel,
           languageList: language!,
-          isFirst: false,
+          isFirst: false, */
           // experienceList: experienceList,
         ),
       ),
@@ -2967,11 +2703,14 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     // }
   }
 
-  void sendToEducationLevel(Education education) {
+  void sendToEducationLevel(EducationDetail education) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Screen2(
+           userid: 0,
+          profileskill: [],
+          edulength: profilemodel.education!.length,
           selectedLevel: profilemodel.education,
           educationList: educationList,
           isFirst: false,
@@ -3006,9 +2745,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
   }
 
   Widget cardCustom(
-      {required List<Education> educationList,
+      {required List<EducationDetail> educationList,
       required List<Experience> experienceList,
-      required ProfileSummaryModel profileSummaryModel,
+      required ProfileModel profileSummaryModel,
       required String? title,
       IconData? icon,
       IconData? icons,
@@ -3019,8 +2758,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
       Function()? onPress,
       String? imageUrl}) {
     bool shouldShowExperienceAddButton = experienceList.isNotEmpty ||
-        profileSummaryModel.experience == "Fresher" ||
-        profileSummaryModel.experience == "Experience";
+        profileSummaryModel.experiences == "Fresher" ||
+        profileSummaryModel.experiences == "Experience";
     bool shouldShowEducationAddButton = educationList.isNotEmpty;
 
     return Container(
@@ -3058,8 +2797,8 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                 Text(
                   title.toString(),
                   style: GoogleFonts.varela(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               Expanded(
@@ -3068,56 +2807,117 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     if (!isresume! &&
-                        ((title == "Employment Details" &&
+                        ((title == "Experience" &&
                                 shouldShowExperienceAddButton) ||
                             (title == "Education" &&
                                 shouldShowEducationAddButton)))
                       // Display the "+" button here
-                      InkWell(
-                        onTap: () {
-                          if (title == "Employment Details") {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Screen3(
-                                  experiencelist: experienceList,
-                                  isEdit: false,
-                                  isFirst: true,
-                                ),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              if (title == "Experience") {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Screen3(
+                                      userid: profilemodel.id!,
+                                      skills: [],
+                                      expelength:
+                                          profilemodel.experience!.length,
+                                      id: experienceList.first.id!,
+                                      experiencelist: experienceList,
+                                      isEdit: false,
+                                      isFirst: true,
+                                    ),
+                                  ),
+                                );
+                              } else if (title == "Education") {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Screen2(
+                                       userid: 0,
+                                        profileskill: [],
+                                        edulength:
+                                        
+                                            profilemodel.education!.length,
+                                        educationList: educationList,
+                                        underGraduate: false,
+                                        isFirst: true,
+                                        isEdit: false),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.only(
+                                  // left: 10,
+                                  //right: 14,
+                                  right: 10.w),
+                              // child: Icon(Icons.add, size: 18.h),
+                              child: Icon(
+                                Icons.add,
+                                color: Colors
+                                    .black, // Replace this with the icon of your choice
+                                size: 20
+                                    .h, // Replace this with the size of the icon
+                                // color: Colors.greenAccent,
                               ),
-                            );
-                          } else if (title == "Education") {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Screen2(
-                                    educationList: educationList,
-                                    underGraduate: false,
-                                    isFirst: true,
-                                    isEdit: false),
-                              ),
-                            );
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(
-                            // left: 10,
-                            //right: 14,
-                            bottom: 0,
-                            top: 0,
-                          ),
-                          // child: Icon(Icons.add, size: 18.h),
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 4),
-                            child: Icon(
-                              Icons
-                                  .add, // Replace this with the icon of your choice
-                              size: 20
-                                  .h, // Replace this with the size of the icon
-                              // color: Colors.greenAccent,
                             ),
                           ),
-                        ),
+                          InkWell(
+                            onTap: () {
+                              if (title == "Experience") {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ExperienceListEdit(
+                                      userid: profilemodel.id!,
+                                      profileHeadline: "",
+                                      skills: [],
+                                      experiencelist: experienceList,
+                                    ),
+                                  ),
+                                );
+                              } else if (title == "Education") {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => EducationList(
+                                           userid: 0,
+                                              profileskill: [],
+                                              educationList: educationList,
+                                              prevPageModel: educationmodel,
+                                            ))
+                                    /*  Screen2(
+                                        educationList: educationList,
+                                        underGraduate: false,
+                                        isFirst: true,
+                                        isEdit: false),
+                                  ), */
+                                    );
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.only(
+                                // left: 10,
+                                //right: 14,
+                                bottom: 0,
+                                top: 0,
+                              ),
+                              // child: Icon(Icons.add, size: 18.h),
+                              child: Icon(
+                                Icons.edit_outlined,
+                                color: Colors
+                                    .black, // Replace this with the icon of your choice
+                                size: 20
+                                    .h, // Replace this with the size of the icon
+                                // color: Colors.greenAccent,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                   ],
                 ),
@@ -3144,6 +2944,19 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     setState(() {});
   }
 
+  String cleanLocation(String location) {
+    List<String> parts = location.split(",").map((e) => e.trim()).toList();
+    List<String> uniqueParts = [];
+
+    for (String part in parts) {
+      if (!uniqueParts.contains(part)) {
+        uniqueParts.add(part);
+      }
+    }
+
+    return uniqueParts.join(", ");
+  }
+
   String capitalizeFirstLetter(String? text) {
     if (text == null || text.isEmpty) {
       return '';
@@ -3151,12 +2964,18 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  sendToBasicInfo(bool isBio, ProfileSummaryModel profileSummaryModel) async {
+  sendToBasicInfo(bool isBio, ProfileModel profileSummaryModel) async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var contactNumber = await Utils.getPreferencesValue(
+        prefs, ESharedPreferences.user_mobile.name);
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Screen1(
+          profileskill: [],
+          userid: profilemodel.id!,
           prevPageModel: profileSummaryModel,
+          primaryNumberValue: contactNumber.toString().replaceAll(' " ', ' '),
           isbio: isBio,
           isfirst: false,
         ),
@@ -3172,12 +2991,15 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
     }
   }
 
-  sendToEducation(Education education, List<Education> educationList,
-      bool isGraduate) async {
+  sendToEducation(EducationDetail education,
+      List<EducationDetail> educationList, bool isGraduate) async {
     var result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Screen2(
+          userid: 0,
+          profileskill: [],
+          edulength: profilemodel.education!.length,
           prevPageModel: education,
           educationList: educationList,
           isFirst: false,
@@ -3212,6 +3034,10 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
       context,
       MaterialPageRoute(
         builder: (context) => Screen3(
+          skills: [],
+          userid: profilemodel.id!,
+          expelength: profilemodel.experience!.length,
+          id: experienceList!.first.id!,
           prevPageModel: experience,
           experiencelist: experienceList,
           isEdit: true,
@@ -3220,9 +3046,9 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
       ),
     );
     if (result != null) {
-      experience.job_title = result.job_title;
-      experience.company_name = result.company_name;
-      experience.skills_exp = result.skills_exp;
+      experience.jobTitle = result.job_title;
+      experience.companyName = result.company_name;
+      experience.skillsExp = result.skills_exp;
 
       setState(() {});
     }
@@ -5268,3 +5094,6 @@ class _ProfileSummaryState extends State<ProfileSummary>
   }
 }
  */
+
+
+

@@ -5,20 +5,21 @@ class GlobalConstants {
 
   static const API_Host =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-      // "192.168.1.114:9090";
+  // "192.168.108.45:8081";
 
   // "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"; //Local
   // "ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090"; // AWS
 
   static const API_Host_one =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-      // "192.168.1.114:9090";
+  // "192.168.108.45:8081";
 
   // 'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
   //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";
   //static const API_Host = "192.168.1.9:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
+  static const Image_url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/";
   static const WEB_Host =
       //  "http://ec2-13-232-140-47.ap-south-1.compute.amazonaws.com:9090";  //new url
       //  "http://ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9092";    //old
@@ -34,13 +35,19 @@ class GlobalConstants {
   static const API_Users_v1_userDetails = "/users/v1/details/";
   static const API_Users_v1_allUserDetails = "/users/v1/allUserDeails";
 
-  static const API_files_v1_multiUpload = "/files/v1/multiUpload";
+  static const API_files_v1_multiUpload = "/api/files/v1/multiUpload";
 
-  static const API_Users_v1_authenticate = "/users/v1/authenticate";
+  // static const API_Users_v1_authenticate = "/users/v1/authenticate"; //TODO:: Old OTP generate api...
+  static const API_Users_v1_authenticate =
+      "/api/otp/v1/generate"; //TODO:: New OTP generate api...
+
   static const API_Users_v1_verifySession = "/users/v1/verifySession";
   static const API_Users_v1_activity = "/users/v1/userId/activity";
 
-  static const API_Users_v1_validateOTP = "/users/v1/validateOtp";
+  // static const API_Users_v1_validateOTP = "/users/v1/validateOtp"; //TODO:: Old Validate otp api...
+
+  static const API_Users_v1_validateOTP =
+      "/api/otp/v1/validate"; //TODO:: New Validate otp api...
   static const API_Exp_v1 = "/exp/v1";
 
   static const API_Edu_v1 = "/edu/v1";

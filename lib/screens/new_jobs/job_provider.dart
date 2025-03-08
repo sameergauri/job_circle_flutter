@@ -9,14 +9,14 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/new_job_model.dart';
-import 'package:job_circle/screens/new_jobs/profile_model.dart';
+import 'package:job_circle/screens/new_jobs/profile_jobs_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final jobsProvider = ChangeNotifierProvider((ref) => JobProvider()..init());
 
-final profileSummaryProvider = FutureProvider<ProfileModel>((ref) async {
+final profileSummaryProvider = FutureProvider<ProfileModelForJob>((ref) async {
   final summaryResponse = await JobProvider.bindProfileSummary();
-  return ProfileModel.fromJson(summaryResponse);
+  return summaryResponse;
 });
 
 class JobProvider extends ChangeNotifier {
@@ -32,9 +32,9 @@ class JobProvider extends ChangeNotifier {
   String selectedKey = '';
   Map<String, List<String>> selectedData = {};
 
-  String role = '';
-  String get getRole => role;
-  set setRole(String value) {
+  int role = 0;
+  int get getRole => role;
+  set setRole(int value) {
     role = value;
     notifyListeners();
   }
@@ -72,7 +72,7 @@ class JobProvider extends ChangeNotifier {
     isLoading = false;
   }
 
-  void applyFilter(ProfileModel model) {
+  void applyFilter(ProfileModelForJob model) {
     if (isFavoriteTabSelected) {
       toggleFavoriteJobs(model, unSelectTab: false, jobs: filteredJobs);
     } else if (isMyJobsTabSelected) {
@@ -139,7 +139,7 @@ class JobProvider extends ChangeNotifier {
 
   //TODO: fav...
 
-  void toggleFavoriteJobs(ProfileModel profileModel,
+  void toggleFavoriteJobs(ProfileModelForJob profileModel,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
       isFavoriteTabSelected = !isFavoriteTabSelected;
@@ -158,7 +158,8 @@ class JobProvider extends ChangeNotifier {
     }
   }
 
-  void _applyFavFilter(ProfileModel profileModel, [List<JobsModel>? jobs]) {
+  void _applyFavFilter(ProfileModelForJob profileModel,
+      [List<JobsModel>? jobs]) {
     filteredJobs = (jobs ?? this.jobs)
         .where((job) =>
             contains(job.isFav, 1) && contains(job.userId, profileModel.id))
@@ -168,7 +169,7 @@ class JobProvider extends ChangeNotifier {
   }
   //TODO: filter foor support staff....
 
-  void toggleSupportStaff(ProfileModel model,
+  void toggleSupportStaff(ProfileModelForJob model,
       {bool unSelectedTab = true, List<JobsModel>? jobs}) {
     if (unSelectedTab) {
       isSupportStaff = !isSupportStaff;
@@ -192,7 +193,7 @@ class JobProvider extends ChangeNotifier {
 
   //TODO: filter for compus...
 
-  void toggleCompusJobs(ProfileModel model,
+  void toggleCompusJobs(ProfileModelForJob model,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
       isCompusTabSelected = !isCompusTabSelected;
@@ -215,7 +216,7 @@ class JobProvider extends ChangeNotifier {
 
 //TODO filter for linguil....
 
-  void toggleLanguilJobs(ProfileModel model,
+  void toggleLanguilJobs(ProfileModelForJob model,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
       isLanguilTabSelected = !isLanguilTabSelected;
@@ -239,7 +240,7 @@ class JobProvider extends ChangeNotifier {
 
   //TODO:: MyJobs
 
-  void toggleMyJobsFilter(ProfileModel profileModel,
+  void toggleMyJobsFilter(ProfileModelForJob profileModel,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
       isMyJobsTabSelected = !isMyJobsTabSelected;
@@ -264,7 +265,7 @@ class JobProvider extends ChangeNotifier {
     }
   }
 
-  void _applySpocReportToFilter(ProfileModel profileModel,
+  void _applySpocReportToFilter(ProfileModelForJob profileModel,
       [List<JobsModel>? jobs]) {
     filteredJobs = (jobs ?? this.jobs)
         .where((job) => contains(job.spoc, profileModel.reportTo))
@@ -272,7 +273,8 @@ class JobProvider extends ChangeNotifier {
     isFilterApplied = true;
   }
 
-  void _applySpocFilter(ProfileModel profileModel, [List<JobsModel>? jobs]) {
+  void _applySpocFilter(ProfileModelForJob profileModel,
+      [List<JobsModel>? jobs]) {
     filteredJobs = (jobs ?? this.jobs)
         .where((job) => contains(job.spoc, profileModel.id))
         .toList();
@@ -280,7 +282,7 @@ class JobProvider extends ChangeNotifier {
 
   //TODO: Fresher...
 
-  void toggleFreshersFilter(ProfileModel model,
+  void toggleFreshersFilter(ProfileModelForJob model,
       {bool unSelectTab = true, List<JobsModel>? jobs}) {
     if (unSelectTab) {
       isFreshersTabSelected = !isFreshersTabSelected;
@@ -390,7 +392,27 @@ class JobProvider extends ChangeNotifier {
     }
   }
 
-  static Future<Map<String, dynamic>> bindProfileSummary() async {
+  static Future<ProfileModelForJob> bindProfileSummary() async {
+    SharedPreferences prefs = await Utils.getSharedPreferences();
+    var id =
+        await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
+
+    final response = await http.get(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/users/v1/profileSummary/$id'));
+
+    if (response.statusCode == 200) {
+      final parsedResponse = json.decode(response.body);
+      if (parsedResponse.containsKey("resultData")) {
+        return ProfileModelForJob.fromJson(parsedResponse["resultData"]);
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  /*  static Future<Map<String, dynamic>> bindProfileSummary() async {
     SharedPreferences prefs = await Utils.getSharedPreferences();
     var id =
         await Utils.getPreferencesValue(prefs, ESharedPreferences.user_id.name);
@@ -407,21 +429,42 @@ class JobProvider extends ChangeNotifier {
     } else {
       throw Exception('Failed to load data');
     }
-  }
+  } */
 
   Future<void> _loadSelectedLocation() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _selectedLocation = prefs.getString('selectedLocation') ?? '';
   }
+  //
+  //
+  //TODO:: Old code for loading..
 
-  bool _isFavLoading = false;
+  /* bool _isFavLoading = false;
   bool get isFavLoading => _isFavLoading;
   set isFavLoading(bool value) {
     _isFavLoading = value;
     notifyListeners();
+  } */
+
+//
+//
+
+  //TODO:: List of loading for seprate loading to each button
+
+  final Map<int, bool> _isFavLoadingMap = {};
+
+  bool isFavLoading(int jobId) => _isFavLoadingMap[jobId] ?? false;
+
+  void setFavLoading(int jobId, bool value) {
+    _isFavLoadingMap[jobId] = value;
+    notifyListeners();
   }
 
-  Future<void> removeFromFav(int favJobId, ProfileModel model) async {
+  //
+  //
+  //
+
+  /*  Future<void> removeFromFav(int favJobId, ProfileModelForJob model) async {
     isFavLoading = true;
     try {
       final response = await http.delete(
@@ -448,9 +491,69 @@ class JobProvider extends ChangeNotifier {
     } finally {
       isFavLoading = false;
     }
+  } */
+  Future<void> removeFromFav(
+      int favJobId, ProfileModelForJob model, int jobid) async {
+    setFavLoading(jobid, true);
+    try {
+      final response = await http.delete(
+        Uri.parse("http://${GlobalConstants.API_Host_one}/favjob/v1/$favJobId"),
+        headers: <String, String>{},
+      );
+
+      if (response.statusCode == 200) {
+        await bindAllJobs();
+        if (isFavoriteTabSelected) {
+          toggleFavoriteJobs(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isMyJobsTabSelected) {
+          toggleMyJobsFilter(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isFreshersTabSelected) {
+          toggleFreshersFilter(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isLanguilTabSelected) {
+          toggleLanguilJobs(model, unSelectTab: false, jobs: filteredJobs);
+        }
+      } else {
+        print('Error during post request: ${response.statusCode}');
+      }
+    } catch (e) {
+      print(e);
+    } finally {
+      setFavLoading(jobid, false);
+    }
   }
 
-  Future<void> addToFav(int jobId, ProfileModel model) async {
+  Future<void> addToFav(int jobId, ProfileModelForJob model) async {
+    setFavLoading(jobId, true);
+    try {
+      final response = await http.post(
+        Uri.parse(
+            "http://${GlobalConstants.API_Host_one}/favjob/v1/${model.id}/$jobId"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (response.statusCode == 200) {
+        await bindAllJobs();
+        if (isFavoriteTabSelected) {
+          toggleFavoriteJobs(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isMyJobsTabSelected) {
+          toggleMyJobsFilter(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isFreshersTabSelected) {
+          toggleFreshersFilter(model, unSelectTab: false, jobs: filteredJobs);
+        } else if (isLanguilTabSelected) {
+          toggleLanguilJobs(model, unSelectTab: false, jobs: filteredJobs);
+        }
+      } else {
+        print('Error during post request: ${response.statusCode}');
+      }
+    } catch (e) {
+      print(e);
+    } finally {
+      setFavLoading(jobId, false);
+    }
+  }
+
+  /* Future<void> addToFav(int jobId, ProfileModelForJob model) async {
     isFavLoading = true;
     try {
       final response = await http.post(
@@ -479,7 +582,7 @@ class JobProvider extends ChangeNotifier {
     } finally {
       isFavLoading = false;
     }
-  }
+  } */
 
   void clear() {
     searchController.clear();

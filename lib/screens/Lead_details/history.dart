@@ -236,7 +236,7 @@ class _HistoryState extends ConsumerState<History> {
                       backgroundColor: Constants.bgColorWhite,
                       appBar: PreferredSize(
                         preferredSize:
-                            Size(double.maxFinite, kToolbarHeight / 1.4.sp),
+                            const Size(double.maxFinite, kToolbarHeight / 1.3),
                         child: AppBar(
                           elevation: 0,
                           backgroundColor: Constants.bgColorWhite,
@@ -337,8 +337,8 @@ class _HistoryState extends ConsumerState<History> {
                               length: negativeStatus.length,
                               child: Scaffold(
                                 appBar: PreferredSize(
-                                  preferredSize: Size(double.maxFinite,
-                                      kToolbarHeight / 1.4.sp),
+                                  preferredSize: const Size(
+                                      double.maxFinite, kToolbarHeight / 1.3),
                                   child: AppBar(
                                     // title: const Text("Hello"),
                                     elevation: 0,
@@ -430,8 +430,8 @@ class _HistoryState extends ConsumerState<History> {
                               length: substatusWithData.length,
                               child: Scaffold(
                                 appBar: PreferredSize(
-                                  preferredSize: Size(double.maxFinite,
-                                      kToolbarHeight / 1.4.sp),
+                                  preferredSize: const Size(
+                                      double.maxFinite, kToolbarHeight / 1.3),
                                   child: AppBar(
                                     // title: const Text("Hello"),
                                     elevation: 0,

@@ -11,9 +11,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/customwidget_upload_file.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
-import 'package:job_circle/models/add_resume_model.dart';
-import 'package:job_circle/models/cooling_p_model.dart';
+import 'package:job_circle/constants/viewuploadfile.dart';
+import 'package:job_circle/models/refer_add_resume_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_container_for_gender.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
 import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
@@ -24,43 +30,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:document_viewer/document_viewer.dart';
 import '../../enums/enums.dart';
-import '../../models/get_user_for_add_Resume.dart';
-import '../../models/profileSummary.dart';
 import '../../service/FileUploadService.dart';
-import '../../service/UserDataService.dart';
-import '../../service/data_get_api_service.dart';
 import '../../service/job_post_api_service.dart';
 import '../../themes/colors.dart';
 
 class AddResume extends ConsumerStatefulWidget {
-  final String company_name, role, process, nature_of_work, sourceName;
-  final int company_id, jobId, spocId, sourceId;
+  final String company_name, role, process, nature_of_work, interviewRounds;
+  final int company_id, jobId, spocId;
   final bool isRefer;
   final bool is90;
   final bool is30;
   final int userNumber;
   final int useAlternateNumber;
-  final String interviewRounds;
-  final int report_to;
 
-  const AddResume(
-      {super.key,
-      required this.company_name,
-      required this.role,
-      required this.process,
-      required this.nature_of_work,
-      required this.company_id,
-      required this.jobId,
-      required this.sourceId,
-      required this.sourceName,
-      required this.spocId,
-      required this.isRefer,
-      required this.is90,
-      required this.is30,
-      required this.userNumber,
-      required this.useAlternateNumber,
-      required this.interviewRounds,
-      required this.report_to});
+  const AddResume({
+    super.key,
+    required this.company_name,
+    required this.role,
+    required this.process,
+    required this.nature_of_work,
+    required this.company_id,
+    required this.jobId,
+    required this.spocId,
+    required this.isRefer,
+    required this.is90,
+    required this.is30,
+    required this.userNumber,
+    required this.useAlternateNumber,
+    required this.interviewRounds,
+  });
 
   @override
   ConsumerState<AddResume> createState() => _AddResumeState();
@@ -70,47 +68,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
   @override
   void initState() {
     //fetchData();
-    initPlatformState();
+
     // TODO: implement initState
     super.initState();
-  }
-
-  final String _version = 'Unknown';
-
-  Future<void> initPlatformState() async {
-    String version;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    /*  try {    //TODO: Docs view for cv.
-      pdftron.PdftronFlutter.initialize();
-      version = await pdftron.PdftronFlutter.version;
-    } on PlatformException {
-      version = 'Failed to get platform version.';
-    }
- */
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    /*  setState(() {   //TODO: Docs view for cv.
-      _version = version;
-    }); */
-  }
-
-  ProfileSummaryModel profilemodel = ProfileSummaryModel();
-
-  bindProfileSummary() async {
-    SharedPreferences prefs = await Utils.getSharedPreferences();
-    var result = await UserDataService().getUserProfileSummary(
-        await Utils.getPreferencesValue(
-            prefs, ESharedPreferences.user_id.name));
-    if (Utils.parseResponse(result).resultKey == 'SUCCESS') {
-      var dataResult = Utils.parseResponse(result).resultData;
-      profilemodel = ProfileSummaryModel.fromJson(dataResult);
-
-      // user_selected_lcoation = user_selected_lcoation;
-    }
-    setState(() {});
   }
 
   TextEditingController firt_name = TextEditingController();
@@ -135,6 +95,10 @@ class _AddResumeState extends ConsumerState<AddResume> {
   String? icon_data;
 
   bool termAndConditionOne = false, termAndConditionTwo = false;
+  FocusNode firstname = FocusNode();
+  FocusNode lastname = FocusNode();
+  FocusNode prinumber = FocusNode();
+  FocusNode seconumber = FocusNode();
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -154,7 +118,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
                 margin: const EdgeInsets.only(
                     top: 10, bottom: 10, left: 20, right: 20),
                 decoration: BoxDecoration(
-                    color: Constants.themeBgColor,
+                    color: Constants.darkBlue,
                     borderRadius: BorderRadius.circular(8.r)),
                 width: double.maxFinite,
                 padding: const EdgeInsets.only(bottom: 8, top: 8),
@@ -227,966 +191,497 @@ class _AddResumeState extends ConsumerState<AddResume> {
                 ),
               ],
             ),
+      resizeToAvoidBottomInset: true, // Add this line
+
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-          // automaticallyImplyLeading: false,
-          title: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.company_name,
-                style: TextStyle(color: Colors.white, fontSize: 18.sp),
-              ),
-              Row(
-                children: [
-                  Text(widget.process,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-                  const Text(" - "),
-                  Text(widget.role,
-                      style: TextStyle(color: Colors.white, fontSize: 16.sp))
-                ],
-              )
-            ],
-          ),
-          iconTheme: const IconThemeData(color: Colors.white),
-          elevation: 0,
-          backgroundColor: const Color(0xfff729995)),
-      body: Stack(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.shade400,
-                            offset: const Offset(1, 1),
-                            blurRadius: 1.1,
-                            spreadRadius: 0.0)
-                      ],
-                      borderRadius: BorderRadius.circular(8.r),
-                      // border: Border.all(color: Constants.borderColor)
+        automaticallyImplyLeading: true,
+        backgroundColor: Constants.borderColor,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OnboardingTitle(
+              title: widget.role.toString(),
+            ),
+            Row(
+              children: [
+                customTextForWeather(
+                  title: widget.process,
+                  fontSize: 12,
+                  color: Constants.black,
+                ),
+                const customTextForWeather(
+                    title: " || ", fontSize: 14, color: Constants.black),
+                customTextForWeather(
+                    title: widget.nature_of_work,
+                    fontSize: 14,
+                    color: Constants.black),
+              ],
+            )
+          ],
+        ),
+      ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const customTextForWeather(
+                      title: "Referral profile detail",
+                      fontSize: 14,
+                      color: Constants.black,
+                      fontWeight: FontWeight.bold,
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: double.maxFinite,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(8.r),
-                                topRight: Radius.circular(8.r)),
-                            color: const Color(0xfffb4d8d4),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 10),
-                          child: Text(
-                            "Candidate Name",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 20.sp,
-                                color: const Color(0xfff729995),
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        /*  isFirstName
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                //isNumOfOpening: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isFirstName = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    firt_name.clear();
-                                    // numberOfOpeneningFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: firt_name.text,
-                                heading: "First Name")
-                            : */
-                        CustomTextField(
-                            context: context,
-                            controller: firt_name,
-                            title: "First Name",
-                            hintText: "Rahul",
-                            isNumber: false,
-                            focusNode1: text1,
-                            isLastName: false),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        /*  isFirstName
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isFirstName = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    last_name.clear();
-                                    // numberOfOpeneningFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: last_name.text,
-                                heading: "Last Name")
-                            : */
-                        CustomTextField(
-                            context: context,
-                            controller: last_name,
-                            title: "Last Name",
-                            isLastName: true,
-                            focusNode1: text2,
-                            hintText: "Sharma",
-                            isNumber: false),
-                      ],
+                    const SizedBox(
+                      height: 15,
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.shade400,
-                            offset: const Offset(1, 1),
-                            blurRadius: 1.1,
-                            spreadRadius: 0.0)
-                      ],
-                      borderRadius: BorderRadius.circular(8.r),
-                      //border: Border.all(color: Constants.borderColor)
+                    const customTextForWeather(
+                      title: "Candidate First Name*",
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: double.maxFinite,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(8.r),
-                                topRight: Radius.circular(8.r)),
-                            color: const Color(0xfffb4d8d4),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 10),
-                          child: Text(
-                            "Contact Numbers",
-                            style: GoogleFonts.sourceSansPro(
-                                fontSize: 20.sp,
-                                color: const Color(0xfff729995),
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        /* isFirstName
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                //isNumOfOpening: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isFirstName = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    primary_number.clear();
-                                    // numberOfOpeneningFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: primary_number.text,
-                                heading: "Primary Number")
-                            : */
-                        CustomTextField(
-                            context: context,
-                            controller: primary_number,
-                            title: "Primary Number",
-                            isLastName: false,
-                            hintText: "956846****",
-                            focusNode1: text3,
-                            isNumber: true),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        /*  isFirstName
-                            ? customContainerSelect(
-                                isVacancy: true,
-                                isCross: true,
-                                onPressed: () {
-                                  setState(() {
-                                    isFirstName = false;
-                                    // FocusScope.of(context).autofocus(focusNode);
-                                    secondry.clear();
-                                    // numberOfOpeneningFocus.requestFocus();
-                                  });
-                                },
-                                isSelect: true,
-                                title: secondry.text,
-                                heading: "Secondary Number")
-                            : */
-                        CustomTextField(
-                            context: context,
-                            controller: secondry,
-                            title: "Secondary Number",
-                            isLastName: false,
-                            hintText: "856495****",
-                            focusNode1: text4,
-                            isNumber: true),
-                        Padding(
-                          padding: const EdgeInsets.only(right: 14, bottom: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "Optional",
-                                style: GoogleFonts.varela(
-                                  fontSize: 8,
-                                  color: const Color(0xfff729995),
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
+                    CustomTextFieldforAll(
+                      focusNode: firstname,
+                      controller: firt_name,
+                      hint: "Enter First Name",
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.shade400,
-                            offset: const Offset(1, 1),
-                            blurRadius: 1.1,
-                            spreadRadius: 0.0)
-                      ],
-                      borderRadius: BorderRadius.circular(8.r),
-                      //border: Border.all(color: Constants.borderColor)
+                    const SizedBox(
+                      height: 10,
                     ),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: double.maxFinite,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8.r),
-                                  topRight: Radius.circular(8.r)),
-                              color: const Color(0xfffb4d8d4),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 10),
-                            child: Text(
-                              "Education",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 20.sp,
-                                  color: const Color(0xfff729995),
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    graduate = false;
-                                    underGraduate = true;
-                                  });
-                                },
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 5),
-                                  margin: const EdgeInsets.only(
-                                      left: 10, bottom: 10),
-                                  width:
-                                      MediaQuery.of(context).size.width / 2.4,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      color: underGraduate
-                                          ? Constants.themeBgColor
-                                          : Colors.white),
-                                  child: Center(
-                                    child: Text("Under-Graduate",
-                                        style: GoogleFonts.sourceSansPro(
-                                            color: underGraduate
-                                                ? Colors.white
-                                                : Colors.grey,
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    graduate = true;
-                                    underGraduate = false;
-                                  });
-                                },
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 5),
-                                  margin: const EdgeInsets.only(
-                                      right: 10, bottom: 10),
-                                  width:
-                                      MediaQuery.of(context).size.width / 2.4,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      color: graduate
-                                          ? Constants.themeBgColor
-                                          : Colors.white),
-                                  child: Center(
-                                    child: Text("Graduate or Above",
-                                        style: GoogleFonts.sourceSansPro(
-                                            color: graduate
-                                                ? Colors.white
-                                                : Colors.grey,
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ]),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.grey.shade400,
-                            offset: const Offset(1, 1),
-                            blurRadius: 1.1,
-                            spreadRadius: 0.0)
-                      ],
-                      borderRadius: BorderRadius.circular(8.r),
-                      //border: Border.all(color: Constants.borderColor)
+                    const customTextForWeather(
+                      title: "Candidate Last Name*",
                     ),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: double.maxFinite,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(8.r),
-                                  topRight: Radius.circular(8.r)),
-                              color: const Color(0xfffb4d8d4),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 10),
-                            child: Text(
-                              "Work Status",
-                              style: GoogleFonts.sourceSansPro(
-                                  fontSize: 20.sp,
-                                  color: const Color(0xfff729995),
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    fresher = true;
-                                    experience = false;
-                                  });
-                                },
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 5),
-                                  margin: const EdgeInsets.only(
-                                      left: 10, bottom: 10),
-                                  width:
-                                      MediaQuery.of(context).size.width / 2.4,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      color: fresher
-                                          ? Constants.themeBgColor
-                                          : Colors.white),
-                                  child: Center(
-                                    child: Text("Fresher",
-                                        style: GoogleFonts.sourceSansPro(
-                                            color: fresher
-                                                ? Colors.white
-                                                : Colors.grey,
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    fresher = false;
-                                    experience = true;
-                                  });
-                                },
-                                child: Container(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 5),
-                                  margin: const EdgeInsets.only(
-                                      right: 10, bottom: 10),
-                                  width:
-                                      MediaQuery.of(context).size.width / 2.4,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
-                                      color: experience
-                                          ? Constants.themeBgColor
-                                          : Colors.white),
-                                  child: Center(
-                                    child: Text("Experience",
-                                        style: GoogleFonts.sourceSansPro(
-                                            color: experience
-                                                ? Colors.white
-                                                : Colors.grey,
-                                            fontSize: 15.sp,
-                                            fontWeight: FontWeight.bold)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ]),
-                  ),
+                    CustomTextFieldforAll(
+                      focusNode: lastname,
+                      controller: last_name,
+                      hint: "Enter Last Name",
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const customTextForWeather(
+                      title: "Contact Number*",
+                    ),
+                    CustomTextFieldforAll(
+                      maxLength: 10,
+                      focusNode: prinumber,
+                      isNumber: true,
+                      controller: primary_number,
+                      hint: "Enter Contact Number",
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const customTextForWeather(
+                      title: "Alternate Number",
+                    ),
+                    CustomTextFieldforAll(
+                      maxLength: 10,
+                      focusNode: seconumber,
+                      controller: secondry,
+                      isNumber: true,
+                      hint: "Enter Alternate Number",
+                    ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const customTextForWeather(
+                      title: "Level of Education*",
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomContainerForGender(
+                          onPressed: () {
+                            setState(() {
+                              graduate = false;
+                              underGraduate = true;
+                            });
+                          },
+                          isSelect: underGraduate,
+                          title: "Under - Graduate",
+                        ),
+                        CustomContainerForGender(
+                          onPressed: () {
+                            setState(() {
+                              graduate = true;
+                              underGraduate = false;
+                            });
+                          },
+                          isSelect: graduate,
+                          title: "Graduate & Above",
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const customTextForWeather(
+                      title: "Level of Work Status*",
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CustomContainerForGender(
+                          onPressed: () {
+                            setState(() {
+                              experience = false;
+                              fresher = true;
+                            });
+                          },
+                          isSelect: fresher,
+                          title: "Fresher",
+                        ),
+                        CustomContainerForGender(
+                          onPressed: () {
+                            setState(() {
+                              experience = true;
+                              fresher = false;
+                            });
+                          },
+                          isSelect: experience,
+                          title: "Experience",
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    if (icon_data == null)
+                      CustomDocumentUploadButton(
+                        onTab: () async {
+                          FileUploader fileUploader = FileUploader();
+                          var data = await fileUploader.uploadFile(
+                              context, ['pdf'], "resume");
+
+                          if (data != null) {
+                            setState(() {
+                              icon_data = data;
+                            });
+                          }
+                        },
+                        title: "Add Resume",
+                      ),
+                    if (icon_data != null)
+                      CustomContainerSelectToViewDoc(
+                        title: "Resume",
+                        onPressed: () {
+                          showModalBottomSheet(
+                            isScrollControlled: true,
+                            context: context,
+                            builder: (context) {
+                              return CustomPDFViewerDialog(
+                                pdfUrl:
+                                    "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data",
+                                onRemove: () async {
+                                  await FileUploadService()
+                                      .deleteSingleFile(icon_data!);
+                                  setState(() {
+                                    icon_data = null;
+                                  });
+                                },
+                                onReplace: () {},
+                              );
+                            },
+                          );
+                        },
+                      ),
+
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
+                    if (widget.isRefer)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          InkWell(
-                            onTap: icon_data == null
-                                ? () async {
-                                    var data = await uploadFile(['pdf'], false);
-                                    if (data != null) {
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color:
+                                        // selectedKeyResponsible.contains(item)
+                                        Colors.grey,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                height: 16,
+                                width: 20,
+                                child: Theme(
+                                  data: ThemeData(
+                                    unselectedWidgetColor: Colors.transparent,
+                                  ),
+                                  child: Checkbox(
+                                    side: const BorderSide(color: Colors.white),
+                                    activeColor: Colors.white,
+                                    checkColor: Constants.themeBgColor,
+                                    visualDensity: VisualDensity.compact,
+                                    value: termAndConditionOne,
+                                    onChanged: (newValue) {
                                       setState(() {
-                                        icon_data = data;
+                                        if (newValue!) {
+                                          termAndConditionOne = true;
+                                          termAndConditionTwo = false;
+                                        } else {
+                                          termAndConditionOne = false;
+                                        }
                                       });
-                                    }
-                                  }
-                                : () {
-                                    icon_data!.contains(".docx")
-                                        ? const SizedBox() /* FutureBuilder<void>(   //TODO: Docs view for cv.
-                                            future: pdftron.PdftronFlutter
-                                                .openDocument(
-                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data",
-                                              config: pdftron.Config.fromJson({
-                                                'readOnly':
-                                                    true, // Set to read-only mode
-                                                // Add other configuration options as needed to remove watermark or customize viewer
-                                              }),
-                                            ),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.connectionState ==
-                                                  ConnectionState.waiting) {
-                                                return const Center(
-                                                    child:
-                                                        CircularProgressIndicator());
-                                              } else if (snapshot.hasError) {
-                                                return Center(
-                                                    child: Text(
-                                                        'Error: ${snapshot.error}'));
-                                              } else {
-                                                // PDF document has been opened successfully
-                                                return Container(); // Placeholder widget
-                                              }
-                                            },
-                                          ) */
-                                        : showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return Scaffold(
-                                                floatingActionButton: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    InkWell(
-                                                      onTap: () async {
-                                                        icon_data =
-                                                            await uploadFile(
-                                                                ['pdf'], true);
+                                      //tify Flutter that the state has changed
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 10.w,
+                          ),
+                          // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
+                          if (widget.isRefer)
+                            Expanded(
+                                child: RichText(
+                                    text: TextSpan(
+                                        text: "I hereby agree to the ",
+                                        style: GoogleFonts.varela(
+                                            fontStyle: FontStyle.italic,
+                                            fontSize: 12.sp,
+                                            color: Colors.black),
+                                        children: <TextSpan>[
+                                  TextSpan(
+                                    text: "90 days payment clause",
+                                    style: GoogleFonts.varela(
+                                        wordSpacing: 0.5,
+                                        // decoration: TextDecoration.underline,
+                                        fontStyle: FontStyle.italic,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12.sp,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: " outlined in the ",
+                                    style: GoogleFonts.varela(
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 12.sp,
+                                        color: Colors.black),
+                                  ),
+                                  TextSpan(
+                                    text: "Terms & Conditions.",
+                                    style: GoogleFonts.varela(
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 12.sp,
+                                        color: Colors.blue),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return Scaffold(
+                                              body: Container(
+                                                child:
+                                                    FutureBuilder<PDFDocument>(
+                                                  future: PDFDocument.fromAsset(
+                                                      "assets/images/90.pdf"),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState.done) {
+                                                      if (snapshot.hasData) {
+                                                        return PDFViewer(
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          panLimit: 1.1,
+                                                          document:
+                                                              snapshot.data!,
+                                                          zoomSteps: 3,
+                                                          showNavigation: false,
+                                                          showPicker: false,
 
-                                                        /*  if (data != null) {
-                                                    setState(() {
-                                                      icon_data = data;
-                                                    });
-                                                  } */
-                                                      },
-                                                      child: Container(
-                                                        margin: EdgeInsets.only(
-                                                            left: 20.w),
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                vertical: 4.h,
-                                                                horizontal:
-                                                                    8.r),
-                                                        decoration: BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        8.r),
-                                                            border: Border.all(
-                                                                color: Constants
-                                                                    .themeBgColor)),
-                                                        child: Row(
-                                                          children: [
-                                                            Icon(
-                                                              Icons.upload_file,
-                                                              size: 15.h,
-                                                              color: Constants
-                                                                  .themeBgColor,
-                                                            ),
-                                                            SizedBox(
-                                                              width: 4.w,
-                                                            ),
-                                                            const Text(
-                                                                "Replace"),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                                body: Container(
-                                                  child: /* icon_data!.contains(".docx")
-                                                ? 
-                                                : */
-                                                      FutureBuilder<
-                                                          PDFDocument>(
-                                                    //TODO ::for only pdf file
-                                                    future: PDFDocument.fromURL(
-                                                        "https://s3.ap-south-1.amazonaws.com/job-circle-2/$icon_data"),
-                                                    builder:
-                                                        (context, snapshot) {
-                                                      if (snapshot
-                                                              .connectionState ==
-                                                          ConnectionState
-                                                              .done) {
-                                                        if (snapshot.hasData) {
-                                                          return PDFViewer(
-                                                            scrollDirection:
-                                                                Axis.vertical,
-                                                            panLimit: 1.1,
-                                                            document:
-                                                                snapshot.data!,
-                                                            zoomSteps: 3,
-                                                            showNavigation:
-                                                                false,
-                                                            showPicker: false,
-
-                                                            // numberPickerConfirmWidget: f,
-                                                          );
-                                                        } else {
-                                                          return const Center(
-                                                              child: Text(
-                                                                  'Failed to load PDF'));
-                                                        }
+                                                          // numberPickerConfirmWidget: f,
+                                                        );
                                                       } else {
                                                         return const Center(
-                                                            child:
-                                                                CircularProgressIndicator());
+                                                            child: Text(
+                                                                'Failed to load PDF'));
                                                       }
-                                                    },
-                                                  ),
+                                                    } else {
+                                                      return const Center(
+                                                          child:
+                                                              CircularProgressIndicator());
+                                                    }
+                                                  },
                                                 ),
-                                              );
-                                            },
-                                          );
-                                  },
-                            child: Container(
-                              margin: const EdgeInsets.only(top: 20),
-                              // width: double.maxFinite,
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: const Color(0xfff729995)),
-                                borderRadius: BorderRadius.circular(8.r),
-                                color: Colors.white,
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 10),
-                              child: Row(
-                                children: [
-                                  icon_data != null
-                                      ? Icon(
-                                          Icons.visibility_outlined,
-                                          color: Constants.themeBgColor,
-                                          size: 18.h,
-                                        )
-                                      : Image.asset(
-                                          "assets/images/cv.png",
-                                          height: 15.h,
-                                          color: const Color(0xfff729995),
-                                        ),
-                                  const SizedBox(
-                                    width: 6,
-                                  ),
-                                  Text(
-                                    icon_data != null
-                                        ? "View Resume"
-                                        : "Add Resume",
-                                    style: GoogleFonts.sourceSansPro(
-                                        fontSize: 18.sp,
-                                        color: const Color(0xfff729995),
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                        // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
+                                      },
+                                  )
+                                ])
+                                    /* Text(
+                                "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
+                                style: GoogleFonts.varela(
+                                    fontStyle: FontStyle.italic, fontSize: 12.sp),
+                                                      ), */
+                                    )),
+                        ],
+                      ),
+                    // const Spacer(),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    if (widget.isRefer &&
+                        widget.is30) //TODO: 30 days statement.
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Text(
-                                icon_data != null ? icon_data.toString() : "",
-                                style: GoogleFonts.sourceSansPro(
-                                    fontSize: 8.sp,
-                                    fontStyle: FontStyle.italic,
-                                    color: const Color(0xfff729995),
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              Text(
-                                "Only pdf file.",
-                                style: GoogleFonts.sourceSansPro(
-                                    fontSize: 8.sp,
-                                    fontStyle: FontStyle.italic,
-                                    color: const Color(0xfff729995),
-                                    fontWeight: FontWeight.w600),
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color:
+                                        // selectedKeyResponsible.contains(item)
+                                        Colors.grey,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                height: 16,
+                                width: 20,
+                                child: Theme(
+                                  data: ThemeData(
+                                    unselectedWidgetColor: Colors.transparent,
+                                  ),
+                                  child: Checkbox(
+                                    activeColor: Colors.transparent,
+                                    checkColor: Constants.themeBgColor,
+                                    visualDensity: VisualDensity.compact,
+                                    value: termAndConditionTwo,
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        if (newValue!) {
+                                          termAndConditionTwo = true;
+                                          termAndConditionOne = false;
+                                        } else {
+                                          termAndConditionTwo = false;
+                                        }
+                                      });
+                                      //tify Flutter that the state has changed
+                                    },
+                                  ),
+                                ),
                               ),
                             ],
                           ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          if (widget.isRefer && widget.is30)
+                            Expanded(
+                                child: RichText(
+                                    text: TextSpan(
+                                        text:
+                                            "I hereby agree to the 30 days payment clause outlined in the ",
+                                        style: GoogleFonts.varela(
+                                            fontStyle: FontStyle.italic,
+                                            fontSize: 12.sp,
+                                            color: Colors.black),
+                                        children: <TextSpan>[
+                                  TextSpan(
+                                    text: "Terms & Conditions.",
+                                    style: GoogleFonts.varela(
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 12.sp,
+                                        color: Colors.blue),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return Scaffold(
+                                              body: Container(
+                                                child:
+                                                    FutureBuilder<PDFDocument>(
+                                                  future: PDFDocument.fromAsset(
+                                                      "assets/images/30.pdf"),
+                                                  builder: (context, snapshot) {
+                                                    if (snapshot
+                                                            .connectionState ==
+                                                        ConnectionState.done) {
+                                                      if (snapshot.hasData) {
+                                                        return PDFViewer(
+                                                          scrollDirection:
+                                                              Axis.vertical,
+                                                          panLimit: 1.1,
+                                                          document:
+                                                              snapshot.data!,
+                                                          zoomSteps: 3,
+                                                          showNavigation: false,
+                                                          showPicker: false,
+
+                                                          // numberPickerConfirmWidget: f,
+                                                        );
+                                                      } else {
+                                                        return const Center(
+                                                            child: Text(
+                                                                'Failed to load PDF'));
+                                                      }
+                                                    } else {
+                                                      return const Center(
+                                                          child:
+                                                              CircularProgressIndicator());
+                                                    }
+                                                  },
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                        // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
+                                      },
+                                  )
+                                ])
+                                    /* Text(
+                                "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
+                                style: GoogleFonts.varela(
+                                    fontStyle: FontStyle.italic, fontSize: 12.sp),
+                                                      ), */
+                                    )),
                         ],
                       ),
-                      if (icon_data != null)
-                        Padding(
-                          padding: EdgeInsets.only(left: 5.w),
-                          child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  icon_data = null;
-                                });
-                              },
-                              child: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: Colors.grey.shade200,
-                                child: const Icon(
-                                  Icons.close,
-                                  size: 18,
-                                ),
-                              )),
-                        )
-                    ],
-                  ),
-
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
-                  if (widget.isRefer)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      // selectedKeyResponsible.contains(item)
-                                      Colors.grey,
-                                  width: 1.5,
-                                ),
-                              ),
-                              height: 16,
-                              width: 20,
-                              child: Theme(
-                                data: ThemeData(
-                                  unselectedWidgetColor: Colors.transparent,
-                                ),
-                                child: Checkbox(
-                                  side: const BorderSide(color: Colors.white),
-                                  activeColor: Colors.white,
-                                  checkColor: Constants.themeBgColor,
-                                  visualDensity: VisualDensity.compact,
-                                  value: termAndConditionOne,
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      if (newValue!) {
-                                        termAndConditionOne = true;
-                                        termAndConditionTwo = false;
-                                      } else {
-                                        termAndConditionOne = false;
-                                      }
-                                    });
-                                    //tify Flutter that the state has changed
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          width: 10.w,
-                        ),
-                        // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
-                        if (widget.isRefer)
-                          Expanded(
-                              child: RichText(
-                                  text: TextSpan(
-                                      text: "I hereby agree to the ",
-                                      style: GoogleFonts.varela(
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: 12.sp,
-                                          color: Colors.black),
-                                      children: <TextSpan>[
-                                TextSpan(
-                                  text: "90 days payment clause",
-                                  style: GoogleFonts.varela(
-                                      wordSpacing: 0.5,
-                                      // decoration: TextDecoration.underline,
-                                      fontStyle: FontStyle.italic,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12.sp,
-                                      color: Colors.black),
-                                ),
-                                TextSpan(
-                                  text: " outlined in the ",
-                                  style: GoogleFonts.varela(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 12.sp,
-                                      color: Colors.black),
-                                ),
-                                TextSpan(
-                                  text: "Terms & Conditions.",
-                                  style: GoogleFonts.varela(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 12.sp,
-                                      color: Colors.blue),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return Scaffold(
-                                            body: Container(
-                                              child: FutureBuilder<PDFDocument>(
-                                                future: PDFDocument.fromAsset(
-                                                    "assets/images/90.pdf"),
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.done) {
-                                                    if (snapshot.hasData) {
-                                                      return PDFViewer(
-                                                        scrollDirection:
-                                                            Axis.vertical,
-                                                        panLimit: 1.1,
-                                                        document:
-                                                            snapshot.data!,
-                                                        zoomSteps: 3,
-                                                        showNavigation: false,
-                                                        showPicker: false,
-
-                                                        // numberPickerConfirmWidget: f,
-                                                      );
-                                                    } else {
-                                                      return const Center(
-                                                          child: Text(
-                                                              'Failed to load PDF'));
-                                                    }
-                                                  } else {
-                                                    return const Center(
-                                                        child:
-                                                            CircularProgressIndicator());
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                      // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
-                                    },
-                                )
-                              ])
-                                  /* Text(
-                              "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
-                              style: GoogleFonts.varela(
-                                  fontStyle: FontStyle.italic, fontSize: 12.sp),
-                                                    ), */
-                                  )),
-                      ],
-                    ),
-                  // const Spacer(),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  if (widget.isRefer && widget.is30) //TODO: 30 days statement.
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color:
-                                      // selectedKeyResponsible.contains(item)
-                                      Colors.grey,
-                                  width: 1.5,
-                                ),
-                              ),
-                              height: 16,
-                              width: 20,
-                              child: Theme(
-                                data: ThemeData(
-                                  unselectedWidgetColor: Colors.transparent,
-                                ),
-                                child: Checkbox(
-                                  activeColor: Colors.transparent,
-                                  checkColor: Constants.themeBgColor,
-                                  visualDensity: VisualDensity.compact,
-                                  value: termAndConditionTwo,
-                                  onChanged: (newValue) {
-                                    setState(() {
-                                      if (newValue!) {
-                                        termAndConditionTwo = true;
-                                        termAndConditionOne = false;
-                                      } else {
-                                        termAndConditionTwo = false;
-                                      }
-                                    });
-                                    //tify Flutter that the state has changed
-                                  },
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        if (widget.isRefer && widget.is30)
-                          Expanded(
-                              child: RichText(
-                                  text: TextSpan(
-                                      text:
-                                          "I hereby agree to the 30 days payment clause outlined in the ",
-                                      style: GoogleFonts.varela(
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: 12.sp,
-                                          color: Colors.black),
-                                      children: <TextSpan>[
-                                TextSpan(
-                                  text: "Terms & Conditions.",
-                                  style: GoogleFonts.varela(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 12.sp,
-                                      color: Colors.blue),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return Scaffold(
-                                            body: Container(
-                                              child: FutureBuilder<PDFDocument>(
-                                                future: PDFDocument.fromAsset(
-                                                    "assets/images/30.pdf"),
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.done) {
-                                                    if (snapshot.hasData) {
-                                                      return PDFViewer(
-                                                        scrollDirection:
-                                                            Axis.vertical,
-                                                        panLimit: 1.1,
-                                                        document:
-                                                            snapshot.data!,
-                                                        zoomSteps: 3,
-                                                        showNavigation: false,
-                                                        showPicker: false,
-
-                                                        // numberPickerConfirmWidget: f,
-                                                      );
-                                                    } else {
-                                                      return const Center(
-                                                          child: Text(
-                                                              'Failed to load PDF'));
-                                                    }
-                                                  } else {
-                                                    return const Center(
-                                                        child:
-                                                            CircularProgressIndicator());
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                      // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
-                                    },
-                                )
-                              ])
-                                  /* Text(
-                              "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
-                              style: GoogleFonts.varela(
-                                  fontStyle: FontStyle.italic, fontSize: 12.sp),
-                                                    ), */
-                                  )),
-                      ],
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          isLoading
-              ? BackdropFilter(
-                  filter: ImageFilter.blur(
-                      sigmaX: 5, sigmaY: 5), // Adjust blur intensity as needed
-                  child: const Center(
-                    child: AbsorbPointer(
-                      absorbing:
-                          true, // Prevent interaction with elements behind
-                      child: CircularProgressIndicator(strokeWidth: 2),
+            isLoading
+                ? BackdropFilter(
+                    filter: ImageFilter.blur(
+                        sigmaX: 5,
+                        sigmaY: 5), // Adjust blur intensity as needed
+                    child: const Center(
+                      child: AbsorbPointer(
+                        absorbing:
+                            true, // Prevent interaction with elements behind
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
                     ),
-                  ),
-                )
-              : const SizedBox()
-        ],
+                  )
+                : const SizedBox()
+          ],
+        ),
       ),
     );
   }
@@ -1377,31 +872,156 @@ class _AddResumeState extends ConsumerState<AddResume> {
     }
   }
 
-  List<UserDataForAddResumeModelResultData>? applicationList = [];
-  List<CoolingModel>? ListOfCoolingData = [];
+  /*  List<UserDataForAddResumeModelResultData>? applicationList = [];
+  List<CoolingModel>? ListOfCoolingData = []; */
   void fetchData() async {
     SharedPreferences pref = await Utils.getSharedPreferences();
-    final userRole =
-        await Utils.getPreferencesValue(pref, ESharedPreferences.role.name);
 
-    final userType = await Utils.getPreferencesValue(
-        pref, ESharedPreferences.user_type.name);
-
+    final usertoken = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_token.name);
     final userId =
         await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
     try {
       setState(() {
         isLoading = true;
       });
-      ApplicationAPI api = ApplicationAPI();
+      if (widget.isRefer) {
+        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            applicantName: firt_name.text,
+            companyName: widget.company_name,
+            contactNo: int.parse(primary_number.text.trim()),
+            interviewRounds: widget.interviewRounds,
+            isExperienced: fresher ? 0 : 1,
+            jobId: widget.jobId,
+            lastName: last_name.text,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            process: widget.process,
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            resume: icon_data,
+            shortListFor: widget.company_id,
+            spoc: widget.spocId,
+            uid: int.tryParse(userId));
+        await JobPostApiService.ReferAndAddResume(
+            referAddResumeModel.toJson(), context, false, userId, true);
+        ref.refresh(fetchAllTalentPoolProvider);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider);
+
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            applicantName: firt_name.text,
+            companyName: widget.company_name,
+            contactNo: int.parse(primary_number.text.trim()),
+            interviewRounds: widget.interviewRounds,
+            isExperienced: fresher ? 0 : 1,
+            jobId: widget.jobId,
+            lastName: last_name.text,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            process: widget.process,
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            resume: icon_data,
+            shortListFor: widget.company_id,
+            spoc: widget.spocId,
+            uid: int.tryParse(userId));
+        await JobPostApiService.ReferAndAddResume(
+            referAddResumeModel.toJson(), context, false, userId, false);
+        ref.refresh(fetchAllTalentPoolProvider);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider);
+
+        /*      final addResumeModel = JobApplicationModel(
+          isRef: 2,
+          uid: 0,
+          resume: icon_data,
+          id: 0,
+          applicantName: firt_name.text,
+          lastName: last_name.text,
+          contactNo: int.parse(primary_number.text.trim()),
+          qualification: graduate == true ? "Graduate" : "Under Graduate",
+          isExperienced: fresher ? 0 : 1,
+          companyName: widget.company_name,
+          process: widget.process,
+          level: widget.role,
+          naturofwork: widget.nature_of_work,
+          shortListFor: widget.company_id,
+          status_id: 1, //TODO : directly in interviewBay..
+          hrStatusId: 14,
+          /*  status: "IB4",  //TODO: before changes in status...
+            subStatus: "Shortlist", */
+          sourceId: widget.sourceId,
+          sourceName: widget.sourceName,
+          jobid: widget.jobId,
+          spoc: (userType == 3 && userRole == "3")
+              ? userId
+              : (userType == 3 && userRole == "1")
+                  ? widget.report_to
+                  : 2,
+          alternateNo:
+              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
+          dol: DateTime.now(),
+          interview_rounds: widget.interviewRounds,
+          // ... fill in other properties as needed
+        );
+        final jsonData = addResumeModel.toJson();
+        await JobPostApiService.addResume(
+          jsonData,
+          context,
+          false,
+        );
+        ref.refresh(fetchAllTalentPoolProvider);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider); */
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching data: $e');
+      showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+            error: true,
+            onClose: () {
+              setState(() {
+                isLoading = false;
+              });
+              Navigator.pop(context);
+            },
+            subtitle: "Error While Uplaoding. Connect with tech Team.",
+          );
+        },
+      );
+    }
+  }
+
+  /*   ApplicationAPI api = ApplicationAPI();
       applicationList =
           await api.getUserForAddResume(int.parse(primary_number.text));
       ListOfCoolingData = await api.fetchCoolingData();
 
       CoolingModel? recentElement;
-      DateTime? mostRecentDol;
+      DateTime? mostRecentDol; */
 
-      for (var element in ListOfCoolingData!) {
+  /*  for (var element in ListOfCoolingData!) {
         //TODO:: To check recent  dol from the list
         if ((element.contactNo == int.parse(primary_number.text.trim()) ||
                 element.contactNo == int.tryParse(secondry.text.trim())) &&
@@ -1410,9 +1030,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
           recentElement = element;
           mostRecentDol = element.dol;
         }
-      }
-      // print(ListOfCoolingData);
-      if ((ListOfCoolingData!.any(
+      } */
+  // print(ListOfCoolingData);
+  /*  if ((ListOfCoolingData!.any(
           (element) => //TODO:: here check contact number and then dol == null that means lead is in application.
               (element.contactNo == int.parse(primary_number.text.trim()) ||
                   element.contactNo == int.tryParse(secondry.text.trim())) &&
@@ -1433,7 +1053,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
             );
           },
         );
-      } else if ((ListOfCoolingData!.any((element) =>
+      } */ /* else if ((ListOfCoolingData!.any((element) =>
           recentElement !=
               null && //TODO:: here first geting recent dol after comparing the contact number and thne !null for dol, after that cooling period of 30 days..
           isDifferenceLessThan30Days(mostRecentDol, DateTime.now())))) {
@@ -1453,7 +1073,8 @@ class _AddResumeState extends ConsumerState<AddResume> {
             );
           },
         );
-      } else if ((ListOfCoolingData!.any(
+      } */
+  /*  else if ((ListOfCoolingData!.any(
           (element) => //TODO:: here it check same contact number and thn if dol is more thne 30 days before thn check the status is no interviewBay.
               (element.contactNo == int.parse(primary_number.text.trim()) ||
                   element.contactNo == int.tryParse(secondry.text.trim())) &&
@@ -1476,14 +1097,17 @@ class _AddResumeState extends ConsumerState<AddResume> {
             );
           },
         );
-      } else {
-        if (widget.isRefer) {
+      } */
+
+  /* String id = await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_id.name);
+              var usertoken = await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_token.name);
           final addResumeModel = JobApplicationModel(
             resume: icon_data,
             isRef: 1,
             uid: 0,
-            rid: await Utils.getPreferencesValue(
-                null, ESharedPreferences.user_id.name),
+            rid: int.tryParse(id),
             id: 0,
             applicantName: firt_name.text,
             lastName: last_name.text,
@@ -1519,57 +1143,10 @@ class _AddResumeState extends ConsumerState<AddResume> {
 
           setState(() {
             isLoading = false;
-          });
-        } else {
-          final addResumeModel = JobApplicationModel(
-            isRef: 2,
-            uid: 0,
-            resume: icon_data,
-            id: 0,
-            applicantName: firt_name.text,
-            lastName: last_name.text,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status_id: 1, //TODO : directly in interviewBay..
-            hrStatusId: 14,
-            /*  status: "IB4",  //TODO: before changes in status...
-            subStatus: "Shortlist", */
-            sourceId: widget.sourceId,
-            sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            spoc: (userType == 3 && userRole == "3")
-                ? userId
-                : (userType == 3 && userRole == "1")
-                    ? widget.report_to
-                    : 2,
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            dol: DateTime.now(),
-            interview_rounds: widget.interviewRounds,
-            // ... fill in other properties as needed
-          );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPoolProvider);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllExecutiveProvide);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
+          }); */
 
 //TODO old code which is check that the refer candidate is exiting user or not.....{
-      /*   if (applicationList![0].id == 0) {
+  /*   if (applicationList![0].id == 0) {
           // Call the `addResume` function with the specific data
           final addResumeModel = JobApplicationModel(
             resume: icon_data,
@@ -1732,13 +1309,171 @@ class _AddResumeState extends ConsumerState<AddResume> {
           });
         } */
 
-      //TODO: old code which is check that the refer candidate is exiting user or not  .........}
+  //TODO: old code which is check that the refer candidate is exiting user or not  .........}
 
-      // Use the applicationList as needed
-      // For example, you can print the groupName of each Application object:
-      // for (var application in applicationList) {
-      // print(applicationList.map((e) => e.value));
-      // }
+  // Use the applicationList as needed
+  // For example, you can print the groupName of each Application object:
+  // for (var application in applicationList) {
+  // print(applicationList.map((e) => e.value));
+  // }
+
+//TODO:: Add Line Up Function......
+
+  void AddLineUpToApiFunction() async {
+    SharedPreferences pref = await Utils.getSharedPreferences();
+
+    final userId =
+        await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
+
+    final usertoken = await Utils.getPreferencesValue(
+        pref, ESharedPreferences.user_token.name);
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      if (widget.isRefer) {
+        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            applicantName: firt_name.text,
+            companyName: widget.company_name,
+            contactNo: int.parse(primary_number.text.trim()),
+            interviewRounds: widget.interviewRounds,
+            isExperienced: fresher ? 0 : 1,
+            jobId: widget.jobId,
+            lastName: last_name.text,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            process: widget.process,
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            resume: icon_data,
+            shortListFor: widget.company_id,
+            spoc: widget.spocId,
+            uid: int.tryParse(userId));
+        await JobPostApiService.ReferAndAddResume(
+            referAddResumeModel.toJson(), context, false, usertoken, true);
+        ref.refresh(fetchAllTalentPoolProvider);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider);
+        /*  final addResumeModel = JobApplicationModel(
+          resume: icon_data,
+          isRef: 1,
+          uid: 0,
+          rid: await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_id.name),
+          id: 0,
+          applicantName: firt_name.text,
+          lastName: last_name.text,
+          contactNo: int.parse(primary_number.text.trim()),
+          qualification: graduate == true ? "Graduate" : "Under Graduate",
+          isExperienced: fresher ? 0 : 1,
+          companyName: widget.company_name,
+          process: widget.process,
+          level: widget.role,
+          naturofwork: widget.nature_of_work,
+          shortListFor: widget.company_id,
+          status_id: 3,
+          hrStatusId: 11,
+          //  status: "TP1", //TODO in use before changes in status ..
+          alternateNo:
+              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
+          // subStatus: "Shortlist",
+          sourceId: 0,
+          //sourceName: widget.sourceName,
+          jobid: widget.jobId,
+          spoc: widget.report_to == 0 ? 2 : widget.report_to,
+          // dol: DateTime.now()
+          // ... fill in other properties as needed
+        );
+        final jsonData = addResumeModel.toJson();
+        await JobPostApiService.addResume(jsonData, context, false);
+        ref.refresh(fetchAllTalentPoolProvider);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider); */
+
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
+            alternateNo: secondry.text.isNotEmpty
+                ? int.parse(secondry.text.trim())
+                : null,
+            applicantName: firt_name.text,
+            companyName: widget.company_name,
+            contactNo: int.parse(primary_number.text.trim()),
+            interviewRounds: widget.interviewRounds,
+            isExperienced: fresher ? 0 : 1,
+            jobId: widget.jobId,
+            lastName: last_name.text,
+            level: widget.role,
+            naturofwork: widget.nature_of_work,
+            process: widget.process,
+            qualification: graduate == true ? "Graduate" : "Under Graduate",
+            resume: icon_data,
+            shortListFor: widget.company_id,
+            spoc: widget.spocId,
+            uid: int.tryParse(userId));
+        await JobPostApiService.ReferAndAddResume(
+            referAddResumeModel.toJson(), context, false, usertoken, false);
+        ref.refresh(fetchAllTalentPoolProvider);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider);
+        /*  final addResumeModel = JobApplicationModel(
+          isRef: 2,
+          uid: 0,
+          resume: icon_data,
+          id: 0,
+          applicantName: firt_name.text,
+          lastName: last_name.text,
+          contactNo: int.parse(primary_number.text.trim()),
+          qualification: graduate == true ? "Graduate" : "Under Graduate",
+          isExperienced: fresher ? 0 : 1,
+          companyName: widget.company_name,
+          process: widget.process,
+          level: widget.role,
+          naturofwork: widget.nature_of_work,
+          shortListFor: widget.company_id,
+          status_id: 0, //TODO : Directly in line-up.
+          hrStatusId: 20,
+          /*  status: "IB4",  //TODO: before changes in status...
+            subStatus: "Shortlist", */
+          sourceId: widget.sourceId,
+          sourceName: widget.sourceName,
+          jobid: widget.jobId,
+          spoc: (userType == 3 && userRole == "3")
+              ? userId
+              : (userType == 3 && userRole == "1")
+                  ? widget.report_to
+                  : 2,
+          alternateNo:
+              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
+          dol: DateTime.now(),
+          interview_rounds: widget.interviewRounds,
+          // ... fill in other properties as needed
+        );
+        final jsonData = addResumeModel.toJson();
+        await JobPostApiService.addResume(
+          jsonData,
+          context,
+          false,
+        );
+        ref.refresh(fetchAllTalentPoolProvider);
+        ref.refresh(fetchAllApplicantProvider);
+        ref.refresh(fetchAllExecutiveProvide);
+        ref.refresh(fetchAllReferalProvider);
+        ref.refresh(fetchAllApplyProvider); */
+        setState(() {
+          isLoading = false;
+        });
+      }
     } catch (e) {
       print('Error fetching data: $e');
       showDialog(
@@ -1758,25 +1493,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         },
       );
     }
-  }
-
-//TODO:: Add Line Up Function......
-
-  void AddLineUpToApiFunction() async {
-    SharedPreferences pref = await Utils.getSharedPreferences();
-    final userRole =
-        await Utils.getPreferencesValue(pref, ESharedPreferences.role.name);
-
-    final userType = await Utils.getPreferencesValue(
-        pref, ESharedPreferences.user_type.name);
-
-    final userId =
-        await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      ApplicationAPI api = ApplicationAPI();
+    /*  ApplicationAPI api = ApplicationAPI();
       applicationList =
           await api.getUserForAddResume(int.parse(primary_number.text));
       ListOfCoolingData = await api.fetchCoolingData();
@@ -1859,116 +1576,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
             );
           },
         );
-      } else {
-        if (widget.isRefer) {
-          final addResumeModel = JobApplicationModel(
-            resume: icon_data,
-            isRef: 1,
-            uid: 0,
-            rid: await Utils.getPreferencesValue(
-                null, ESharedPreferences.user_id.name),
-            id: 0,
-            applicantName: firt_name.text,
-            lastName: last_name.text,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status_id: 3,
-            hrStatusId: 11,
-            //  status: "TP1", //TODO in use before changes in status ..
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            // subStatus: "Shortlist",
-            sourceId: 0,
-            //sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            spoc: widget.report_to == 0 ? 2 : widget.report_to,
-            // dol: DateTime.now()
-            // ... fill in other properties as needed
-          );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPoolProvider);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllExecutiveProvide);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-
-          setState(() {
-            isLoading = false;
-          });
-        } else {
-          final addResumeModel = JobApplicationModel(
-            isRef: 2,
-            uid: 0,
-            resume: icon_data,
-            id: 0,
-            applicantName: firt_name.text,
-            lastName: last_name.text,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status_id: 0, //TODO : Directly in line-up.
-            hrStatusId: 20,
-            /*  status: "IB4",  //TODO: before changes in status...
-            subStatus: "Shortlist", */
-            sourceId: widget.sourceId,
-            sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            spoc: (userType == 3 && userRole == "3")
-                ? userId
-                : (userType == 3 && userRole == "1")
-                    ? widget.report_to
-                    : 2,
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            dol: DateTime.now(),
-            interview_rounds: widget.interviewRounds,
-            // ... fill in other properties as needed
-          );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPoolProvider);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllExecutiveProvide);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-            error: true,
-            onClose: () {
-              setState(() {
-                isLoading = false;
-              });
-              Navigator.pop(context);
-            },
-            subtitle: "Error While Uplaoding. Connect with tech Team.",
-          );
-        },
-      );
-    }
+      } */
   }
 
   bool isLoading = false;
@@ -2014,7 +1622,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Primary number is mandatory");
         },
       );
-    } else if (graduate == false && underGraduate == false) {
+    } else if (primary_number.text == secondry.text) {
       showDialog(
         context: context,
         builder: (context) {
@@ -2022,22 +1630,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
               error: true,
               onClose: () {
                 Navigator.pop(context);
-                // text3.requestFocus();
+                text2.requestFocus();
               },
-              subtitle: "Select any one option from education");
-        },
-      );
-    } else if (fresher == false && experience == false) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                // text3.requestFocus();
-              },
-              subtitle: "Select any one option from work status");
+              subtitle: "Primary and secondary number could not be same");
         },
       );
     } else if (primary_number.text.length < 10) {
@@ -2144,6 +1739,32 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Provide valid Secondary number");
         },
       );
+    } else if (graduate == false && underGraduate == false) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                // text3.requestFocus();
+              },
+              subtitle: "Select any one option from education");
+        },
+      );
+    } else if (fresher == false && experience == false) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                // text3.requestFocus();
+              },
+              subtitle: "Select any one option from work status");
+        },
+      );
     } else if (secondry.text == widget.useAlternateNumber.toString()) {
       showDialog(
         context: context,
@@ -2237,6 +1858,68 @@ class _AddResumeState extends ConsumerState<AddResume> {
                 text3.requestFocus();
               },
               subtitle: "Primary number is mandatory");
+        },
+      );
+    } else if (primary_number.text == widget.userNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (secondry.text == widget.userNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (primary_number.text == widget.useAlternateNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              // text3.requestFocus();
+            },
+          );
+        },
+      );
+    } else if (primary_number.text.startsWith('0')) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Provide valid number");
+        },
+      );
+    } else if (secondry.text.startsWith('0')) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return CustomDialogueForAddResume(
+              error: true,
+              onClose: () {
+                Navigator.pop(context);
+                text2.requestFocus();
+              },
+              subtitle: "Provide valid Secondary number");
         },
       );
     } else if (graduate == false && underGraduate == false) {

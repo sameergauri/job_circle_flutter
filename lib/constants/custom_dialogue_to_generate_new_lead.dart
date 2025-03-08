@@ -846,7 +846,7 @@ class _DialogueToGenerateLeadFromLeadDetailsState
                             );
                             final jsonData = addResumeModel.toJson();
                             await JobPostApiService.addResume(
-                                jsonData, context, false);
+                                jsonData, context, false,);
 
                             Navigator.pop(context);
                             closeCustomDialogue();

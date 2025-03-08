@@ -9,34 +9,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/models/active_state_model.dart';
-import 'package:job_circle/models/cooling.dart';
 import 'package:job_circle/models/new_job_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
-import 'package:job_circle/screens/contact_us.dart';
-import 'package:job_circle/screens/jobs/Applied_jobs.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/job_details_for_cc.dart';
 import 'package:job_circle/screens/jobs/job_form.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
-import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/screens/new_jobs/filter_jobs.dart';
 import 'package:job_circle/screens/new_jobs/location_selector.dart';
-import 'package:job_circle/screens/new_jobs/profile_model.dart';
+import 'package:job_circle/screens/new_jobs/profile_jobs_model.dart';
 import 'package:job_circle/screens/profile/profile_summary_partner.dart';
-import 'package:job_circle/service/data_get_api_service.dart';
+import 'package:job_circle/screens/profile/user_profile.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:screenshot/screenshot.dart';
+// import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:whatsapp_share2/whatsapp_share2.dart';
 
 import '../../enums/enums.dart';
 import '../../themes/colors.dart';
@@ -58,6 +56,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
   int? cutTab;
 
   final ScrollController _scrollController = ScrollController();
+  final screenshotController = ScreenshotController();
 
   void closeDrawer() {
     Scaffold.of(context).closeDrawer();
@@ -150,7 +149,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     });
   }
 
-  Widget customTab(String title, String img, int select, ProfileModel model) {
+  Widget customTab(
+      String title, String img, int select, ProfileModelForJob model) {
     return Container(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
         decoration: BoxDecoration(
@@ -210,7 +210,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
 
   late SharedPreferences prefs;
 
-  bool isTabFilterSelected(ProfileModel model) {
+  bool isTabFilterSelected(ProfileModelForJob model) {
     final jobController = ref.watch(jobsProvider);
     if (cutTab == 6) {
       return jobController.isFavoriteTabSelected;
@@ -258,8 +258,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
   Widget build(BuildContext context) {
     final jobsController = ref.watch(jobsProvider);
     final profileProfile = ref.watch(profileSummaryProvider);
-    var userid =
-        Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+    /*  var userid =
+        Utils.getPreferencesValue(null, ESharedPreferences.user_id.name); */
     List<JobsModel> favoriteJobs = jobsController.jobs
         .where((job) => job.isFav == 1)
         .where((element) => element.userId == profileProfile.value!.id)
@@ -288,18 +288,18 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     return profileProfile.when(
       data: (data) {
         setState(() {
-          if (data.is_freelancer == 2) {
+          if (data.isFreelancer == 2) {
             //TODO:: 1 = JobSeeker, 2 = Freelancer, 0 = Both. // login type for user.
             freelancer = true;
             jobSeeker = false;
-          } else if (data.is_freelancer == 1) {
+          } else if (data.isFreelancer == 1) {
             jobSeeker = true;
             freelancer = false;
           }
         });
         if (jobsController.isLoading) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: Constants.darkBlue),
           );
         }
         return Scaffold(
@@ -308,10 +308,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
             borderRadius:
                 const BorderRadius.only(topRight: Radius.circular(15)),
             child: Drawer(
-              child: ListView(
-                padding: const EdgeInsets.all(0),
+              child: Column(
                 children: [
                   Container(
+                    width: double.maxFinite,
                     color: Constants.borderColor,
                     child: Padding(
                       padding: EdgeInsets.only(
@@ -324,21 +324,25 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          data.profilePic == null
+                          data.profilePic == null || data.profilePic == " "
                               ? InkWell(
                                   onTap: () async {
+                                    ref.refresh(ProfileDataProvider);
                                     Navigator.of(context).pop();
 
                                     data.usertype != 3
-                                        ? await Navigator.pushNamed(context,
-                                            ERoute.profile_summary.name)
+                                        ? /* await Navigator.pushNamed(context,
+                                            ERoute.profile_summary.name) */
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const UserProfile()))
                                         : Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: ((context) =>
-                                                    ProfileSummaryPartner(
-                                                        role: data.role
-                                                            .toString()))));
+                                                    const PartnerProfile())));
                                     /*  await Navigator.pushNamed(
                                             context,
                                             ERoute
@@ -366,15 +370,16 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   onTap: () async {
                                     Navigator.of(context).pop();
                                     data.usertype != 3
-                                        ? await Navigator.pushNamed(context,
-                                            ERoute.profile_summary.name)
+                                        ? Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const UserProfile()))
                                         : Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    ProfileSummaryPartner(
-                                                        role: data.role
-                                                            .toString())));
+                                                    const PartnerProfile()));
 
                                     closeDrawer(); // Call the function to close the drawer
                                   },
@@ -392,19 +397,19 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     ).image,
                                   ),
                                 ),
-                          Text(
-                            "${data.firstName.toString().toTitleCase()} ${data.lastName.toString().toTitleCase()}",
-                            style: GoogleFonts.varela(
-                                fontSize: 16.sp,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Text(data.userLocation.toString(),
-                              style: GoogleFonts.varela(
-                                fontSize: 14.sp,
-                                color: Colors.black,
-                              )),
-                          if (data.usertype == 1)
+                          customTextForWeather(
+                              title:
+                                  "${data.firstName.toString().toTitleCase()} ${data.lastName.toString().toTitleCase()}",
+                              fontSize: 16,
+                              color: Constants.black,
+                              fontWeight: FontWeight.bold),
+                          customTextForMonst(
+                            title:
+                                formatLocality(data.user_locality.toString()),
+                            fontSize: 12,
+                            color: Constants.subtitleclr,
+                          )
+                          /*  if (data.usertype == 1)   //TODO:: Button to switch jobseekr to freelancer....
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 4.w),
                               decoration: BoxDecoration(
@@ -450,37 +455,45 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   ),
                                 ],
                               ),
-                            ),
+                            ), */
                         ],
                       ),
                     ),
                   ),
-                  if (data.usertype == 1 && !jobSeeker)
+                  if (data.usertype == 1)
                     ExpansionTile(
+                      dense: true,
+                      textColor: Constants.darkBlue,
+
+                      iconColor: Constants.darkBlue,
+                      collapsedIconColor: Constants.darkBlue,
+                      //  collapsedTextColor: Constants.darkBlue,
+                      //  collapsedIconColor: Constants.black,
                       leading: Image.network(
-                        "https://cdn-icons-png.flaticon.com/128/1570/1570887.png",
-                        height: 22.h,
-                        color: Colors.black,
+                        'https://assets.api.uizard.io/api/cdn/stream/768b2a61-82db-4e34-b49b-1e8a12feea17.png',
+                        height: 20,
+                        color: Constants.darkBlue,
                       ),
-                      title: Text(
-                        'Account',
-                        style: GoogleFonts.varela(
-                            fontSize: 14.sp, fontWeight: FontWeight.bold),
+                      title: const customTextForWeather(
+                        title: 'Referral Program',
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                        color: Constants.darkBlue,
                       ),
                       children: [
                         ListTile(
+                          dense: true,
                           minLeadingWidth: 0.0,
                           minVerticalPadding: 5.1,
                           leading: Image.network(
-                            "https://cdn-icons-png.flaticon.com/128/1159/1159679.png",
-                            height: 22.h,
+                            'https://assets.api.uizard.io/api/cdn/stream/5fdfd683-2909-4188-b2e4-2f02ad6e7f91.png',
+                            height: 20,
                             color: Colors.black,
                           ),
-                          title: Text(
-                            'View & Generate Invoice',
-                            style: GoogleFonts.varela(
-                                fontSize: 14.sp, fontWeight: FontWeight.bold),
-                          ),
+                          title: const customTextForWeather(
+                              title: 'View & Generate Invoice',
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -499,18 +512,18 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           },
                         ),
                         ListTile(
+                          dense: true,
                           minLeadingWidth: 0.0,
                           minVerticalPadding: 5.1,
                           leading: Image.network(
-                            "https://cdn-icons-png.flaticon.com/128/1019/1019709.png",
-                            height: 22.h,
+                            'https://assets.api.uizard.io/api/cdn/stream/e512a1a4-0c69-49d2-a063-fd4f83727d79.png',
+                            height: 20,
                             color: Colors.black,
                           ),
-                          title: Text(
-                            'Payment Status',
-                            style: GoogleFonts.varela(
-                                fontSize: 14.sp, fontWeight: FontWeight.bold),
-                          ),
+                          title: const customTextForWeather(
+                              title: 'Payment Status',
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -520,18 +533,18 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           },
                         ),
                         ListTile(
+                          dense: true,
                           minLeadingWidth: 0.0,
                           minVerticalPadding: 5.1,
                           leading: Image.network(
-                            "https://cdn-icons-png.flaticon.com/128/2830/2830155.png",
-                            height: 22.h,
+                            'https://assets.api.uizard.io/api/cdn/stream/68a2443e-6941-40d9-8948-f61e8a319a72.png',
+                            height: 20,
                             color: Colors.black,
                           ),
-                          title: Text(
-                            'My Banking Detail',
-                            style: GoogleFonts.varela(
-                                fontSize: 14.sp, fontWeight: FontWeight.bold),
-                          ),
+                          title: const customTextForWeather(
+                              title: 'My Banking Detail',
+                              fontSize: 12,
+                              fontWeight: FontWeight.normal),
                           onTap: () {
                             Navigator.push(
                                 context,
@@ -550,40 +563,41 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         ),
                       ],
                     ),
-                  if (data.usertype == 1 && jobSeeker)
-                    ExpansionTile(
+                  if (data.usertype == 1)
+                    ListTile(
+                      dense: true,
+                      minLeadingWidth: 0.0,
+                      minVerticalPadding: 5.1,
+                      leading: Image.network(
+                        'https://assets.api.uizard.io/api/cdn/stream/d19cf674-b262-4aa5-86b5-32d1942f8966.png',
+                        //color: Colors.black,
+                        height: 20,
+                      ),
+                      title: const customTextForWeather(
+                          title: 'Write to us',
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal),
+                      onTap: () async {
+                        await launchUrl(
+                            Uri.parse("mailto:support@jobcircle.co.in?"));
+                        closeDrawer();
+                      },
+                    ),
+                  /*  ExpansionTile(
                       leading: Image.asset(
                         "assets/images/contactus.png",
                         height: 20.h,
                       ),
                       title: Text(
-                        'Report Fraud',
+                        'Contact Us',
                         style: GoogleFonts.varela(
                             fontSize: 14.sp, fontWeight: FontWeight.bold),
                       ),
                       children: [
-                        ListTile(
-                          minLeadingWidth: 0.0,
-                          minVerticalPadding: 5.1,
-                          leading: Image.asset(
-                            "assets/images/email.png",
-                            color: Colors.black,
-                            height: 25.sp,
-                          ),
-                          title: Text(
-                            'rahul@jobcircle.co.in',
-                            style: GoogleFonts.varela(
-                                fontSize: 14.sp, fontWeight: FontWeight.bold),
-                          ),
-                          onTap: () async {
-                            await launchUrl(
-                                Uri.parse("mailto:rahul@jobcircle.co.in?"));
-                            closeDrawer();
-                          },
-                        ),
+                        
                       ],
-                    ),
-                  if (data.usertype == 1 && !jobSeeker)
+                    ), */
+                  /*   if (data.usertype == 1)
                     ListTile(
                       minLeadingWidth: 0.0,
                       minVerticalPadding: 5.1,
@@ -604,37 +618,36 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         closeDrawer();
                         // Navigator.pop(context);
                       },
-                    ),
+                    ), */
                   ListTile(
+                    dense: true,
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
                     leading: Image.asset(
                       "assets/images/share.png",
-                      height: 20.h,
+                      height: 18,
                     ),
-                    title: Text(
-                      'Share App',
-                      style: GoogleFonts.varela(
-                          fontSize: 14.sp, fontWeight: FontWeight.bold),
-                    ),
+                    title: const customTextForWeather(
+                        title: 'Share App',
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal),
                     onTap: () {
                       share();
                       Navigator.pop(context);
                     },
                   ),
                   ListTile(
+                    dense: true,
                     minLeadingWidth: 0.0,
                     minVerticalPadding: 5.1,
                     leading: Image.asset(
-                      "assets/images/logout.png",
-                      height: 22.h,
-                      color: Colors.red,
+                      'assets/images/logout.png',
+                      height: 20,
                     ),
-                    title: Text(
-                      'LogOut',
-                      style: GoogleFonts.varela(
-                          fontSize: 14.sp, fontWeight: FontWeight.bold),
-                    ),
+                    title: const customTextForWeather(
+                        title: 'LogOut',
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal),
                     onTap: () {
                       prefs.clear();
                       jobsController.searchController.clear();
@@ -649,6 +662,84 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                       Navigator.pop(context);
                     },
                   ),
+                  const Spacer(),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            final url = Uri.parse(
+                                "https://www.linkedin.com/company/job-circle/");
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                          child: CircleAvatar(
+                              backgroundColor: Colors.grey.shade300,
+                              child: Image.asset(
+                                "assets/images/linkdin.png",
+                                height: 18.sp,
+                              )),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            final url = Uri.parse(
+                                "https://whatsapp.com/channel/0029VaWd8KB7NoZwpZQLCN35");
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                          child: CircleAvatar(
+                              backgroundColor: Colors.grey.shade300,
+                              child: Image.asset(
+                                "assets/images/whatsapp.png",
+                                height: 18.sp,
+                                color: Colors.green,
+                              )),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            final url = Uri.parse(
+                                "https://www.instagram.com/jobcircleofficial?igsh=MTZzbXJ4dGJjaGt3ag==");
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                          child: CircleAvatar(
+                              backgroundColor: Colors.grey.shade300,
+                              child: Image.asset(
+                                "assets/images/instagram.png",
+                                height: 18.sp,
+                              )),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            final url = Uri.parse(
+                                "https://www.facebook.com/JobCircleOfficial");
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              throw 'Could not launch $url';
+                            }
+                          },
+                          child: CircleAvatar(
+                              backgroundColor: Colors.grey.shade300,
+                              child: Image.asset(
+                                "assets/images/facebook.png",
+                                height: 18.sp,
+                              )),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
@@ -667,7 +758,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                   child: CircleAvatar(
                       backgroundColor: Constants.bgColorWhite,
                       radius: 2.r,
-                      child: data.profilePic != null
+                      child: data.profilePic != null && data.profilePic != " "
                           ? CircleAvatar(
                               backgroundColor: Constants.borderColor,
                               radius: 35,
@@ -813,8 +904,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                 ),
               ),
             ),
-            toolbarHeight: MediaQuery.of(context).size.width *
-                0.11, //TODO : AppBar height and remove extra space above the appbar.
+            /*   toolbarHeight: MediaQuery.of(context).size.width *
+                0.11, */ //TODO : AppBar height and remove extra space above the appbar.
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -839,9 +930,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         hintText:
                             'Search Jobs by ${searchFields[currentSearchFieldIndex]}',
                         hintMaxLines: 1,
-                        hintStyle: GoogleFonts.varela(
+                        hintStyle: GoogleFonts.merriweather(
                           color: Colors.grey,
-                          fontSize: 14.sp,
+                          fontSize: 14,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.grey.shade400),
@@ -852,7 +943,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                           borderRadius: BorderRadius.circular(8.r),
                         ),
                       ),
-                      style: GoogleFonts.varela(color: Colors.black),
+                      style: GoogleFonts.merriweather(color: Colors.black),
                     ),
                   ),
                 ),
@@ -901,18 +992,17 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                   },
                                 );
                               },
-                              child: Text(
-                                jobsController.selectedLocation.isNotEmpty
-                                    ? jobsController.selectedLocation
-                                    : 'City',
-                                style: GoogleFonts.varela(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  // height: 12.0,
-                                  // textBaseline: TextBaseline.alphabetic,
-                                  // decoration: TextDecoration.underline,
-                                ),
+                              child: customTextForWeather(
+                                title:
+                                    jobsController.selectedLocation.isNotEmpty
+                                        ? jobsController.selectedLocation
+                                        : 'City',
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                // height: 12.0,
+                                // textBaseline: TextBaseline.alphabetic,
+                                // decoration: TextDecoration.underline,
                               ),
                             ),
                           ],
@@ -1082,7 +1172,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                 } else {
                                   // handle the case where str is null
                                 }
-                                return GestureDetector(
+                                return InkWell(
                                   onTap: () async {
                                     var usertype =
                                         await Utils.getPreferencesValue(prefs,
@@ -1100,15 +1190,10 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                 id: item.id,
                                                 Applies: false,
                                                 referal: false,
-                                                userid: userid,
-                                                is_freelancer:
-                                                    data.usertype == 3
-                                                        ? 3
-                                                        : data.is_freelancer
-                                                                ?.toInt() ??
-                                                            0,
-                                                userType: usertype,
-                                                userrole: userrole,
+                                                userid: int.tryParse(userid)!,
+                                                userType: int.tryParse(
+                                                    usertype.toString()),
+                                                userrole: userrole.toString(),
                                               )
                                             : JobDetails(
                                                 id: item.id,
@@ -1117,247 +1202,172 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                 is_freelancer:
                                                     data.usertype == 3
                                                         ? 3
-                                                        : data.is_freelancer
+                                                        : data.isFreelancer
                                                                 ?.toInt() ??
                                                             0,
-                                                userType: usertype,
-                                                userrole: userrole,
+                                                userType: int.tryParse(
+                                                    usertype.toString()),
+                                                // userrole: userrole,
                                               );
                                       },
                                     ));
                                   },
                                   child: Stack(
                                     children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 10),
-                                        child: Stack(
-                                          children: [
-                                            Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                        offset: const Offset(
-                                                            0.5, 2),
-                                                        blurRadius: 2,
-                                                        spreadRadius: 2,
-                                                        color: Colors
-                                                            .grey.shade200)
-                                                  ],
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.r)),
-                                              margin: const EdgeInsets.only(
-                                                  left: 10, right: 10, top: 1),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  item.sponsored_position != //TODO:: Urgent Hiring.
-                                                          null
-                                                      ? Container(
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                  top: 5.h),
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                                  vertical: 2.h,
-                                                                  horizontal:
-                                                                      4.w),
-                                                          decoration: BoxDecoration(
-                                                              borderRadius: BorderRadius.only(
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                          8.r),
-                                                                  bottomRight: Radius
-                                                                      .circular(
-                                                                          8.r)),
-                                                              color: Colors
-                                                                  .orange),
-                                                          child: Row(
-                                                            mainAxisSize:
-                                                                MainAxisSize
-                                                                    .min,
-                                                            children: [
-                                                              Icon(
-                                                                Icons.star,
-                                                                size: 15.sp,
+                                      Stack(
+                                        children: [
+                                          Container(
+                                            /*  decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                      offset: const Offset(
+                                                          0.5, 2),
+                                                      blurRadius: 2,
+                                                      spreadRadius: 2,
+                                                      color: Colors
+                                                          .grey.shade200)
+                                                ],
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        8.r)), */
+                                            margin: const EdgeInsets.only(
+                                              left: 10,
+                                              right: 10,
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                item.sponsored_position != //TODO:: Urgent Hiring.
+                                                        null
+                                                    ? Container(
+                                                        margin: const EdgeInsets
+                                                            .only(top: 5),
+                                                        padding: EdgeInsets
+                                                            .symmetric(
+                                                                vertical: 2.h,
+                                                                horizontal:
+                                                                    4.w),
+                                                        decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.only(
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        8.r),
+                                                                bottomRight: Radius
+                                                                    .circular(
+                                                                        8.r)),
+                                                            color:
+                                                                Colors.orange),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            Icon(
+                                                              Icons.star,
+                                                              size: 15.sp,
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                            const customTextForWeather(
+                                                                title:
+                                                                    "Urgent Hiring",
                                                                 color: Colors
                                                                     .white,
-                                                              ),
-                                                              Text(
-                                                                "Urgent Hiring",
-                                                                style: GoogleFonts.varela(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        12.sp),
-                                                              )
-                                                            ],
-                                                          ),
-                                                        )
-                                                      : const SizedBox(),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 5.w,
-                                                        right: 5.w,
-                                                        bottom: 5.h,
-                                                        top: 5.h),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceBetween,
-                                                          children: [
-                                                            Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .only(
-                                                                      left: 10),
-                                                              child: Column(
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Row(
-                                                                    children: [
-                                                                      Text(
-                                                                        item.roleName ??
-                                                                            '',
-                                                                        maxLines:
-                                                                            2,
-                                                                        overflow:
-                                                                            TextOverflow.ellipsis,
-                                                                        style: GoogleFonts.varela(
-                                                                            fontWeight:
-                                                                                FontWeight.bold,
-                                                                            fontSize: 16.sp),
-                                                                      ),
-                                                                      SizedBox(
-                                                                        width:
-                                                                            5.w,
-                                                                      ),
-                                                                      if (item
-                                                                          .languagesKnown!
-                                                                          .isNotEmpty)
-                                                                        Image
-                                                                            .asset(
-                                                                          "assets/images/languages.png",
-                                                                          height:
-                                                                              18.h,
-                                                                        ),
-                                                                      SizedBox(
-                                                                        width:
-                                                                            5.w,
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .start,
-                                                                    children: [
-                                                                      if (item.process !=
-                                                                          null)
-                                                                        Text(
-                                                                          item.process
-                                                                              .toString(),
-                                                                          style: GoogleFonts.varela(
-                                                                              fontWeight: FontWeight.w500,
-                                                                              fontSize: 14.sp),
-                                                                        ),
-                                                                      const SizedBox(
-                                                                        width:
-                                                                            2,
-                                                                      ),
-                                                                      Text(
-                                                                        "||",
-                                                                        style: GoogleFonts
-                                                                            .varela(
-                                                                          fontWeight:
-                                                                              FontWeight.w500,
-                                                                        ),
-                                                                      ),
-                                                                      const SizedBox(
-                                                                        width:
-                                                                            2,
-                                                                      ),
-                                                                      // if (item["0"] != null)
-                                                                      Text(
-                                                                        item.natureOfWork
-                                                                            .toString(),
-                                                                        style: GoogleFonts.varela(
-                                                                            fontWeight:
-                                                                                FontWeight.w500,
-                                                                            fontSize: 14.sp),
-                                                                      )
-                                                                    ],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 12)
                                                           ],
                                                         ),
-                                                        SizedBox(
-                                                          height: 5.h,
-                                                        ),
-                                                        Padding(
+                                                      )
+                                                    : const SizedBox(),
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    left: 5.w,
+                                                    right: 5.w,
+                                                    bottom: 5.h,
+                                                  ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      ListTile(
+                                                        dense:
+                                                            true, // Reduces default padding
+
+                                                        leading: Container(
                                                           padding:
                                                               const EdgeInsets
-                                                                  .only(
-                                                                  left: 10),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              Row(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
-                                                                crossAxisAlignment:
-                                                                    CrossAxisAlignment
-                                                                        .start,
-                                                                children: [
-                                                                  Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .only(
-                                                                        top: 1),
-                                                                    child: Image
-                                                                        .asset(
-                                                                      "assets/images/cmpny.png",
-                                                                      height:
-                                                                          12.5.h,
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: 8.w,
-                                                                  ),
-                                                                  Text(
-                                                                    item.companyName
-                                                                        .toString(),
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .ellipsis,
-                                                                    style: GoogleFonts.varela(
-                                                                        // color: Colors.black54,
-                                                                        color: Constants.subtitleclr,
-                                                                        fontWeight: FontWeight.normal,
-                                                                        fontSize: 13.sp),
-                                                                  ),
-                                                                ],
+                                                                  .all(4),
+                                                          height: 50,
+                                                          width: 50,
+                                                          decoration: BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Constants
+                                                                      .lightdull),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          8)),
+                                                          child: Image.asset(
+                                                            "assets/images/company.png",
+                                                            color: Constants
+                                                                .subtitleclr,
+                                                          ),
+                                                        ),
+                                                        minVerticalPadding: 0.0,
+                                                        contentPadding:
+                                                            EdgeInsets.zero,
+                                                        title: Row(
+                                                          children: [
+                                                            customTextForWeather(
+                                                                title:
+                                                                    item.roleName ??
+                                                                        '',
+                                                                maxlines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 12),
+                                                            SizedBox(
+                                                              width: 5.w,
+                                                            ),
+                                                            if (item
+                                                                .languagesKnown!
+                                                                .isNotEmpty)
+                                                              Image.asset(
+                                                                "assets/images/languages.png",
+                                                                height: 18.h,
                                                               ),
-                                                              item.isFresher ==
-                                                                      "Fresher"
-                                                                  ? Row(
+                                                          ],
+                                                        ),
+                                                        subtitle:
+                                                            customTextForWeather(
+                                                                title:
+                                                                    "${item.process.toString()} || ${item.natureOfWork.toString()}",
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400,
+                                                                fontSize: 12),
+                                                      ),
+                                                      SizedBox(
+                                                        height: 5.h,
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          item.isFresher ==
+                                                                  "Fresher"
+                                                              ? Column(
+                                                                  children: [
+                                                                    Row(
                                                                       mainAxisAlignment:
                                                                           MainAxisAlignment
                                                                               .start,
@@ -1365,75 +1375,95 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                           CrossAxisAlignment
                                                                               .center,
                                                                       children: [
-                                                                        Image
-                                                                            .asset(
-                                                                          "assets/images/bag.png",
-                                                                          height:
-                                                                              12.5.h,
-                                                                          //  color: Constants.subtitleclr,
-                                                                        ),
                                                                         SizedBox(
+                                                                          height:
+                                                                              18,
                                                                           width:
-                                                                              8.w,
+                                                                              18,
+                                                                          child:
+                                                                              Image.asset(
+                                                                            "assets/images/exp_bag.png",
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                          ),
                                                                         ),
-                                                                        Text(
-                                                                          "Fresher can apply.",
-                                                                          style: GoogleFonts.varela(
-                                                                              // color: Colors.black54,
-                                                                              color: Constants.subtitleclr,
-                                                                              fontWeight: FontWeight.normal,
-                                                                              fontSize: 13.sp),
-                                                                        )
+                                                                        const SizedBox(
+                                                                          width:
+                                                                              12,
+                                                                        ),
+                                                                        const customTextForWeather(
+                                                                            title:
+                                                                                "Fresher can apply.",
+
+                                                                            // color: Colors.black54,
+                                                                            color:
+                                                                                Constants.black,
+                                                                            fontWeight: FontWeight.normal,
+                                                                            fontSize: 12)
                                                                       ],
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      height: 4,
                                                                     )
-                                                                  : (item.totalExperience !=
-                                                                          null)
-                                                                      ? Row(
+                                                                  ],
+                                                                )
+                                                              : (item.totalExperience !=
+                                                                      null)
+                                                                  ? Column(
+                                                                      children: [
+                                                                        Row(
                                                                           mainAxisAlignment:
                                                                               MainAxisAlignment.start,
                                                                           crossAxisAlignment:
                                                                               CrossAxisAlignment.center,
                                                                           children: [
-                                                                            Image.asset(
-                                                                              "assets/images/bag.png",
-                                                                              height: 12.5.h,
-                                                                              //  color: Constants.subtitleclr,
-                                                                            ),
                                                                             SizedBox(
-                                                                              width: 8.w,
+                                                                              height: 18,
+                                                                              width: 18,
+                                                                              child: Image.asset(
+                                                                                "assets/images/exp_bag.png",
+                                                                                fit: BoxFit.cover,
+                                                                                //  color: Constants.subtitleclr,
+                                                                              ),
                                                                             ),
+                                                                            const SizedBox(width: 12),
                                                                             item.maxExperience == "& above"
                                                                                 ? item.minExperience == "0.6"
-                                                                                    ? Text(
+                                                                                    ? const customTextForWeather(
                                                                                         // "${item.minexperience.replaceAll(".0", "")} Years & above.",
-                                                                                        "6 Month & Above.",
-                                                                                        style: GoogleFonts.varela(
-                                                                                            // color: Colors.black54,
-                                                                                            color: Constants.subtitleclr,
-                                                                                            fontWeight: FontWeight.normal,
-                                                                                            fontSize: 13.sp),
-                                                                                      )
-                                                                                    : Text(
-                                                                                        "${item.minExperience?.replaceAll(".0", "")} Years & above.",
-                                                                                        style: GoogleFonts.varela(
-                                                                                            // color: Colors.black54,
-                                                                                            color: Constants.subtitleclr,
-                                                                                            fontWeight: FontWeight.normal,
-                                                                                            fontSize: 13.sp),
-                                                                                      )
-                                                                                : Text(
-                                                                                    "${item.minExperience?.replaceAll(".0", "")} - ${item.maxExperience?.replaceAll(".0", "")} Years",
-                                                                                    style: GoogleFonts.varela(
+                                                                                        title: "6 Month & Above.",
+
                                                                                         // color: Colors.black54,
-                                                                                        color: Constants.subtitleclr,
+                                                                                        color: Constants.black,
                                                                                         fontWeight: FontWeight.normal,
-                                                                                        fontSize: 13.sp),
-                                                                                  )
+                                                                                        fontSize: 12)
+                                                                                    : customTextForWeather(
+                                                                                        title: "${item.minExperience?.replaceAll(".0", "")} Yrs & above.",
+
+                                                                                        // color: Colors.black54,
+                                                                                        color: Constants.black,
+                                                                                        fontWeight: FontWeight.normal,
+                                                                                        fontSize: 12)
+                                                                                : customTextForWeather(
+                                                                                    title: "${item.minExperience?.replaceAll(".0", "")} - ${item.maxExperience?.replaceAll(".0", "")} Yrs",
+
+                                                                                    // color: Colors.black54,
+                                                                                    color: Constants.black,
+                                                                                    fontWeight: FontWeight.normal,
+                                                                                    fontSize: 12)
                                                                           ],
+                                                                        ),
+                                                                        const SizedBox(
+                                                                          height:
+                                                                              4,
                                                                         )
-                                                                      : const SizedBox(),
-                                                              if (item.minCTC !=
-                                                                  null)
+                                                                      ],
+                                                                    )
+                                                                  : const SizedBox(),
+                                                          if (item.minCTC !=
+                                                              null)
+                                                            Column(
+                                                              children: [
                                                                 Row(
                                                                   mainAxisAlignment:
                                                                       MainAxisAlignment
@@ -1442,46 +1472,50 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                       CrossAxisAlignment
                                                                           .center,
                                                                   children: [
-                                                                    Image.asset(
-                                                                      "assets/images/wallet.png",
-                                                                      height:
-                                                                          12.5.h,
-                                                                    ),
                                                                     SizedBox(
-                                                                      width:
-                                                                          6.w,
+                                                                      height:
+                                                                          17,
+                                                                      width: 17,
+                                                                      child: Image
+                                                                          .asset(
+                                                                        "assets/images/wallet.png",
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                      ),
                                                                     ),
-                                                                    Text(
-                                                                      formatSalaryRange(
+                                                                    const SizedBox(
+                                                                      width: 12,
+                                                                    ),
+                                                                    customTextForWeather(
+                                                                      title: formatSalaryRange(
                                                                           item.minCTC!
                                                                               .toInt(),
                                                                           item.maxCTC!
                                                                               .toInt()),
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        fontSize:
-                                                                            13.sp,
-                                                                        color: Constants
-                                                                            .subtitleclr,
-                                                                      ),
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Constants
+                                                                          .black,
                                                                     ),
                                                                     if (item.isMonthly !=
                                                                         "")
-                                                                      Text(
-                                                                        " ${item.isMonthly}",
-                                                                        style: GoogleFonts
-                                                                            .varela(
-                                                                          fontSize:
-                                                                              13.sp,
-                                                                          color:
-                                                                              Constants.subtitleclr,
-                                                                        ),
+                                                                      customTextForWeather(
+                                                                        title:
+                                                                            " ${item.isMonthly}",
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Constants
+                                                                            .black,
                                                                       )
                                                                   ],
                                                                 ),
-                                                              const SizedBox(
-                                                                height: 2,
-                                                              ),
+                                                                const SizedBox(
+                                                                  height: 4,
+                                                                )
+                                                              ],
+                                                            ),
+                                                          Column(
+                                                            children: [
                                                               Row(
                                                                 mainAxisAlignment:
                                                                     MainAxisAlignment
@@ -1490,72 +1524,78 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                     CrossAxisAlignment
                                                                         .center,
                                                                 children: [
-                                                                  Image.asset(
-                                                                    "assets/images/loc.png",
-                                                                    height:
-                                                                        12.5.sp,
-                                                                  ),
                                                                   SizedBox(
-                                                                    width: 6.w,
+                                                                    height: 18,
+                                                                    width: 18,
+                                                                    child: Image
+                                                                        .asset(
+                                                                      "assets/images/loc.png",
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                      color: Constants
+                                                                          .subtitleclr,
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 12,
                                                                   ),
                                                                   Expanded(
-                                                                    child: Text(
-                                                                      item.location ??
-                                                                          '',
-                                                                      maxLines:
+                                                                    child:
+                                                                        customTextForWeather(
+                                                                      title:
+                                                                          item.location ??
+                                                                              '',
+                                                                      maxlines:
                                                                           2,
                                                                       overflow:
                                                                           TextOverflow
                                                                               .ellipsis,
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        fontSize:
-                                                                            13.sp,
-                                                                        color: Constants
-                                                                            .subtitleclr,
-                                                                      ),
+                                                                      fontSize:
+                                                                          12,
+                                                                      color: Constants
+                                                                          .black,
                                                                     ),
                                                                   )
                                                                 ],
                                                               ),
+                                                              const SizedBox(
+                                                                height: 4,
+                                                              )
                                                             ],
                                                           ),
-                                                        ),
-                                                        SizedBox(
-                                                          height: 3.h,
-                                                        ),
-                                                        Wrap(
-                                                          alignment:
-                                                              WrapAlignment
-                                                                  .start,
-                                                          spacing: 8.0,
-                                                          children: [
-                                                            ...updatedList
-                                                                .take(5)
-                                                                .map(
-                                                                  (skillItem) =>
-                                                                      Container(
-                                                                    margin: const EdgeInsets
-                                                                        .only(
-                                                                        bottom:
-                                                                            5),
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        vertical:
-                                                                            4,
-                                                                        horizontal:
-                                                                            8),
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      color: Colors
-                                                                          .grey
-                                                                          .shade200,
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              8),
-                                                                    ),
-                                                                    child: Text(
-                                                                      "#$skillItem"
+                                                        ],
+                                                      ),
+                                                      SizedBox(
+                                                        height: 10.h,
+                                                      ),
+                                                      Wrap(
+                                                        children: [
+                                                          /*  const customTextForWeather(
+                                                            title: "Skills : ",
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 12,
+                                                          ), */
+                                                          RichText(
+                                                            text: TextSpan(
+                                                              children: [
+                                                                TextSpan(
+                                                                  text:
+                                                                      "Skills : ", // Bold "Skills" text
+                                                                  style: GoogleFonts
+                                                                      .merriweather(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Constants
+                                                                        .black,
+                                                                  ),
+                                                                ),
+                                                                TextSpan(
+                                                                  text: updatedList
+                                                                      .map((skillItem) => skillItem
                                                                           .replaceAll(
                                                                               '"',
                                                                               '')
@@ -1564,44 +1604,41 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                               '')
                                                                           .replaceAll(
                                                                               ']',
-                                                                              ''),
-                                                                      style: GoogleFonts
-                                                                          .varela(
-                                                                        color: Colors
-                                                                            .black54,
-                                                                        fontWeight:
-                                                                            FontWeight.bold,
-                                                                        fontSize:
-                                                                            13.sp,
-                                                                      ),
-                                                                    ),
+                                                                              ''))
+                                                                      .join(
+                                                                          ', '), // Normal text for skills
+                                                                  style: GoogleFonts
+                                                                      .merriweather(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .normal,
+                                                                    fontSize:
+                                                                        12,
+                                                                    color: Constants
+                                                                        .subtitleclr,
                                                                   ),
                                                                 ),
-                                                            if (updatedList
-                                                                    .length >
-                                                                5)
-                                                              Container(
-                                                                margin:
-                                                                    const EdgeInsets
-                                                                        .only(
-                                                                        bottom:
-                                                                            5),
-                                                                padding: const EdgeInsets
-                                                                    .symmetric(
-                                                                    vertical: 4,
-                                                                    horizontal:
-                                                                        8),
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  color: Constants
-                                                                      .borderColor,
-                                                                  borderRadius:
-                                                                      BorderRadius
-                                                                          .circular(
-                                                                              8),
-                                                                ),
-                                                                child: Text(
-                                                                  '+${updatedList.length - 5}'
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          /*  if (updatedList  //TODO:: When skill is more thn 3 to display ...
+                                                                  .length >
+                                                              3)
+                                                            const customTextForWeather(
+                                                              title: "........",
+                                                              color:
+                                                                  Colors.black,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              fontSize: 12,
+                                                            ), */
+                                                          /* ...updatedList
+                                                              .take(3)
+                                                              .map(
+                                                                (skillItem) =>
+                                                                    customTextForWeather(
+                                                                  title: skillItem
                                                                       .replaceAll(
                                                                           '"',
                                                                           '')
@@ -1611,256 +1648,204 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                       .replaceAll(
                                                                           ']',
                                                                           ''),
-                                                                  style:
-                                                                      GoogleFonts
-                                                                          .varela(
-                                                                    color: Colors
-                                                                        .black,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .bold,
-                                                                    fontSize:
-                                                                        13.sp,
-                                                                  ),
+                                                                  color: Colors
+                                                                      .black54,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  fontSize: 12,
                                                                 ),
-                                                              ),
-                                                          ],
-                                                        ),
-                                                        if (data.role !=
-                                                            "HR-Manager")
-                                                          Container(
-                                                            margin: EdgeInsets
-                                                                .symmetric(
-                                                                    vertical:
-                                                                        5.h),
-                                                            color: Colors
-                                                                .grey.shade400,
-                                                            width: double
-                                                                .maxFinite,
-                                                            height: 0.5.h,
-                                                          ),
-                                                        Column(
-                                                          children: [
-                                                            if (data.usertype ==
-                                                                    3 &&
-                                                                data.role !=
-                                                                    "HR-Manager")
-                                                              Row(
-                                                                children: [
-                                                                  data.usertype ==
-                                                                              3 &&
-                                                                          data.id ==
-                                                                              item.spoc
-                                                                      ? InkWell(
-                                                                          onTap:
-                                                                              () {
-                                                                            Navigator.push(context,
-                                                                                MaterialPageRoute(builder: (context) => const MatchingJobs()));
-                                                                          },
+                                                              ), */
+                                                        ],
+                                                      ),
+                                                      Column(
+                                                        children: [
+                                                          if (data.usertype ==
+                                                                  3 &&
+                                                              data.role !=
+                                                                  "HR-Manager")
+                                                            Row(
+                                                              children: [
+                                                                data.usertype ==
+                                                                            3 &&
+                                                                        data.id ==
+                                                                            item.spoc
+                                                                    ? InkWell(
+                                                                        onTap:
+                                                                            () {
+                                                                          Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(builder: (context) => const MatchingJobs()));
+                                                                        },
+                                                                        child:
+                                                                            Container(
+                                                                          margin: const EdgeInsets
+                                                                              .only(
+                                                                              right: 10),
+                                                                          padding: EdgeInsets.symmetric(
+                                                                              vertical: 4.h,
+                                                                              horizontal: 8.w),
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            border:
+                                                                                Border.all(color: Constants.subtitleclr),
+                                                                            borderRadius:
+                                                                                BorderRadius.circular(8),
+                                                                          ),
                                                                           child:
-                                                                              Container(
-                                                                            margin:
-                                                                                const EdgeInsets.only(right: 10),
-                                                                            padding:
-                                                                                EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
-                                                                            decoration:
-                                                                                BoxDecoration(
-                                                                              border: Border.all(color: Constants.subtitleclr),
-                                                                              borderRadius: BorderRadius.circular(8),
-                                                                            ),
-                                                                            child:
-                                                                                Row(
-                                                                              mainAxisSize: MainAxisSize.min,
-                                                                              children: [
-                                                                                Text(
-                                                                                  "Matching CV",
-                                                                                  style: TextStyle(
-                                                                                    color: Constants.subtitleclr,
-                                                                                    fontWeight: FontWeight.bold,
-                                                                                    fontSize: 15.h,
-                                                                                  ),
+                                                                              Row(
+                                                                            mainAxisSize:
+                                                                                MainAxisSize.min,
+                                                                            children: [
+                                                                              Text(
+                                                                                "Matching CV",
+                                                                                style: TextStyle(
+                                                                                  color: Constants.subtitleclr,
+                                                                                  fontWeight: FontWeight.bold,
+                                                                                  fontSize: 15.h,
                                                                                 ),
-                                                                              ],
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      )
+                                                                    : const SizedBox(),
+                                                                const Spacer(),
+                                                                Visibility(
+                                                                  child:
+                                                                      InkWell(
+                                                                    onTap: () {
+                                                                      Navigator.push(
+                                                                          context,
+                                                                          MaterialPageRoute(
+                                                                              builder: (context) => AddResume(
+                                                                                    // report_to: data.reportTo!.toInt(),
+                                                                                    interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
+                                                                                    company_name: item.companyName.toString(),
+                                                                                    role: item.roleName.toString(),
+                                                                                    process: item.process.toString(),
+                                                                                    nature_of_work: item.natureOfWork.toString(),
+                                                                                    company_id: item.companyId!.toInt(),
+                                                                                    jobId: item.id!.toInt(),
+                                                                                    /*    sourceId: data.id != null ? data.id!.toInt() : 0,
+                                                                                    sourceName: "${data.firstName.toString()} ${data.lastName.toString()}", */
+                                                                                    isRefer: false,
+                                                                                    spocId: item.spoc!,
+                                                                                    is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                    is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                    userNumber: data.mobile!.toInt(),
+                                                                                    useAlternateNumber: data.alternateNo!.toInt(),
+                                                                                  )));
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      margin: const EdgeInsets
+                                                                          .only(
+                                                                          right:
+                                                                              10),
+                                                                      padding: EdgeInsets.symmetric(
+                                                                          vertical: 4
+                                                                              .h,
+                                                                          horizontal:
+                                                                              8.w),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        border: Border.all(
+                                                                            color:
+                                                                                Constants.blue),
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(8),
+                                                                      ),
+                                                                      child:
+                                                                          Row(
+                                                                        mainAxisSize:
+                                                                            MainAxisSize.min,
+                                                                        children: [
+                                                                          Icon(
+                                                                            Icons.add,
+                                                                            color:
+                                                                                Constants.blue,
+                                                                            size:
+                                                                                15.h,
+                                                                          ),
+                                                                          Text(
+                                                                            "Resume",
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Constants.blue,
+                                                                              fontWeight: FontWeight.bold,
+                                                                              fontSize: 15.h,
                                                                             ),
                                                                           ),
-                                                                        )
-                                                                      : const SizedBox(),
-                                                                  const Spacer(),
-                                                                  Visibility(
-                                                                    child:
-                                                                        InkWell(
-                                                                      onTap:
-                                                                          () {
-                                                                        Navigator.push(
-                                                                            context,
-                                                                            MaterialPageRoute(
-                                                                                builder: (context) => AddResume(
-                                                                                      report_to: data.reportTo!.toInt(),
-                                                                                      interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
-                                                                                      company_name: item.companyName.toString(),
-                                                                                      role: item.roleName.toString(),
-                                                                                      process: item.process.toString(),
-                                                                                      nature_of_work: item.natureOfWork.toString(),
-                                                                                      company_id: item.companyId!.toInt(),
-                                                                                      jobId: item.id!.toInt(),
-                                                                                      sourceId: data.id != null ? data.id!.toInt() : 0,
-                                                                                      sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                                      isRefer: false,
-                                                                                      spocId: item.spoc!.toInt(),
-                                                                                      is90: item.payment_clause == "90 Days" ? true : false,
-                                                                                      is30: item.payment_clause == "30 Days" ? true : false,
-                                                                                      userNumber: data.mobile!.toInt(),
-                                                                                      useAlternateNumber: data.alternate_no!.toInt(),
-                                                                                    )));
-                                                                      },
-                                                                      child:
-                                                                          Container(
-                                                                        margin: const EdgeInsets
-                                                                            .only(
-                                                                            right:
-                                                                                10),
-                                                                        padding: EdgeInsets.symmetric(
-                                                                            vertical:
-                                                                                4.h,
-                                                                            horizontal: 8.w),
-                                                                        decoration:
-                                                                            BoxDecoration(
-                                                                          border:
-                                                                              Border.all(color: Constants.blue),
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(8),
-                                                                        ),
-                                                                        child:
-                                                                            Row(
-                                                                          mainAxisSize:
-                                                                              MainAxisSize.min,
-                                                                          children: [
-                                                                            Icon(
-                                                                              Icons.add,
-                                                                              color: Constants.blue,
-                                                                              size: 15.h,
-                                                                            ),
-                                                                            Text(
-                                                                              "Resume",
-                                                                              style: TextStyle(
-                                                                                color: Constants.blue,
-                                                                                fontWeight: FontWeight.bold,
-                                                                                fontSize: 15.h,
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
+                                                                        ],
                                                                       ),
                                                                     ),
                                                                   ),
-                                                                ],
-                                                              ),
-                                                            Row(
-                                                              children: [
-                                                                if (data.usertype ==
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          /* Row(    //TODO:: Apply and refer button for freelancer and jobseeker
+                                                            children: [
+                                                              if (data.usertype ==
+                                                                      1 &&
+                                                                  (data.isFreelancer ==
+                                                                          null ||
+                                                                      data.isFreelancer ==
+                                                                          1))
+                                                                const Spacer(),
+                                                              Visibility(
+                                                                visible: data
+                                                                            .usertype ==
                                                                         1 &&
-                                                                    (data.is_freelancer ==
-                                                                            null ||
-                                                                        data.is_freelancer ==
-                                                                            1))
-                                                                  const Spacer(),
-                                                                Visibility(
-                                                                  visible: data
-                                                                              .usertype ==
-                                                                          1 &&
-                                                                      (data.is_freelancer == 0 ||
-                                                                          data.is_freelancer ==
-                                                                              1 ||
-                                                                          data.is_freelancer ==
-                                                                              null),
-                                                                  child:
-                                                                      InkWell(
-                                                                    onTap:
-                                                                        () async {
-                                                                      CoolingForApply apiresult = await ApplicationAPI.getStatusAndDolOfUser(
-                                                                          //TODO:: To avoid dublicate
-                                                                          companyId: item.companyId!.toInt(),
-                                                                          process: item.process.toString(),
-                                                                          role: item.roleName.toString(),
-                                                                          now: item.natureOfWork.toString());
-                                                                      //
-                                                                      //
-                                                                      //
-
-                                                                      DateTime dolDate = apiresult.dol !=
-                                                                              ""
-                                                                          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse(apiresult
-                                                                              .dol)
-                                                                          : DateTime
-                                                                              .now();
-                                                                      DateTime
-                                                                          currentDate =
-                                                                          DateTime
-                                                                              .now();
-                                                                      int differenceInDays = currentDate
-                                                                          .difference(
-                                                                              dolDate)
-                                                                          .inDays;
-                                                                      final diff =
-                                                                          differenceInDays >
-                                                                              30;
-                                                                      //
-                                                                      //
-                                                                      //
-                                                                      if (item.id ==
-                                                                          apiresult
-                                                                              .jobid) {
-                                                                        if (apiresult.status != "Interview bay" &&
-                                                                            apiresult.status !=
-                                                                                "Assign" &&
-                                                                            apiresult.status !=
-                                                                                "Application" &&
-                                                                            (apiresult.dol == "" ||
-                                                                                diff)) {
-                                                                          if (data.cvLink !=
-                                                                              null) {
-                                                                            await JobPostApiService.postJobApply(
-                                                                                jobId: item.id!.toInt(),
-                                                                                userId: await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
-                                                                                number: await Utils.getPreferencesValue(null, ESharedPreferences.user_mobile.name),
-                                                                                context: context);
-                                                                            ref.refresh(fetchAllApplyProvider);
-                                                                            ref.refresh(fetchAllTalentPoolProvider);
-                                                                          } else {
-                                                                            if (item.id !=
-                                                                                null) {
-                                                                              Navigator.push(
-                                                                                  context,
-                                                                                  MaterialPageRoute(
-                                                                                      builder: (context) => AddCvtoApply(
-                                                                                            jobId: item.id!.toInt(),
-                                                                                          )));
-                                                                            }
-                                                                          }
-                                                                        } else {
-                                                                          showDialog(
-                                                                            context:
-                                                                                context,
-                                                                            builder:
-                                                                                (context) {
-                                                                              return CustomDialog(
-                                                                                  fetchDataFromApi: () {},
-                                                                                  onClose: () {
-                                                                                    Navigator.pop(context);
-                                                                                    /*  Navigator.pushAndRemoveUntil(
-                                                                                      context,
-                                                                                      MaterialPageRoute(
-                                                                                        builder: (context) => HomeScreen(),
-                                                                                      ),
-                                                                                      (route) => false); */
-                                                                                  },
-                                                                                  isFisrt: false,
-                                                                                  title: "Error",
-                                                                                  subtitle: "Your CV is already in process in the PipeLine");
-                                                                            },
-                                                                          );
-                                                                        }
-                                                                      } else {
+                                                                    (data.isFreelancer == 0 ||
+                                                                        data.isFreelancer ==
+                                                                            1 ||
+                                                                        data.isFreelancer ==
+                                                                            null),
+                                                                child:
+                                                                    InkWell(
+                                                                  onTap:
+                                                                      () async {
+                                                                    CoolingForApply apiresult = await ApplicationAPI.getStatusAndDolOfUser(
+                                                                        //TODO:: To avoid dublicate
+                                                                        companyId: item.companyId!.toInt(),
+                                                                        process: item.process.toString(),
+                                                                        role: item.roleName.toString(),
+                                                                        now: item.natureOfWork.toString());
+                                                                    //
+                                                                    //
+                                                                    //
+                                      
+                                                                    DateTime dolDate = apiresult.dol !=
+                                                                            ""
+                                                                        ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").parse(apiresult
+                                                                            .dol)
+                                                                        : DateTime
+                                                                            .now();
+                                                                    DateTime
+                                                                        currentDate =
+                                                                        DateTime
+                                                                            .now();
+                                                                    int differenceInDays = currentDate
+                                                                        .difference(
+                                                                            dolDate)
+                                                                        .inDays;
+                                                                    final diff =
+                                                                        differenceInDays >
+                                                                            30;
+                                                                    //
+                                                                    //
+                                                                    //
+                                                                    if (item.id ==
+                                                                        apiresult
+                                                                            .jobid) {
+                                                                      if (apiresult.status != "Interview bay" &&
+                                                                          apiresult.status !=
+                                                                              "Assign" &&
+                                                                          apiresult.status !=
+                                                                              "Application" &&
+                                                                          (apiresult.dol == "" ||
+                                                                              diff)) {
                                                                         if (data.cvLink !=
                                                                             null) {
                                                                           await JobPostApiService.postJobApply(
@@ -1868,10 +1853,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                               userId: await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
                                                                               number: await Utils.getPreferencesValue(null, ESharedPreferences.user_mobile.name),
                                                                               context: context);
-                                                                          ref.refresh(
-                                                                              fetchAllApplyProvider);
-                                                                          ref.refresh(
-                                                                              fetchAllTalentPoolProvider);
+                                                                          ref.refresh(fetchAllApplyProvider);
+                                                                          ref.refresh(fetchAllTalentPoolProvider);
                                                                         } else {
                                                                           if (item.id !=
                                                                               null) {
@@ -1883,123 +1866,186 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                                         )));
                                                                           }
                                                                         }
+                                                                      } else {
+                                                                        showDialog(
+                                                                          context:
+                                                                              context,
+                                                                          builder:
+                                                                              (context) {
+                                                                            return CustomDialog(
+                                                                                fetchDataFromApi: () {},
+                                                                                onClose: () {
+                                                                                  Navigator.pop(context);
+                                                                                  /*  Navigator.pushAndRemoveUntil(
+                                                                                    context,
+                                                                                    MaterialPageRoute(
+                                                                                      builder: (context) => HomeScreen(),
+                                                                                    ),
+                                                                                    (route) => false); */
+                                                                                },
+                                                                                isFisrt: false,
+                                                                                title: "Error",
+                                                                                subtitle: "Your CV is already in process in the PipeLine");
+                                                                          },
+                                                                        );
                                                                       }
-                                                                    },
-                                                                    child:
-                                                                        Container(
-                                                                      margin: const EdgeInsets
-                                                                          .only(
-                                                                        left:
-                                                                            10,
-                                                                      ),
-                                                                      padding: EdgeInsets.symmetric(
-                                                                          vertical: 4
-                                                                              .h,
-                                                                          horizontal:
-                                                                              16.w),
-                                                                      decoration: BoxDecoration(
-                                                                          border:
-                                                                              Border.all(color: Constants.navyblue),
-                                                                          borderRadius: BorderRadius.circular(8)),
-                                                                      child:
-                                                                          Text(
-                                                                        "Apply",
-                                                                        style: GoogleFonts.varela(
-                                                                            color:
-                                                                                Constants.navyblue,
-                                                                            fontWeight: FontWeight.bold),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                if (data.usertype ==
-                                                                        1 &&
-                                                                    (data.is_freelancer !=
-                                                                                null &&
-                                                                            data.is_freelancer ==
-                                                                                2 ||
-                                                                        data.is_freelancer ==
-                                                                            0))
-                                                                  const Spacer(),
-                                                                /* if (item.payoutType !=   //TODO:: commented because i wanna display refer now button for all hiring if the hiring dont have payout..
-                                                                    null) */
-                                                                Visibility(
-                                                                  visible: data
-                                                                              .usertype ==
-                                                                          1 &&
-                                                                      (data.is_freelancer == 2 ||
-                                                                          data.is_freelancer ==
-                                                                              0 ||
-                                                                          data.is_freelancer ==
-                                                                              null),
+                                                                    } else {
+                                                                      if (data.cvLink !=
+                                                                          null) {
+                                                                        await JobPostApiService.postJobApply(
+                                                                            jobId: item.id!.toInt(),
+                                                                            userId: await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name),
+                                                                            number: await Utils.getPreferencesValue(null, ESharedPreferences.user_mobile.name),
+                                                                            context: context);
+                                                                        ref.refresh(
+                                                                            fetchAllApplyProvider);
+                                                                        ref.refresh(
+                                                                            fetchAllTalentPoolProvider);
+                                                                      } else {
+                                                                        if (item.id !=
+                                                                            null) {
+                                                                          Navigator.push(
+                                                                              context,
+                                                                              MaterialPageRoute(
+                                                                                  builder: (context) => AddCvtoApply(
+                                                                                        jobId: item.id!.toInt(),
+                                                                                      )));
+                                                                        }
+                                                                      }
+                                                                    }
+                                                                  },
                                                                   child:
-                                                                      InkWell(
-                                                                    onTap: () {
-                                                                      var profilemodel;
-                                                                      Navigator.push(
-                                                                          context,
-                                                                          MaterialPageRoute(
-                                                                              builder: (context) => AddResume(
-                                                                                    report_to: data.reportTo!.toInt(),
-                                                                                    company_name: item.companyName.toString(),
-                                                                                    role: item.roleName.toString(),
-                                                                                    process: item.process.toString(),
-                                                                                    nature_of_work: item.natureOfWork.toString(),
-                                                                                    company_id: item.companyId!.toInt(),
-                                                                                    //anyId!.toInt(),
-                                                                                    jobId: item.id!.toInt(),
-                                                                                    sourceId: data.id!.toInt(),
-                                                                                    sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
-                                                                                    isRefer: true,
-                                                                                    spocId: item.spoc!.toInt(),
-                                                                                    is90: item.payment_clause == "90 Days" ? true : false,
-                                                                                    is30: item.payment_clause == "30 Days" ? true : false,
-                                                                                    userNumber: data.mobile!.toInt(),
-                                                                                    useAlternateNumber: data.alternate_no?.toInt() ?? 0,
-                                                                                    interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
-                                                                                  )));
-                                                                    },
+                                                                      Container(
+                                                                    margin: const EdgeInsets
+                                                                        .only(
+                                                                      left:
+                                                                          10,
+                                                                    ),
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        vertical: 4
+                                                                            .h,
+                                                                        horizontal:
+                                                                            16.w),
+                                                                    decoration: BoxDecoration(
+                                                                        border:
+                                                                            Border.all(color: Constants.navyblue),
+                                                                        borderRadius: BorderRadius.circular(8)),
                                                                     child:
-                                                                        Container(
-                                                                      margin: const EdgeInsets
-                                                                          .only(
-                                                                        left:
-                                                                            10,
-                                                                      ),
-                                                                      padding: EdgeInsets.symmetric(
-                                                                          vertical: 4
-                                                                              .h,
-                                                                          horizontal:
-                                                                              10.w),
-                                                                      decoration: BoxDecoration(
-                                                                          border: Border.all(
-                                                                            color:
-                                                                                Colors.blue,
-                                                                          ),
-                                                                          borderRadius: BorderRadius.circular(8)),
-                                                                      child:
-                                                                          Text(
-                                                                        "Refer Now",
-                                                                        style: GoogleFonts.varela(
-                                                                            color:
-                                                                                Colors.blue,
-                                                                            fontWeight: FontWeight.bold),
-                                                                      ),
+                                                                        Text(
+                                                                      "Apply",
+                                                                      style: GoogleFonts.varela(
+                                                                          color:
+                                                                              Constants.navyblue,
+                                                                          fontWeight: FontWeight.bold),
                                                                     ),
                                                                   ),
                                                                 ),
-                                                              ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
+                                                              ),
+                                                              if (data.usertype ==
+                                                                      1 &&
+                                                                  (data.isFreelancer !=
+                                                                              null &&
+                                                                          data.isFreelancer ==
+                                                                              2 ||
+                                                                      data.isFreelancer ==
+                                                                          0))
+                                                                const Spacer(),
+                                                              /* if (item.payoutType !=   //TODO:: commented because i wanna display refer now button for all hiring if the hiring dont have payout..
+                                                                  null) */
+                                                              Visibility(
+                                                                visible: data
+                                                                            .usertype ==
+                                                                        1 &&
+                                                                    (data.isFreelancer == 2 ||
+                                                                        data.isFreelancer ==
+                                                                            0 ||
+                                                                        data.isFreelancer ==
+                                                                            null),
+                                                                child:
+                                                                    InkWell(
+                                                                  onTap: () {
+                                                                    var profilemodel;
+                                                                    Navigator.push(
+                                                                        context,
+                                                                        MaterialPageRoute(
+                                                                            builder: (context) => AddResume(
+                                                                                  report_to: data.reportTo!.toInt(),
+                                                                                  company_name: item.companyName.toString(),
+                                                                                  role: item.roleName.toString(),
+                                                                                  process: item.process.toString(),
+                                                                                  nature_of_work: item.natureOfWork.toString(),
+                                                                                  company_id: item.companyId!.toInt(),
+                                                                                  //anyId!.toInt(),
+                                                                                  jobId: item.id!.toInt(),
+                                                                                  sourceId: data.id!.toInt(),
+                                                                                  sourceName: "${data.firstName.toString()} ${data.lastName.toString()}",
+                                                                                  isRefer: true,
+                                                                                  spocId: item.spoc!.toInt(),
+                                                                                  is90: item.payment_clause == "90 Days" ? true : false,
+                                                                                  is30: item.payment_clause == "30 Days" ? true : false,
+                                                                                  userNumber: data.mobile!.toInt(),
+                                                                                  useAlternateNumber: data.alternateNo?.toInt() ?? 0,
+                                                                                  interviewRounds: item.interviewrounds!.first.replaceAll('[', '').replaceAll(']', '').replaceAll('"', ''),
+                                                                                )));
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    margin: const EdgeInsets
+                                                                        .only(
+                                                                      left:
+                                                                          10,
+                                                                    ),
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        vertical: 4
+                                                                            .h,
+                                                                        horizontal:
+                                                                            10.w),
+                                                                    decoration: BoxDecoration(
+                                                                        border: Border.all(
+                                                                          color:
+                                                                              Colors.blue,
+                                                                        ),
+                                                                        borderRadius: BorderRadius.circular(8)),
+                                                                    child:
+                                                                        Text(
+                                                                      "Refer Now",
+                                                                      style: GoogleFonts.varela(
+                                                                          color:
+                                                                              Colors.blue,
+                                                                          fontWeight: FontWeight.bold),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ), */
+                                                          //
+                                                          //
+                                                          //
+                                                          //
+                                                          //
+                                                          //
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
+                                                ),
+                                                if (data.role != "HR-Manager" &&
+                                                    index !=
+                                                        jobsController
+                                                                .filteredJobs
+                                                                .where((job) =>
+                                                                    job.active ==
+                                                                    1)
+                                                                .length -
+                                                            1)
+                                                  const Divider(
+                                                    thickness: 1.0,
+                                                  )
+                                              ],
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                       item.spoc.toString() == data.id.toString()
                                           ? Column(
@@ -2304,7 +2350,8 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                             ),
                                                           ],
                                                         )),
-                                                  jobsController.isFavLoading
+                                                  /* jobsController.isFavLoading(
+                                                          item.id ?? 0)
                                                       ? const Padding(
                                                           padding:
                                                               EdgeInsets.all(
@@ -2314,14 +2361,71 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                             dimension: 10,
                                                             child:
                                                                 CircularProgressIndicator(
+                                                              color: Constants
+                                                                  .darkBlue,
                                                               strokeWidth: 1,
                                                             ),
                                                           ),
                                                         )
-                                                      : Column(
-                                                          children: [
-                                                            IconButton(
-                                                                onPressed:
+                                                      : */
+                                                  Column(
+                                                    children: [
+                                                      IconButton(
+                                                          onPressed: () async {
+                                                            if ((item.isFav ??
+                                                                    0) ==
+                                                                1) {
+                                                              await jobsController
+                                                                  .removeFromFav(
+                                                                item.favJobId!
+                                                                    .toInt(),
+                                                                data,
+                                                                item.id ?? 0,
+                                                              );
+                                                              setState(() {
+                                                                jobsController
+                                                                    .toggleLocationFilter(
+                                                                        jobs: jobsController
+                                                                            .jobs);
+                                                              });
+                                                            } else {
+                                                              await jobsController
+                                                                  .addToFav(
+                                                                      item.id ??
+                                                                          0,
+                                                                      data);
+                                                            }
+                                                          },
+                                                          icon: jobsController
+                                                                  .isFavLoading(
+                                                                      item.id ??
+                                                                          0)
+                                                              ? const CircularProgressIndicator(
+                                                                  color: Constants
+                                                                      .darkBlue,
+                                                                  strokeWidth:
+                                                                      0.5,
+                                                                )
+                                                              : (item.isFav) ==
+                                                                          1 &&
+                                                                      (item.userId ==
+                                                                          data
+                                                                              .id)
+                                                                  ? Image
+                                                                      .network(
+                                                                      'https://assets.api.uizard.io/api/cdn/stream/f117beed-bf61-4a09-99cc-1663cb34976d.png',
+                                                                      color: Constants
+                                                                          .darkBlue,
+                                                                      height:
+                                                                          20,
+                                                                    )
+                                                                  : Image
+                                                                      .network(
+                                                                      "https://assets.api.uizard.io/api/cdn/stream/12857f7d-d98f-4034-ad83-785107b51515.png",
+                                                                      height:
+                                                                          20,
+                                                                    )
+                                                          /*  onPressed:
                                                                     () async {
                                                                   if ((item.isFav ??
                                                                           0) ==
@@ -2342,8 +2446,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                             0,
                                                                         data);
                                                                   }
-                                                                },
-                                                                icon: Icon(
+                                                                }, */
+
+                                                          /* Icon(
                                                                     /*   jobs[index]["id"].toString() ==
                                                                                       item[index]["id"].toString() */
                                                                     (item.isFav) ==
@@ -2358,18 +2463,21 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                     size: 22.h,
                                                                     color: Colors
                                                                         .grey
-                                                                        .shade400)),
-                                                            InkWell(
+                                                                        .shade400) */
+                                                          ),
+                                                      /*  InkWell(
                                                               onTap: () async {
-                                                                await FlutterShare.share(
-                                                                    title:
-                                                                        "Exciting Opportunities at ${item.companyName} for ${item.roleName}",
-                                                                    text:
-                                                                        "Exciting Opportunities at ${item.companyName} for ${item.roleName}",
-                                                                    linkUrl:
-                                                                        'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
-                                                                    chooserTitle:
-                                                                        'Example Chooser Title');
+                                                               
+                                                                await FlutterShare
+                                                                    .share(
+                                                                        title:
+                                                                            "Exciting Opportunities at ${item.companyName} for ${item.roleName}",
+                                                                        text:
+                                                                            "Exciting Opportunities at ${item.companyName} for ${item.roleName}\n\nSalary : ${formatSalaryRange(item.minCTC!.toInt(), item.maxCTC!.toInt())} ${item.isMonthly}\n\nExperience : ${item.isFresher == "Fresher" ? "Fresher Can Apply" : item.maxExperience == "& above" ? item.minExperience == "0.6" ? "6 Month & Above" : "${item.minExperience?.replaceAll(".0", "")} Years & above." : "${item.minExperience?.replaceAll(".0", "")} - ${item.maxExperience?.replaceAll(".0", "")} Years"}\n\nLocation : ${item.location ?? ''}\n\nSkills Required : ${updatedList.map((e) => e)}\n\nContact to Hr : 7507810000",
+                                                                        linkUrl:
+                                                                            'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
+                                                                        chooserTitle:
+                                                                            'Example Chooser Title');
                                                               },
                                                               child:
                                                                   Image.asset(
@@ -2379,9 +2487,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                     .grey
                                                                     .shade400,
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
+                                                            ), */
+                                                    ],
+                                                  ),
                                                 ],
                                               ))
                                     ],
@@ -2405,8 +2513,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
               FloatingActionButtonLocation.miniEndFloat,
           floatingActionButton: data.usertype == 3 && data.role != "HR-Manager"
               ? Visibility(
-                  visible:
-                      jobsController.role != "1" && jobsController.role != "2",
+                  visible: jobsController.role != 1 && jobsController.role != 2,
                   child: FloatingActionButton(
                     backgroundColor: Constants.borderColor,
                     child: const Icon(
@@ -2446,7 +2553,9 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
       },
       loading: () {
         return const Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: Constants.darkBlue,
+          ),
         );
       },
     );
@@ -2493,4 +2602,92 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
       overlayEntry.remove();
     });
   }
+
+  void captureAndShareImage() async {
+    try {
+      // Capture the screenshot
+      final image = await screenshotController.capture();
+      if (image == null) return;
+
+      // Save the image to the gallery
+      final time = DateTime.now()
+          .toIso8601String()
+          .replaceAll('.', '-')
+          .replaceAll(':', '-');
+      final name = "Screenshot_$time";
+      final result = await ImageGallerySaver.saveImage(image, name: name);
+
+      // Extract the file path from the result
+      final savedPath = result['filePath'] as String?;
+
+      if (savedPath != null && savedPath.isNotEmpty) {
+        // Share the image using whatsapp_share2
+        await WhatsappShare.shareFile(
+          filePath: [savedPath], // List of file paths to share
+          text: 'Great picture',
+          phone: '8446062685', // Message to accompany the image
+        );
+        print('Image shared successfully to WhatsApp');
+      } else {
+        print("Failed to save image: $result");
+      }
+    } catch (e) {
+      print("Error capturing and sharing image: $e");
+    }
+  }
+
+  String formatLocality(String locality) {
+    // Split the string by comma
+    List<String> parts = locality.split(',');
+
+    if (parts.length >= 2) {
+      // Trim any leading or trailing spaces/tabs from both parts
+      String part1 = parts[0].trim();
+      String part2 = parts[1].trim();
+
+      // Combine the parts with a single space after the comma
+      return '$part1, $part2';
+    }
+
+    // If there's no comma, return the original string
+    return locality;
+  }
+
+  /* void captureAndShareImage() async {
+    try {
+      // Capture the screenshot
+      final image = await screenshotController.capture();
+      if (image == null) return;
+
+      // Save the image to the gallery
+      final time = DateTime.now()
+          .toIso8601String()
+          .replaceAll('.', '-')
+          .replaceAll(':', '-');
+      final name = "Screenshot_$time";
+      final result = await ImageGallerySaver.saveImage(image, name: name);
+
+      // Extract the file path from the result
+      final savedPath = result['filePath'] as String?;
+
+      if (savedPath != null && savedPath.isNotEmpty) {
+        // Share the image using the saved path
+        // await Share.shareXFiles([XFile(savedPath)], text: 'Great picture');
+      } else {
+        print("Failed to save image: $result");
+      }
+    } catch (e) {
+      print("Error capturing and sharing image: $e");
+    }
+  } */
+
+  /* Future<String> sveImage(Uint8List bytes) async {
+    final time = DateTime.now()
+        .toIso8601String()
+        .replaceAll('.', '-')
+        .replaceAll(':', '-');
+    final name = "Screenshot_$time";
+    final result = await ImageGallerySaver.saveImage(bytes, name: name);
+    return result['filePath'];
+  } */
 }

@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/models/profileSummary.dart';
+import 'package:job_circle/screens/new_jobs/profile_model.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/UserDataService.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -51,8 +52,10 @@ class _MyCustomDialogForExperienceState
 
   void _openDatePicker(Experience e) async {
     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
-    DateTime initialDate = e.joining_date ?? DateTime.now();
-    DateTime firstDate = e.joining_date ?? DateTime.now();
+    // DateTime initialDate = e.joiningDate ?? DateTime.now();
+    // DateTime firstDate = e.joiningDate ?? DateTime.now();
+    DateTime firstDate = DateTime.now();
+    DateTime initialDate = DateTime.now();
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: initialDate,
@@ -161,15 +164,15 @@ class _MyCustomDialogForExperienceState
                 //   ),
                 // ),
                 child: Image.network(
-                  widget.e.icon == null || widget.e == ""
+                  widget.e.companyLogo == null || widget.e == ""
                       ? "https://cdn-icons-png.flaticon.com/128/2098/2098316.png"
-                      : "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.e.icon}",
+                      : "https://s3.ap-south-1.amazonaws.com/job-circle-2/${widget.e.companyLogo}",
                   //  "https://cdn-icons-png.flaticon.com/128/10693/10693407.png",
                   fit: BoxFit.contain,
                 ),
               ),
               title: Text(
-                widget.e.job_title.toString(),
+                widget.e.jobTitle.toString(),
                 // experience.job_title.toString(),
                 style: GoogleFonts.varela(
                   fontSize: 15.sp,
@@ -183,9 +186,7 @@ class _MyCustomDialogForExperienceState
                   Row(
                     children: [
                       Text(
-                        widget.e.shortname != null
-                            ? widget.e.shortname.toString()
-                            : widget.e.company_name.toString(),
+                         widget.e.companyLogo.toString(),
                         // experience.company_name.toString(),
                         style: GoogleFonts.varela(
                           fontSize: 12.sp,
@@ -194,7 +195,7 @@ class _MyCustomDialogForExperienceState
                       ),
                       const Text(" · "),
                       Text(
-                        widget.e.emptype.toString(),
+                        widget.e.empType.toString(),
                         style: GoogleFonts.varela(
                           fontSize: 12.sp,
                           fontWeight: FontWeight.w400,
@@ -206,10 +207,10 @@ class _MyCustomDialogForExperienceState
                   Row(
                     children: [
                       Text(
-                        widget.e.joining_date != null
-                            ? DateFormat('MMM-yyyy')
-                                .format(widget.e.joining_date!)
-                            : "",
+                        widget.e.joiningDate != null?widget.e.joiningDate.toString():"",
+                           /*  ? DateFormat('MMM-yyyy')
+                                .format(widget.e.joiningDate!).to
+                            : "", */
                         /*  experienceList[index].joining_date != null
                                                                 ? experienceList[index].joining_date.toString()
                                                                 : "", */
@@ -282,7 +283,7 @@ class _MyCustomDialogForExperienceState
                   Row(
                     children: [
                       Text(
-                        widget.e.company_location.toString(),
+                        widget.e.jobLocation.toString(),
                         // experience.company_location.toString(),
                         style: GoogleFonts.varela(
                           fontSize: 12.sp,
@@ -291,7 +292,7 @@ class _MyCustomDialogForExperienceState
                       ),
                       const Text(" · "),
                       Text(
-                        widget.e.work_type.toString(),
+                        widget.e.workType.toString(),
                         // experience.company_location.toString(),
                         style: GoogleFonts.varela(
                           fontSize: 12.sp,
@@ -331,7 +332,7 @@ class _MyCustomDialogForExperienceState
                           // Create a new instance of the model and assign the values
                           Experience experience = Experience(
                               id: widget.e.id,
-                              userId: widget.e.userId,
+                             /*  userId: widget.e.userId,
                               job_title: widget.e.job_title,
                               company_name: widget.e.company_name,
                               isCurrent: 0,
@@ -351,7 +352,7 @@ class _MyCustomDialogForExperienceState
                               experience_lettter: widget.e.experience_lettter,
                               icon: widget.e.icon,
                               availability: widget.e.availability,
-                              companyid: widget.e.companyid
+                              companyid: widget.e.companyid */
                               // working: working,
                               );
 

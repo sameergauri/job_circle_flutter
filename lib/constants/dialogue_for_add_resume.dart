@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class CustomDialogueToDeleteFAQ extends StatefulWidget {
@@ -135,9 +136,9 @@ class _CustomDialogueForAddResumeState
           children: [
             // Add your custom dialog content here
 
-            Text(
-              widget.subtitle,
-              style: const TextStyle(fontSize: 16.0),
+            customTextForWeather(
+              title: widget.subtitle,
+              fontSize: 14,
             ),
 
             InkWell(
@@ -149,11 +150,10 @@ class _CustomDialogueForAddResumeState
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8.r),
                     color: widget.error ? Colors.red : Constants.themeBgColor),
-                child: Text(
-                  "Close",
-                  style: GoogleFonts.varela(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
+                child: const customTextForWeather(
+                    title: "Close",
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold),
               ),
             )
           ],

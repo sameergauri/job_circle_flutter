@@ -1,8 +1,10 @@
 name: job_circle
 description: Job circle.
 
+#Flutter version of the project : 3.19.4
+
 publish_to: "none"
-version: 1.0.1+20
+version: 1.0.1+22
 
 environment:
   sdk: ">=2.17.0-0 <3.0.0"
@@ -67,6 +69,16 @@ dependencies:
   #pdftron_flutter: ^1.0.1-27
   draggable_fab: ^0.1.1 #for movable floatingaction button.
   share: ^2.0.4
+  widgets_to_image: ^1.0.0 #for whatsapp share in image form.
+  screenshot: ^2.5.0
+  image_gallery_saver: ^2.0.3
+  whatsapp_share2: ^2.0.2
+  dotted_border: ^2.1.0
+  auto_size_text_field: ^2.2.4
+  
+  #share_plus: ^10.0.0
+  
+  #share_plus: ^9.0.0
 
   
   #share_plus: ^4.0.10

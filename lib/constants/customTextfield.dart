@@ -15,6 +15,8 @@ import 'package:job_circle/models/job_title_model.dart';
 import 'package:job_circle/models/matching_job_model.dart';
 import 'package:job_circle/models/nature_of_work.dart';
 import 'package:job_circle/models/process_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 
 import '../themes/colors.dart';
 import 'customDialogue.dart';
@@ -2906,6 +2908,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
   //FocusNode focusNode = FocusNode();
 // Example usage of the handleFocusNodeChange method
   late TextEditingController? controller = widget.controller;
+  TextEditingController controllerForbottomsheer = TextEditingController();
   // late bool isEdit = widget.isEdit;
   // final FocusNode focusNode = widget.focusNode;
   late String hintText = widget.hintText;
@@ -2932,6 +2935,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
     // TODO: implement initState
     super.initState();
     _focusNode.requestFocus();
+    getJobIndustry(widget.controller!.text.toString());
 
     // getJobIndustry();
   }
@@ -3143,8 +3147,9 @@ class _CustomJobFormTextFieldRespoOneProfileState
     String pattern,
   ) async {
     //old Working code of job title
-    final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/master/v1/getByLocation?pageNumber=1&pageSize=10000'));
+    final response = await http.post(Uri.parse(
+        // 'http://${GlobalConstants.API_Host_one}/master/v1/getByLocation?pageNumber=1&pageSize=10000' //TODO:: Old url
+        'http://${GlobalConstants.API_Host_one}/api/master/v1/getMasterDataByGroupValue?groupName=location&pageNumber=1&pageSize=10000'));
 
     /*   if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -3186,7 +3191,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
       // suggestions = roleResponseModel.getRoles();
       /*  String firstRoleName =
           suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
-      List<dynamic> content = data['resultData']['content'];
+      List<dynamic> content = data['resultData']['masterData']['content'];
 
       /*  for (var entry in content) {
         String? value = entry['rolename']?.toString();
@@ -3200,7 +3205,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
         }
       } */
       for (var entry in content) {
-        String? value = "${entry['value']?.toString()}";
+        String? value = "${entry['formateData']?.toString()}";
         if (value.toLowerCase().startsWith(pattern.toLowerCase())) {
           JobLocationModel role = JobLocationModel.fromJson(entry);
           if (!uniqueValues.contains(role.id)) {
@@ -3234,6 +3239,17 @@ class _CustomJobFormTextFieldRespoOneProfileState
     return suggestion!
         .where((item) => item.toLowerCase().contains(query.toLowerCase()))
         .toList();
+  }
+
+  String formatData(String data) {
+    List<String> parts = data.split(',');
+
+    // Ensure there are at least two elements to avoid errors
+    if (parts.length >= 2) {
+      return "${parts[0].trim()}, ${parts[1].trim()}";
+    }
+
+    return data; // Return original data if it's too short
   }
 
   late final Function(String) onIDSelected;
@@ -3277,7 +3293,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
                               width: 10.w,
                             ),
                             Text(
-                              "Reside City",
+                              "Reside At",
                               style: GoogleFonts.varela(
                                   color: Constants.themeBgColor,
                                   fontWeight: FontWeight.bold,
@@ -3307,7 +3323,9 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                 ),
                                 textFieldConfiguration: TextFieldConfiguration(
                                   style: GoogleFonts.varela(
-                                      color: Constants.subtitleclr),
+                                    color: Constants.black,
+                                    fontSize: 12.sp,
+                                  ),
                                   onChanged: (value) {
                                     suggestion = null;
                                   },
@@ -3315,19 +3333,19 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                   focusNode: _focusNode,
                                   textCapitalization:
                                       TextCapitalization.sentences,
-                                  controller: controller,
+                                  controller: controllerForbottomsheer,
                                   decoration: InputDecoration(
                                     labelStyle: const TextStyle(
                                       color: Constants.themeBgColor,
                                     ),
-                                    prefixIcon:
+                                    /*  prefixIcon:
                                         const Icon(Icons.house_outlined),
-                                    prefixIconColor: Constants.themeBgColor,
+                                    prefixIconColor: Constants.themeBgColor, */
                                     //label: Text("Reside at"),
                                     hintText: hintText,
                                     hintStyle: GoogleFonts.varela(
                                       color: Constants.subtitleclr,
-                                      fontSize: 15.sp,
+                                      fontSize: 12.sp,
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderSide: const BorderSide(
@@ -3366,7 +3384,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                 itemBuilder: (context, suggestion) {
                                   final isOdd = suggestionIndex % 2 == 0;
                                   final backgroundColor = isOdd
-                                      ? Colors.grey.shade200
+                                      ? Constants.lightdull
                                       : Colors.white;
 
                                   // Increment the suggestion index counter
@@ -3379,7 +3397,8 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                     ),
                                     child: ListTile(
                                       title: Text(
-                                        "${suggestion.value.toString()}, ${suggestion.city.toString()}",
+                                        formatData(
+                                            suggestion.formateData.toString()),
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold),
                                       ),
@@ -3391,14 +3410,18 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                   setState(() {
                                     /* controller!.text =
                                         "${suggestion.value.toString()}, ${suggestion.city.toString()}"; */
-                                    firstText = suggestion.value.toString();
+                                    firstText =
+                                        suggestion.formateData.toString();
                                     handleBoolChange(true);
                                     var selectedId = suggestion.id;
-                                    cityname = suggestion.city.toString();
+                                    cityname = suggestion.value.toString();
 
                                     widget.onSubmit!(firstText.toString());
 
                                     widget.onCitySubmit!(cityname.toString());
+                                    controllerForbottomsheer.text = formatData(
+                                        suggestion.formateData
+                                            .toString()) /*  "${suggestion.value.toString()} - ${suggestion.city.toString()}" */;
                                     Navigator.pop(context);
 
                                     //FocusScope.of(context).nextFocus();
@@ -3552,7 +3575,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
         child: SizedBox(
           height: MediaQuery.of(context).size.height / 24,
           child: TextFormField(
-            controller: controller,
+            controller: controllerForbottomsheer,
             enabled: false,
             // autofocus: focusNode.canRequestFocus,
             //focusNode: focusNode,
@@ -3571,16 +3594,16 @@ class _CustomJobFormTextFieldRespoOneProfileState
             style: GoogleFonts.varela(color: Constants.subtitleclr),
             decoration: InputDecoration(
                 prefixIconColor: Constants.themeBgColor,
-                prefixIcon: const Icon(Icons.house_outlined),
+                // prefixIcon: const Icon(Icons.house_outlined),
                 contentPadding: const EdgeInsets.only(
                     top: 8, bottom: 8, left: 10, right: 10),
                 counterText: '',
-                labelText: firstText != null
+                /* labelText: firstText != null
                     ? "$firstText, $cityname"
                     : widget.hintText,
                 labelStyle: const TextStyle(
                   color: Constants.subtitleclr,
-                ),
+                ), */
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
                   borderSide: const BorderSide(color: Color(0xffff0eceb)),
@@ -3592,9 +3615,9 @@ class _CustomJobFormTextFieldRespoOneProfileState
                     color: Constants.themeBgColor,
                   ),
                 ),
-                hintText: "Thane",
+                hintText: hintText.toString(),
                 hintStyle: GoogleFonts.sourceSansPro(
-                    color: Constants.hintColor, fontSize: 15.sp)),
+                    color: Constants.hintColor, fontSize: 12.sp)),
           ), /* TypeAheadFormField<dynamic>(
             validator: (value) {
               if (value!.isEmpty) {
@@ -3808,8 +3831,8 @@ class _CustomJobTitleForExperienceState
   Future<List<JobTitleModel1>> getJobIndustry(
       String pattern, String name) async {
     //old Working code of job title
-    final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/master/v1/getByGroup?groupName=$name&pageNumber=1&pageSize=10000'));
+    final response = await http.post(Uri.parse(
+        'http://${GlobalConstants.API_Host_one}/api/master/v1/getMasterDataByGroupName?groupNmae=$name&pageNumber=1&pageSize=10000'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -3835,10 +3858,10 @@ class _CustomJobTitleForExperienceState
       // suggestions = roleResponseModel.getRoles();
       /*  String firstRoleName =
           suggestions.isNotEmpty ? suggestions[0].roleName : ''; */
-      List<dynamic> content = data['resultData']['content'];
+      List<dynamic> content = data['resultData']["masterData"]['content'];
 
       /*  for (var entry in content) {
-        String? value = entry['rolename']?.toString();
+        String? value = entry['rolename']?.toString();f
         if (value != null &&
             value.toLowerCase().startsWith(pattern.toLowerCase())) {
           if (!uniqueValues.contains(value)) {
@@ -3893,6 +3916,12 @@ class _CustomJobTitleForExperienceState
             elevation: 4.0,
           ),
           textFieldConfiguration: TextFieldConfiguration(
+            inputFormatters: widget.name == "pin_code"
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : [],
+            keyboardType: widget.name == "pin_code"
+                ? TextInputType.number
+                : TextInputType.name,
             /* onTapOutside: (event) {
               setState(() {
                 suggestionSelected = true;
@@ -3907,29 +3936,34 @@ class _CustomJobTitleForExperienceState
             onChanged: (value) {
               suggestion = null;
             },
-            autofocus: true,
+            maxLength: widget.name == "pin_code" ? 6 : null,
+
+            // autofocus: true,
             focusNode: widget.focusNode,
             textCapitalization: TextCapitalization.sentences,
             controller: controller,
-            style:
-                GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
+            style: GoogleFonts.montserrat(
+                color: Constants.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w500),
             decoration: InputDecoration(
-              label: const Text("Job Title"),
+              counterText: "",
+              // label: const Text("Enter your job title"),
               labelStyle: GoogleFonts.varela(
-                  color: Constants.themeBgColor, fontSize: 15.sp),
-              prefixIcon: const Icon(
+                  color: Colors.grey.shade400, fontSize: 15.sp),
+              /*  prefixIcon: const Icon(
                 Icons.badge_outlined,
                 color: Constants.themeBgColor,
-              ),
+              ), */
               prefixIconColor: Constants.themeBgColor,
               //label: Text("Reside at"),
               hintText: hintText,
-              hintStyle: GoogleFonts.varela(
+              hintStyle: GoogleFonts.montserrat(
                 color: Constants.subtitleclr,
-                fontSize: 14.sp,
+                fontSize: 14,
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Constants.themeBgColor),
+                borderSide: const BorderSide(color: Constants.black),
                 borderRadius: BorderRadius.circular(8),
               ),
               border: OutlineInputBorder(
@@ -3965,13 +3999,14 @@ class _CustomJobTitleForExperienceState
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ListTile(
-                title: Text(
-                  widget.isIndustry
+                title: customTextForMonst(
+                  title: widget.isIndustry
                       ? suggestion.value.toString()
                       : widget.role.isNotEmpty
                           ? suggestion.roleName.toString()
                           : suggestion.process.toString(),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
                 ),
               ),
             );
@@ -4005,8 +4040,17 @@ class _CustomJobTitleForExperienceState
 
             return InkWell(
               onTap: () {
-                FocusScope.of(context).unfocus();
-                widget.onChanged(true);
+                if (widget.name == "pin_code") {
+                  controller!.text.length < 6
+                      ? CustomSnackbar.show("Add Proper Pin Code", true)
+                      : {
+                          FocusScope.of(context).unfocus(),
+                          widget.onChanged(true)
+                        };
+                } else {
+                  FocusScope.of(context).unfocus();
+                  widget.onChanged(true);
+                }
               },
               child: Container(
                   margin: EdgeInsets.symmetric(vertical: 2.h, horizontal: 6.w),
@@ -4014,10 +4058,12 @@ class _CustomJobTitleForExperienceState
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        "Add Designation",
-                        style: GoogleFonts.varela(fontWeight: FontWeight.w600),
-                      ),
+                      customTextForMonst(
+                          fontSize: 12,
+                          title: widget.name == "industry"
+                              ? "No result found. add somthing else"
+                              : "Add ${widget.title}",
+                          fontWeight: FontWeight.w600),
                     ],
                   )),
             );

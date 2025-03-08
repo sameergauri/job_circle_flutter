@@ -60,24 +60,26 @@ class _HomeScreenState extends State<HomeScreen> {
           items: [
             BottomNavigationBarItem(
               icon: Image.asset(
-                "assets/images/jobs.png",
+                "assets/images/exp_bag.png",
                 height: 15.h,
               ),
               activeIcon: Image.asset(
-                "assets/images/jobs.png",
+                "assets/images/exp_bag.png",
                 height: 25.h,
+                color: Constants.themeBgColor,
               ),
-              label: "Hiring",
+              label: "Jobs",
               backgroundColor: Colors.blue,
             ),
             BottomNavigationBarItem(
               icon: Image.asset(
-                "assets/images/interview_bay.png",
+                "assets/images/trackApplication.png",
                 height: 20.h,
               ),
               activeIcon: Image.asset(
-                "assets/images/interview_bay.png",
+                "assets/images/trackApplication.png",
                 height: 20.h,
+                color: Constants.themeBgColor,
               ),
               label: "Track Application",
               backgroundColor: Colors.blue,
@@ -87,7 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
           currentIndex: selectedIndex,
           showUnselectedLabels: true,
           unselectedItemColor: Colors.black45,
-          selectedItemColor: Colors.black,
+          selectedItemColor: Constants.themeBgColor,
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
           iconSize: 30,
           onTap: onNavigationChange,
@@ -110,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'version']; //TODO::: latest version is also as yaml file with updated one ...
 
         const String currentVersion =
-            '1.0.20'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+            '1.0.22'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
         if (latestVersion.compareTo(currentVersion) > 0) {
           // Display update notification
@@ -192,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedIndex = value;
     });
     pageController.jumpToPage(value);
-    //await checkAppVersion();  //TODO:: check app version when user switch the tab.....
+    await checkAppVersion(); //TODO:: check app version when user switch the tab.....
   }
 }
 
