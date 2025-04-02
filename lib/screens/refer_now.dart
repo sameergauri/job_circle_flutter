@@ -109,7 +109,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final jsonData = jsonDecode(response.body);
-        final List<dynamic> contentList = jsonData['resultData']['content'];
+        final List<dynamic> contentList = jsonData['resultData']['atsData'];
 
         // Convert the list of Map to a list of Applicant objects
         List<Applicant> applicants =

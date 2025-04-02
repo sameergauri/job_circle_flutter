@@ -678,10 +678,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     Visibility(
                         visible: (usertype == EUserType.jobSeeker.value ||
                                 usertype == EUserType.businessPartner.value) &&
-                            (!widget.Applies && !widget.referal) &&
-                            (widget.is_freelancer == 1 ||
-                                widget.is_freelancer == 0 ||
-                                widget.is_freelancer == null),
+                            (!widget.Applies && !widget.referal),
                         child: InkWell(
                           onTap: () {
                             Navigator.push(
@@ -2174,10 +2171,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                     Visibility(
                       visible: (usertype == EUserType.jobSeeker.value ||
                               usertype == EUserType.businessPartner.value) &&
-                          (!widget.Applies && !widget.referal) &&
-                          (widget.is_freelancer == 1 ||
-                              widget.is_freelancer == 0 ||
-                              widget.is_freelancer == null),
+                          (!widget.Applies && !widget.referal),
                       child: CustomButtonForJobPosting(
                           buttonText: "Apply Now",
                           onTap: () async {

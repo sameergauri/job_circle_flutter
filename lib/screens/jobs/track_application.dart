@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/refer_now.dart';
+import 'package:job_circle/screens/referral_page.dart';
 
 import '../../themes/colors.dart';
 
@@ -46,7 +46,11 @@ class _TrackApplicationState extends State<TrackApplication> {
                       selectedIndex = index;
                     });
                   },
-                  children: const [AppliedJob(), AllReferStatus()],
+                  children: const [
+                    AppliedJob(),
+                    //  AllReferStatus()
+                    ReferalPage()
+                  ],
                 ),
               ),
             ],

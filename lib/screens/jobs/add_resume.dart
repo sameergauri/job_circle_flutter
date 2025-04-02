@@ -1352,7 +1352,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
             spoc: widget.spocId,
             uid: int.tryParse(userId));
         await JobPostApiService.ReferAndAddResume(
-            referAddResumeModel.toJson(), context, false, usertoken, true);
+            referAddResumeModel.toJson(), context, false, usertoken, false);
         ref.refresh(fetchAllTalentPoolProvider);
         ref.refresh(fetchAllApplicantProvider);
         ref.refresh(fetchAllExecutiveProvide);
@@ -1401,24 +1401,24 @@ class _AddResumeState extends ConsumerState<AddResume> {
         });
       } else {
         ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            applicantName: firt_name.text,
-            companyName: widget.company_name,
-            contactNo: int.parse(primary_number.text.trim()),
-            interviewRounds: widget.interviewRounds,
-            isExperienced: fresher ? 0 : 1,
-            jobId: widget.jobId,
-            lastName: last_name.text,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            process: widget.process,
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            resume: icon_data,
-            shortListFor: widget.company_id,
-            spoc: widget.spocId,
-            uid: int.tryParse(userId));
+          alternateNo:
+              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
+          applicantName: firt_name.text,
+          companyName: widget.company_name,
+          contactNo: int.parse(primary_number.text.trim()),
+          interviewRounds: widget.interviewRounds,
+          isExperienced: fresher ? 0 : 1,
+          jobId: widget.jobId,
+          lastName: last_name.text,
+          level: widget.role,
+          naturofwork: widget.nature_of_work,
+          process: widget.process,
+          qualification: graduate == true ? "Graduate" : "Under Graduate",
+          resume: icon_data,
+          shortListFor: widget.company_id,
+          spoc: widget.spocId,
+          uid: int.tryParse(userId),
+        );
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, usertoken, false);
         ref.refresh(fetchAllTalentPoolProvider);
