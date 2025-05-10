@@ -18,11 +18,9 @@ import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
-import 'package:job_circle/screens/Manager/manager_piepline.dart';
+
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/jobs/cc_my_team.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
+
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
@@ -35,7 +33,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../common/utils.dart';
 
 class OTPScreen extends ConsumerStatefulWidget {
-  const OTPScreen({super.key, this.no});
+  const 
+  OTPScreen({super.key, this.no});
   final String? no;
 
   @override
@@ -328,8 +327,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                   // disabled: vrifyButtonDisabled,
                   onPressed: () async {
                     await verifyOTP();
-                    ref.refresh(
-                        fetchAllApplicantProvider); //TODO:: refresh when new user login
+                  
                     ref.refresh(fetchAllApplyProvider);
                     ref.refresh(fetchAllReferalProvider);
                     ref.refresh(profileSummaryProvider);
@@ -340,9 +338,7 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                     ref.refresh(userDataProvider);
                     ref.refresh(experienceProvider);
                     ref.refresh(educationProvider);
-                    ref.refresh(fetchAllTalentPoolProvider);
-                    ref.refresh(fetchAllTeamData);
-                    ref.refresh(fetchAllManagerProvider);
+                
                     ref.refresh(ProfileDataProvider);
                     ref.refresh(PartnerProfileData);
                   },

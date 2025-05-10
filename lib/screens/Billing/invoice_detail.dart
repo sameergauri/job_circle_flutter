@@ -2,9 +2,10 @@
 // ignore_for_file: todo
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/models/list_of_invoice_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/themes/colors.dart';
 
 class InvoiceDetail extends StatefulWidget {
   ListOfInvoiceModel invoiceModel;
@@ -38,17 +39,17 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
+        titleSpacing: 0.0,
+        // centerTitle: true,
+        automaticallyImplyLeading: true,
+        iconTheme: const IconThemeData(color: Constants.black),
+        backgroundColor: Constants.borderColor,
         elevation: 0,
-        title: Text(
-          'INVOICE',
-          style: GoogleFonts.varela(
-              color: Colors.black,
-              fontSize: 18.sp,
-              fontWeight: FontWeight.bold),
-        ),
+        title: const customTextForWeather(
+            title: 'Invoice',
+            color: Colors.black,
+            fontSize: 16,
+            fontWeight: FontWeight.bold),
       ),
       backgroundColor: Colors.white,
       body: customCard(formattedDate, invoicedata, tableData),
@@ -76,7 +77,6 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
       List<List<String>> tableData) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 4.w),
-      decoration: BoxDecoration(border: Border.all(color: Colors.black)),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
         child: Column(
@@ -86,11 +86,10 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  formattedDate,
-                  style: GoogleFonts.varela(
-                      fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
+                customTextForWeather(
+                    title: formattedDate,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
               ],
             ),
             Row(
@@ -100,32 +99,31 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "To,",
-                        style: GoogleFonts.varela(fontSize: 16.sp),
+                      const customTextForWeather(
+                        title: "To,",
+                        fontSize: 14,
                       ),
-                      Text(
-                        "Job Circle",
-                        style: GoogleFonts.varela(
-                            fontSize: 16.sp, fontWeight: FontWeight.bold),
+                      const customTextForWeather(
+                          title: "Job Circle",
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold),
+                      const customTextForWeather(
+                        title: "Thane ${"(W)"},\nMumbai-400601",
+                        fontSize: 14,
                       ),
-                      Text(
-                        "Thane ${"(W)"},\nMumbai-400601",
-                        style: GoogleFonts.varela(fontSize: 16.sp),
+                      const SizedBox(
+                        height: 15,
                       ),
-                      Text(
-                        "Invoice No :  ${invoicedata.invoice_no}",
+                      customTextForWeather(
+                        title: "Invoice No :  ${invoicedata.invoice_no}",
                         // generateInvoiceNumber(data.first.userId.toString())
 
-                        style: GoogleFonts.varela(fontSize: 16.sp),
+                        fontSize: 14,
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
-            SizedBox(
-              height: 10.h,
             ),
             DynamicDetailTable(
                 data: tableData, totalAmount: invoicedata.total_amount),
@@ -134,17 +132,14 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
             ),
             Row(
               children: [
-                Text(
-                  "Amount in words : ",
-                  style: GoogleFonts.varela(
-                    fontSize: 16.sp,
-                  ),
+                const customTextForWeather(
+                  title: "Amount in words : ",
                 ),
                 Expanded(
-                  child: Text(
-                    "${amountToWords(invoicedata.total_amount.toInt())} only",
-                    style: GoogleFonts.varela(
-                        fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  child: customTextForWeather(
+                    title:
+                        "${amountToWords(invoicedata.total_amount.toInt())} only",
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
@@ -156,15 +151,10 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
             SizedBox(
               height: 10.h,
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Banking Detail",
-                  style: GoogleFonts.varela(
-                      fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-              ],
+            const customTextForWeather(
+              title: "Banking Detail",
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
             ),
             Container(
               margin: EdgeInsets.symmetric(vertical: 10.h),
@@ -173,73 +163,43 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
                 children: [
                   Row(
                     children: [
-                      Column(
+                      const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Bank Name",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: "Bank Name",
                           ),
-                          Text(
-                            "Account Type",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: "Account Type",
                           ),
-                          Text(
-                            "Holder Name(As per Bank Record)",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: "Holder Name(As per Bank Record)",
                           ),
-                          Text(
-                            "Account No",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: "Account No",
                           ),
-                          Text(
-                            "IFSC Code",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: "IFSC Code",
                           ),
                         ],
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            " : ${invoicedata.bank_name}",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: " : ${invoicedata.bank_name}",
                           ),
-                          Text(
-                            " : ${invoicedata.account_type}",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: " : ${invoicedata.account_type}",
                           ),
-                          Text(
-                            " : ${invoicedata.referralName}",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: " : ${invoicedata.referralName}",
                           ),
-                          Text(
-                            " : ${invoicedata.account_number}",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: " : ${invoicedata.account_number}",
                           ),
-                          Text(
-                            " : ${invoicedata.ifsc_code}",
-                            style: GoogleFonts.varela(
-                              fontSize: 16.sp,
-                            ),
+                          customTextForWeather(
+                            title: " : ${invoicedata.ifsc_code}",
                           ),
                         ],
                       )
@@ -250,17 +210,19 @@ class _InvoiceDetailState extends State<InvoiceDetail> {
             ),
             Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.done_all_outlined,
-                  size: 15.sp,
+                  size: 15,
+                  color: Constants.darkBlue,
                 ),
                 SizedBox(
                   width: 4.w,
                 ),
                 const Expanded(
-                  child: Text(
-                    'I hereby acknowledge and agree that the above invoice, accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
-                    style: TextStyle(fontSize: 14),
+                  child: customTextForWeather(
+                    title:
+                        'I hereby acknowledge and agree that the above invoice, accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
+                    color: Constants.subtitleclr,
                   ),
                 ),
               ],
@@ -408,41 +370,41 @@ class DynamicDetailTable extends StatelessWidget {
               children: [
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'Candidate Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'Candidate Name',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'Co. Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'Co. Name',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'Process',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'Process',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'DOJ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'DOJ',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'Amt',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'Amt',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -451,20 +413,25 @@ class DynamicDetailTable extends StatelessWidget {
             ...data.map((row) => TableRow(
                   children: [
                     TableCell(
-                        child:
-                            Center(child: Text(row.isNotEmpty ? row[0] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.isNotEmpty ? row[0] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 1 ? row[1] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 1 ? row[1] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 2 ? row[2] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 2 ? row[2] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 3 ? row[3] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 3 ? row[3] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 4 ? row[4] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 4 ? row[4] : ''))),
                   ],
                 )),
             // Total row

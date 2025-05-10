@@ -13,11 +13,11 @@ import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 
-import '../screens/jobs/cc_my_team.dart';
+
 import '../service/job_post_api_service.dart';
 
 class CustomDialogueForSelect extends ConsumerStatefulWidget {
@@ -461,10 +461,10 @@ class _CustomDialogueForSelectState
                 .refresh(fetchAllApplicantProvider(profilemodel.id!.toInt())); */
                           setState(() {});
                           someFunction();
-                          ref.refresh(fetchAllApplicantProvider);
+                         
                           ref.refresh(fetchAllReferalProvider);
                           ref.refresh(fetchAllApplyProvider);
-                          ref.refresh(fetchAllTeamData);
+                         
                           Navigator.pop(context);
                         } catch (e) {
                           print('Error: $e');

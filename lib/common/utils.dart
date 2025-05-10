@@ -9,7 +9,7 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/onboarding/add_intoduction.dart';
-import 'package:job_circle/screens/partnerhome.dart';
+
 import 'package:job_circle/themes/colors.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -166,30 +166,7 @@ class Utils {
               MaterialPageRoute(builder: (context) => HomeScreen()),
               (route) => false);
         }
-      } else if (usertype.toString() == //TODO:: For Employee
-              EUserType.employee.value.toString() ||
-          usertype.toString() == EUserType.employee.value.toString()) {
-        //Future.delayed(const Duration(seconds: 1), () {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-                builder: (context) => PartnerHomeScreen(
-                      role: data['role'],
-                      userid: data['userId'],
-                      usertype: data['usertype'],
-                    )),
-            (route) => false);
-        /*  Navigator.pushNamedAndRemoveUntil(
-            context, ERoute.partnerHome.name, (Route<dynamic> route) => false); */
-      } else {
-        Timer(
-            const Duration(seconds: 1),
-            () => Navigator.pushNamedAndRemoveUntil(
-                context, ERoute.login.name, (Route<dynamic> route) => false)
-            // Navigator.pushNamedAndRemoveUntil(
-            //     context, ERoute.login.name, (Route<dynamic> route) => false)
-            );
-      }
+      } 
     } else {
       Navigator.pushAndRemoveUntil(
           //TODO:: Existing candidate

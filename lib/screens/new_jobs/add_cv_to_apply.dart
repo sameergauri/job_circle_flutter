@@ -13,7 +13,7 @@ import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart'
 import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
+
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/screens/profile/user_profile.dart';
@@ -98,7 +98,7 @@ class _AddCvtoApplyState extends ConsumerState<AddCvtoApply> {
                             ref.refresh(ProfileDataProvider);
 
                             ref.refresh(fetchAllApplyProvider);
-                            ref.refresh(fetchAllTalentPoolProvider);
+                           
                             ref.refresh(userDataProvider);
                             ref.refresh(profileSummaryProvider);
                             /* Navigator.pop(context);

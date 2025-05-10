@@ -1,9 +1,8 @@
 // ignore_for_file: use_super_parameters, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:job_circle/screens/jobs/Applied_jobs.dart';
+import 'package:job_circle/screens/applied_page.dart';
 import 'package:job_circle/screens/referral_page.dart';
 
 import '../../themes/colors.dart';
@@ -47,8 +46,9 @@ class _TrackApplicationState extends State<TrackApplication> {
                     });
                   },
                   children: const [
-                    AppliedJob(),
+                    // AppliedJob(),
                     //  AllReferStatus()
+                    AppliedPage(),
                     ReferalPage()
                   ],
                 ),
@@ -178,9 +178,9 @@ class CustomTabBar extends StatelessWidget {
           child: Text(
             tabs[index],
             style: GoogleFonts.merriweather(
-              fontSize: 16.sp,
+              fontSize: 14,
               color: isSelected ? Constants.darkBlue : Colors.grey.shade400,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.normal,
             ),
           ),
         ),

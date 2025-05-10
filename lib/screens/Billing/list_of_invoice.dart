@@ -1,18 +1,13 @@
 // ignore_for_file: unnecessary_null_comparison, unused_result, avoid_print, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, avoid_unnecessary_containers
 // ignore_for_file: todo
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/gobal.dart';
-import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/components/custom_remark.dart';
 import 'package:job_circle/models/list_of_invoice_model.dart';
 import 'package:job_circle/screens/Billing/invoice_detail.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -28,79 +23,13 @@ class ListOfInvoice extends ConsumerStatefulWidget {
   ConsumerState<ListOfInvoice> createState() => _ListOfInvoiceState();
 }
 
-class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
+class _ListOfInvoiceState extends ConsumerState<ListOfInvoice>
+    with TickerProviderStateMixin {
   //
   //
   //
-  /* static Future<List<ListOfInvoiceModel>> fetchAllInvoiceDetail() async {
-    var userid =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
-    final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllInvoiceOfReferral?rid=1231&pageNumber=1&pageSize=100');
 
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-
-        if (jsonData['resultData'] != null) {
-          final List<dynamic> contentList = jsonData['resultData']['content'];
-
-          // Convert the list of Map to a list of ListOfInvoiceModel objects
-          List<ListOfInvoiceModel> invoices = contentList
-              .map((json) => ListOfInvoiceModel.fromJson(json))
-              .toList();
-
-          return invoices;
-        } else {
-          print('resultData is null');
-          return [];
-        }
-      } else {
-        print(
-            'Failed to fetch invoice data. Status Code: ${response.statusCode}');
-        return [];
-      }
-    } catch (e) {
-      print('Error while fetching data: $e');
-      return [];
-    }
-  } */
-
-//
-//
-//
-
-  /* static Future<List<ListOfInvoiceModel>> fetchAllInvoiceDetail() async {
-    var userid =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
-    final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getAllInvoiceOfReferral?rid=$userid&pageNumber=1&pageSize=100');
-
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        final List<dynamic> contentList = jsonData['resultData'];
-
-        // Convert the list of Map to a list of Applicant objects
-        List<ListOfInvoiceModel> applicants = contentList
-                .map((json) => ListOfInvoiceModel.fromJson(json))
-                .toList() ??
-            [];
-
-        return applicants;
-      } else {
-        print(
-            'Failed to fetch banking data. Status Code: ${response.statusCode}');
-        return [];
-      }
-    } catch (e) {
-      print('Error while fetching data: $e');
-      return [];
-    }
-  } */
-  static Future<List<ListOfInvoiceModel>> fetchAllInvoiceDetail() async {
+  /*  static Future<List<ListOfInvoiceModel>> fetchAllInvoiceDetail() async {
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
@@ -130,6 +59,125 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
       print('Error while fetching data: $e');
       return [];
     }
+  } */
+
+  static Future<List<ListOfInvoiceModel>> fetchAllInvoiceDetail() async {
+    try {
+      return [
+        ListOfInvoiceModel(
+          referralName: "John Doe",
+          total_amount: 12500.0,
+          invoice_date: DateTime.now().subtract(const Duration(days: 10)),
+          invoice_no: "INV001",
+          bank_name: "Axis Bank",
+          ifsc_code: "UTIB0001234",
+          account_number: 1234567890,
+          account_type: "Savings",
+          payment_status: "Invoice Sent",
+          remark: "Invoice pending clearance",
+          candidates: [
+            Candidate(
+              id: 1,
+              candidateName: "Alice Smith",
+              companyName: "TCS",
+              process: "HR",
+              shortCode: "HR01",
+              candidateAmount: 5000.0,
+              doj: DateTime.now().subtract(const Duration(days: 30)),
+            ),
+            Candidate(
+              id: 2,
+              candidateName: "Bob Johnson",
+              companyName: "Infosys",
+              process: "Finance",
+              shortCode: "FIN02",
+              candidateAmount: 7500.0,
+              doj: DateTime.now().subtract(const Duration(days: 20)),
+            ),
+          ],
+        ),
+        ListOfInvoiceModel(
+          referralName: "Jane Roe",
+          total_amount: 8900.0,
+          invoice_date: DateTime.now().subtract(const Duration(days: 20)),
+          invoice_no: "INV002",
+          bank_name: "HDFC Bank",
+          ifsc_code: "HDFC0009876",
+          account_number: 9876543210,
+          account_type: "Current",
+          payment_status: "Paid",
+          remark: "Payment completed successfully",
+          candidates: [
+            Candidate(
+              id: 3,
+              candidateName: "Charlie Brown",
+              companyName: "Wipro",
+              process: "Tech",
+              shortCode: "TECH03",
+              candidateAmount: 8900.0,
+              doj: DateTime.now().subtract(const Duration(days: 45)),
+            ),
+          ],
+        ),
+        ListOfInvoiceModel(
+          referralName: "Jane Roe",
+          total_amount: 8900.0,
+          invoice_date: DateTime.now().subtract(const Duration(days: 60)),
+          invoice_no: "INV002",
+          bank_name: "HDFC Bank",
+          ifsc_code: "HDFC0009876",
+          account_number: 9876543210,
+          account_type: "Current",
+          payment_status: "Validation",
+          remark: "Payment completed successfully",
+          candidates: [
+            Candidate(
+              id: 3,
+              candidateName: "Charlie Brown",
+              companyName: "Wipro",
+              process: "Tech",
+              shortCode: "TECH03",
+              candidateAmount: 8900.0,
+              doj: DateTime.now().subtract(const Duration(days: 45)),
+            ),
+          ],
+        ),
+      ];
+    } catch (e) {
+      print('Error while fetching invoice data: $e');
+      return [];
+    }
+  }
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 0, vsync: this);
+    // TODO: implement initState
+    super.initState();
+  }
+
+  List<ListOfInvoiceModel> _getFilteredData(List<ListOfInvoiceModel> allData) {
+    return allData.where((item) {
+      // Apply search filter
+      final searchMatch = _searchController.text.isEmpty ||
+          (item.bank_name
+                      .toLowerCase()
+                      .contains(_searchController.text.toLowerCase()) ==
+                  true ||
+              (item.referralName
+                      .toLowerCase()
+                      .contains(_searchController.text.toLowerCase()) ==
+                  true));
+
+      // Apply date filter
+      bool dateMatch = true;
+      if (selectedMonthAndYear != null && item.invoice_date != null) {
+        dateMatch = item.invoice_date.month == selectedMonthAndYear! % 100 &&
+            item.invoice_date.year == selectedMonthAndYear! ~/ 100;
+      }
+
+      return searchMatch && dateMatch;
+    }).toList();
   }
 
   //
@@ -141,6 +189,8 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
   final TextEditingController _searchController = TextEditingController();
   final RefreshController _refreshController = RefreshController();
   int? selectedMonthAndYear;
+
+  TabController? _tabController;
   //
   //
   //
@@ -151,41 +201,97 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
     return fetchAllInvoiceData != null
         ? fetchAllInvoiceData.when(
             data: (data) {
+              //
+              //
+              //
+              //
+              final filteredData = _getFilteredData(data);
+
+              final visibleStatuses = filteredData
+                  .map((e) => e.payment_status)
+                  .where((status) => status.isNotEmpty)
+                  .toSet()
+                  .toList();
+
+              if (_tabController == null ||
+                  _tabController!.length != visibleStatuses.length) {
+                final newIndex = _tabController == null ||
+                        _tabController!.index >= visibleStatuses.length
+                    ? visibleStatuses.length - 1
+                    : _tabController!.index;
+
+                _tabController = TabController(
+                  length: visibleStatuses.length,
+                  vsync: this,
+                  initialIndex: visibleStatuses.isNotEmpty
+                      ? newIndex.clamp(0, visibleStatuses.length - 1)
+                      : 0,
+                );
+              }
+
+              //
+              //
+              //
+              //
+              //
               return Scaffold(
                   backgroundColor: Colors.white,
                   appBar: PreferredSize(
                     preferredSize:
                         const Size(double.maxFinite, kTextTabBarHeight),
                     child: AppBar(
-                      automaticallyImplyLeading: false,
-                      backgroundColor: Colors.white,
-                      elevation: 0,
-                      centerTitle: true,
-                      title: Row(
-                        children: [
-                          Image.asset(
-                            "assets/images/invoice.png",
-                            height: 24.sp,
-                          ),
-                          SizedBox(
-                            width: 4.w,
-                          ),
-                          Text(
-                            "Track Invoice",
-                            style: GoogleFonts.varela(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
+                      titleSpacing: 0.0,
+                      // centerTitle: true,
+                      automaticallyImplyLeading: true,
+                      iconTheme: const IconThemeData(color: Constants.black),
+                      backgroundColor: Constants.borderColor,
+                      elevation: 0.0,
+                      title: const customTextForWeather(
+                          title: 'Track Payments',
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
                       // title: customSearchField(context),  //TODO:: Searchbar
-                      // actions: [buildMonthAndYearSelector(data)],//TODO:: Filter as per month..
+                      actions: [
+                        buildMonthAndYearSelector(data)
+                      ], //TODO:: Filter as per month..
                     ),
                   ),
-                  body: SmartRefresher(
-                      controller: _refreshController,
-                      onRefresh: _onRefresh,
-                      child: buildFilteredListView(data)));
+                  body: DefaultTabController(
+                    length: visibleStatuses.length,
+                    child: Column(
+                      children: [
+                        TabBar(
+                          dividerHeight: 1.0,
+                          controller: _tabController,
+                          overlayColor:
+                              MaterialStateProperty.all(Colors.transparent),
+                          tabAlignment: TabAlignment.start,
+                          isScrollable: true,
+                          labelColor: Constants.black,
+                          unselectedLabelColor: Constants.subtitleclr,
+                          indicatorColor: Constants.orange,
+                          labelStyle: GoogleFonts.merriweather(
+                              fontSize: 12, fontWeight: FontWeight.w700),
+                          unselectedLabelStyle: GoogleFonts.merriweather(
+                              fontSize: 12, fontWeight: FontWeight.normal),
+                          tabs: visibleStatuses
+                              .map((status) => Tab(text: status))
+                              .toList(),
+                        ),
+                        Expanded(
+                            child: TabBarView(
+                          controller: _tabController,
+                          children: visibleStatuses.map((status) {
+                            final statusFilteredData = filteredData
+                                .where((item) => item.payment_status == status)
+                                .toList();
+                            return buildFilteredListView(statusFilteredData);
+                          }).toList(),
+                        )),
+                      ],
+                    ),
+                  ));
             },
             error: (error, stackTrace) {
               return const Scaffold(
@@ -298,47 +404,116 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
   Widget buildMonthAndYearSelector(List<ListOfInvoiceModel> filteredData) {
     Set<int> uniqueMonthsAndYears = filteredData
         .map((item) => item.invoice_date != null
-            ? (DateTime.parse(item.invoice_date.toString()).year * 100) +
-                DateTime.parse(item.invoice_date.toString()).month
+            ? (item.invoice_date.year * 100 + item.invoice_date.month)
             : 0)
-        .toSet();
-    return Container(
-      margin: EdgeInsets.only(right: 10.w),
-      child: DropdownButton<int>(
-        // isExpanded: true,
-        underline: const SizedBox.shrink(),
-        icon: const SizedBox.shrink(),
-        // hint: const Text("All"),
-        value: selectedMonthAndYear,
-        onChanged: (int? newValue) {
-          setState(() {
-            selectedMonthAndYear = newValue;
-            _searchController.clear();
-            // Apply filtering based on the selected month and year
-            // You can use the selectedMonthAndYear to filter your data further
-          });
-        },
-        items: [
-          DropdownMenuItem<int>(
-            value: null,
-            child: Text(
-              "All",
-              style: GoogleFonts.varela(),
+        .toSet()
+      ..remove(0); // Remove any invalid/default value
+
+    return GestureDetector(
+      onTap: () =>
+          _showMonthFilterBottomSheet(context, uniqueMonthsAndYears.toList()),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.network(
+              "https://cdn-icons-png.flaticon.com/128/7602/7602631.png",
+              height: 15,
+              width: 15,
             ),
-          ),
-          ...uniqueMonthsAndYears.map((int monthAndYear) {
-            int year = monthAndYear ~/ 100;
-            int month = monthAndYear % 100;
-            return DropdownMenuItem<int>(
-              value: monthAndYear,
-              child: Text(
-                "${getMonthName(month)}-${year.toString().substring(2)}",
-                style: GoogleFonts.varela(),
-              ),
-            );
-          }),
-        ],
+            const SizedBox(width: 4),
+            customTextForWeather(
+              title: selectedMonthAndYear != null
+                  ? "${getMonthName(selectedMonthAndYear! % 100)}-${(selectedMonthAndYear! ~/ 100).toString().substring(2)}"
+                  : "All",
+              color: Constants.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  void _showMonthFilterBottomSheet(
+      BuildContext context, List<int> monthYearList) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Wrap(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const customTextForWeather(
+                    title: "Filter by Month",
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Constants.darkBlue,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedMonthAndYear = null;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const customTextForWeather(
+                      title: "Clear All",
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Constants.orange,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: monthYearList.length,
+                itemBuilder: (context, index) {
+                  int value = monthYearList[index];
+                  int month = value % 100;
+                  int year = value ~/ 100;
+                  String label =
+                      "${getMonthName(month)}-${year.toString().substring(2)}";
+
+                  return RadioListTile<int>(
+                    value: value,
+                    groupValue: selectedMonthAndYear,
+                    title: customTextForWeather(title: label),
+                    activeColor: Constants.darkBlue,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedMonthAndYear = val;
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -444,261 +619,66 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice> {
   //
   // TODO:: Custom card for card ui of each invoice...
   Container CustomCard(ListOfInvoiceModel filteredData) {
-    DateTime dateTime = DateTime.parse(filteredData.invoice_date.toString());
-    String formattedDate = DateFormat("d MMM yyyy").format(dateTime);
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5.h, horizontal: 16.w),
-      padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 6.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.r),
-        color: Colors.grey.shade300,
-        boxShadow: [
-          BoxShadow(
-              offset: const Offset(0.5, 2),
-              blurRadius: 2,
-              spreadRadius: 2,
-              color: Colors.grey.shade200)
-        ],
-      ),
+      margin: EdgeInsets.only(left: 10.w, right: 10.w, top: 10.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 6.w),
-            decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(8.r)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Image.network(
+              "https://cdn-icons-png.flaticon.com/128/7928/7928355.png",
+            ),
+            title: const customTextForWeather(
+              title: "Organization Name",
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+            subtitle: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "INVOICE",
-                      style: GoogleFonts.varela(
-                          fontSize: 12.sp, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                customTextForWeather(
+                  title: filteredData.invoice_no.toString(),
+                  fontSize: 12,
                 ),
                 Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "To,",
-                            style: GoogleFonts.varela(fontSize: 10.sp),
-                          ),
-                          Text(
-                            formattedDate,
-                            style: GoogleFonts.varela(
-                                fontSize: 10.sp, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                      const Icon(
+                        Icons.currency_rupee_outlined,
+                        size: 12,
+                        color: Constants.darkBlue,
                       ),
-                      Text(
-                        "Job Circle",
-                        style: GoogleFonts.varela(
-                            fontSize: 10.sp, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        "Thane ${"(W)"},\nMumbai-400601",
-                        style: GoogleFonts.varela(fontSize: 10.sp),
-                      ),
-                      Text(
-                        "Invoice No :  ${filteredData.invoice_no}",
-                        // generateInvoiceNumber(data.first.userId.toString())
-
-                        style: GoogleFonts.varela(fontSize: 10.sp),
+                      customTextForWeather(
+                        title:
+                            "${filteredData.total_amount.toString().replaceAll(".0", "")} /-",
+                        fontSize: 12,
                       ),
                     ],
                   ),
-                ),
-                /* Row(
-                  children: [
-                    Text("Invoice No : ${filteredData.invoice_no.toString()}",
-                        style: GoogleFonts.varela(
-                            fontSize: 14.sp, fontWeight: FontWeight.bold)),
-                    const Spacer(),
-                    Container(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.currency_rupee_outlined,
-                            size: 15.sp,
-                          ),
-                          Text(
-                            filteredData.total_amount.toString(),
-                            style: GoogleFonts.varela(
-                                fontWeight: FontWeight.bold, fontSize: 16.sp),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text("A/C No : ${filteredData.ifsc_code.toString()}",
-                        style: GoogleFonts.varela(
-                            fontSize: 14.sp, fontWeight: FontWeight.normal)),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(top: 4.h),
-                      padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8..w),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0.5, 2),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.grey.shade200)
-                        ],
-                        borderRadius: BorderRadius.circular(8.r),
-                        // border: Border.all(color: Constants.themeBgColor)
-                      ),
-                      child: Text(
-                        formattedDate,
-                        style: GoogleFonts.varela(color: Constants.subtitleclr),
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 4.h),
-                      padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8..w),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0.5, 2),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.grey.shade200)
-                        ],
-                        borderRadius: BorderRadius.circular(8.r),
-                        // border: Border.all(color: Constants.themeBgColor)
-                      ),
-                      child: Text(
-                        "Billing Status:-${filteredData.payment_status}",
-                        style: GoogleFonts.varela(color: Constants.subtitleclr),
-                      ),
-                    ),
-                  ],
-                ) */
+                )
               ],
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 4.h),
-                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8..w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        offset: const Offset(0.5, 2),
-                        blurRadius: 2,
-                        spreadRadius: 2,
-                        color: Colors.grey.shade200)
-                  ],
-                  borderRadius: BorderRadius.circular(8.r),
-                  // border: Border.all(color: Constants.themeBgColor)
-                ),
-                child: Row(
-                  children: [
-                    filteredData.payment_status == "" ||
-                            filteredData.payment_status == null
-                        ? Icon(
-                            Icons.done,
-                            size: 15.sp,
-                          )
-                        : filteredData.payment_status == "Under Process"
-                            ? Image.asset(
-                                "assets/images/inprocess.png",
-                                height: 13.sp,
-                              )
-                            : filteredData.payment_status == "Paid"
-                                ? Icon(
-                                    Icons.done_all_outlined,
-                                    size: 15.sp,
-                                    color: Constants.green,
-                                  )
-                                : Icon(
-                                    Icons.error_outline,
-                                    size: 15.sp,
-                                    color: Colors.red,
-                                  ),
-                    SizedBox(width: 4.w),
-                    Text(
-                      filteredData.payment_status != ""
-                          ? filteredData.payment_status
-                          : "Invoice Submited",
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold,
-                          color: filteredData.payment_status == "" ||
-                                  filteredData.payment_status == null
-                              ? Constants.subtitleclr
-                              : filteredData.payment_status == "Under Process"
-                                  ? Colors.orange
-                                  : filteredData.payment_status ==
-                                          "Invoice Submited"
-                                      ? Constants.subtitleclr
-                                      : filteredData.payment_status == "Paid"
-                                          ? Constants.green
-                                          : Colors.red),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                  margin: EdgeInsets.only(top: 4.h),
-                  padding:
-                      EdgeInsets.symmetric(vertical: 4.h, horizontal: 8..w),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                          offset: const Offset(0.5, 2),
-                          blurRadius: 2,
-                          spreadRadius: 2,
-                          color: Colors.grey.shade200)
-                    ],
-                    borderRadius: BorderRadius.circular(8.r),
-                    // border: Border.all(color: Constants.themeBgColor)
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.currency_rupee_outlined,
-                        size: 13.sp,
-                      ),
-                      Text(
-                        filteredData.total_amount
-                            .toString()
-                            .replaceAll(".0", ""),
-                        style: GoogleFonts.varela(
-                            fontWeight: FontWeight.bold, fontSize: 14.sp),
-                      ),
-                    ],
-                  )),
-            ],
-          ),
-          if (filteredData.payment_status == "Reject")
-            Padding(
-              padding: EdgeInsets.only(top: 4.sp),
-              child: Text(
-                "Reason : ${filteredData.remark}",
-                style: GoogleFonts.varela(fontSize: 14.sp),
-              ),
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            decoration: BoxDecoration(
+              color: Constants.lightdull,
+              borderRadius: BorderRadius.circular(8.r),
+              // border: Border.all(color: Constants.themeBgColor)
             ),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                CustomRemarkConatiner(
+                    subtitle: filteredData.remark,
+                    valueColor: Constants.subtitleclr,
+                    title: "Remark")
+              ],
+            ),
+          ),
         ],
       ),
     );

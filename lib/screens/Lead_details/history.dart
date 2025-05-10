@@ -14,9 +14,7 @@ import 'package:job_circle/constants/custom_network_image.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
+
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:timelines/timelines.dart';
@@ -203,9 +201,7 @@ class _HistoryState extends ConsumerState<History> {
                                       },
                                       isLineUp: false,
                                       refreshCallback: () {
-                                        ref.refresh(fetchAllTalentPoolProvider);
-                                        ref.refresh(fetchAllApplicantProvider);
-                                        ref.refresh(fetchAllExecutiveProvide);
+                                      
                                         ref.refresh(fetchAllReferalProvider);
                                         ref.refresh(fetchAllApplyProvider);
                                         ref.refresh(getLeadHistory(

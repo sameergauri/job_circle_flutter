@@ -19,7 +19,6 @@ import 'package:job_circle/models/profileSummary.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
 import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -2217,7 +2216,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                 userId: int.tryParse(id)!,
                               );
                               ref.refresh(fetchAllApplyProvider);
-                              ref.refresh(fetchAllTalentPoolProvider);
+                              
                             } else {
                               if (jobDetailsModel.id != null) {
                                 Navigator.push(

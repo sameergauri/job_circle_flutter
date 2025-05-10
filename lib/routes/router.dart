@@ -10,7 +10,7 @@ import 'package:job_circle/screens/jobs/job_details.dart'
 import 'package:job_circle/screens/leads/leads.dart' deferred as leads;
 import 'package:job_circle/screens/login.dart' deferred as login;
 import 'package:job_circle/screens/otp.dart' deferred as otp;
-import 'package:job_circle/screens/partnerhome.dart' deferred as partnerhome;
+
 import 'package:job_circle/screens/performance/performance.dart'
     deferred as performance;
 import 'package:job_circle/screens/postlogin.dart' deferred as postlogin;
@@ -32,7 +32,7 @@ import 'package:job_circle/screens/statistics/statistic.dart'
 // future
 
 Future<void> get lazyHome => home.loadLibrary();
-Future<void> get lazyPartnerHome => partnerhome.loadLibrary();
+
 Future<void> get lazyProfile => profile.loadLibrary();
 //Future<void> get lazyScreen1 => screen1.loadLibrary();
 //Future<void> get lazyScreen2 => screen2.loadLibrary();
@@ -72,11 +72,7 @@ class ApplicationRouter {
         builder: (snapshot, context) {
           return home.HomeScreen();
         }),
-    ERoute.partnerHome.name: (context) => FutureBuilder(
-        future: lazyPartnerHome,
-        builder: (snapshot, context) {
-          return partnerhome.PartnerHomeScreen();
-        }),
+   
     ERoute.profile.name: (context) => FutureBuilder(
         future: lazyProfile,
         builder: (snapshot, context) {

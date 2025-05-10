@@ -12,7 +12,6 @@ import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
 import 'package:job_circle/models/role_model.dart';
-import 'package:job_circle/screens/partnerhome.dart';
 
 class JobPostApiService {
   static Future<void> postDataToApi(
@@ -546,23 +545,7 @@ class JobPostApiService {
       }
     } catch (e) {
       print('Error: $e');
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-            error: true,
-            onClose: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => const PartnerHomeScreen()),
-                (Route<dynamic> route) => false,
-              );
-            },
-            subtitle: "An error occurred!",
-          );
-        },
-      );
+      
     }
   }
 
@@ -637,23 +620,7 @@ class JobPostApiService {
       }
     } catch (e) {
       print('Error: $e');
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-            error: true,
-            onClose: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(
-                    builder: (context) => const PartnerHomeScreen()),
-                (Route<dynamic> route) => false,
-              );
-            },
-            subtitle: "An error occurred!",
-          );
-        },
-      );
+      
     }
   }
 

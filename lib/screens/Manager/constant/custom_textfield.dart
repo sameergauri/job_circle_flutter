@@ -396,6 +396,7 @@ class customTextForWeather extends StatelessWidget {
   final int? maxlines;
   final FontStyle? fontStyle;
   final TextOverflow? overflow;
+  final double? letterSpacing;  
 
   const customTextForWeather(
       {required this.title,
@@ -407,11 +408,14 @@ class customTextForWeather extends StatelessWidget {
       this.textAlign,
       this.maxlines,
       this.fontStyle,
-      this.overflow});
+      this.overflow,
+      this.letterSpacing,
+      });
 
   @override
   Widget build(BuildContext context) {
     return Text(
+      
       title,
       softWrap: softwrap,
       textAlign: textAlign,
@@ -423,6 +427,7 @@ class customTextForWeather extends StatelessWidget {
         fontWeight: fontWeight,
         decoration: TextDecoration.none,
         fontStyle: fontStyle,
+        letterSpacing: letterSpacing
       ),
     );
   }

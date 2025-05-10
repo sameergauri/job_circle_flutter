@@ -17,8 +17,7 @@ import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/models/sub_status_model.dart';
 import 'package:job_circle/screens/Manager/Lead_detail/customCompanyformanager.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
-import 'package:job_circle/screens/Manager/manager_piepline.dart';
-import 'package:job_circle/screens/Manager/manager_team.dart';
+
 import 'package:job_circle/service/job_post_api_service.dart';
 
 import '../../../common/utils.dart';
@@ -2774,8 +2773,7 @@ class _ManagerLeadFormState extends ConsumerState<ManagerLeadForm> {
 
     Map<String, dynamic> requestBody = leadsModel.toJson();
     await JobPostApiService.addResume(requestBody, context, false);
-    ref.refresh(fetchAllTeamManagerData);
-    ref.refresh(fetchAllManagerProvider);
+   
 
     /*  try {
       final response = await http.post(

@@ -38,7 +38,7 @@ class CustomButtonForSave extends StatelessWidget {
           children: [
             customTextForWeather(
               title: title,
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.bold,
               color: textColor ?? Colors.white,
             ),

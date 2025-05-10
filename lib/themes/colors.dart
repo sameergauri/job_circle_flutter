@@ -28,6 +28,9 @@ class Constants {
   static const black = Color(0xfff030303);
   static const dividercolor = Color(0xfffe9eaea);
    static const red = Color(0xffff13724);
+   static const orange = Color(0xffff27070);
+   static const darkgreen = Color(0xfff348708);
+
 
   static const MaterialColor theme = MaterialColor(
     _redPrimaryValue,

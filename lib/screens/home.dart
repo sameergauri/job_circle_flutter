@@ -8,10 +8,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
+import 'package:job_circle/screens/new_jobs/job_home_page.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'new_jobs/new_jobs_v1.dart';
 // Other imports...
 
 class HomeScreen extends StatefulWidget {
@@ -40,7 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
         controller: pageController,
-        children: const [NewJobsV1(), TrackApplication()],
+        children: const [
+          //  NewJobsV1(),
+          JobHomePage(),
+          TrackApplication()
+        ],
         onPageChanged: (index) {
           setState(() {
             selectedIndex = index;
@@ -73,15 +76,15 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             BottomNavigationBarItem(
               icon: Image.asset(
-                "assets/images/trackApplication.png",
+                "assets/images/ats.png",
                 height: 20.h,
               ),
               activeIcon: Image.asset(
-                "assets/images/trackApplication.png",
+                "assets/images/ats.png",
                 height: 20.h,
                 color: Constants.themeBgColor,
               ),
-              label: "Track Application",
+              label: "ATS",
               backgroundColor: Colors.blue,
             ),
           ],

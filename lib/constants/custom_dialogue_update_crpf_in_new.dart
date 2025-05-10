@@ -12,8 +12,8 @@ import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
 import 'package:job_circle/models/update_crpf_model.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/jobs/cc_my_team.dart';
+
+
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1027,10 +1027,10 @@ class _CustomDialogueForNewState extends ConsumerState<CustomDialogueForNew> {
                             try {
                               await JobPostApiService.NewchangeStatus(
                                   jsonData2, widget.item.id!.toInt());
-                              ref.refresh(fetchAllApplicantProvider);
+                            
                               ref.refresh(fetchAllReferalProvider);
                               ref.refresh(fetchAllApplyProvider);
-                              ref.refresh(fetchAllTeamData);
+                            
                             } catch (e) {
                               print('Error: $e');
                             }

@@ -1,24 +1,18 @@
 // ignore_for_file: unnecessary_null_comparison, unused_result, use_full_hex_values_for_flutter_colors, duplicate_ignore
 // ignore_for_file: override_on_non_overriding_member, unused_field, unused_local_variable, unused_result, file_names, avoid_print, unused_element, prefer_final_fields, non_constant_identifier_names, avoid_unnecessary_containers, use_build_context_synchronously, unnecessary_null_comparison
 // ignore_for_file: todo
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:job_circle/common/utils.dart';
-import 'package:job_circle/constants/dialogue_for_add_resume.dart';
+import 'package:job_circle/components/custom_remark.dart';
+import 'package:job_circle/components/custom_title_button.dart';
 import 'package:job_circle/constants/gobal.dart';
-import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/get_banking_detail_model.dart';
 import 'package:job_circle/models/view_and_generate_model.dart';
 import 'package:job_circle/screens/Billing/Invoice.dart';
-import 'package:job_circle/screens/Billing/banking_detal.dart';
-import 'package:job_circle/service/data_get_api_service.dart';
-import 'package:job_circle/service/job_post_api_service.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -42,8 +36,10 @@ class GenerateInvoice extends ConsumerStatefulWidget {
   ConsumerState<GenerateInvoice> createState() => _GenerateInvoiceState();
 }
 
-class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
-  static Future<List<ViewAndGenerateBillingModel>> FetchBillingData() async {
+class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
+    with TickerProviderStateMixin {
+  /* static Future<List<ViewAndGenerateBillingModel>> FetchBillingData() async {
+  
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
@@ -57,7 +53,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
         // Filter the list based on the condition invoice_no == null
         List<ViewAndGenerateBillingModel> applicants = contentList
             //.where((json) => json['invoice_no'] == null)
-            .map((json) => ViewAndGenerateBillingModel.fromJson(json))    
+            .map((json) => ViewAndGenerateBillingModel.fromJson(json))
             .toList();
 
         return applicants;
@@ -69,6 +65,41 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
       print('Error while fetching data: $e');
       return [];
     }
+  } */
+  static Future<List<ViewAndGenerateBillingModel>> FetchBillingData() async {
+    // Simulate network delay
+    await Future.delayed(const Duration(seconds: 1));
+
+    return [
+      ViewAndGenerateBillingModel(
+        doj: "15-04-2024",
+        partnerPayout: 12000.50,
+        shortCode: "JD101",
+        lastName: "Doe",
+        companyName: "TechCorp",
+        id: 1,
+        attrStatus: "Joined",
+        process: "BPO Hiring",
+        applicantName: "John",
+        rid: 101,
+        subStatus: "Confirmed",
+        invoice_no: null, // Simulate pending invoice
+      ),
+      ViewAndGenerateBillingModel(
+        doj: "22-03-2024",
+        partnerPayout: 980.75,
+        shortCode: "JS202",
+        lastName: "Smith",
+        companyName: "FinTech Inc.",
+        id: 2,
+        attrStatus: "Payable",
+        process: "Tech Hiring",
+        applicantName: "Jane",
+        rid: 102,
+        subStatus: "Confirmed",
+        invoice_no: null,
+      ),
+    ];
   }
 
   //TODO:: Varibale Decl...
@@ -77,58 +108,198 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
   final RefreshController _refreshController = RefreshController();
   int? selectedMonthAndYear;
 
+  FocusNode focusNode = FocusNode();
+
+  late TabController _tabController;
+
+  DateTime? _firstDojDate; // Add this to track first DOJ
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 0, vsync: this);
+
+    // Delay controller initialization until data is fetched
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   //TODO:: Varibale decl end....
+
+  List<ViewAndGenerateBillingModel> _getFilteredData(
+      List<ViewAndGenerateBillingModel> allData) {
+    return allData.where((item) {
+      // 1. Apply search filter
+      final searchMatch = _searchController.text.isEmpty ||
+          item.applicantName!
+              .toLowerCase()
+              .contains(_searchController.text.toLowerCase()) ||
+          item.lastName!
+              .toLowerCase()
+              .contains(_searchController.text.toLowerCase()) ||
+          item.process!
+              .toLowerCase()
+              .contains(_searchController.text.toLowerCase()) ||
+          item.companyName!
+              .toLowerCase()
+              .contains(_searchController.text.toLowerCase());
+
+      // 2. Apply date filter
+      final dateMatch = selectedMonthAndYear == null ||
+          (item.doj != null &&
+              DateFormat("dd-MM-yyyy").parse(item.doj!).month ==
+                  selectedMonthAndYear! % 100 &&
+              DateFormat("dd-MM-yyyy").parse(item.doj!).year ==
+                  selectedMonthAndYear! ~/ 100);
+
+      // Only include items that match BOTH filters
+      return searchMatch && dateMatch;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     var fetchBillingData = ref.watch(fetchAllBillingDataProvider);
 
     return fetchBillingData != null
-        ? fetchBillingData.when(data: (fetchData) {
-            return Scaffold(
+        ? fetchBillingData.when(
+            data: (fetchData) {
+              if (fetchData.isNotEmpty && _firstDojDate == null) {
+                final firstItemWithDoj = fetchData.firstWhere(
+                  (item) => item.doj != null,
+                  orElse: () => fetchData.first,
+                );
+
+                if (firstItemWithDoj.doj != null) {
+                  _firstDojDate =
+                      DateFormat("dd-MM-yyyy").parse(firstItemWithDoj.doj!);
+                  selectedMonthAndYear =
+                      (_firstDojDate!.year * 100) + _firstDojDate!.month;
+                }
+              }
+
+              final filteredData = _getFilteredData(fetchData);
+              // Get unique statuses
+              final visibleStatuses = filteredData
+                  .map((e) => e.attrStatus ?? '')
+                  .where((status) => status.isNotEmpty)
+                  .toSet()
+                  .toList();
+
+              if (_tabController.length != visibleStatuses.length) {
+                final newIndex = _tabController.index >= visibleStatuses.length
+                    ? visibleStatuses.length - 1
+                    : _tabController.index;
+
+                _tabController = TabController(
+                  length: visibleStatuses.length,
+                  vsync: this,
+                  initialIndex: visibleStatuses.isNotEmpty
+                      ? newIndex.clamp(0, visibleStatuses.length - 1)
+                      : 0,
+                );
+              }
+
+              return Scaffold(
                 backgroundColor: Colors.white,
-                // extendBody: true,
-                //  resizeToAvoidBottomInset: false,
-                bottomNavigationBar: selectedMonthAndYear != null
-                    ? buildBottomNavigationBar(fetchData)
-                    : null,
-                appBar: PreferredSize(
-                  preferredSize:
-                      const Size(double.maxFinite, kTextTabBarHeight),
-                  child: AppBar(
-                    automaticallyImplyLeading: false,
-                    backgroundColor: Colors.white,
+                bottomNavigationBar:
+                    selectedMonthAndYear != null && visibleStatuses.isNotEmpty
+                        ? buildBottomNavigationBar(filteredData)
+                        : null,
+                appBar: AppBar(
                     elevation: 0,
-                    title: fetchData.isNotEmpty
-                        ? customSearchField(context)
-                        : const Text(""),
-                    actions: fetchData.isNotEmpty
-                        ? [buildMonthAndYearSelector(fetchData)]
-                        : [],
-                  ),
-                ),
-                body: SmartRefresher(
-                    controller: _refreshController,
-                    onRefresh: _onRefresh,
-                    child: buildFilteredListView(fetchData)));
-          }, error: (error, stackTrace) {
-            return const Scaffold(
+                    iconTheme: const IconThemeData(color: Constants.black),
+                    titleSpacing: 0.0,
+                    backgroundColor: Constants.borderColor,
+                    title: Row(
+                      //  mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: CustomTextFieldforAll(
+                            onChanged: (value) => setState(() {}),
+                            isSearch: true,
+                            isSearchBar: true,
+                            controller: _searchController,
+                            hint: "Search",
+                            focusNode: focusNode,
+                          ),
+                        ),
+                        filteredData.isNotEmpty
+                            ? buildMonthAndYearSelector(fetchData)
+                            : const SizedBox(),
+                      ],
+                    )),
+                body: visibleStatuses.isEmpty
+                    ? const Center(
+                        child: customTextForWeather(
+                          title: "No Data Found",
+                          fontSize: 16,
+                        ),
+                      )
+                    : DefaultTabController(
+                        length: visibleStatuses.length,
+                        child: Column(
+                          children: [
+                            TabBar(
+                              dividerHeight: 1.0,
+                              controller: _tabController,
+                              overlayColor:
+                                  MaterialStateProperty.all(Colors.transparent),
+                              tabAlignment: TabAlignment.start,
+                              isScrollable: true,
+                              labelColor: Constants.black,
+                              unselectedLabelColor: Constants.subtitleclr,
+                              indicatorColor: Constants.orange,
+                              labelStyle: GoogleFonts.merriweather(
+                                  fontSize: 12, fontWeight: FontWeight.w700),
+                              unselectedLabelStyle: GoogleFonts.merriweather(
+                                  fontSize: 12, fontWeight: FontWeight.normal),
+                              tabs: visibleStatuses
+                                  .map((status) => Tab(text: status))
+                                  .toList(),
+                            ),
+                            Expanded(
+                                child: TabBarView(
+                              controller: _tabController,
+                              children: visibleStatuses.map((status) {
+                                final statusFilteredData = filteredData
+                                    .where((item) => item.attrStatus == status)
+                                    .where((item) =>
+                                        selectedMonthAndYear == null ||
+                                        (item.doj != null &&
+                                            DateFormat("dd-MM-yyyy")
+                                                    .parse(item.doj!)
+                                                    .month ==
+                                                selectedMonthAndYear! % 100 &&
+                                            DateFormat("dd-MM-yyyy")
+                                                    .parse(item.doj!)
+                                                    .year ==
+                                                selectedMonthAndYear! ~/ 100))
+                                    .toList();
+                                return buildFilteredListView(
+                                    statusFilteredData);
+                              }).toList(),
+                            ))
+                          ],
+                        )),
+              );
+            },
+            error: (error, stackTrace) => const Scaffold(
               body: Center(
-                child: Text(
-                    "Oops! Something went wrong on our end. Our team is working to fix the issue. Please be patient and bear with us as we resolve this. Thank you for your understanding."),
+                child: Text("Error loading data"),
               ),
-            );
-          }, loading: () {
-            return const Scaffold(
+            ),
+            loading: () => const Scaffold(
               body: Center(
-                  child: CircularProgressIndicator(
-                color: Constants.themeBgColor,
-                strokeWidth: 1,
-              )),
-            );
-          })
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          )
         : Scaffold(
-            backgroundColor: Colors.white,
             body: Center(
               child: Image.asset("assets/images/nodata.jpg"),
             ),
@@ -136,222 +307,6 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
   }
 
   //TODO:: Function Decl..
-
-  bool shouldDisplayBottomNavBar(List<ViewAndGenerateBillingModel> fetchData) {
-    // Filter data based on the selected month
-    final selectedMonthData = fetchData
-        .where((item) =>
-            selectedMonthAndYear != null &&
-            DateTime.parse(item.doj.toString()).month ==
-                selectedMonthAndYear! % 100 &&
-            DateTime.parse(item.doj.toString()).year ==
-                selectedMonthAndYear! ~/ 100)
-        .toList();
-
-    // Check if there is no lead with a status other than "Payable" in the selected month
-    bool allPayable = selectedMonthData.every((item) =>
-        item.attrStatus != null &&
-        item.attrStatus!.toLowerCase() != 'other source' &&
-        item.attrStatus!.toLowerCase() != 'pending' &&
-        item.attrStatus!.toLowerCase() != 'under clause');
-
-    return allPayable;
-  }
-
-  Widget buildBottomNavigationBar(List<ViewAndGenerateBillingModel> fetchData) {
-    // Filter data based on the selected month
-    final selectedMonthData = fetchData
-        .where((item) =>
-            selectedMonthAndYear != null &&
-            DateTime.parse(item.doj.toString()).month ==
-                selectedMonthAndYear! % 100 &&
-            DateTime.parse(item.doj.toString()).year ==
-                selectedMonthAndYear! ~/ 100)
-        .toList();
-
-    // Calculate the total amount for leads with "Payable" status in the selected month
-    double totalAmount = selectedMonthData
-        .where((item) =>
-            item.attrStatus != null &&
-            item.attrStatus!.toLowerCase() == 'payable')
-        .fold(0.0, (sum, item) => sum + item.partnerPayout!);
-
-    String formattedTotalAmount = totalAmount
-        .toStringAsFixed(0)
-        .replaceAll(RegExp(r'(\.0|(?<=\.\d)0+)$'), '');
-
-    return BottomAppBar(
-      //... (existing properties)
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  "Total Amount",
-                  style: GoogleFonts.varela(
-                      fontWeight: FontWeight.bold, fontSize: 16.sp),
-                ),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.currency_rupee_outlined,
-                      size: 15.sp,
-                    ),
-                    Text(
-                      formattedTotalAmount.toString().replaceAll('.0', ''),
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 16.sp),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            shouldDisplayBottomNavBar(fetchData)
-                ? GestureDetector(
-                    onTap: () async {
-                      try {
-                        List<GetBankingModel> data = await ApplicationAPI
-                            .fetchBankingDataForBankDetail();
-                        if (data.isEmpty) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return CustomDialogueForAddResume(
-                                error: false,
-                                subtitle:
-                                    "Add banking Detail to generate invoice",
-                                onClose: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => BankingDetals(
-                                                fromInvoice: true,
-                                                gender: widget.gender,
-                                                name: widget.name,
-                                                profilePic: widget.profilePic,
-                                              )));
-                                },
-                              );
-                            },
-                          );
-                        } else if (data.isNotEmpty &&
-                            (data.first.isVerify == 0 ||
-                                data.first.isVerify == null)) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return CustomDialogueForAddResume(
-                                error: false,
-                                subtitle:
-                                    "Your banking detail is under review you have to wait.",
-                                onClose: () {
-                                  Navigator.pop(context);
-                                },
-                              );
-                            },
-                          );
-                        } else {
-                          List<int?>? leadIdList = fetchData
-                              .where(
-                                  (element) => element.attrStatus != "Payable")
-                              .map((e) => e.id)
-                              .toList();
-                          List<int> filteredLeadIdList = leadIdList
-                              .where((id) => id != null)
-                              .cast<int>()
-                              .toList();
-
-                          try {
-                            JobPostApiService api = JobPostApiService();
-                            await api.updateInvoiceToMakeNonPayable(
-                              partnerInvoiceNo: "Not Applicable",
-                              id: filteredLeadIdList,
-                            );
-                            ref.refresh(fetchAllBillingDataProvider);
-                          } catch (e) {
-                            print("Error $e");
-                            /* ScaffoldMessenger.of(context).showSnackBar(
-                              CustomSnackbarfinal(
-                                title: "Error submitting invoice",
-                                error: true,
-                              ),
-                            ); */
-                          }
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const Invoice()));
-                        }
-                      } catch (error) {
-                        // Handle errors
-                        print('Error fetching banking data: $error');
-                      }
-                    },
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        color: Constants.blue,
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0.5, 2),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.grey.shade200)
-                        ],
-                        // border: Border.all(color: Constants.subtitleclr)
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            "Create Invoice",
-                            style: GoogleFonts.varela(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                          SizedBox(
-                            width: 4.sp,
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 13.sp,
-                            color: Colors.white,
-                          )
-                        ],
-                      ),
-                    ),
-                  )
-                : Container(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8.r),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0.5, 2),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.grey.shade200)
-                        ],
-                        border: Border.all(color: Colors.grey.shade300)),
-                    child: Text(
-                      "Generate Invoice",
-                      style: GoogleFonts.varela(color: Colors.grey.shade300),
-                    ),
-                  )
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget buildFilteredListView(
     List<ViewAndGenerateBillingModel> fetchData,
@@ -379,9 +334,9 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
 
     final additionalFilteredData = filteredData
         .where((item) => (selectedMonthAndYear == null ||
-            DateTime.parse(item.doj.toString()).month ==
+            DateFormat("dd-MM-yyyy").parse(item.doj.toString()).month ==
                     selectedMonthAndYear! % 100 &&
-                DateTime.parse(item.doj.toString()).year ==
+                DateFormat("dd-MM-yyyy").parse(item.doj.toString()).year ==
                     selectedMonthAndYear! ~/ 100))
         .toList();
 
@@ -407,11 +362,24 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
 
     // Using ListView.builder with the filtered data
     return ListView.builder(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       itemCount: additionalFilteredData.length,
       itemBuilder: (context, index) {
         final billingData = additionalFilteredData[index];
-        return CustomCard(billingData);
+        return Column(
+          children: [
+            CustomCard(billingData),
+            if (index != additionalFilteredData.length - 1)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Divider(
+                  //height: 0,
+                  thickness: 1.0,
+                ),
+              ),
+          ],
+        );
       },
     );
   }
@@ -423,168 +391,180 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
             .replaceAll(RegExp(r'(\.0|(?<=\.\d)0+)$'), '')
         : "";
 
-    DateTime dateTime = DateTime.parse(filteredData.doj.toString());
-    String formattedDate = DateFormat("d MMM yyyy").format(dateTime);
+    DateTime dateTime =
+        DateFormat("dd-MM-yyyy").parse(filteredData.doj.toString());
+    String formattedDate = DateFormat("dd MMM yyyy").format(dateTime);
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),
       padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.r),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-              offset: const Offset(0.5, 2),
-              blurRadius: 2,
-              spreadRadius: 2,
-              color: Colors.grey.shade200)
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text(filteredData.applicantName.toString(),
-                  style: GoogleFonts.varela(
-                      fontSize: 14.sp, fontWeight: FontWeight.bold)),
-              const Text(" "),
-              Text(filteredData.lastName.toString(),
-                  style: GoogleFonts.varela(
-                      fontSize: 14.sp, fontWeight: FontWeight.bold)),
-              const Spacer(),
-              Container(
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.currency_rupee_outlined,
-                      size: 15.sp,
-                    ),
-                    Text(
-                      formattedAmount.toString().replaceAll(".0", ""),
-                      style: GoogleFonts.varela(
-                          fontWeight: FontWeight.bold, fontSize: 16.sp),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-          Row(
-            children: [
-              Text(filteredData.shortCode.toString(),
-                  style: GoogleFonts.varela(
-                      fontSize: 14.sp, fontWeight: FontWeight.normal)),
-              const Text(" || "),
-              Text(filteredData.process.toString(),
-                  style: GoogleFonts.varela(
-                      fontSize: 14.sp, fontWeight: FontWeight.normal)),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 4.h),
-                padding: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8..w),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                        offset: const Offset(0.5, 2),
-                        blurRadius: 2,
-                        spreadRadius: 2,
-                        color: Colors.grey.shade200)
-                  ],
-                  borderRadius: BorderRadius.circular(8.r),
-                  // border: Border.all(color: Constants.themeBgColor)
-                ),
-                child: Text(
-                  formattedDate,
-                  style: GoogleFonts.varela(color: Constants.subtitleclr),
-                ),
+          ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            leading: Container(
+              child: CircleAvatar(
+                backgroundColor: Constants.borderColor,
+                backgroundImage: (filteredData.applicantName == "null" &&
+                        filteredData.applicantName!.trim().isNotEmpty)
+                    ? NetworkImage(
+                        "${GlobalConstants.Image_url}${filteredData.applicantName}",
+                      )
+                    : (filteredData.applicantName == "null")
+                        ? AssetImage(
+                            filteredData.applicantName == "Female"
+                                ? "assets/images/leadfemal.png"
+                                : filteredData.applicantName == "Male"
+                                    ? "assets/images/leadmale.png"
+                                    : "assets/images/user.png", // fallback
+                          )
+                        : null as ImageProvider<Object>?,
+                child: (filteredData.applicantName != null ||
+                            filteredData.applicantName!.trim().isNotEmpty) &&
+                        (filteredData.applicantName != null ||
+                            filteredData.applicantName!.trim().isEmpty)
+                    ? customText(
+                        title: filteredData.applicantName != null &&
+                                filteredData.applicantName != ""
+                            ? filteredData.applicantName
+                                    ?.substring(0, 1)
+                                    .toUpperCase() ??
+                                ''
+                            : "Jc",
+                        color: Constants.subtitleclr,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      )
+                    : null,
               ),
-              filteredData.attrStatus == "Payable"
-                  ? Row(
-                      children: [
-                        Icon(
-                          Icons.done_all,
-                          size: 12.sp,
-                          color: Constants.green,
-                        ),
-                        Text(" Payable",
-                            style: GoogleFonts.varela(color: Constants.green)),
-                      ],
-                    )
-                  : Container(
-                      margin: EdgeInsets.only(top: 4.h),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 4.h, horizontal: 8..w),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                              offset: const Offset(0.5, 2),
-                              blurRadius: 2,
-                              spreadRadius: 2,
-                              color: Colors.grey.shade200)
-                        ],
-                        borderRadius: BorderRadius.circular(8.r),
-                        // border: Border.all(color: Constants.themeBgColor)
-                      ),
-                      child: Text(
-                        filteredData.attrStatus == null
-                            ? "Pending"
-                            : filteredData.attrStatus.toString(),
-                        style: GoogleFonts.varela(color: Constants.subtitleclr),
-                      ),
-                    ),
-            ],
-          )
+            ),
+            title: customTextForWeather(
+              title: filteredData.applicantName.toString(),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: customTextForWeather(
+              title:
+                  "${filteredData.process.toString()} || ${filteredData.process.toString()}",
+              fontSize: 12,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Container(
+            padding:
+                const EdgeInsets.only(top: 6, bottom: 6, right: 8, left: 8),
+            child: Row(
+              //mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CustomIconTitleButton(
+                  imageUrl:
+                      "https://cdn-icons-png.flaticon.com/128/17593/17593863.png",
+                  onTap: () {},
+                  title: filteredData.companyName.toString(),
+                ),
+                CustomIconTitleButton(
+                  imageUrl:
+                      "https://cdn-icons-png.flaticon.com/128/16774/16774139.png",
+                  onTap: () {},
+                  title: DateFormat('d MMM yyyy').format(
+                      DateFormat('dd-MM-yyyy')
+                          .parse(filteredData.doj.toString())),
+                ),
+                CustomIconTitleButton(
+                    height: 20.0,
+                    width: 25.0,
+                    imageUrl:
+                        "https://cdn-icons-png.flaticon.com/128/9798/9798241.png",
+                    onTap: () {},
+                    title: formattedAmount)
+              ],
+            ),
+          ),
+          CustomRemarkConatiner(
+              subtitle: filteredData.companyName.toString(),
+              valueColor: Constants.subtitleclr,
+              title: "Remark")
         ],
       ),
     );
   }
 
-  SizedBox customSearchField(BuildContext context) {
-    return SizedBox(
-      //margin: EdgeInsets.only(top: 10.h),
-      height: MediaQuery.of(context).size.height / 24.h,
-      child: TextField(
-        keyboardType: TextInputType.name,
-        //textInputAction: TextInputAction.s, // Set TextInputAction to sentences
-        textCapitalization: TextCapitalization.sentences,
-        controller: _searchController,
-        style:
-            GoogleFonts.varela(color: Constants.subtitleclr, fontSize: 14.sp),
-        decoration: InputDecoration(
-            filled: true,
-            fillColor: Constants.borderColor,
-            prefixIcon: const Icon(Icons.search),
-            prefixIconColor: Constants.themeBgColor,
-            contentPadding:
-                const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
-            counterText: '',
-            // labelText: "Remark",
-            labelStyle: const TextStyle(
-              color: Constants.themeBgColor,
+  Widget buildBottomNavigationBar(List<ViewAndGenerateBillingModel> fetchData) {
+    // Calculate total payable amount
+    double totalAmount = fetchData
+        .where((item) => item.attrStatus?.toLowerCase() == 'payable')
+        .fold(0.0, (sum, item) => sum + (item.partnerPayout ?? 0));
+
+    // Format the amount with Indian Rupee symbol and comma separators
+    String formattedAmount = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 0,
+    ).format(totalAmount);
+
+    return Container(
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Total Payable',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[600],
+                ),
+              ),
+              Text(
+                formattedAmount,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Invoice()));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue, // Button color
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(color: Color(0xffff0eceb)),
-            ),
-            focusColor: const Color(0xffff0eceb),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.r),
-              borderSide: const BorderSide(
-                color: Constants.themeBgColor,
+            child: const Text(
+              'Create Invoice',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
               ),
             ),
-            hintText: "Search",
-            hintStyle: GoogleFonts.sourceSansPro(
-                color: Constants.hintColor, fontSize: 15.sp)),
-        onChanged: (value) {
-          setState(() {});
-        },
+          ),
+        ],
       ),
     );
   }
@@ -604,46 +584,39 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
       List<ViewAndGenerateBillingModel> filteredData) {
     Set<int> uniqueMonthsAndYears = filteredData
         .map((item) => item.doj != null
-            ? (DateTime.parse(item.doj.toString()).year * 100) +
-                DateTime.parse(item.doj.toString()).month
+            ? (DateFormat("dd-MM-yyyy").parse(item.doj!).year * 100 +
+                DateFormat("dd-MM-yyyy").parse(item.doj!).month)
             : 0)
-        .toSet();
-    return Container(
-      margin: EdgeInsets.only(right: 10.w),
-      child: DropdownButton<int>(
-        // isExpanded: true,
-        underline: const SizedBox.shrink(),
-        icon: const SizedBox.shrink(),
-        // hint: const Text("All"),
-        value: selectedMonthAndYear,
-        onChanged: (int? newValue) {
-          setState(() {
-            selectedMonthAndYear = newValue;
-            _searchController.clear();
-            // Apply filtering based on the selected month and year
-            // You can use the selectedMonthAndYear to filter your data further
-          });
-        },
-        items: [
-          DropdownMenuItem<int>(
-            value: null,
-            child: Text(
-              "All",
-              style: GoogleFonts.varela(),
+        .toSet()
+      ..remove(0); // remove default 0 if any
+
+    return GestureDetector(
+      onTap: () =>
+          _showMonthFilterBottomSheet(context, uniqueMonthsAndYears.toList()),
+      child: Container(
+        margin: const EdgeInsets.only(left: 5, right: 5, top: 5),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Image.network(
+              "https://cdn-icons-png.flaticon.com/128/7602/7602631.png",
+              height: 15,
+              width: 15,
             ),
-          ),
-          ...uniqueMonthsAndYears.map((int monthAndYear) {
-            int year = monthAndYear ~/ 100;
-            int month = monthAndYear % 100;
-            return DropdownMenuItem<int>(
-              value: monthAndYear,
-              child: Text(
-                "${getMonthName(month)}-${year.toString().substring(2)}",
-                style: GoogleFonts.varela(),
-              ),
-            );
-          }),
-        ],
+            const SizedBox(
+              width: 4,
+            ),
+            customTextForWeather(
+              title: selectedMonthAndYear != null
+                  ? "${getMonthName(selectedMonthAndYear! % 100)}-${(selectedMonthAndYear! ~/ 100).toString().substring(2)}"
+                  : "All",
+              color: Constants.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -677,6 +650,82 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice> {
       default:
         return '';
     }
+  }
+
+  void _showMonthFilterBottomSheet(
+      BuildContext context, List<int> monthYearList) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Wrap(
+            children: [
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  customTextForWeather(
+                    title: "Filter by Month",
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Constants.darkBlue,
+                  ),
+                  /*  InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedMonthAndYear = null;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const customText(
+                      title: "Clear all",
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Constants.orange,
+                    ),
+                  ), */
+                ],
+              ),
+              const SizedBox(height: 20),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: monthYearList.length,
+                itemBuilder: (context, index) {
+                  int value = monthYearList[index];
+                  int month = value % 100;
+                  int year = value ~/ 100;
+                  String label =
+                      "${getMonthName(month)}-${year.toString().substring(2)}";
+                  return RadioListTile<int>(
+                    value: value,
+                    groupValue: selectedMonthAndYear,
+                    title: customTextForWeather(title: label),
+                    activeColor: Constants.darkBlue,
+                    onChanged: (val) {
+                      setState(() {
+                        selectedMonthAndYear = val;
+                      });
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   //TODO:: Function dec end

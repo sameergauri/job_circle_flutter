@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -19,6 +18,7 @@ class CustomCheckboxRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           margin: const EdgeInsets.only(right: 10),
@@ -46,10 +46,9 @@ class CustomCheckboxRow extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: customText(
+          child: customTextForWeather(
             title: title,
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w600,
+            fontSize: 12,
             color: Constants.subtitleclr,
           ),
         ),

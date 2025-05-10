@@ -20,7 +20,7 @@ import 'package:job_circle/screens/JobDetails/description.dart';
 import 'package:job_circle/screens/faq/interview_bay_faq.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/curve_painter.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
+
 import 'package:job_circle/screens/new_jobs/add_cv_to_apply.dart';
 import 'package:job_circle/service/JobSearchService.dart';
 import 'package:job_circle/service/UserDataService.dart';
@@ -451,7 +451,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                                   null, ESharedPreferences.user_id.name),
                             );
                             ref.refresh(fetchAllApplyProvider);
-                            ref.refresh(fetchAllTalentPoolProvider);
+                         
                           } else {
                             if (jobDetailsModel.id != null) {
                               Navigator.push(
@@ -487,7 +487,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                               userId: int.tryParse(id)!,
                               context: context);
                           ref.refresh(fetchAllApplyProvider);
-                          ref.refresh(fetchAllTalentPoolProvider);
+                         
                         } else {
                           if (jobDetailsModel.id != null) {
                             Navigator.push(

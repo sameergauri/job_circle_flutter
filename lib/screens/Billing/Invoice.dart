@@ -1,171 +1,15 @@
 // ignore_for_file: override_on_non_overriding_member, file_names, avoid_print, avoid_unnecessary_containers, use_build_context_synchronously, prefer_typing_uninitialized_variables, unused_result
 
-/* import 'package:flutter/material.dart';
-
-class PaymentStatus extends StatefulWidget {
-  const PaymentStatus({super.key});
-
-  @override
-  _PaymentStatusState createState() => _PaymentStatusState();
-}
-
-class _PaymentStatusState extends State<PaymentStatus> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text(
-          'INVOICE',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'To,',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text(
-                  '1 Jan 2024',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'JOB CIRCLE',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Text(
-              'Office Address',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              'Invoice No. (UserID/MMM-YY/XXX)',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            DataTable(
-              columns: const [
-                DataColumn(label: Text('Candidate Name')),
-                DataColumn(label: Text('Co. Name')),
-                DataColumn(label: Text('Process')),
-                DataColumn(label: Text('DOJ')),
-                DataColumn(label: Text('Amt')),
-              ],
-              rows: [
-                _buildDataRow('John Doe', 'ABC Company', 'Process 1',
-                    '01 Jan 2024', '100'),
-                _buildDataRow('Jane Smith', 'XYZ Company', 'Process 2',
-                    '02 Jan 2024', '150'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Total',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Text(
-                  'XXXX',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Amount in words',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              'Banking Detail',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              'Bank Name & Branch',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              'Account Type',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              'Name Holder Name (As per Bank Record)',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              'Account No.',
-              style: TextStyle(fontSize: 16),
-            ),
-            const Text(
-              'IFSC Code',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              '"I hereby acknowledge and agree that the above invoice, accurately\nrepresents the services provided. I confirm the authenticity of the\ninformation and authorize the processing of the mentioned sum."',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle Submit & Send button press
-                },
-                child: const Text(
-                  'Submit & Send',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  DataRow _buildDataRow(String candidateName, String companyName,
-      String process, String doj, String amount) {
-    return DataRow(
-      cells: [
-        DataCell(Text(candidateName)),
-        DataCell(Text(companyName)),
-        DataCell(Text(process)),
-        DataCell(Text(doj)),
-        DataCell(Text(amount)),
-      ],
-    );
-  }
-} */
-
-// ignore_for_file: unnecessary_null_comparison
-
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customSnackBar.dart';
-import 'package:job_circle/constants/gobal.dart';
-import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/constants/customchechbox.dart';
 import 'package:job_circle/models/invoice_model.dart';
-import 'package:job_circle/screens/Billing/list_of_invoice.dart';
-import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
+import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -182,6 +26,8 @@ class Invoice extends ConsumerStatefulWidget {
 }
 
 class _InvoiceState extends ConsumerState<Invoice> {
+  bool terncondition = false;
+
   @override
 
 //
@@ -189,6 +35,88 @@ class _InvoiceState extends ConsumerState<Invoice> {
 //
 //
   static Future<List<InvoiceModel>> fetchPayment() async {
+    // Simulate network delay
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Dummy data that matches InvoiceModel structure
+    return [
+      InvoiceModel(
+        candidateAmount: 12500.00,
+        attr_status: "Payable",
+        candidateName: "John Doe",
+        companyName: "Tech Solutions Inc.",
+        referralName: "John Doe",
+        userId: 123,
+        process: "Software Development",
+        accountNumber: "1234567890",
+        accountType: "Savings",
+        bankName: "ABC Bank",
+        id: 1,
+        ifscCode: "ABC123456",
+      ),
+      InvoiceModel(
+        candidateAmount: 12500.00,
+        attr_status: "Payable",
+        candidateName: "John Doe",
+        companyName: "Tech Solutions Inc.",
+        referralName: "John Doe",
+        userId: 123,
+        process: "Software Development",
+        accountNumber: "1234567890",
+        accountType: "Savings",
+        bankName: "ABC Bank",
+        id: 1,
+        ifscCode: "ABC123456",
+      ),
+      InvoiceModel(
+        candidateAmount: 12500.00,
+        attr_status: "Payable",
+        candidateName: "John Doe",
+        companyName: "Tech Solutions Inc.",
+        referralName: "John Doe",
+        userId: 123,
+        process: "Software Development",
+        accountNumber: "1234567890",
+        accountType: "Savings",
+        bankName: "ABC Bank",
+        id: 1,
+        ifscCode: "ABC123456",
+      ),
+      InvoiceModel(
+        candidateAmount: 12500.00,
+        attr_status: "Payable",
+        candidateName: "John Doe",
+        companyName: "Tech Solutions Inc.",
+        referralName: "John Doe",
+        userId: 123,
+        process: "Software Development",
+        accountNumber: "1234567890",
+        accountType: "Savings",
+        bankName: "ABC Bank",
+        id: 1,
+        ifscCode: "ABC123456",
+      ),
+      InvoiceModel(
+        candidateAmount: 12500.00,
+        attr_status: "Payable",
+        candidateName: "John Doe",
+        companyName: "Tech Solutions Inc.",
+        referralName: "John Doe",
+        userId: 123,
+        process: "Software Development",
+        accountNumber: "1234567890",
+        accountType: "Savings",
+        bankName: "ABC Bank",
+        id: 1,
+        ifscCode: "ABC123456",
+      ),
+    ]
+        .where((invoice) =>
+            invoice.attr_status != null &&
+            invoice.attr_status!.toLowerCase() == 'payable')
+        .toList();
+  }
+  /* static Future<List<InvoiceModel>> fetchPayment() async {
     var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
     final url = Uri.parse(
@@ -220,21 +148,8 @@ class _InvoiceState extends ConsumerState<Invoice> {
       print('Error while fetching data: $e');
       return [];
     }
-  }
-
-/* 
-  String generateInvoiceNumber(String userId) {
-    // Get the current month and year
-    DateTime now = DateTime.now();
-    String month = DateFormat('MM').format(now);
-    String year = DateFormat('yy').format(now);
-
-    // Generate a random sequence number between 1001 and 9999
-    int sequenceNumber = Random().nextInt(1111) + 1111;
-
-    // Concatenate the parts to form the invoice number
-    return '$userId/$month$year/$sequenceNumber';
   } */
+
   String nextInvoiceNumber = '';
 
   @override
@@ -276,26 +191,48 @@ class _InvoiceState extends ConsumerState<Invoice> {
               ];
             }).toList();
             return Scaffold(
+              bottomNavigationBar: CustomButtonForSave(
+                  onTap: () async {
+                    try {
+                      Navigator.pop(context);
+                      JobPostApiService api = JobPostApiService();
+                      /*     await api.updateInvoiceDetails(
+                        partnerInvoiceNo: nextInvoiceNumber,
+                        partnerTotalAmount: totalAmount,
+                        invoiceDate: DateTime.now(),
+                        payment_status: "Invoice Submitted",
+                        id: filteredLeadIdList,
+                        context: context);
+                    ref.refresh(fetchAllBillingDataProvider);
+                    ref.refresh(fetchAllInvoice); */
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        CustomSnackbarfinal(
+                          title: "Error submitting invoice",
+                          error: true,
+                        ),
+                      );
+                    }
+                  },
+                  title: "Submit Invoice"),
               appBar: AppBar(
-                centerTitle: true,
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.white,
+                titleSpacing: 0.0,
+                // centerTitle: true,
+                automaticallyImplyLeading: true,
+                iconTheme: const IconThemeData(color: Constants.black),
+                backgroundColor: Constants.borderColor,
                 elevation: 0,
-                title: Text(
-                  'INVOICE',
-                  style: GoogleFonts.varela(
-                      color: Colors.black,
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold),
-                ),
+                title: const customTextForWeather(
+                    title: 'Invoice',
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
               backgroundColor: Colors.white,
               body: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 4.w),
-                  decoration:
-                      BoxDecoration(border: Border.all(color: Colors.black)),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
                   child: Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
@@ -306,11 +243,10 @@ class _InvoiceState extends ConsumerState<Invoice> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(
-                              formattedDate,
-                              style: GoogleFonts.varela(
-                                  fontSize: 16.sp, fontWeight: FontWeight.bold),
-                            ),
+                            customTextForWeather(
+                                title: formattedDate,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
                           ],
                         ),
                         Row(
@@ -320,33 +256,31 @@ class _InvoiceState extends ConsumerState<Invoice> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "To,",
-                                    style: GoogleFonts.varela(fontSize: 16.sp),
+                                  const customTextForWeather(
+                                    title: "To,",
+                                    fontSize: 14,
                                   ),
-                                  Text(
-                                    "Job Circle",
-                                    style: GoogleFonts.varela(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.bold),
+                                  const customTextForWeather(
+                                      title: "Job Circle",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                  const customTextForWeather(
+                                    title: "Thane ${"(W)"},\nMumbai-400601",
+                                    fontSize: 14,
                                   ),
-                                  Text(
-                                    "Thane ${"(W)"},\nMumbai-400601",
-                                    style: GoogleFonts.varela(fontSize: 16.sp),
+                                  const SizedBox(
+                                    height: 15,
                                   ),
-                                  Text(
-                                    "Invoice No :  $nextInvoiceNumber",
+                                  customTextForWeather(
+                                    title: "Invoice No :  $nextInvoiceNumber",
                                     // generateInvoiceNumber(data.first.userId.toString())
 
-                                    style: GoogleFonts.varela(fontSize: 16.sp),
+                                    fontSize: 14,
                                   ),
                                 ],
                               ),
                             ),
                           ],
-                        ),
-                        SizedBox(
-                          height: 10.h,
                         ),
                         DynamicTable(data: tableData, totalAmount: totalAmount),
                         SizedBox(
@@ -354,18 +288,16 @@ class _InvoiceState extends ConsumerState<Invoice> {
                         ),
                         Row(
                           children: [
-                            Text(
-                              "Amount in words : ",
-                              style: GoogleFonts.varela(
-                                fontSize: 16.sp,
-                              ),
+                            const customTextForWeather(
+                              title: "Amount in words : ",
+                              fontSize: 12,
                             ),
                             Expanded(
-                              child: Text(
-                                "${amountToWords(totalAmount.toInt())} only",
-                                style: GoogleFonts.varela(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold),
+                              child: customTextForWeather(
+                                title:
+                                    "${amountToWords(totalAmount.toInt())} only",
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -377,15 +309,10 @@ class _InvoiceState extends ConsumerState<Invoice> {
                         SizedBox(
                           height: 10.h,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Banking Detail",
-                              style: GoogleFonts.varela(
-                                  fontSize: 16.sp, fontWeight: FontWeight.bold),
-                            ),
-                          ],
+                        const customTextForWeather(
+                          title: "Banking Detail",
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
                         Container(
                           margin: EdgeInsets.symmetric(vertical: 10.h),
@@ -394,39 +321,25 @@ class _InvoiceState extends ConsumerState<Invoice> {
                             children: [
                               Row(
                                 children: [
-                                  Column(
+                                  const Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        "Bank Name",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title: "Bank Name",
                                       ),
-                                      Text(
-                                        "Account Type",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title: "Account Type",
                                       ),
-                                      Text(
-                                        "Holder Name(As per Bank Record)",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title:
+                                            "Holder Name(As per Bank Record)",
                                       ),
-                                      Text(
-                                        "Account No",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title: "Account No",
                                       ),
-                                      Text(
-                                        "IFSC Code",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title: "IFSC Code",
                                       ),
                                     ],
                                   ),
@@ -434,35 +347,25 @@ class _InvoiceState extends ConsumerState<Invoice> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        " : ${data.isNotEmpty ? data.first.bankName ?? 'Unknown' : 'Unknown'}",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title:
+                                            " : ${data.isNotEmpty ? data.first.bankName ?? 'Unknown' : 'Unknown'}",
                                       ),
-                                      Text(
-                                        " : ${data.isNotEmpty ? data.first.accountType ?? 'Unknown' : 'Unknown'}",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title:
+                                            " : ${data.isNotEmpty ? data.first.accountType ?? 'Unknown' : 'Unknown'}",
                                       ),
-                                      Text(
-                                        " : ${data.isNotEmpty ? data.first.referralName ?? 'Unknown' : 'Unknown'}",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title:
+                                            " : ${data.isNotEmpty ? data.first.referralName ?? 'Unknown' : 'Unknown'}",
                                       ),
-                                      Text(
-                                        " : ${data.isNotEmpty ? data.first.accountNumber ?? 'Unknown' : 'Unknown'}",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title:
+                                            " : ${data.isNotEmpty ? data.first.accountNumber ?? 'Unknown' : 'Unknown'}",
                                       ),
-                                      Text(
-                                        " : ${data.isNotEmpty ? data.first.ifscCode ?? 'Unknown' : 'Unknown'}",
-                                        style: GoogleFonts.varela(
-                                          fontSize: 16.sp,
-                                        ),
+                                      customTextForWeather(
+                                        title:
+                                            " : ${data.isNotEmpty ? data.first.ifscCode ?? 'Unknown' : 'Unknown'}",
                                       ),
                                     ],
                                   )
@@ -471,69 +374,15 @@ class _InvoiceState extends ConsumerState<Invoice> {
                             ],
                           ),
                         ),
-                        const Text(
-                          'I hereby acknowledge and agree that the above invoice, accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            InkWell(
-                              onTap: () async {
-                                try {
-                                  Navigator.pop(context);
-
-                                  JobPostApiService api = JobPostApiService();
-                                  await api.updateInvoiceDetails(
-                                      partnerInvoiceNo: nextInvoiceNumber,
-                                      partnerTotalAmount: totalAmount,
-                                      invoiceDate: DateTime.now(),
-                                      payment_status: "Invoice Submitted",
-                                      id: filteredLeadIdList,
-                                      context: context);
-                                  ref.refresh(fetchAllBillingDataProvider);
-                                  ref.refresh(fetchAllInvoice);
-                                } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                      title: "Error submitting invoice",
-                                      error: true,
-                                    ),
-                                  );
-                                }
-                              },
-
-                              /* onTap: () async {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                    CustomSnackbarfinal(
-                                        title: "Invoice Submitted",
-                                        error: false));
-                                Navigator.pop(context);
-                                JobPostApiService api = JobPostApiService();
-                                api.updateInvoiceDetails(
-                                    partnerInvoiceNo: nextInvoiceNumber,
-                                    partnerTotalAmount: totalAmount.toInt(),
-                                    invoiceDate: DateTime.now(),
-                                    payment_status: "Invoice Submited",
-                                    id: filteredLeadIdList);
-                              }, */
-                              child: Container(
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 8.w, vertical: 10.h),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 6.h, horizontal: 12.w),
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Constants.blue, width: 2.sp),
-                                    borderRadius: BorderRadius.circular(8.r)),
-                                child: Text("Submit Invoice",
-                                    style: GoogleFonts.varela(
-                                        color: Constants.blue,
-                                        fontWeight: FontWeight.bold)),
-                              ),
-                            )
-                          ],
-                        ),
+                        CustomCheckboxRow(
+                            title:
+                                'I ${"User Name"} hereby acknowledge and agree that the above invoice, accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
+                            value: terncondition,
+                            onChanged: (value) {
+                              setState(() {
+                                terncondition = value!;
+                              });
+                            }),
                       ],
                     ),
                   ),
@@ -556,23 +405,6 @@ class _InvoiceState extends ConsumerState<Invoice> {
               )),
             );
           })
-        /* Scaffold(
-            backgroundColor: Colors.white,
-            body: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("assets/images/nopayment.gif"),
-                  Text(
-                    "No Invoice",
-                    style: GoogleFonts.varela(
-                        fontSize: 20.sp, fontWeight: FontWeight.bold),
-                  )
-                ],
-              ),
-            ),
-          ) */
         : Scaffold(
             backgroundColor: Colors.white,
             body: Center(
@@ -666,111 +498,6 @@ class _InvoiceState extends ConsumerState<Invoice> {
 
     return words.trim();
   }
-
-  /*  String amountToWords(int amount) {
-    if (amount == 0) {
-      return 'Zero';
-    }
-
-    final List<String> units = [
-      '',
-      'One',
-      'Two',
-      'Three',
-      'Four',
-      'Five',
-      'Six',
-      'Seven',
-      'Eight',
-      'Nine'
-    ];
-
-    final List<String> teens = [
-      'Ten',
-      'Eleven',
-      'Twelve',
-      'Thirteen',
-      'Fourteen',
-      'Fifteen',
-      'Sixteen',
-      'Seventeen',
-      'Eighteen',
-      'Nineteen'
-    ];
-
-    final List<String> tens = [
-      '',
-      '',
-      'Twenty',
-      'Thirty',
-      'Forty',
-      'Fifty',
-      'Sixty',
-      'Seventy',
-      'Eighty',
-      'Ninety'
-    ];
-
-    String words = '';
-
-    if (amount >= 1000) {
-      int thousandIndex =
-          (amount ~/ 1000) - 1; // Adjusting index to match list index
-      if (thousandIndex >= 0 && thousandIndex < units.length) {
-        words += '${units[thousandIndex]} Thousand ';
-        amount %= 1000;
-      } else {
-        // Handle case where index is out of range
-        // You can print an error message or handle it as per your requirements
-        print('Error: Index out of range for "units" list');
-      }
-    }
-
-    if (amount >= 100) {
-      int hundredIndex =
-          (amount ~/ 100) - 1; // Adjusting index to match list index
-      if (hundredIndex >= 0 && hundredIndex < units.length) {
-        words += '${units[hundredIndex]} Hundred ';
-        amount %= 100;
-      } else {
-        // Handle case where index is out of range
-        // You can print an error message or handle it as per your requirements
-        print('Error: Index out of range for "units" list');
-      }
-    }
-
-    if (amount >= 10 && amount < 20) {
-      int teenIndex = amount - 10;
-      if (teenIndex >= 0 && teenIndex < teens.length) {
-        words += '${teens[teenIndex]} ';
-        amount = 0;
-      } else {
-        // Handle case where index is out of range
-        print('Error: Index out of range for "teens" list');
-      }
-    } else if (amount >= 20) {
-      int tenIndex = (amount ~/ 10) - 2; // Adjusting index to match list index
-      if (tenIndex >= 0 && tenIndex < tens.length) {
-        words += '${tens[tenIndex]} ';
-        amount %= 10;
-      } else {
-        // Handle case where index is out of range
-        print('Error: Index out of range for "tens" list');
-      }
-    }
-    if (amount > 0) {
-      int unitIndex = amount;
-      if (unitIndex >= 0 && unitIndex < units.length) {
-        words += '${units[unitIndex]} ';
-      } else {
-        // Handle case where index is out of range
-        print('Error: Index out of range for "units" list');
-      }
-    }
-
-    return words.trim();
-  }
- */
 }
 
 class InvoiceNumberGenerator {
@@ -830,41 +557,39 @@ class DynamicTable extends StatelessWidget {
               children: [
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'Candidate Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'Candidate Name',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'Co. Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                        title: 'Co. Name', fontWeight: FontWeight.bold),
+                  ),
+                ),
+                TableCell(
+                  child: Center(
+                    child: customTextForWeather(
+                      title: 'Process',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'Process',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'DOJ',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 TableCell(
                   child: Center(
-                    child: Text(
-                      'DOJ',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                TableCell(
-                  child: Center(
-                    child: Text(
-                      'Amt',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'Amt',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -873,20 +598,25 @@ class DynamicTable extends StatelessWidget {
             ...data.map((row) => TableRow(
                   children: [
                     TableCell(
-                        child:
-                            Center(child: Text(row.isNotEmpty ? row[0] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.isNotEmpty ? row[0] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 1 ? row[1] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 1 ? row[1] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 2 ? row[2] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 2 ? row[2] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 3 ? row[3] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 3 ? row[3] : ''))),
                     TableCell(
-                        child:
-                            Center(child: Text(row.length > 4 ? row[4] : ''))),
+                        child: Center(
+                            child: customTextForWeather(
+                                title: row.length > 4 ? row[4] : ''))),
                   ],
                 )),
             // Total row
@@ -903,17 +633,17 @@ class DynamicTable extends StatelessWidget {
                 const TableCell(child: SizedBox()),
                 const TableCell(
                   child: Center(
-                    child: Text(
-                      'Total',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: 'Total',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ), // Leave empty cell for other columns
                 TableCell(
                   child: Center(
-                    child: Text(
-                      totalAmount.toStringAsFixed(0),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    child: customTextForWeather(
+                      title: totalAmount.toStringAsFixed(0),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -922,56 +652,5 @@ class DynamicTable extends StatelessWidget {
             // Add more rows as needed
           ],
         ));
-    /* DataTable( 
-      border:
-          TableBorder.symmetric(outside: const BorderSide(color: Colors.black)),
-      columnSpacing: 5,
-      horizontalMargin: 5, // Add horizontal margin to the DataTable
-
-      columns: const [
-        DataColumn(
-          label: Center(child: Text('Candidate Name')),
-        ),
-        DataColumn(
-          label: Center(child: Text('Co. Name')),
-        ),
-        DataColumn(
-          label: Center(child: Text('Process')),
-        ),
-        DataColumn(
-          label: Center(child: Text('DOJ')),
-        ),
-        DataColumn(
-          label: Center(child: Text('Amt')),
-        ),
-      ],
-      // Enable horizontal scrolling for the DataTable
-
-      rows: [
-        ...data.map((row) => DataRow(
-              cells: [
-                DataCell(Text(row.isNotEmpty ? row[0] : '')),
-                DataCell(Text(row.length > 1 ? row[1] : '')),
-                DataCell(Text(row.length > 2 ? row[2] : '')),
-                DataCell(Text(row.length > 3 ? row[3] : '')),
-                DataCell(Text(row.length > 4 ? row[4] : '')),
-              ],
-            )),
-        DataRow(
-          // Additional row for total amount
-          cells: [
-            const DataCell(Text('')),
-            const DataCell(Text('Total',
-                style: TextStyle(
-                    fontWeight: FontWeight
-                        .bold))), // Leave empty cells for other columns
-            const DataCell(Text('')),
-            const DataCell(Text('')),
-            DataCell(Text(totalAmount.toStringAsFixed(
-                0))), // Display total amount with 2 decimal places
-          ],
-        ),
-      ],
-    ); */
   }
 }

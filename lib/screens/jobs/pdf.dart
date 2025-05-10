@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/customDialogue.dart';
 import 'package:job_circle/constants/customdialogue_for_call_whatsapp.dart';
 import 'package:job_circle/models/changeStatusModel.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
+
 import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -79,7 +79,7 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
     Map<String, dynamic> jsonData = changeStatusModel.toJson();
     try {
       await JobPostApiService.CvDowloadDone(jsonData, widget.id!.toInt());
-      ref.refresh(fetchAllApplicantProvider);
+    
     } catch (e) {
       print('Error: $e');
       // Handle error...
@@ -124,7 +124,7 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
                     // ref.refresh(fetchAllApplicantProvider);
                     Navigator.pop(context);
                     Navigator.pop(context);
-                    ref.refresh(fetchAllApplicantProvider);
+              
                   },
                   isFisrt: false,
                   title: "CV downloaded",
@@ -151,7 +151,7 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
                     // ref.refresh(fetchAllApplicantProvider);
                     Navigator.pop(context);
                     Navigator.pop(context);
-                    ref.refresh(fetchAllApplicantProvider);
+                  
                   },
                   isFisrt: false,
                   title: "Fail!",
@@ -197,7 +197,7 @@ class _PDFViewerScreenState extends ConsumerState<PDFViewerScreen> {
                 ),
                 onPressed: () async {
                   await downloadFileToDownloadsFolder(fileUrl, fileName);
-                  ref.refresh(fetchAllApplicantProvider);
+                 
                 }),
         ],
       ),

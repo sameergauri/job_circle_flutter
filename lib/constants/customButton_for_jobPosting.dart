@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class CustomButtonForJobPosting extends StatelessWidget {
   final String buttonText;
   final VoidCallback onTap;
+  final Color? buttonColor;
+  final Color? textColor;
+  final bool? isBorder;
 
   const CustomButtonForJobPosting({
     super.key,
     required this.buttonText,
     required this.onTap,
+    this.buttonColor,
+    this.textColor,
+    this.isBorder,
   });
 
   @override
@@ -20,21 +27,21 @@ class CustomButtonForJobPosting extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
         decoration: BoxDecoration(
-          color: Constants.themeBgColor, // Replace with your Constants.blue
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 14.h),
+            color: buttonColor ?? Constants.darkBlue,
+            borderRadius: BorderRadius.circular(8),
+            border: isBorder != null && isBorder != false
+                ? Border.all(color: Constants.darkBlue)
+                : const Border()),
+        width: double.maxFinite,
+        padding: const EdgeInsets.only(bottom: 8, top: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              buttonText,
-              style: GoogleFonts.varela(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            customTextForWeather(
+              title: buttonText,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: textColor ?? Colors.white,
             ),
           ],
         ),

@@ -21,9 +21,8 @@ import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/jobs/Interview_bay_cc.dart';
-import 'package:job_circle/screens/jobs/interview_bay_executive.dart';
-import 'package:job_circle/screens/jobs/talent_pool.dart';
+
+
 import 'package:job_circle/screens/refer_now.dart';
 // import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -907,9 +906,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
             uid: int.tryParse(userId));
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, userId, true);
-        ref.refresh(fetchAllTalentPoolProvider);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllExecutiveProvide);
+       
+     
+     
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
 
@@ -938,9 +937,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
             uid: int.tryParse(userId));
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, userId, false);
-        ref.refresh(fetchAllTalentPoolProvider);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllExecutiveProvide);
+       
+       
+       
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
 
@@ -1353,9 +1352,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
             uid: int.tryParse(userId));
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, usertoken, false);
-        ref.refresh(fetchAllTalentPoolProvider);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllExecutiveProvide);
+      
+      
+      
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
         /*  final addResumeModel = JobApplicationModel(
@@ -1421,9 +1420,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
         );
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, usertoken, false);
-        ref.refresh(fetchAllTalentPoolProvider);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllExecutiveProvide);
+       
+       
+        
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
         /*  final addResumeModel = JobApplicationModel(
