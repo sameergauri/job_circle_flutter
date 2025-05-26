@@ -7,6 +7,7 @@ class JobfilterModel {
   final List<String>? languages;
   final List<String>? cities;
   final List<String>? functionalAreas;
+  final UserData? userData;
 
   JobfilterModel({
     this.companies,
@@ -17,6 +18,7 @@ class JobfilterModel {
     this.languages,
     this.cities,
     this.functionalAreas,
+    this.userData,
   });
 
   factory JobfilterModel.fromJson(Map<String, dynamic> json) {
@@ -45,6 +47,8 @@ class JobfilterModel {
       functionalAreas: json['functionalAreasFilter'] != null
           ? List<String>.from(json['functionalAreasFilter'])
           : null,
+      userData:
+          json['userData'] != null ? UserData.fromJson(json['userData']) : null,
     );
   }
 
@@ -58,6 +62,7 @@ class JobfilterModel {
       'languagesFilter': languages,
       'citiesFilter': cities,
       'functionalAreasFilter': functionalAreas,
+      'userData': userData,
     };
   }
 
@@ -70,6 +75,7 @@ class JobfilterModel {
     List<String>? languages,
     List<String>? cities,
     List<String>? functionalAreas,
+    UserData? userData,
   }) {
     return JobfilterModel(
       companies: companies ?? this.companies,
@@ -80,6 +86,30 @@ class JobfilterModel {
       languages: languages ?? this.languages,
       cities: cities ?? this.cities,
       functionalAreas: functionalAreas ?? this.functionalAreas,
+      userData: userData ?? this.userData,
+    );
+  }
+}
+
+class UserData {
+  final String userProfilePic;
+  final String userGender;
+  final String userName;
+  final String userLocation;
+
+  UserData({
+    required this.userProfilePic,
+    required this.userGender,
+    required this.userName,
+    required this.userLocation,
+  });
+
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    return UserData(
+      userProfilePic: json['userProfilePic'] ?? '',
+      userGender: json['userGender'] ?? '',
+      userName: json['userName'] ?? '',
+      userLocation: json['userLocation'] ?? '',
     );
   }
 }

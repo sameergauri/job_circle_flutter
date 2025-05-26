@@ -1,11 +1,22 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_share/flutter_share.dart';
+import 'package:job_circle/common/app_utils.dart';
+import 'package:job_circle/enums/enums.dart';
+import 'package:job_circle/screens/Billing/banking_detal.dart';
+import 'package:job_circle/screens/Billing/list_of_invoice.dart';
+import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/career_preferrence/career_preferrence.dart';
+import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/profile/user_profile.dart';
 import 'package:job_circle/themes/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends ConsumerWidget {
   final VoidCallback onClose;
   // Callback to close drawer
 
@@ -15,7 +26,13 @@ class CustomDrawer extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get user data from the provider
+    final userData = ref.watch(jobListProvider.notifier).userData;
+    final userName = userData?.userName ?? "Guest";
+    final userLocation = userData?.userLocation ?? "Unknown Location";
+    final userProfileImage = userData?.userProfilePic;
+    final userGender = userData?.userGender ?? ""; // Assuming this field exists
     return Container(
       width: 250, // Set width of the drawer
       decoration: const BoxDecoration(color: Colors.white, boxShadow: [
@@ -39,34 +56,147 @@ class CustomDrawer extends StatelessWidget {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => UserProfile()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const UserProfile()));
                   },
                   child: CircleAvatar(
                     radius: 30,
                     backgroundColor: Constants.bgColorWhite,
-                    child: Icon(Icons.person_outline_rounded,
-                        size: 40, color: Constants.darkBlue),
+                    child: CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Constants.lightdull,
+                      backgroundImage: userProfileImage != null &&
+                              userProfileImage != " "
+                          ? NetworkImage(userProfileImage)
+                          : userGender == "Male"
+                              ? const AssetImage("assets/images/leadmale.png")
+                                  as ImageProvider
+                              : const AssetImage("assets/images/leadfemal.png")
+                                  as ImageProvider,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 customTextForWeather(
-                  title: "Name",
+                  title: userName,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
-                customTextForWeather(title: "Location", fontSize: 14),
+                customTextForWeather(title: userLocation, fontSize: 14),
               ],
             ),
+          ),
+          ExpansionTile(
+            dense: true,
+            textColor: Constants.darkBlue,
+
+            iconColor: Constants.darkBlue,
+            collapsedIconColor: Constants.darkBlue,
+            //  collapsedTextColor: Constants.darkBlue,
+            //  collapsedIconColor: Constants.black,
+            leading: Image.network(
+              'https://assets.api.uizard.io/api/cdn/stream/768b2a61-82db-4e34-b49b-1e8a12feea17.png',
+              height: 20,
+              color: Constants.darkBlue,
+            ),
+            title: const customTextForWeather(
+              title: 'Referral Program',
+              fontSize: 12,
+              fontWeight: FontWeight.normal,
+              color: Constants.darkBlue,
+            ),
+            children: [
+              ListTile(
+                dense: true,
+                minLeadingWidth: 0.0,
+                minVerticalPadding: 5.1,
+                leading: Image.network(
+                  'https://assets.api.uizard.io/api/cdn/stream/5fdfd683-2909-4188-b2e4-2f02ad6e7f91.png',
+                  height: 20,
+                  color: Colors.black,
+                ),
+                title: const customTextForWeather(
+                    title: 'View & Generate Invoice',
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GenerateInvoice(
+                          name: userName,
+                          profilePic: userProfileImage.toString(),
+                          gender: userGender,
+                        ),
+                      ));
+                  onClose();
+                },
+              ),
+              ListTile(
+                dense: true,
+                minLeadingWidth: 0.0,
+                minVerticalPadding: 5.1,
+                leading: Image.network(
+                  'https://assets.api.uizard.io/api/cdn/stream/e512a1a4-0c69-49d2-a063-fd4f83727d79.png',
+                  height: 20,
+                  color: Colors.black,
+                ),
+                title: const customTextForWeather(
+                    title: 'Payment Status',
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ListOfInvoice()));
+                  onClose();
+                },
+              ),
+              ListTile(
+                dense: true,
+                minLeadingWidth: 0.0,
+                minVerticalPadding: 5.1,
+                leading: Image.network(
+                  'https://assets.api.uizard.io/api/cdn/stream/68a2443e-6941-40d9-8948-f61e8a319a72.png',
+                  height: 20,
+                  color: Colors.black,
+                ),
+                title: const customTextForWeather(
+                    title: 'My Banking Detail',
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => BankingDetals(
+                                name: userName,
+                                profilePic: userProfileImage.toString(),
+                                gender: userGender,
+                              )));
+                  onClose();
+                },
+              ),
+            ],
           ),
           ListTile(
             dense: true,
             minLeadingWidth: 0.0,
             minVerticalPadding: 5.1,
-            leading: const Icon(Icons.home_outlined),
-            title: const customText(
-                title: 'Home', fontSize: 12, fontWeight: FontWeight.normal),
-            onTap: () {
+            leading: Image.network(
+              'https://assets.api.uizard.io/api/cdn/stream/d19cf674-b262-4aa5-86b5-32d1942f8966.png',
+              //color: Colors.black,
+              height: 20,
+            ),
+            title: const customTextForWeather(
+                title: 'Write to us',
+                fontSize: 12,
+                fontWeight: FontWeight.normal),
+            onTap: () async {
+              await launchUrl(Uri.parse("mailto:support@jobcircle.co.in?"));
               onClose();
             },
           ),
@@ -74,15 +204,67 @@ class CustomDrawer extends StatelessWidget {
             dense: true,
             minLeadingWidth: 0.0,
             minVerticalPadding: 5.1,
-            leading: const Icon(Icons.logout_outlined),
+            leading: const Icon(Icons.perm_data_setting_outlined),
             title: const customText(
-                title: 'LogOut', fontSize: 12, fontWeight: FontWeight.normal),
+                title: 'Career Preference',
+                fontSize: 12,
+                fontWeight: FontWeight.normal),
             onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CareerPreferrence()));
+              onClose();
+            },
+          ),
+          ListTile(
+            dense: true,
+            minLeadingWidth: 0.0,
+            minVerticalPadding: 5.1,
+            leading: Image.asset(
+              "assets/images/share.png",
+              height: 18,
+            ),
+            title: const customTextForWeather(
+                title: 'Share App',
+                fontSize: 12,
+                fontWeight: FontWeight.normal),
+            onTap: () {
+              share();
+              onClose();
+            },
+          ),
+          ListTile(
+            dense: true,
+            minLeadingWidth: 0.0,
+            minVerticalPadding: 5.1,
+            leading: Image.asset(
+              'assets/images/logout.png',
+              height: 20,
+            ),
+            title: const customTextForWeather(
+                title: 'LogOut', fontSize: 12, fontWeight: FontWeight.normal),
+            onTap: () async {
+              final prefs = await SharedPreferences.getInstance();
+              prefs.clear();
+              Future.delayed(const Duration(seconds: 0), () async {
+                await AppUtils.clearSession();
+                await Navigator.pushNamedAndRemoveUntil(context,
+                    ERoute.login.value, (Route<dynamic> route) => false);
+              });
+              prefs.setString('selectedLocation', "");
               onClose();
             },
           ),
         ],
       ),
     );
+  }
+
+  Future<void> share() async {
+    await FlutterShare.share(
+        title: 'Job circle App',
+        text: 'Install jobcircle app',
+        linkUrl:
+            'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
+        chooserTitle: 'Example Chooser Title');
   }
 }

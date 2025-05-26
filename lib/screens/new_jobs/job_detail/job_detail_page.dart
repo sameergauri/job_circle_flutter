@@ -222,11 +222,14 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
             ),
             RecruiterDetailsCard(
               title: "Posted by / Recruiter Details",
-              email: "Email.com",
+              email: state.jobDetail!.postedByEmail.toString(),
               recruiterName: state.jobDetail!.postedBy.toString(),
-              designation: "Recruiter Designation", // replace with actual value
-              location: "Recruiter Location", // replace with actual value
-              contactNumber: state.jobDetail!.id!, // or actual phone number
+              designation: state.jobDetail!.postedByDesignation
+                  .toString(), // replace with actual value
+              location: state.jobDetail!.postedByLocation
+                  .toString(), // replace with actual value
+              contactNumber: state.jobDetail!.postedByContactNo!,
+              profilepic: state.jobDetail!.postedByProfilePic!,
             ),
             const ReferralProgramCard(
               imageUrl:

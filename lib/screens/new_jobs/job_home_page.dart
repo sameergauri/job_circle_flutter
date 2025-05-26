@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names, unused_local_variable, use_build_context_synchronously
 
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +9,6 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customButton_for_jobPosting.dart';
 import 'package:job_circle/constants/custom_drawer.dart';
 import 'package:job_circle/enums/enums.dart';
-import 'package:job_circle/models/job_filter.dart';
 import 'package:job_circle/models/job_home_page_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
@@ -18,7 +16,6 @@ import 'package:job_circle/screens/new_jobs/custom_job_card.dart';
 import 'package:job_circle/screens/new_jobs/job_detail/job_detail_page.dart';
 import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -37,15 +34,12 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
   @override
   void initState() {
     super.initState();
-    ref.read(jobListProvider.notifier).fetchJobs();
     _initializeCity();
   }
 
   Future<void> _initializeCity() async {
-    // Get the initial city from shared preferences or any other storage
     final initialCity = await Utils.getPreferencesValue(
         null, ESharedPreferences.user_selected_lcoation.name);
-
     if (initialCity != null && initialCity.isNotEmpty) {
       setState(() {
         selectedCity = initialCity;
@@ -54,20 +48,22 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
     }
   }
 
-  void clearCityFilter() {
+  void clearCityFilter() async {
     setState(() {
       selectedCity = null;
     });
+    // Clear from shared preferences
+    Utils.setPreference(
+      await Utils.getSharedPreferences(),
+      ESharedPreferences.user_selected_lcoation.name,
+      '',
+    );
     ref.read(jobListProvider.notifier).updateCityFilter(null);
   }
 
   void toggleTab(String tab) {
     setState(() {
-      if (selectedTab == tab) {
-        selectedTab = '';
-      } else {
-        selectedTab = tab;
-      }
+      selectedTab = selectedTab == tab ? '' : tab;
     });
   }
 
@@ -78,7 +74,8 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
       case 'Fresher':
         return jobs
             .where((job) =>
-                job.experienceRequired?.toLowerCase() == 'fresher can apply')
+                job.experienceRequired?.toLowerCase().contains('fresher') ??
+                false)
             .toSet()
             .toList();
       case 'Linguistic':
@@ -104,30 +101,10 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
   Widget build(BuildContext context) {
     final jobs = ref.watch(jobListProvider);
     final filteredJobs = filterJobs(jobs);
-
-    final jobLoadingProvider = Provider<bool>((ref) {
-      final jobNotifier = ref.watch(jobListProvider.notifier);
-      return jobNotifier.isLoading;
-    });
-
-    final jobFilterProvider = Provider<JobfilterModel?>((ref) {
-      final jobNotifier = ref.watch(jobListProvider.notifier);
-      return jobNotifier.filters;
-    });
-
-    final filters = ref.watch(jobFilterProvider);
-
-    final companies = filters?.companies;
-    final roles = filters?.roles;
-    final processes = filters?.processes;
-    final locations = filters?.locations;
-    final shiftTimes = filters?.shiftTimes;
-    final languages = filters?.languages;
-    final cities = filters?.cities;
-
-    // Use as needed in dropdowns or filters
-
-    final isLoading = ref.watch(jobLoadingProvider);
+    final isLoading = ref.watch(jobListProvider.notifier).isLoading;
+    final selectedCityFromProvider =
+        ref.watch(jobListProvider.notifier).selectedCity;
+    final userData = ref.watch(jobListProvider.notifier).userData;
 
     return Stack(
       children: [
@@ -145,76 +122,49 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
             leading: IconButton(
               onPressed: () {
                 _scaffoldKey.currentState?.openDrawer();
-                // constDrawer()
               },
-              icon: const CircleAvatar(
-                // radius: 16,
-                backgroundColor: Constants.lightdull,
-                child: Icon(
-                  Icons.person,
-                  size: 20,
-                  color: Constants.darkBlue,
+              icon: CircleAvatar(
+                radius: 30,
+                backgroundColor: Constants.bgColorWhite,
+                child: CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Constants.borderColor,
+                  backgroundImage: userData?.userProfilePic != null &&
+                          userData?.userProfilePic != " "
+                      ? NetworkImage(userData!.userProfilePic)
+                      : userData?.userGender == "Male"
+                          ? const AssetImage("assets/images/leadmale.png")
+                              as ImageProvider
+                          : const AssetImage("assets/images/leadfemal.png")
+                              as ImageProvider,
                 ),
               ),
             ),
-            title: Expanded(
-                child: CustomTextFieldforAll(
-              onTabOutside: (PointerDownEvent event) async {
-                FocusScope.of(context).requestFocus(FocusNode());
-                searchController.clear();
-                ref
-                    .read(jobListProvider.notifier)
-                    .updateSearchQuery(searchController.text);
-                ref.read(jobListProvider.notifier).fetchJobs();
+            title: DynamicHintTextField(
+              onChanged: (value) {
+                ref.read(jobListProvider.notifier).updateSearchQuery(value);
               },
-              onEditingComplete: () {
-                FocusScope.of(context).unfocus();
-                searchController.clear();
-                ref
-                    .read(jobListProvider.notifier)
-                    .updateSearchQuery(searchController.text);
-                ref.read(jobListProvider.notifier).fetchJobs();
-              },
-              onChanged: (value) =>
-                  ref.read(jobListProvider.notifier).updateSearchQuery(value),
               controller: searchController,
               hint: 'Search Jobs by role, process, or Company',
-            )),
+            ),
             actions: [
               InkWell(
-                  onTap: () {
-                    _showCityBottomSheet();
-                  },
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(top: 20, right: 15, left: 10),
-                    child: customTextForWeather(
-                        color: Constants.darkBlue,
-                        fontWeight: FontWeight.bold,
-                        title: selectedCity != null
-                            ? selectedCity.toString()
-                            : "Select City"),
-                  )),
+                onTap: () {
+                  _showCityBottomSheet();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20, right: 15, left: 10),
+                  child: customTextForWeather(
+                    color: Constants.darkBlue,
+                    fontWeight: FontWeight.bold,
+                    title: selectedCityFromProvider ?? "Select City",
+                  ),
+                ),
+              ),
             ],
           ),
           body: Column(
             children: [
-              // Banner
-              /*  Container(  //TODO:: Banner
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                height: 160,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Colors.blue.shade50,
-                  image: const DecorationImage(
-                    fit: BoxFit.cover,
-                    image: NetworkImage(
-                      'https://cdn-icons-png.flaticon.com/256/6658/6658091.png',
-                    ),
-                  ),
-                ),
-              ), */
-
               // Tab Bar
               SizedBox(
                 height: 40,
@@ -227,94 +177,92 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                       icon: const Icon(Icons.filter_list,
                           color: Constants.darkBlue),
                     ),
-                    /*  ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      children: ['Fresher', 'Linguistic', 'Lateral', 'Saved']
-                          .map(
-                            (tab) => Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 4),
-                              child: FilterChip(
-                                label: customTextForWeather(title: tab),
-                                selected: selectedTab == tab,
-                                onSelected: (_) => toggleTab(tab),
-                                selectedColor: Colors.blue.shade100,
-                                backgroundColor: Colors.grey.shade200,
-                                labelStyle: GoogleFonts.merriweather(
-                                  fontSize: 12,
-                                  color: selectedTab == tab
-                                      ? Constants.black
-                                      : Constants.subtitleclr,
+                    Expanded(
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        children: ['Fresher', 'Linguistic', 'Lateral', 'Saved']
+                            .map(
+                              (tab) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                child: FilterChip(
+                                  label: customTextForWeather(title: tab),
+                                  selected: selectedTab == tab,
+                                  onSelected: (_) => toggleTab(tab),
+                                  selectedColor: Colors.blue.shade100,
+                                  backgroundColor: Colors.grey.shade200,
+                                  labelStyle: GoogleFonts.merriweather(
+                                    fontSize: 12,
+                                    color: selectedTab == tab
+                                        ? Constants.black
+                                        : Constants.subtitleclr,
+                                  ),
                                 ),
                               ),
-                            ),
-                          )
-                          .toList(),
-                    ), */
+                            )
+                            .toList(),
+                      ),
+                    ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 8),
-
-              // Job List
+              // Job List with Pull-to-Refresh
               Expanded(
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  //  controller: _scrollController,
-                  itemCount: filteredJobs.length,
-                  itemBuilder: (context, index) {
-                    final job = filteredJobs[index];
-                    List<String> myList = job.skills != null
-                        ? List<String>.from(jsonDecode(job.skills!))
-                        : [];
-                    return Column(
-                      children: [
-                        InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => JobDetailPage(
-                                          jobId: job.id!,
-                                        )),
-                              );
-                            },
-                            child: CustomJobCard(job: job, skills: myList)),
-                        if (index !=
-                            filteredJobs.length -
-                                1) // ✅ Add Divider except last item
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Divider(thickness: 1.0),
-                          ),
-                      ],
-                    );
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await ref
+                        .read(jobListProvider.notifier)
+                        .fetchJobs(isRefresh: true);
                   },
+                  color: Constants.darkBlue,
+                  backgroundColor: Constants.bgColorWhite,
+                  child: filteredJobs.isEmpty && !isLoading
+                      ? const Center(child: Text('No jobs found'))
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: filteredJobs.length,
+                          itemBuilder: (context, index) {
+                            final job = filteredJobs[index];
+                            List<String> myList = job.skills != null
+                                ? List<String>.from(jsonDecode(job.skills!))
+                                : [];
+                            return Column(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            JobDetailPage(jobId: job.id!),
+                                      ),
+                                    );
+                                  },
+                                  child:
+                                      CustomJobCard(job: job, skills: myList),
+                                ),
+                                if (index != filteredJobs.length - 1)
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    child: Divider(thickness: 1.0),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
                 ),
               ),
             ],
           ),
         ),
-        if (isLoading) // Show loading indicator if loading
-          Positioned.fill(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Blur Effect
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Container(
-                    color: Colors.black
-                        .withOpacity(0.2), // Semi-transparent overlay
-                  ),
-                ),
-                // Circular Progress Indicator
-                const CircularProgressIndicator(
-                  color: Constants.darkBlue,
-                ),
-              ],
+        if (isLoading)
+          const Center(
+            child: CircularProgressIndicator(
+              color: Constants.darkBlue,
             ),
           ),
       ],
@@ -325,9 +273,9 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
   List<String> filteredCities = [];
 
   Future<void> _showCityBottomSheet() async {
-    final filters = ref.read(jobListProvider.notifier).filters;
-    final cities = filters?.cities ?? [];
-    filteredCities = List.from(cities); // initialize filteredCities
+    final availableCities =
+        ref.read(jobListProvider.notifier).availableCities ?? [];
+    filteredCities = List.from(availableCities);
     locationController.clear();
 
     await showModalBottomSheet(
@@ -337,12 +285,10 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       backgroundColor: Constants.bgColorWhite,
-      //    isScrollControlled: true,
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
           return Container(
             padding: const EdgeInsets.all(16),
-            //  height: MediaQuery.of(context).size.height * 0.75,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,15 +305,16 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                       ),
                     ),
                     InkWell(
-                        onTap: () {
-                          locationController.clear();
-                          Navigator.pop(context);
-                        },
-                        child: Image.network(
-                          "https://cdn-icons-png.flaticon.com/128/607/607863.png",
-                          height: 20,
-                          width: 20,
-                        )),
+                      onTap: () {
+                        locationController.clear();
+                        Navigator.pop(context);
+                      },
+                      child: Image.network(
+                        "https://cdn-icons-png.flaticon.com/128/607/607863.png",
+                        height: 20,
+                        width: 20,
+                      ),
+                    ),
                   ],
                 ),
                 const customTextForWeather(
@@ -375,17 +322,17 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextFieldforAll(
-                    onChanged: (value) {
-                      setState(() {
-                        filteredCities = cities
-                            .where((city) => city
-                                .toLowerCase()
-                                .contains(value.toLowerCase()))
-                            .toList();
-                      });
-                    },
-                    controller: locationController,
-                    hint: "Type to search location"),
+                  onChanged: (value) {
+                    setState(() {
+                      filteredCities = availableCities
+                          .where((city) =>
+                              city.toLowerCase().contains(value.toLowerCase()))
+                          .toList();
+                    });
+                  },
+                  controller: locationController,
+                  hint: "Type to search location",
+                ),
                 const SizedBox(height: 16),
                 Expanded(
                   child: filteredCities.isEmpty
@@ -420,11 +367,10 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                                       )
                                     : null,
                                 onTap: () async {
-                                  locationController.clear();
-                                  SharedPreferences pres =
+                                  final prefs =
                                       await Utils.getSharedPreferences();
                                   await Utils.setPreference(
-                                    pres,
+                                    prefs,
                                     ESharedPreferences
                                         .user_selected_lcoation.name,
                                     city,
@@ -492,12 +438,20 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
 
   List<String> selectedFunctionalAreas = [];
   List<String> selectedLanguages = [];
-  Future<void> _showFilterBottomSheet() async {
-    final filters = ref.read(jobListProvider.notifier).filters;
-    final functionalAreas = filters?.functionalAreas ?? [];
-    final languages = filters?.languages ?? [];
 
-    // Track which category is currently selected
+  Future<void> _showFilterBottomSheet() async {
+    final notifier = ref.read(jobListProvider.notifier);
+
+    // Get available filters (all possible options)
+    final availableFilters = notifier.availableFilters;
+
+    // Get currently active filters (what's already applied)
+    final activeFilters = notifier.activeFilters;
+
+    // Initialize with currently active filters or empty lists
+    selectedFunctionalAreas = activeFilters?.functionalAreas ?? [];
+    selectedLanguages = activeFilters?.languages ?? [];
+
     String selectedCategory = 'Functional Area';
 
     await showModalBottomSheet(
@@ -515,6 +469,7 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
             height: MediaQuery.of(context).size.height * 0.75,
             child: Column(
               children: [
+                // Header and close button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -535,6 +490,8 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                   ],
                 ),
                 const SizedBox(height: 16),
+
+                // Filter categories and options
                 Expanded(
                   child: Row(
                     children: [
@@ -572,6 +529,7 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                           ],
                         ),
                       ),
+
                       // Right side - Filter options
                       Expanded(
                         child: Padding(
@@ -579,7 +537,8 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                           child: ListView(
                             children: [
                               if (selectedCategory == 'Functional Area') ...[
-                                ...functionalAreas.map((area) {
+                                ...(availableFilters?.functionalAreas ?? [])
+                                    .map((area) {
                                   final isSelected =
                                       selectedFunctionalAreas.contains(area);
                                   return CheckboxListTile(
@@ -601,7 +560,8 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                                 }),
                               ],
                               if (selectedCategory == 'Language') ...[
-                                ...languages.map((language) {
+                                ...(availableFilters?.languages ?? [])
+                                    .map((language) {
                                   final isSelected =
                                       selectedLanguages.contains(language);
                                   return CheckboxListTile(
@@ -629,37 +589,41 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                     ],
                   ),
                 ),
+
+                // Action buttons
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 0),
+                  padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      // Reset button
                       SizedBox(
                         width: 200,
                         child: CustomButtonForJobPosting(
-                            textColor: Constants.darkBlue,
-                            buttonColor: Constants.bgColorWhite,
-                            buttonText: "Reset",
-                            onTap: () {
-                              setState(() {
-                                selectedFunctionalAreas.clear();
-                                selectedLanguages.clear();
-                              });
-                              ref.read(jobListProvider.notifier).clearFilters();
-                            }),
+                          textColor: Constants.darkBlue,
+                          buttonColor: Constants.bgColorWhite,
+                          buttonText: "Reset",
+                          onTap: () {
+                            notifier.clearAllFilters();
+                            Navigator.pop(context);
+                          },
+                        ),
                       ),
+
+                      // Apply button
                       SizedBox(
                         width: 200,
                         child: CustomButtonForJobPosting(
-                            buttonText: "Apply",
-                            onTap: () {
-                              ref.read(jobListProvider.notifier).updateFilters(
-                                    functionalAreas: selectedFunctionalAreas,
-                                    languages: selectedLanguages,
-                                  );
-                              Navigator.pop(context);
-                            }),
-                      )
+                          buttonText: "Apply",
+                          onTap: () {
+                            notifier.applySelectedFilters(
+                              functionalAreas: selectedFunctionalAreas,
+                              languages: selectedLanguages,
+                            );
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),

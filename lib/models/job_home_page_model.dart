@@ -74,26 +74,27 @@ class JobContent {
   final String? companyName;
   final bool? isFavorite;
   final String? shifttime;
+  final String? jobHeadline;
 
-  const JobContent({
-    this.jobPostType,
-    this.experienceRequired,
-    this.location,
-    this.city,
-    this.languages,
-    this.rolename,
-    this.process,
-    this.functionalArea,
-    this.locations,
-    this.isCampus,
-    this.companyId,
-    this.salaryRange,
-    this.id,
-    this.skills,
-    this.companyName,
-    this.isFavorite,
-    this.shifttime,
-  });
+  const JobContent(
+      {this.jobPostType,
+      this.experienceRequired,
+      this.location,
+      this.city,
+      this.languages,
+      this.rolename,
+      this.process,
+      this.functionalArea,
+      this.locations,
+      this.isCampus,
+      this.companyId,
+      this.salaryRange,
+      this.id,
+      this.skills,
+      this.companyName,
+      this.isFavorite,
+      this.shifttime,
+      this.jobHeadline});
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
     return JobContent(
@@ -114,6 +115,7 @@ class JobContent {
       companyName: json['companyName'],
       isFavorite: json['isFavorite'],
       shifttime: json['shifttime'],
+      jobHeadline: json['jobHeadline'],
     );
   }
 }

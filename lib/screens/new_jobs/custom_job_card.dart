@@ -33,13 +33,24 @@ class CustomJobCard extends StatelessWidget {
               ),
             ),
             title: customTextForWeather(
-              title: job.rolename ?? '',
+              title: job.jobHeadline ?? '',
               fontWeight: FontWeight.w700,
+              maxlines: 2,
+              overflow: TextOverflow.ellipsis,
+              fontSize: 14,
             ),
-            subtitle: customTextForWeather(title: job.process ?? ''),
-            trailing: const Icon(
-              Icons.bookmark_border_outlined,
-              color: Constants.subtitleclr,
+            // subtitle: customTextForWeather(title: job.process ?? ''),
+            trailing: InkWell(
+              onTap: () {
+                // Handle favorite toggle logic here
+                // For example, you can call a method to update the job's favorite status
+              },
+              child: Icon(
+                job.isFavorite == true
+                    ? Icons.bookmark_outlined
+                    : Icons.bookmark_border_outlined,
+                color: Constants.subtitleclr,
+              ),
             ),
           ),
           const SizedBox(height: 5),
@@ -64,6 +75,7 @@ class CustomJobCard extends StatelessWidget {
                       ? value + (skills.length > 10 ? '...' : '.')
                       : '$value, ',
                   overflow: TextOverflow.ellipsis,
+                  fontStyle: FontStyle.italic,
                   softwrap: true,
                   color: Constants.subtitleclr,
                 );

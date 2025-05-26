@@ -14,157 +14,136 @@ final jobListProvider =
 });
 
 class JobNotifier extends StateNotifier<List<JobContent>> {
-  JobNotifier() : super([]);
+  JobNotifier() : super([]) {
+    fetchInitialJobs(); // Separate method for initial fetch
+  }
 
   bool _isLoading = false;
   String _searchQuery = '';
-  JobfilterModel? _filters;
+  JobfilterModel? _availableFilters; // All available filters from API
+  JobfilterModel? _activeFilters; // Currently active filters
+  UserData? _userData;
   String? _selectedCity;
 
-  get isLoading => _isLoading;
-  JobfilterModel? get filters => _filters;
+  List<String>? get availableCities => _availableFilters?.cities;
+  bool get isLoading => _isLoading;
+  JobfilterModel? get availableFilters => _availableFilters;
+  JobfilterModel? get activeFilters => _activeFilters;
+  UserData? get userData => _userData;
+  String? get selectedCity => _selectedCity;
 
-  Future<void> fetchJobs({bool isRefresh = false}) async {
-    var userid =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+  // Initial fetch without any filters
+  Future<void> fetchInitialJobs() async {
+    _selectedCity = await Utils.getPreferencesValue(
+        null, ESharedPreferences.user_selected_lcoation.name);
+    await fetchJobs(isRefresh: true, applyFilters: false);
+  }
+
+  Future<void> fetchJobs({
+    bool isRefresh = false,
+    bool applyFilters = true, // Control whether to apply filters or not
+  }) async {
     if (_isLoading) return;
 
     _isLoading = true;
-
-    // Build URL with optional city filter
-    var url =
-        "http://${GlobalConstants.API_Host_one}/api/jobs/v1/getAllJobs?pageNumber=1&pageSize=1000&userId=$userid";
-    if (_selectedCity != null && _selectedCity!.isNotEmpty) {
-      url += "&cities=$_selectedCity";
-    }
-    if (_filters?.functionalAreas != null &&
-        _filters!.functionalAreas!.isNotEmpty) {
-      url += "&functionalAreas=${_filters!.functionalAreas!.join(',')}";
-    }
-    if (_filters?.languages != null && _filters!.languages!.isNotEmpty) {
-      url += "&languages=${_filters!.languages!.join(',')}";
+    if (isRefresh) {
+      state = [];
     }
 
     try {
-      final response = await http.post(Uri.parse(url));
+      final userid = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_id.name);
+
+      // Start with basic query params
+      final queryParams = {
+        'pageNumber': '1',
+        'pageSize': '1000',
+        'userId': userid.toString(),
+      };
+
+      // Only apply filters if explicitly requested
+      if (applyFilters) {
+        // Add city filter if selected
+        if (_selectedCity != null && _selectedCity!.isNotEmpty) {
+          queryParams['cities'] = _selectedCity!;
+        }
+
+        // Add functional areas if any selected
+        if (_activeFilters?.functionalAreas?.isNotEmpty ?? false) {
+          queryParams['functionalAreas'] =
+              _activeFilters!.functionalAreas!.join(',');
+        }
+
+        // Add languages if any selected
+        if (_activeFilters?.languages?.isNotEmpty ?? false) {
+          queryParams['languages'] = _activeFilters!.languages!.join(',');
+        }
+      }
+
+      final url = Uri.parse(
+              "http://${GlobalConstants.API_Host_one}/api/jobs/v1/getAllJobs")
+          .replace(queryParameters: queryParams);
+
+      final response = await http.post(url);
+
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final model = JobHomePageModel.fromJson(jsonData);
         final jobs = model.resultData?.allJobs?.pageResponse?.content ?? [];
 
-        // Parse filters
-        _filters = JobfilterModel.fromJson(jsonData['resultData']['All Jobs']);
+        // Store available filters from API (but don't apply them yet)
+        _availableFilters =
+            JobfilterModel.fromJson(jsonData['resultData']["All Jobs"] ?? {});
+        _userData = _availableFilters?.userData;
 
-        if (_searchQuery.isNotEmpty) {
-          final filtered = jobs
-              .where((job) =>
-                  job.rolename
-                      ?.toLowerCase()
-                      .contains(_searchQuery.toLowerCase()) ??
-                  false)
-              .toList();
-          state = isRefresh ? filtered : [...state, ...filtered];
-        } else {
-          state = isRefresh ? jobs : [...state, ...jobs];
-        }
+        // Apply search filter locally
+        final filteredJobs = _searchQuery.isNotEmpty
+            ? jobs
+                .where((job) =>
+                    job.rolename
+                        ?.toLowerCase()
+                        .contains(_searchQuery.toLowerCase()) ??
+                    false)
+                .toList()
+            : jobs;
+
+        state = filteredJobs;
       }
-    } catch (e) {
-      print("Error: $e");
+    } finally {
+      _isLoading = false;
     }
-
-    _isLoading = false;
   }
 
-  void updateFilters({
+  // Call this when user explicitly applies filters
+  void applySelectedFilters({
     List<String>? functionalAreas,
     List<String>? languages,
   }) {
-    _filters = _filters?.copyWith(
-          functionalAreas: functionalAreas,
-          languages: languages,
-        ) ??
-        JobfilterModel(
-          functionalAreas: functionalAreas,
-          languages: languages,
-        );
-
-    // Trigger a refetch with the new filters
-    fetchJobs();
+    _activeFilters = JobfilterModel(
+      functionalAreas: functionalAreas,
+      languages: languages,
+      // Preserve other filter categories
+      companies: _availableFilters?.companies,
+      cities: _availableFilters?.cities,
+      // ... other filter types
+    );
+    fetchJobs(isRefresh: true, applyFilters: true);
   }
 
-  void clearFilters() {
-    _filters = _filters?.copyWith(
-      functionalAreas: [],
-      languages: [],
-    );
-    fetchJobs();
+  // Call this to clear all filters
+  void clearAllFilters() {
+    _activeFilters = null;
+    _searchQuery = '';
+    fetchJobs(); // Fetch without any filters
   }
 
   void updateSearchQuery(String query) {
     _searchQuery = query;
-    fetchJobs(isRefresh: true);
+    fetchJobs(isRefresh: true, applyFilters: true);
   }
 
   void updateCityFilter(String? city) {
     _selectedCity = city;
-    fetchJobs(isRefresh: true);
+    fetchJobs(isRefresh: true, applyFilters: true);
   }
 }
-
-/*  class JobNotifier extends StateNotifier<List<JobContent>> {
-  JobNotifier() : super([]);
-
-  bool _isLoading = false;
-  String _searchQuery = '';
-  JobfilterModel? _filters;
-
-  get isLoading => _isLoading;
-  JobfilterModel? get filters => _filters;
-
-  Future<void> fetchJobs({bool isRefresh = false}) async {
-    var userid =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
-    if (_isLoading) return;
-
-    _isLoading = true;
-    final url =
-        "http://${GlobalConstants.API_Host_one}/api/jobs/v1/getAllJobs?pageNumber=1&pageSize=1000&userId=$userid";
-
-    try {
-      final response = await http.post(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        final model = JobHomePageModel.fromJson(jsonData);
-        final jobs = model.resultData?.allJobs?.pageResponse?.content ?? [];
-
-        // Parse filters
-        _filters = JobfilterModel.fromJson(jsonData);
-
-        if (_searchQuery.isNotEmpty) {
-          final filtered = jobs
-              .where((job) =>
-                  job.rolename
-                      ?.toLowerCase()
-                      .contains(_searchQuery.toLowerCase()) ??
-                  false)
-              .toList();
-          state = isRefresh ? filtered : [...state, ...filtered];
-        } else {
-          state = isRefresh ? jobs : [...state, ...jobs];
-        }
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
-
-    _isLoading = false;
-  }
-  
-
-  void updateSearchQuery(String query) {
-    _searchQuery = query;
-    fetchJobs(isRefresh: true);
-  }
-}
-
- */

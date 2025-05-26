@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -65,27 +63,23 @@ class CustomToggleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      splashColor: Colors.transparent,
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 20.w),
-        margin: EdgeInsets.only(top: 5, bottom: 5, right: 10.w),
+        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+        margin: const EdgeInsets.only(top: 5, bottom: 5, right: 10),
         decoration: BoxDecoration(
           color: isSelect ? Constants.borderColor : Colors.white,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelect
-                ? Constants.borderColor
-                : const Color.fromARGB(255, 200, 194, 193),
-          ),
+              color: isSelect ? Constants.borderColor : Constants.lightdull),
         ),
         child: Center(
-          child: Text(
-            title,
-            style: GoogleFonts.sourceSansPro(
-              fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
-              color: Constants.black,
-              fontSize: 12.sp,
-            ),
+          child: customTextForWeather(
+            title: title,
+            fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
+            color: Constants.black,
+            fontSize: 12,
           ),
         ),
       ),

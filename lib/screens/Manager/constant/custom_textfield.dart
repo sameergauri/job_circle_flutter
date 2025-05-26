@@ -396,7 +396,8 @@ class customTextForWeather extends StatelessWidget {
   final int? maxlines;
   final FontStyle? fontStyle;
   final TextOverflow? overflow;
-  final double? letterSpacing;  
+  final double? letterSpacing;
+  final TextDecoration? textDecoration;
 
   const customTextForWeather(
       {required this.title,
@@ -410,25 +411,23 @@ class customTextForWeather extends StatelessWidget {
       this.fontStyle,
       this.overflow,
       this.letterSpacing,
-      });
+      this.textDecoration});
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      
       title,
       softWrap: softwrap,
       textAlign: textAlign,
       maxLines: maxlines,
       overflow: overflow,
       style: GoogleFonts.merriweather(
-        fontSize: fontSize ?? 12,
-        color: color ?? Colors.black,
-        fontWeight: fontWeight,
-        decoration: TextDecoration.none,
-        fontStyle: fontStyle,
-        letterSpacing: letterSpacing
-      ),
+          fontSize: fontSize ?? 12,
+          color: color ?? Colors.black,
+          fontWeight: fontWeight,
+          decoration: textDecoration ?? TextDecoration.none,
+          fontStyle: fontStyle,
+          letterSpacing: letterSpacing),
     );
   }
 }

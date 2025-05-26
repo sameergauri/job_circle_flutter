@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/screens/e_learning/e_learning_home_page.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
 import 'package:job_circle/screens/new_jobs/job_home_page.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -40,9 +41,10 @@ class _HomeScreenState extends State<HomeScreen> {
         physics: const NeverScrollableScrollPhysics(),
         controller: pageController,
         children: const [
-          //  NewJobsV1(),
-          JobHomePage(),
-          TrackApplication()
+          //  NewJobsV1(), // old job page as per old api
+           JobHomePage(), // new job page as per new api
+          TrackApplication(),
+          ELearingHomePage()
         ],
         onPageChanged: (index) {
           setState(() {
@@ -85,6 +87,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Constants.themeBgColor,
               ),
               label: "ATS",
+              backgroundColor: Colors.blue,
+            ),
+            BottomNavigationBarItem(
+              icon: Image.asset(
+                "assets/images/education.png",
+                height: 20.h,
+              ),
+              activeIcon: Image.asset(
+                "assets/images/education.png",
+                height: 20.h,
+                color: Constants.themeBgColor,
+              ),
+              label: "E-Learning",
               backgroundColor: Colors.blue,
             ),
           ],

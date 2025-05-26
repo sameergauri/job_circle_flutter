@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/components/custom_call_sms_button.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class RecruiterDetailsCard extends StatelessWidget {
   final String title;
@@ -11,6 +12,7 @@ class RecruiterDetailsCard extends StatelessWidget {
   final String designation;
   final String location;
   final String email;
+  final String profilepic;
   final int contactNumber;
 
   const RecruiterDetailsCard({
@@ -21,6 +23,7 @@ class RecruiterDetailsCard extends StatelessWidget {
     required this.location,
     required this.contactNumber,
     required this.email,
+    required this.profilepic,
   });
 
   @override
@@ -56,14 +59,17 @@ class RecruiterDetailsCard extends StatelessWidget {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: const CircleAvatar(
-                    radius: 25,
-                    backgroundColor: Constants.borderColor,
-                    child: Icon(
-                      Icons.person,
-                      color: Constants.darkBlue,
-                      size: 30,
-                    ),
+                  leading: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Constants.bgColorWhite,
+                    child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: Constants.lightdull,
+                        backgroundImage: profilepic != " "
+                            ? NetworkImage(
+                                "${GlobalConstants.Image_url}$profilepic")
+                            : const AssetImage("assets/images/designation.png")
+                                as ImageProvider),
                   ),
                   title: Row(
                     children: [
@@ -86,10 +92,11 @@ class RecruiterDetailsCard extends StatelessWidget {
                         title: designation,
                         color: Constants.subtitleclr,
                       ),
-                      customTextForWeather(
-                        title: location,
-                        color: Constants.subtitleclr,
-                      ),
+                      if (location.isNotEmpty && location != "null")
+                        customTextForWeather(
+                          title: location,
+                          color: Constants.subtitleclr,
+                        ),
                     ],
                   ),
                 ),
@@ -102,7 +109,7 @@ class RecruiterDetailsCard extends StatelessWidget {
                           "https://cdn-icons-png.flaticon.com/128/16866/16866136.png",
                       label: "Email",
                       onTap: () async {
-                        final whatsappUrl = "mailto:$contactNumber";
+                        final whatsappUrl = "mailto:$email";
                         await launchUrl(Uri.parse(whatsappUrl));
                       },
                     ),
@@ -113,7 +120,8 @@ class RecruiterDetailsCard extends StatelessWidget {
                           "https://cdn-icons-png.flaticon.com/128/9821/9821767.png",
                       label: "Call",
                       onTap: () async {
-                        launchUrlString("tel://$contactNumber");
+                        FlutterPhoneDirectCaller.callNumber(
+                            contactNumber.toString());
                       },
                     ),
                     const SizedBox(width: 15),
@@ -124,7 +132,7 @@ class RecruiterDetailsCard extends StatelessWidget {
                       label: "Whatsapp",
                       onTap: () async {
                         final whatsappUrl =
-                            "whatsapp://send?phone=$contactNumber";
+                            "whatsapp://send?phone=91$contactNumber";
                         await launchUrl(Uri.parse(whatsappUrl));
                       },
                     ),
