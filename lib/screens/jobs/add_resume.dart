@@ -21,8 +21,6 @@ import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-
-
 import 'package:job_circle/screens/refer_now.dart';
 // import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -588,77 +586,76 @@ class _AddResumeState extends ConsumerState<AddResume> {
                           const SizedBox(
                             width: 5,
                           ),
-                          if (widget.isRefer && widget.is30)
-                            Expanded(
-                                child: RichText(
-                                    text: TextSpan(
-                                        text:
-                                            "I hereby agree to the 30 days payment clause outlined in the ",
-                                        style: GoogleFonts.varela(
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: 12.sp,
-                                            color: Colors.black),
-                                        children: <TextSpan>[
-                                  TextSpan(
-                                    text: "Terms & Conditions.",
-                                    style: GoogleFonts.varela(
-                                        fontStyle: FontStyle.italic,
-                                        fontSize: 12.sp,
-                                        color: Colors.blue),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return Scaffold(
-                                              body: Container(
-                                                child:
-                                                    FutureBuilder<PDFDocument>(
-                                                  future: PDFDocument.fromAsset(
-                                                      "assets/images/30.pdf"),
-                                                  builder: (context, snapshot) {
-                                                    if (snapshot
-                                                            .connectionState ==
-                                                        ConnectionState.done) {
-                                                      if (snapshot.hasData) {
-                                                        return PDFViewer(
-                                                          scrollDirection:
-                                                              Axis.vertical,
-                                                          panLimit: 1.1,
-                                                          document:
-                                                              snapshot.data!,
-                                                          zoomSteps: 3,
-                                                          showNavigation: false,
-                                                          showPicker: false,
+                            if (widget.isRefer && widget.is30)
+                          Expanded(
+                              child: RichText(
+                                  text: TextSpan(
+                                      text:
+                                          "I hereby agree to the 30 days payment clause outlined in the ",
+                                      style: GoogleFonts.varela(
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: 12.sp,
+                                          color: Colors.black),
+                                      children: <TextSpan>[
+                                TextSpan(
+                                  text: "Terms & Conditions.",
+                                  style: GoogleFonts.varela(
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 12.sp,
+                                      color: Colors.blue),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return Scaffold(
+                                            body: Container(
+                                              child: FutureBuilder<PDFDocument>(
+                                                future: PDFDocument.fromAsset(
+                                                    "assets/images/30.pdf"),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot
+                                                          .connectionState ==
+                                                      ConnectionState.done) {
+                                                    if (snapshot.hasData) {
+                                                      return PDFViewer(
+                                                        scrollDirection:
+                                                            Axis.vertical,
+                                                        panLimit: 1.1,
+                                                        document:
+                                                            snapshot.data!,
+                                                        zoomSteps: 3,
+                                                        showNavigation: false,
+                                                        showPicker: false,
 
-                                                          // numberPickerConfirmWidget: f,
-                                                        );
-                                                      } else {
-                                                        return const Center(
-                                                            child: Text(
-                                                                'Failed to load PDF'));
-                                                      }
+                                                        // numberPickerConfirmWidget: f,
+                                                      );
                                                     } else {
                                                       return const Center(
-                                                          child:
-                                                              CircularProgressIndicator());
+                                                          child: Text(
+                                                              'Failed to load PDF'));
                                                     }
-                                                  },
-                                                ),
+                                                  } else {
+                                                    return const Center(
+                                                        child:
+                                                            CircularProgressIndicator());
+                                                  }
+                                                },
                                               ),
-                                            );
-                                          },
-                                        );
-                                        // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
-                                      },
-                                  )
-                                ])
-                                    /* Text(
+                                            ),
+                                          );
+                                        },
+                                      );
+                                      // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
+                                    },
+                                )
+                              ])
+                                  /* Text(
                                 "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
                                 style: GoogleFonts.varela(
                                     fontStyle: FontStyle.italic, fontSize: 12.sp),
                                                       ), */
-                                    )),
+                                  )),
                         ],
                       ),
                   ],
@@ -903,12 +900,11 @@ class _AddResumeState extends ConsumerState<AddResume> {
             resume: icon_data,
             shortListFor: widget.company_id,
             spoc: widget.spocId,
+            
             uid: int.tryParse(userId));
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, userId, true);
-       
-     
-     
+
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
 
@@ -937,9 +933,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
             uid: int.tryParse(userId));
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, userId, false);
-       
-       
-       
+
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
 
@@ -1352,9 +1346,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
             uid: int.tryParse(userId));
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, usertoken, false);
-      
-      
-      
+
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
         /*  final addResumeModel = JobApplicationModel(
@@ -1420,9 +1412,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         );
         await JobPostApiService.ReferAndAddResume(
             referAddResumeModel.toJson(), context, false, usertoken, false);
-       
-       
-        
+
         ref.refresh(fetchAllReferalProvider);
         ref.refresh(fetchAllApplyProvider);
         /*  final addResumeModel = JobApplicationModel(

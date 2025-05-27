@@ -545,7 +545,6 @@ class JobPostApiService {
       }
     } catch (e) {
       print('Error: $e');
-      
     }
   }
 
@@ -620,7 +619,6 @@ class JobPostApiService {
       }
     } catch (e) {
       print('Error: $e');
-      
     }
   }
 

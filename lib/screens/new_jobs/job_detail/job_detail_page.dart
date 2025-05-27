@@ -91,8 +91,8 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                               //     "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
                               isRefer: true,
                               spocId: jobDetailState.jobDetail!.spocid!,
-                              is90: false,
-                              is30: true,
+                              is90: true,
+                              is30: false,
                               userNumber: 8446062685,
                               useAlternateNumber: 8446062685,
                               interviewRounds: "")));
@@ -152,6 +152,16 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
         ),
       );
     }
+    String salaryText = state.jobDetail!.salaryRange.toString();
+
+    String formattedSalary = '';
+    if (salaryText.endsWith('0')) {
+      formattedSalary = salaryText.replaceFirst(RegExp(r'\s*0$'), ' PA');
+    } else if (salaryText.endsWith('1')) {
+      formattedSalary = salaryText.replaceFirst(RegExp(r'\s*1$'), ' PM');
+    } else {
+      formattedSalary = salaryText; // fallback if no valid suffix
+    }
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -163,7 +173,7 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
             CustomJobHeadline(
                 jobHeadline: state.jobDetail!.jobHeadline.toString(),
                 experience: state.jobDetail!.requiredExperience.toString(),
-                salary: state.jobDetail!.salaryRange.toString(),
+                salary: formattedSalary,
                 location: state.jobDetail!.locations!.join(', '),
                 empType: state.jobDetail!.employmentType.toString(),
                 noVacancy: state.jobDetail!.noOfVacancy.toString()),
@@ -226,10 +236,13 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
               recruiterName: state.jobDetail!.postedBy.toString(),
               designation: state.jobDetail!.postedByDesignation
                   .toString(), // replace with actual value
-              location: state.jobDetail!.postedByLocation
-                  .toString(), // replace with actual value
+              location: state.jobDetail!.postedByLocation != null
+                  ? state.jobDetail!.postedByLocation.toString()
+                  : " ", // replace with actual value
               contactNumber: state.jobDetail!.postedByContactNo!,
-              profilepic: state.jobDetail!.postedByProfilePic!,
+              profilepic: state.jobDetail!.postedByProfilePic != null
+                  ? state.jobDetail!.postedByProfilePic!
+                  : " ",
             ),
             const ReferralProgramCard(
               imageUrl:

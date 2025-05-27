@@ -84,7 +84,11 @@ class CustomDrawer extends ConsumerWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
-                customTextForWeather(title: userLocation, fontSize: 14),
+                customTextForWeather(
+                    title: userLocation.startsWith(' ')
+                        ? userLocation.replaceFirst(' ', '')
+                        : userLocation,
+                    fontSize: 14),
               ],
             ),
           ),

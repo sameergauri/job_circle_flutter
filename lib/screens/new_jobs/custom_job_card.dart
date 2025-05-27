@@ -37,7 +37,7 @@ class CustomJobCard extends StatelessWidget {
               fontWeight: FontWeight.w700,
               maxlines: 2,
               overflow: TextOverflow.ellipsis,
-              fontSize: 14,
+              fontSize: job.jobHeadline!.length < 30 ? 16 : 14,
             ),
             // subtitle: customTextForWeather(title: job.process ?? ''),
             trailing: InkWell(
@@ -57,7 +57,11 @@ class CustomJobCard extends StatelessWidget {
           _buildInfoRow(
               Icons.work_outline_outlined, job.experienceRequired.toString()),
           const SizedBox(height: 5),
-          _buildInfoRow(Icons.currency_rupee, job.salaryRange.toString()),
+          _buildInfoRow(
+              Icons.currency_rupee,
+              job.salaryRange!.contains('- 0')
+                  ? job.salaryRange!.replaceFirst(RegExp(r'\s*-\s*0'), '')
+                  : job.salaryRange.toString()),
           const SizedBox(height: 5),
           _buildInfoRow(Icons.location_on_outlined, job.location ?? ''),
           const SizedBox(height: 10),

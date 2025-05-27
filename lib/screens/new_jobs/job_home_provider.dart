@@ -98,13 +98,12 @@ class JobNotifier extends StateNotifier<List<JobContent>> {
 
         // Apply search filter locally
         final filteredJobs = _searchQuery.isNotEmpty
-            ? jobs
-                .where((job) =>
-                    job.rolename
-                        ?.toLowerCase()
-                        .contains(_searchQuery.toLowerCase()) ??
-                    false)
-                .toList()
+            ? jobs.where((job) {
+                final query = _searchQuery.toLowerCase();
+                return (job.rolename?.toLowerCase().contains(query) ?? false) ||
+                    (job.companyName?.toLowerCase().contains(query) ?? false) ||
+                    (job.process?.toLowerCase().contains(query) ?? false);
+              }).toList()
             : jobs;
 
         state = filteredJobs;

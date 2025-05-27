@@ -269,8 +269,7 @@ class ReferalPage extends ConsumerWidget {
                       : Constants.darkgreen,
                 ),
                 subtitle: customTextForWeather(
-                  title:
-                      "• ${item.referralFeedback1} ahg sajdhasjkjd kjkjdijssdhdasjkd haskjkhdhaj",
+                  title: "• ${item.referralFeedback2}",
                   fontSize: 11,
                   fontWeight: FontWeight.normal,
                   color: Constants.subtitleclr,

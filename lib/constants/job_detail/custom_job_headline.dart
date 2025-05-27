@@ -31,17 +31,28 @@ class CustomJobHeadline extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (jobHeadline != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: customTextForWeather(
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              trailing: Image.network(
+                "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
+                height: 25,
+                width: 25,
+                fit: BoxFit.cover,
+              ),
+              title: customTextForWeather(
                 title: jobHeadline.toString(),
                 fontWeight: FontWeight.w700,
-                fontSize: 14,
+                fontSize: jobHeadline!.length < 30 ? 16 : 14,
               ),
             ),
           _buildInfoRow(Icons.work_outline_outlined, experience),
           const SizedBox(height: 5),
-          _buildInfoRow(Icons.currency_rupee, salary),
+          _buildInfoRow(
+              Icons.currency_rupee,
+              salary.contains('- 0')
+                  ? salary.replaceFirst(RegExp(r'\s*-\s*0'), '')
+                  : salary.toString()),
           const SizedBox(height: 5),
           _buildInfoRow(Icons.location_on_outlined, location),
           const SizedBox(height: 10),
