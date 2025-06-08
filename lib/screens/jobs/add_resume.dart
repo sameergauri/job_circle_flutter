@@ -2,9 +2,7 @@
 // ignore_for_file: todo
 import 'dart:ui';
 
-import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,8 +10,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customwidget_upload_file.dart';
+import 'package:job_circle/constants/cuustom_radio_button.dart';
 import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
+import 'package:job_circle/models/job_detail/job_detail_page_model.dart';
 import 'package:job_circle/models/refer_add_resume_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_container_for_gender.dart';
 import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
@@ -34,11 +34,12 @@ import '../../themes/colors.dart';
 class AddResume extends ConsumerStatefulWidget {
   final String company_name, role, process, nature_of_work, interviewRounds;
   final int company_id, jobId, spocId;
-  final bool isRefer;
+
   final bool is90;
   final bool is30;
   final int userNumber;
   final int useAlternateNumber;
+  final PayoutDetails payoutDetails;
 
   const AddResume({
     super.key,
@@ -49,12 +50,12 @@ class AddResume extends ConsumerStatefulWidget {
     required this.company_id,
     required this.jobId,
     required this.spocId,
-    required this.isRefer,
     required this.is90,
     required this.is30,
     required this.userNumber,
     required this.useAlternateNumber,
     required this.interviewRounds,
+    required this.payoutDetails,
   });
 
   @override
@@ -106,88 +107,6 @@ class _AddResumeState extends ConsumerState<AddResume> {
     return Scaffold(
       // backgroundColor: const Color(0xfffedf6f9), //TODO: old background color
       backgroundColor: Colors.white,
-      bottomNavigationBar: widget.isRefer
-          ? InkWell(
-              onTap: () {
-                submit();
-              },
-              child: Container(
-                margin: const EdgeInsets.only(
-                    top: 10, bottom: 10, left: 20, right: 20),
-                decoration: BoxDecoration(
-                    color: Constants.darkBlue,
-                    borderRadius: BorderRadius.circular(8.r)),
-                width: double.maxFinite,
-                padding: const EdgeInsets.only(bottom: 8, top: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Submit",
-                      style: GoogleFonts.sourceSansPro(
-                          fontSize: 18.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                InkWell(
-                  onTap: () {
-                    AddLineUp();
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 10, bottom: 10),
-                    decoration: BoxDecoration(
-                        color: Constants.themeBgColor,
-                        borderRadius: BorderRadius.circular(8.r)),
-                    width: width / 3,
-                    padding: const EdgeInsets.only(bottom: 8, top: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Line-up",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    submit();
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 10, bottom: 10),
-                    decoration: BoxDecoration(
-                        color: Constants.themeBgColor,
-                        borderRadius: BorderRadius.circular(8.r)),
-                    width: width / 3,
-                    padding: const EdgeInsets.only(bottom: 8, top: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "Interview bay",
-                          style: GoogleFonts.sourceSansPro(
-                              fontSize: 18.sp,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
       resizeToAvoidBottomInset: true, // Add this line
 
       extendBodyBehindAppBar: true,
@@ -393,271 +312,51 @@ class _AddResumeState extends ConsumerState<AddResume> {
                     const SizedBox(
                       height: 20,
                     ),
-                    // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
-                    if (widget.isRefer)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color:
-                                        // selectedKeyResponsible.contains(item)
-                                        Colors.grey,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                height: 16,
-                                width: 20,
-                                child: Theme(
-                                  data: ThemeData(
-                                    unselectedWidgetColor: Colors.transparent,
-                                  ),
-                                  child: Checkbox(
-                                    side: const BorderSide(color: Colors.white),
-                                    activeColor: Colors.white,
-                                    checkColor: Constants.themeBgColor,
-                                    visualDensity: VisualDensity.compact,
-                                    value: termAndConditionOne,
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        if (newValue!) {
-                                          termAndConditionOne = true;
-                                          termAndConditionTwo = false;
-                                        } else {
-                                          termAndConditionOne = false;
-                                        }
-                                      });
-                                      //tify Flutter that the state has changed
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 10.w,
-                          ),
-                          // if (widget.isRefer && widget.is90)  //TODO:: commented because display 90days clause for the hiring who dont have payout.
-                          if (widget.isRefer)
-                            Expanded(
-                                child: RichText(
-                                    text: TextSpan(
-                                        text: "I hereby agree to the ",
-                                        style: GoogleFonts.varela(
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: 12.sp,
-                                            color: Colors.black),
-                                        children: <TextSpan>[
-                                  TextSpan(
-                                    text: "90 days payment clause",
-                                    style: GoogleFonts.varela(
-                                        wordSpacing: 0.5,
-                                        // decoration: TextDecoration.underline,
-                                        fontStyle: FontStyle.italic,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12.sp,
-                                        color: Colors.black),
-                                  ),
-                                  TextSpan(
-                                    text: " outlined in the ",
-                                    style: GoogleFonts.varela(
-                                        fontStyle: FontStyle.italic,
-                                        fontSize: 12.sp,
-                                        color: Colors.black),
-                                  ),
-                                  TextSpan(
-                                    text: "Terms & Conditions.",
-                                    style: GoogleFonts.varela(
-                                        fontStyle: FontStyle.italic,
-                                        fontSize: 12.sp,
-                                        color: Colors.blue),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return Scaffold(
-                                              body: Container(
-                                                child:
-                                                    FutureBuilder<PDFDocument>(
-                                                  future: PDFDocument.fromAsset(
-                                                      "assets/images/90.pdf"),
-                                                  builder: (context, snapshot) {
-                                                    if (snapshot
-                                                            .connectionState ==
-                                                        ConnectionState.done) {
-                                                      if (snapshot.hasData) {
-                                                        return PDFViewer(
-                                                          scrollDirection:
-                                                              Axis.vertical,
-                                                          panLimit: 1.1,
-                                                          document:
-                                                              snapshot.data!,
-                                                          zoomSteps: 3,
-                                                          showNavigation: false,
-                                                          showPicker: false,
+                    // if (widget.isRefer && widget.is90)
+                    //TODO:: commented because display 90days clause for the hiring who dont have payout.
+                    CustomRadioOption(
+                        isSelected1: termAndConditionOne,
+                        isSelected2: termAndConditionTwo,
+                        onTap1: () {
+                          setState(() {
+                            termAndConditionOne = !termAndConditionOne;
+                            termAndConditionTwo = false;
+                          });
+                        },
+                        onTap2: () {
+                          setState(() {
+                            termAndConditionTwo = !termAndConditionTwo;
+                            termAndConditionOne = false;
+                          });
+                        },
+                        payoutDetails: widget.payoutDetails),
 
-                                                          // numberPickerConfirmWidget: f,
-                                                        );
-                                                      } else {
-                                                        return const Center(
-                                                            child: Text(
-                                                                'Failed to load PDF'));
-                                                      }
-                                                    } else {
-                                                      return const Center(
-                                                          child:
-                                                              CircularProgressIndicator());
-                                                    }
-                                                  },
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                        );
-                                        // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
-                                      },
-                                  )
-                                ])
-                                    /* Text(
-                                "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
-                                style: GoogleFonts.varela(
-                                    fontStyle: FontStyle.italic, fontSize: 12.sp),
-                                                      ), */
-                                    )),
-                        ],
+                    InkWell(
+                      onTap: () {
+                        submit();
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(
+                            top: 10, bottom: 10, left: 20, right: 20),
+                        decoration: BoxDecoration(
+                            color: Constants.darkBlue,
+                            borderRadius: BorderRadius.circular(8.r)),
+                        width: double.maxFinite,
+                        padding: const EdgeInsets.only(bottom: 8, top: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Submit",
+                              style: GoogleFonts.sourceSansPro(
+                                  fontSize: 18.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
                       ),
-                    // const Spacer(),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    if (widget.isRefer &&
-                        widget.is30) //TODO: 30 days statement.
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color:
-                                        // selectedKeyResponsible.contains(item)
-                                        Colors.grey,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                height: 16,
-                                width: 20,
-                                child: Theme(
-                                  data: ThemeData(
-                                    unselectedWidgetColor: Colors.transparent,
-                                  ),
-                                  child: Checkbox(
-                                    activeColor: Colors.transparent,
-                                    checkColor: Constants.themeBgColor,
-                                    visualDensity: VisualDensity.compact,
-                                    value: termAndConditionTwo,
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        if (newValue!) {
-                                          termAndConditionTwo = true;
-                                          termAndConditionOne = false;
-                                        } else {
-                                          termAndConditionTwo = false;
-                                        }
-                                      });
-                                      //tify Flutter that the state has changed
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                            if (widget.isRefer && widget.is30)
-                          Expanded(
-                              child: RichText(
-                                  text: TextSpan(
-                                      text:
-                                          "I hereby agree to the 30 days payment clause outlined in the ",
-                                      style: GoogleFonts.varela(
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: 12.sp,
-                                          color: Colors.black),
-                                      children: <TextSpan>[
-                                TextSpan(
-                                  text: "Terms & Conditions.",
-                                  style: GoogleFonts.varela(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 12.sp,
-                                      color: Colors.blue),
-                                  recognizer: TapGestureRecognizer()
-                                    ..onTap = () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return Scaffold(
-                                            body: Container(
-                                              child: FutureBuilder<PDFDocument>(
-                                                future: PDFDocument.fromAsset(
-                                                    "assets/images/30.pdf"),
-                                                builder: (context, snapshot) {
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.done) {
-                                                    if (snapshot.hasData) {
-                                                      return PDFViewer(
-                                                        scrollDirection:
-                                                            Axis.vertical,
-                                                        panLimit: 1.1,
-                                                        document:
-                                                            snapshot.data!,
-                                                        zoomSteps: 3,
-                                                        showNavigation: false,
-                                                        showPicker: false,
-
-                                                        // numberPickerConfirmWidget: f,
-                                                      );
-                                                    } else {
-                                                      return const Center(
-                                                          child: Text(
-                                                              'Failed to load PDF'));
-                                                    }
-                                                  } else {
-                                                    return const Center(
-                                                        child:
-                                                            CircularProgressIndicator());
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      );
-                                      // Handle the tap gesture here, e.g., navigate to Terms & Conditions screen
-                                    },
-                                )
-                              ])
-                                  /* Text(
-                                "I hereby agree to the 90 days payment clause outlined in the Terms & Conditions.",
-                                style: GoogleFonts.varela(
-                                    fontStyle: FontStyle.italic, fontSize: 12.sp),
-                                                      ), */
-                                  )),
-                        ],
-                      ),
+                    )
                   ],
                 ),
               ),
@@ -685,37 +384,6 @@ class _AddResumeState extends ConsumerState<AddResume> {
   String? _filePath;
 
   //TODO: old code to upload file.
-
-  /*  Future 
-  (allowExt) async {
-    Utils.showLoaderDialog(context, "");
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: allowExt,
-        withReadStream: true);
-
-    if (result != null) {
-      var res = await FileUploadService()
-          .uploadSingleFile("icon", result.files.single);
-      var resultD = Utils.parseResponse(res);
-      // Navigator.pop(context);
-
-      if (resultD.resultKey == 'SUCCESS') {
-        // Extract the filename from the path
-        String filePath = result.files.single.path ?? '';
-        String filename = filePath.split('/').last;
-
-        print("Filename: $filename"); // Debugging print
-        return filename;
-      } else {
-        Navigator.pop(context);
-        return null;
-      }
-    } else {
-      Navigator.pop(context);
-      return null;
-    }
-  } */
 
   Future<String?> uploadFile(allowExt, bool isSecond) async {
     Utils.showLoaderDialog(context, "");
@@ -799,49 +467,6 @@ class _AddResumeState extends ConsumerState<AddResume> {
     }
   }
 
-  /*  Future<void> pickAndUploadPdf() async {
-    try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
-
-      if (result != null) {
-        String? _filePath = result.files.single.path;
-
-        if (_filePath != null) {
-          var apiUrl = Uri.parse(
-              'http://${GlobalConstants.API_Host}/files/v1/multiUpload');
-
-          var request = http.MultipartRequest('POST', apiUrl);
-
-          // Add custom headers here
-          request.headers['Authorization'] = 'Bearer your_access_token';
-          // Add more headers if needed
-
-          request.files
-              .add(await http.MultipartFile.fromPath('file', _filePath));
-
-          final response = await request.send();
-
-          if (response.statusCode == 200) {
-            final responseJson =
-                jsonDecode(await response.stream.bytesToString());
-            // Handle the response data here
-            print('Response: $responseJson');
-          } else {
-            print('Upload failed with status ${response.statusCode}');
-          }
-        } else {
-          print('File path is null.');
-        }
-      } else {
-        print('User canceled the file picking or selected a non-PDF file');
-      }
-    } catch (e) {
-      print('Error during file upload: $e');
-    }
-  } */
   int differenceInDays(DateTime? date1, DateTime date2) {
     final difference = date1!.difference(date2).inDays;
     return difference
@@ -881,517 +506,9 @@ class _AddResumeState extends ConsumerState<AddResume> {
       setState(() {
         isLoading = true;
       });
-      if (widget.isRefer) {
-        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            applicantName: firt_name.text,
-            companyName: widget.company_name,
-            contactNo: int.parse(primary_number.text.trim()),
-            interviewRounds: widget.interviewRounds,
-            isExperienced: fresher ? 0 : 1,
-            jobId: widget.jobId,
-            lastName: last_name.text,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            process: widget.process,
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            resume: icon_data,
-            shortListFor: widget.company_id,
-            spoc: widget.spocId,
-            
-            uid: int.tryParse(userId));
-        await JobPostApiService.ReferAndAddResume(
-            referAddResumeModel.toJson(), context, false, userId, true);
 
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider);
-
-        setState(() {
-          isLoading = false;
-        });
-      } else {
-        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            applicantName: firt_name.text,
-            companyName: widget.company_name,
-            contactNo: int.parse(primary_number.text.trim()),
-            interviewRounds: widget.interviewRounds,
-            isExperienced: fresher ? 0 : 1,
-            jobId: widget.jobId,
-            lastName: last_name.text,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            process: widget.process,
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            resume: icon_data,
-            shortListFor: widget.company_id,
-            spoc: widget.spocId,
-            uid: int.tryParse(userId));
-        await JobPostApiService.ReferAndAddResume(
-            referAddResumeModel.toJson(), context, false, userId, false);
-
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider);
-
-        /*      final addResumeModel = JobApplicationModel(
-          isRef: 2,
-          uid: 0,
-          resume: icon_data,
-          id: 0,
-          applicantName: firt_name.text,
-          lastName: last_name.text,
-          contactNo: int.parse(primary_number.text.trim()),
-          qualification: graduate == true ? "Graduate" : "Under Graduate",
-          isExperienced: fresher ? 0 : 1,
-          companyName: widget.company_name,
-          process: widget.process,
-          level: widget.role,
-          naturofwork: widget.nature_of_work,
-          shortListFor: widget.company_id,
-          status_id: 1, //TODO : directly in interviewBay..
-          hrStatusId: 14,
-          /*  status: "IB4",  //TODO: before changes in status...
-            subStatus: "Shortlist", */
-          sourceId: widget.sourceId,
-          sourceName: widget.sourceName,
-          jobid: widget.jobId,
-          spoc: (userType == 3 && userRole == "3")
-              ? userId
-              : (userType == 3 && userRole == "1")
-                  ? widget.report_to
-                  : 2,
-          alternateNo:
-              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
-          dol: DateTime.now(),
-          interview_rounds: widget.interviewRounds,
-          // ... fill in other properties as needed
-        );
-        final jsonData = addResumeModel.toJson();
-        await JobPostApiService.addResume(
-          jsonData,
-          context,
-          false,
-        );
-        ref.refresh(fetchAllTalentPoolProvider);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllExecutiveProvide);
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider); */
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
-      showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-            error: true,
-            onClose: () {
-              setState(() {
-                isLoading = false;
-              });
-              Navigator.pop(context);
-            },
-            subtitle: "Error While Uplaoding. Connect with tech Team.",
-          );
-        },
-      );
-    }
-  }
-
-  /*   ApplicationAPI api = ApplicationAPI();
-      applicationList =
-          await api.getUserForAddResume(int.parse(primary_number.text));
-      ListOfCoolingData = await api.fetchCoolingData();
-
-      CoolingModel? recentElement;
-      DateTime? mostRecentDol; */
-
-  /*  for (var element in ListOfCoolingData!) {
-        //TODO:: To check recent  dol from the list
-        if ((element.contactNo == int.parse(primary_number.text.trim()) ||
-                element.contactNo == int.tryParse(secondry.text.trim())) &&
-            element.dol != null &&
-            (mostRecentDol == null || element.dol!.isAfter(mostRecentDol))) {
-          recentElement = element;
-          mostRecentDol = element.dol;
-        }
-      } */
-  // print(ListOfCoolingData);
-  /*  if ((ListOfCoolingData!.any(
-          (element) => //TODO:: here check contact number and then dol == null that means lead is in application.
-              (element.contactNo == int.parse(primary_number.text.trim()) ||
-                  element.contactNo == int.tryParse(secondry.text.trim())) &&
-              element.dol == null))) {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                setState(() {
-                  isLoading = false;
-                });
-                Navigator.pop(context);
-              },
-              subtitle: "The Candidate is Already in PipeLine ...",
-            );
-          },
-        );
-      } */ /* else if ((ListOfCoolingData!.any((element) =>
-          recentElement !=
-              null && //TODO:: here first geting recent dol after comparing the contact number and thne !null for dol, after that cooling period of 30 days..
-          isDifferenceLessThan30Days(mostRecentDol, DateTime.now())))) {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                setState(() {
-                  isLoading = false;
-                });
-                Navigator.pop(context);
-              },
-              subtitle: "Dublicate Resume",
-            );
-          },
-        );
-      } */
-  /*  else if ((ListOfCoolingData!.any(
-          (element) => //TODO:: here it check same contact number and thn if dol is more thne 30 days before thn check the status is no interviewBay.
-              (element.contactNo == int.parse(primary_number.text.trim()) ||
-                  element.contactNo == int.tryParse(secondry.text.trim())) &&
-              isDifferenceGreaterThan30Days(element.dol, DateTime.now()) &&
-              element.status == "Interview Bay" &&
-              element.subStatus == null))) {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                setState(() {
-                  isLoading = false;
-                });
-                Navigator.pop(context);
-              },
-              subtitle: "The Candidate is Already in Interview Process",
-            );
-          },
-        );
-      } */
-
-  /* String id = await Utils.getPreferencesValue(
-              null, ESharedPreferences.user_id.name);
-              var usertoken = await Utils.getPreferencesValue(
-              null, ESharedPreferences.user_token.name);
-          final addResumeModel = JobApplicationModel(
-            resume: icon_data,
-            isRef: 1,
-            uid: 0,
-            rid: int.tryParse(id),
-            id: 0,
-            applicantName: firt_name.text,
-            lastName: last_name.text,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status_id: 3,
-            hrStatusId: 11,
-            //  status: "TP1", //TODO in use before changes in status ..
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            // subStatus: "Shortlist",
-            sourceId: 0,
-            //sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            spoc: widget.report_to == 0 ? 2 : widget.report_to,
-            // dol: DateTime.now()
-            // ... fill in other properties as needed
-          );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPoolProvider);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllExecutiveProvide);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-
-          setState(() {
-            isLoading = false;
-          }); */
-
-//TODO old code which is check that the refer candidate is exiting user or not.....{
-  /*   if (applicationList![0].id == 0) {
-          // Call the `addResume` function with the specific data
-          final addResumeModel = JobApplicationModel(
-            resume: icon_data,
-            isRef: 1,
-            uid: 0,
-            rid: await Utils.getPreferencesValue(
-                null, ESharedPreferences.user_id.name),
-            id: 0,
-            applicantName: firt_name.text,
-            lastName: last_name.text,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status: "TP1",
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            // subStatus: "Shortlist",
-            sourceId: 0,
-            //sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            spoc: widget.spocId,
-            // dol: DateTime.now()
-            // ... fill in other properties as needed
-          );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPool);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllMyPipeLineJobs);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-
-          setState(() {
-            isLoading = false;
-          });
-        } else {
-          // Call the `addResume` function with a different set of data
-          final addResumeModel = JobApplicationModel(
-            isRef: 2,
-            resume: icon_data,
-            uid: applicationList![0].id,
-            id: 0,
-            rid: await Utils.getPreferencesValue(
-                null, ESharedPreferences.user_id.name),
-            applicantName: applicationList![0].firstName,
-            lastName: applicationList![0].lastName,
-            contactNo: int.parse(primary_number.text.trim()),
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            isExperienced: fresher ? 0 : 1,
-            companyName: widget.company_name,
-            process: widget.process,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            shortListFor: widget.company_id,
-            status: "TP1",
-            // subStatus: "Shortlist",
-            sourceId: 0,
-            //sourceName: widget.sourceName,
-            jobid: widget.jobId,
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            spoc: widget.spocId,
-            //   dol: DateTime.now(),
-          );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPool);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllMyPipeLineJobs);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-          setState(() {
-            isLoading = false;
-          });
-        }
-      } else {
-        if (applicationList![0].id == 0) {
-          // Call the `addResume` function with the specific data
-          final addResumeModel = JobApplicationModel(
-              isRef: 2,
-              uid: 0,
-              resume: icon_data,
-              id: 0,
-              applicantName: firt_name.text,
-              lastName: last_name.text,
-              contactNo: int.parse(primary_number.text.trim()),
-              qualification: graduate == true ? "Graduate" : "Under Graduate",
-              isExperienced: fresher ? 0 : 1,
-              companyName: widget.company_name,
-              process: widget.process,
-              level: widget.role,
-              naturofwork: widget.nature_of_work,
-              shortListFor: widget.company_id,
-              status: "IB4",
-              subStatus: "Shortlist",
-              sourceId: widget.sourceId,
-              sourceName: widget.sourceName,
-              jobid: widget.jobId,
-              spoc: widget.spocId,
-              alternateNo: secondry.text.isNotEmpty
-                  ? int.parse(secondry.text.trim())
-                  : null,
-              dol: DateTime.now()
-              // ... fill in other properties as needed
-              );
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPool);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllMyPipeLineJobs);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-          setState(() {
-            isLoading = false;
-          });
-        } else {
-          // Call the `addResume` function with a different set of data
-          final addResumeModel = JobApplicationModel(
-              isRef: 0,
-              uid: applicationList![0].id,
-              id: 0,
-              resume: icon_data,
-              applicantName: applicationList![0].firstName.toString(),
-              lastName: applicationList![0].lastName.toString(),
-              contactNo: int.parse(primary_number.text.trim()),
-              qualification: graduate == true ? "Graduate" : "Under Graduate",
-              isExperienced: fresher ? 0 : 1,
-              companyName: widget.company_name.toString(),
-              process: widget.process.toString(),
-              level: widget.role.toString(),
-              naturofwork: widget.nature_of_work.toString(),
-              shortListFor: widget.company_id.toInt(),
-              status: "IB4",
-              subStatus: "Shortlist",
-              sourceId: widget.sourceId.toInt(),
-              sourceName: widget.sourceName.toString(),
-              jobid: widget.jobId.toInt(),
-              //alternateNo: int.parse(secondry.text),
-              spoc: widget.spocId.toInt(),
-              alternateNo: secondry.text.isNotEmpty
-                  ? int.parse(secondry.text.trim())
-                  : null,
-              dol: DateTime.now());
-          final jsonData = addResumeModel.toJson();
-          await JobPostApiService.addResume(jsonData, context, false);
-          ref.refresh(fetchAllTalentPool);
-          ref.refresh(fetchAllApplicantProvider);
-          ref.refresh(fetchAllMyPipeLineJobs);
-          ref.refresh(fetchAllReferalProvider);
-          ref.refresh(fetchAllApplyProvider);
-          setState(() {
-            isLoading = false;
-          });
-        } */
-
-  //TODO: old code which is check that the refer candidate is exiting user or not  .........}
-
-  // Use the applicationList as needed
-  // For example, you can print the groupName of each Application object:
-  // for (var application in applicationList) {
-  // print(applicationList.map((e) => e.value));
-  // }
-
-//TODO:: Add Line Up Function......
-
-  void AddLineUpToApiFunction() async {
-    SharedPreferences pref = await Utils.getSharedPreferences();
-
-    final userId =
-        await Utils.getPreferencesValue(pref, ESharedPreferences.user_id.name);
-
-    final usertoken = await Utils.getPreferencesValue(
-        pref, ESharedPreferences.user_token.name);
-    try {
-      setState(() {
-        isLoading = true;
-      });
-      if (widget.isRefer) {
-        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
-            alternateNo: secondry.text.isNotEmpty
-                ? int.parse(secondry.text.trim())
-                : null,
-            applicantName: firt_name.text,
-            companyName: widget.company_name,
-            contactNo: int.parse(primary_number.text.trim()),
-            interviewRounds: widget.interviewRounds,
-            isExperienced: fresher ? 0 : 1,
-            jobId: widget.jobId,
-            lastName: last_name.text,
-            level: widget.role,
-            naturofwork: widget.nature_of_work,
-            process: widget.process,
-            qualification: graduate == true ? "Graduate" : "Under Graduate",
-            resume: icon_data,
-            shortListFor: widget.company_id,
-            spoc: widget.spocId,
-            uid: int.tryParse(userId));
-        await JobPostApiService.ReferAndAddResume(
-            referAddResumeModel.toJson(), context, false, usertoken, false);
-
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider);
-        /*  final addResumeModel = JobApplicationModel(
-          resume: icon_data,
-          isRef: 1,
-          uid: 0,
-          rid: await Utils.getPreferencesValue(
-              null, ESharedPreferences.user_id.name),
-          id: 0,
-          applicantName: firt_name.text,
-          lastName: last_name.text,
-          contactNo: int.parse(primary_number.text.trim()),
-          qualification: graduate == true ? "Graduate" : "Under Graduate",
-          isExperienced: fresher ? 0 : 1,
-          companyName: widget.company_name,
-          process: widget.process,
-          level: widget.role,
-          naturofwork: widget.nature_of_work,
-          shortListFor: widget.company_id,
-          status_id: 3,
-          hrStatusId: 11,
-          //  status: "TP1", //TODO in use before changes in status ..
-          alternateNo:
-              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
-          // subStatus: "Shortlist",
-          sourceId: 0,
-          //sourceName: widget.sourceName,
-          jobid: widget.jobId,
-          spoc: widget.report_to == 0 ? 2 : widget.report_to,
-          // dol: DateTime.now()
-          // ... fill in other properties as needed
-        );
-        final jsonData = addResumeModel.toJson();
-        await JobPostApiService.addResume(jsonData, context, false);
-        ref.refresh(fetchAllTalentPoolProvider);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllExecutiveProvide);
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider); */
-
-        setState(() {
-          isLoading = false;
-        });
-      } else {
-        ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
+      ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
+          // partnerPaymentMode: "Special",
           alternateNo:
               secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
           applicantName: firt_name.text,
@@ -1408,61 +525,21 @@ class _AddResumeState extends ConsumerState<AddResume> {
           resume: icon_data,
           shortListFor: widget.company_id,
           spoc: widget.spocId,
-          uid: int.tryParse(userId),
-        );
-        await JobPostApiService.ReferAndAddResume(
-            referAddResumeModel.toJson(), context, false, usertoken, false);
+          payoutMode: termAndConditionOne ? "Default" : "Special",
+          uid: int.tryParse(userId));
+      await JobPostApiService.ReferAndAddResume(
+        referAddResumeModel.toJson(),
+        context,
+        false,
+        userId,
+      );
 
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider);
-        /*  final addResumeModel = JobApplicationModel(
-          isRef: 2,
-          uid: 0,
-          resume: icon_data,
-          id: 0,
-          applicantName: firt_name.text,
-          lastName: last_name.text,
-          contactNo: int.parse(primary_number.text.trim()),
-          qualification: graduate == true ? "Graduate" : "Under Graduate",
-          isExperienced: fresher ? 0 : 1,
-          companyName: widget.company_name,
-          process: widget.process,
-          level: widget.role,
-          naturofwork: widget.nature_of_work,
-          shortListFor: widget.company_id,
-          status_id: 0, //TODO : Directly in line-up.
-          hrStatusId: 20,
-          /*  status: "IB4",  //TODO: before changes in status...
-            subStatus: "Shortlist", */
-          sourceId: widget.sourceId,
-          sourceName: widget.sourceName,
-          jobid: widget.jobId,
-          spoc: (userType == 3 && userRole == "3")
-              ? userId
-              : (userType == 3 && userRole == "1")
-                  ? widget.report_to
-                  : 2,
-          alternateNo:
-              secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
-          dol: DateTime.now(),
-          interview_rounds: widget.interviewRounds,
-          // ... fill in other properties as needed
-        );
-        final jsonData = addResumeModel.toJson();
-        await JobPostApiService.addResume(
-          jsonData,
-          context,
-          false,
-        );
-        ref.refresh(fetchAllTalentPoolProvider);
-        ref.refresh(fetchAllApplicantProvider);
-        ref.refresh(fetchAllExecutiveProvide);
-        ref.refresh(fetchAllReferalProvider);
-        ref.refresh(fetchAllApplyProvider); */
-        setState(() {
-          isLoading = false;
-        });
-      }
+      ref.refresh(fetchAllReferalProvider);
+      ref.refresh(fetchAllApplyProvider);
+
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
       print('Error fetching data: $e');
       showDialog(
@@ -1482,90 +559,6 @@ class _AddResumeState extends ConsumerState<AddResume> {
         },
       );
     }
-    /*  ApplicationAPI api = ApplicationAPI();
-      applicationList =
-          await api.getUserForAddResume(int.parse(primary_number.text));
-      ListOfCoolingData = await api.fetchCoolingData();
-
-      CoolingModel? recentElement;
-      DateTime? mostRecentDol;
-
-      for (var element in ListOfCoolingData!) {
-        //TODO:: To check recent  dol from the list
-        if ((element.contactNo == int.parse(primary_number.text.trim()) ||
-                element.contactNo == int.tryParse(secondry.text.trim())) &&
-            element.dol != null &&
-            (mostRecentDol == null || element.dol!.isAfter(mostRecentDol))) {
-          recentElement = element;
-          mostRecentDol = element.dol;
-        }
-      }
-      // print(ListOfCoolingData);
-      if ((ListOfCoolingData!.any(
-          (element) => //TODO:: here check contact number and then dol == null that means lead is in application.
-              (element.contactNo == int.parse(primary_number.text.trim()) ||
-                  element.contactNo == int.tryParse(secondry.text.trim())) &&
-              element.dol == null))) {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                setState(() {
-                  isLoading = false;
-                });
-                Navigator.pop(context);
-              },
-              subtitle: "The Candidate is Already in PipeLine ...",
-            );
-          },
-        );
-      } else if ((ListOfCoolingData!.any((element) =>
-          recentElement !=
-              null && //TODO:: here first geting recent dol after comparing the contact number and thne !null for dol, after that cooling period of 30 days..
-          isDifferenceLessThan30Days(element.dol, DateTime.now())))) {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                setState(() {
-                  isLoading = false;
-                });
-                Navigator.pop(context);
-              },
-              subtitle: "The Candidate is Already in PipeLine",
-            );
-          },
-        );
-      } else if ((ListOfCoolingData!.any(
-          (element) => //TODO:: here it check same contact number and thn if dol is more thne 30 days before thn check the status is no interviewBay.
-              (element.contactNo == int.parse(primary_number.text.trim()) ||
-                  element.contactNo == int.tryParse(secondry.text.trim())) &&
-              isDifferenceGreaterThan30Days(element.dol, DateTime.now()) &&
-              element.status == "Interview Bay" &&
-              element.subStatus == null))) {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) {
-            return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                setState(() {
-                  isLoading = false;
-                });
-                Navigator.pop(context);
-              },
-              subtitle: "The Candidate is Already in Interview Process",
-            );
-          },
-        );
-      } */
   }
 
   bool isLoading = false;
@@ -1650,22 +643,6 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Add resume first");
         },
       );
-    } else if (!termAndConditionOne &&
-            widget
-                .isRefer //&& widget.is90  //TODO:: commented because display 90days clause for the hiring who dont have payout.
-        ) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Agree terms & condition first");
-        },
-      );
     } else if (primary_number.text == widget.userNumber.toString()) {
       showDialog(
         context: context,
@@ -1758,173 +735,16 @@ class _AddResumeState extends ConsumerState<AddResume> {
       showDialog(
         context: context,
         builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              //  text3.requestFocus();
-            },
-          );
-        },
-      );
-    }
-    /* else if (!termAndConditionTwo && widget.isRefer && widget.is30) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Agree terms & condition first");
-        },
-      );
-    } */
-    else {
-      fetchData();
-      /*  JobApplicationModel addResumeModel = JobApplicationModel(
-      
-        uid: 0,
-        id: 0,
-        applicantName: "firt_name.text",
-        lastName: "lastname",
-        contactNo: 8446265646,
-        qualification: "Under Graduate",
-        isExperienced: 1,
-        companyName: "ICICI Lombard",
-        process: "E-Channel",
-        level: "Sales Advisor",
-        naturofwork: "Outbound",
-        shortListFor: 2,
-        status: "MP4",
-        subStatus: "Shortlist",
-        sourceId: 2,
-        sourceName: widget.sourceName,
-        jobid: 243,
-        // ... fill in other properties as needed
-      );
-      Map<String, dynamic> jsonData = addResumeModel.toJson();
-      JobPostApiService.addResume(jsonData, context); */
-    }
-  }
-
-  void AddLineUp() async {
-    if (firt_name.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-            error: true,
-            subtitle: "First name is mandatory",
-            onClose: () {
-              Navigator.pop(context);
-              text1.requestFocus();
-            },
-          );
-        },
-      );
-    } else if (last_name.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Last Name is mandatory");
-        },
-      );
-    } else if (primary_number.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text3.requestFocus();
-              },
-              subtitle: "Primary number is mandatory");
-        },
-      );
-    } else if (primary_number.text == widget.userNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              //  text3.requestFocus();
-            },
-          );
-        },
-      );
-    } else if (secondry.text == widget.userNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              //  text3.requestFocus();
-            },
-          );
-        },
-      );
-    } else if (primary_number.text == widget.useAlternateNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              // text3.requestFocus();
-            },
-          );
-        },
-      );
-    } else if (primary_number.text.startsWith('0')) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Provide valid number");
-        },
-      );
-    } else if (secondry.text.startsWith('0')) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Provide valid Secondary number");
-        },
-      );
-    } else if (graduate == false && underGraduate == false) {
-      showDialog(
-        context: context,
-        builder: (context) {
           return CustomDialogueForAddResume(
               error: true,
               onClose: () {
                 Navigator.pop(context);
                 // text3.requestFocus();
               },
-              subtitle: "Select any one option from education");
+              subtitle: "You cant use your own number as secondry number");
         },
       );
-    } else if (fresher == false && experience == false) {
+    } else if (termAndConditionOne == false && termAndConditionTwo == false) {
       showDialog(
         context: context,
         builder: (context) {
@@ -1932,129 +752,13 @@ class _AddResumeState extends ConsumerState<AddResume> {
               error: true,
               onClose: () {
                 Navigator.pop(context);
-                // text3.requestFocus();
+                //  text3.requestFocus();
               },
-              subtitle: "Select any one option from work status");
-        },
-      );
-    } else if (primary_number.text.length < 10) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                // text3.requestFocus();
-              },
-              subtitle: "Number should have 10 digit");
-        },
-      );
-    } else if (icon_data == null) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Add resume first");
-        },
-      );
-    } else if (!termAndConditionOne &&
-            widget
-                .isRefer //&& widget.is90  //TODO:: commented because display 90days clause for the hiring who dont have payout.
-        ) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Agree terms & condition first");
-        },
-      );
-    } else if (primary_number.text == widget.userNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              //  text3.requestFocus();
-            },
-          );
-        },
-      );
-    } else if (secondry.text == widget.userNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              //  text3.requestFocus();
-            },
-          );
-        },
-      );
-    } else if (primary_number.text == widget.useAlternateNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              // text3.requestFocus();
-            },
-          );
-        },
-      );
-    } else if (primary_number.text.startsWith('0')) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Provide valid number");
-        },
-      );
-    } else if (secondry.text.startsWith('0')) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return CustomDialogueForAddResume(
-              error: true,
-              onClose: () {
-                Navigator.pop(context);
-                text2.requestFocus();
-              },
-              subtitle: "Provide valid Secondary number");
-        },
-      );
-    } else if (secondry.text == widget.useAlternateNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              //  text3.requestFocus();
-            },
-          );
+              subtitle: "Select Payout type");
         },
       );
     } else {
-      AddLineUpToApiFunction();
+      fetchData();
     }
   }
 

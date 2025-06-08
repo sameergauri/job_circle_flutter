@@ -43,6 +43,7 @@ class ViewConatinerForSkills extends StatelessWidget {
                     fontWeight: FontWeight.normal,
                     fontSize: 12,
                     color: valueColor,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
               ],

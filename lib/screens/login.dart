@@ -85,155 +85,165 @@ class _LoginState extends State<Login> {
     });
   }
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-              margin:
-                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 8),
-              width: MediaQuery.of(context).size.width / 1.8,
-              color: Colors.white,
-              child: Image.asset(
-                "assets/images/jclogo.png",
-                fit: BoxFit.cover,
-              )),
-          /*   Container(
-            height: 160.0,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(60),
-                  bottomRight: Radius.circular(60)),
-              color:
-                  Colors.white, ////TODO: logo background container color.
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.white,
-                    spreadRadius:
-                        3), //TODO: Border color of ogin page of background container.
-              ],
-            ),
-          ), */
-          /*  Container(
-            margin: EdgeInsets.only(top: 180.h),
-            // height: .h,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(60),
-                  bottomRight: Radius.circular(60)),
-              color: Colors.transparent,
-              boxShadow: [
-                BoxShadow(color: Colors.transparent, spreadRadius: 3),
-              ],
-            ),
-          ),
-          RichText(
-            text: TextSpan(
-                text: "JOB",
-                style: GoogleFonts.signika(
-                  fontSize: 40,
-                  color: Constants.blue,
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.none,
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                  margin: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height / 8),
+                  width: MediaQuery.of(context).size.width / 1.8,
+                  color: Colors.white,
+                  child: Image.asset(
+                    "assets/images/jclogo.png",
+                    fit: BoxFit.cover,
+                  )),
+              /*   Container(
+                height: 160.0,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(60),
+                      bottomRight: Radius.circular(60)),
+                  color:
+                      Colors.white, ////TODO: logo background container color.
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.white,
+                        spreadRadius:
+                            3), //TODO: Border color of ogin page of background container.
+                  ],
                 ),
-                children: <TextSpan>[
-                  TextSpan(
-                    text: "CIRCLE",
-                    style: GoogleFonts.signika(
-                      fontSize: 40,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      decoration: TextDecoration.none,
-                    ),
-                  )
-                ]),
-          ), */
-          GestureDetector(
-            onTap: (() => Future.delayed(Duration.zero, () {
-                  BottomDialog().showBottomDialog(
-                      context, _buildDialogContent(context), false);
-                })),
-            child: const Text(
-              "",
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.none,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Align(
-              alignment: FractionalOffset.bottomCenter,
-              child: SizedBox(
-                height: 100,
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const customTextForWeather(
-                            title: 'Made in',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Constants.black),
-                        const SizedBox(
-                          width: 7,
-                        ),
-                        Image.asset(
-                          "./assets/images/india.png",
-                          height: 22,
-                        ),
-                        const SizedBox(
-                          width: 7,
-                        ),
-                        const customTextForWeather(
-                            title: 'with',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Constants.black),
-                        const SizedBox(
-                          width: 7,
-                        ),
-                        Image.asset(
-                          "./assets/images/heart.png",
-                          height: 22,
-                          //color: Constants.blue,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const customTextForMonst(
-                        title: '@ All rights reserved - 2025-26',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: Constants.black),
-
-                    // TextButton(
-                    //     onPressed: () {
-                    //       Navigator.push(
-                    //           context,
-                    //           MaterialPageRoute(
-                    //               builder: (context) =>
-                    //                   const MasterOfMasterView()));
-                    //     },
-                    //     child: const Text('Opem Moms Page'))
+              ), */
+              /*  Container(
+                margin: EdgeInsets.only(top: 180.h),
+                // height: .h,
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(60),
+                      bottomRight: Radius.circular(60)),
+                  color: Colors.transparent,
+                  boxShadow: [
+                    BoxShadow(color: Colors.transparent, spreadRadius: 3),
                   ],
                 ),
               ),
-            ),
+              RichText(
+                text: TextSpan(
+                    text: "JOB",
+                    style: GoogleFonts.signika(
+                      fontSize: 40,
+                      color: Constants.blue,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
+                    ),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "CIRCLE",
+                        style: GoogleFonts.signika(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          decoration: TextDecoration.none,
+                        ),
+                      )
+                    ]),
+              ), */
+              GestureDetector(
+                onTap: (() => Future.delayed(Duration.zero, () {
+                      BottomDialog().showBottomDialog(
+                          context, _buildDialogContent(context), false);
+                    })),
+                child: const Text(
+                  "",
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: SizedBox(
+                    height: 100,
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const customTextForWeather(
+                                title: 'Made in',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Constants.black),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            Image.asset(
+                              "./assets/images/india.png",
+                              height: 22,
+                            ),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            const customTextForWeather(
+                                title: 'with',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Constants.black),
+                            const SizedBox(
+                              width: 7,
+                            ),
+                            Image.asset(
+                              "./assets/images/heart.png",
+                              height: 22,
+                              //color: Constants.blue,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const customTextForMonst(
+                            title: '@ All rights reserved - 2025-26',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Constants.black),
+
+                        // TextButton(
+                        //     onPressed: () {
+                        //       Navigator.push(
+                        //           context,
+                        //           MaterialPageRoute(
+                        //               builder: (context) =>
+                        //                   const MasterOfMasterView()));
+                        //     },
+                        //     child: const Text('Opem Moms Page'))
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        if (isLoading)
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+      ],
     );
   }
 
@@ -478,6 +488,13 @@ class _LoginState extends State<Login> {
           radious: 8.r,
           text: "Get OTP",
           onPressed: () {
+            if (_formKey2.currentState!.validate()) {
+              setState(() {
+                isLoading = true;
+              });
+            } else {
+              return;
+            }
             generateOTP(otpcontroller.text);
 
             // setState(() {

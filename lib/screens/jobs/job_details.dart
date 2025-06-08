@@ -680,7 +680,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                             (!widget.Applies && !widget.referal),
                         child: InkWell(
                           onTap: () {
-                            Navigator.push(
+                            /* Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => AddResume(
@@ -723,7 +723,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                               .replaceAll('[', '')
                                               .replaceAll(']', '')
                                               .replaceAll('"', ''),
-                                        )));
+                                        ))); */
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -863,7 +863,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                       visible: usertype == 3,
                       child: InkWell(
                         onTap: () {
-                          Navigator.push(
+                         /*  Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddResume(
@@ -902,7 +902,7 @@ class _JobDetailsState extends ConsumerState<JobDetails> {
                                             .replaceAll('[', '')
                                             .replaceAll(']', '')
                                             .replaceAll('"', ''),
-                                      )));
+                                      ))); */
                           /* JobPostApiService.postJobApply(
                               jobId: item['id'],
                               userId: int.parse(profilemodel.id.toString()),

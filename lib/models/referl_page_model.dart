@@ -33,6 +33,8 @@ class Application {
   final String referralFeedback2;
   final String jobSalary;
   final String subStatus;
+  final int? jobId;
+  final int? statusId;
 
   Application({
     required this.applicantName,
@@ -47,6 +49,8 @@ class Application {
     required this.referralFeedback2,
     required this.jobSalary,
     required this.subStatus,
+    required this.jobId,
+    required this.statusId,
   });
 
   factory Application.fromJson(Map<String, dynamic> json) {
@@ -63,6 +67,11 @@ class Application {
       referralFeedback2: json['referralFeedback2'] ?? '',
       jobSalary: json['jobSalary'] ?? '',
       subStatus: json['subStatus'] ?? '',
+      jobId:
+          json['jobId'] != null ? int.tryParse(json['jobId'].toString()) : null,
+      statusId: json['statusId'] != null
+          ? int.tryParse(json['statusId'].toString())
+          : null,
     );
   }
 }

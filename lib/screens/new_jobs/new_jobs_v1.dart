@@ -1715,7 +1715,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                   child:
                                                                       InkWell(
                                                                     onTap: () {
-                                                                      Navigator.push(
+                                                                      /* Navigator.push(
                                                                           context,
                                                                           MaterialPageRoute(
                                                                               builder: (context) => AddResume(
@@ -1735,7 +1735,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                                                                     is30: item.payment_clause == "30 Days" ? true : false,
                                                                                     userNumber: data.mobile!.toInt(),
                                                                                     useAlternateNumber: data.alternateNo!.toInt(),
-                                                                                  )));
+                                                                                  ))); */
                                                                     },
                                                                     child:
                                                                         Container(

@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names, unused_local_variable, use_build_context_synchronously
-
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -8,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customButton_for_jobPosting.dart';
 import 'package:job_circle/constants/custom_drawer.dart';
+import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_home_page_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
@@ -52,7 +51,6 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
     setState(() {
       selectedCity = null;
     });
-    // Clear from shared preferences
     Utils.setPreference(
       await Utils.getSharedPreferences(),
       ESharedPreferences.user_selected_lcoation.name,
@@ -95,20 +93,50 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
     }
   }
 
+  List<String> getAvailableTabs(List<JobContent> jobs) {
+    final tabs = <String>[];
+    if (jobs.any((job) =>
+        job.experienceRequired?.toLowerCase().contains('fresher') ?? false)) {
+      tabs.add('Fresher');
+    }
+    if (jobs.any((job) =>
+        job.languages != null &&
+        job.languages!.isNotEmpty &&
+        job.languages != '[]')) {
+      tabs.add('Linguistic');
+    }
+    if (jobs.any((job) => job.isCampus == 1)) {
+      tabs.add('Lateral');
+    }
+    if (jobs.any((job) => job.isFavorite == true)) {
+      tabs.add('Saved');
+    }
+    return tabs;
+  }
+
   TextEditingController searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final ref = this.ref;
     final jobs = ref.watch(jobListProvider);
     final filteredJobs = filterJobs(jobs);
     final isLoading = ref.watch(jobListProvider.notifier).isLoading;
     final selectedCityFromProvider =
         ref.watch(jobListProvider.notifier).selectedCity;
     final userData = ref.watch(jobListProvider.notifier).userData;
+    final availableTabs = getAvailableTabs(jobs);
 
     return Stack(
       children: [
         Scaffold(
+          /*  floatingActionButton: FloatingActionButton( //TODO: Filter..
+              backgroundColor: Constants.borderColor,
+              onPressed: () {
+                _showFilterBottomSheet();
+              },
+              child: const Icon(Icons.filter_list, color: Constants.darkBlue)), */
+          backgroundColor: Colors.white,
           key: _scaffoldKey,
           drawer: CustomDrawer(
             onClose: () {
@@ -145,7 +173,7 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                 ref.read(jobListProvider.notifier).updateSearchQuery(value);
               },
               controller: searchController,
-              hint: 'Search Jobs by role, process, or Company',
+              hint: 'Search Jobs by Designation, Process, or Company',
             ),
             actions: [
               InkWell(
@@ -163,101 +191,122 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
               ),
             ],
           ),
-          body: Column(
-            children: [
-              // Tab Bar
-              SizedBox(
-                height: 40,
-                child: Row(
+          body: selectedCityFromProvider == null
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    IconButton(
-                      onPressed: () {
-                        _showFilterBottomSheet();
-                      },
-                      icon: const Icon(Icons.filter_list,
-                          color: Constants.darkBlue),
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CustomNetworkImage(
+                            height: 200,
+                            width: 200,
+                            imageUrl:
+                                "https://cdn-icons-gif.flaticon.com/8112/8112651.gif",
+                            defaultIcon: Icons.error_outline),
+                      ],
                     ),
-                    Expanded(
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        children: ['Fresher', 'Linguistic', 'Lateral', 'Saved']
-                            .map(
-                              (tab) => Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                child: FilterChip(
-                                  label: customTextForWeather(title: tab),
-                                  selected: selectedTab == tab,
-                                  onSelected: (_) => toggleTab(tab),
-                                  selectedColor: Colors.blue.shade100,
-                                  backgroundColor: Colors.grey.shade200,
-                                  labelStyle: GoogleFonts.merriweather(
-                                    fontSize: 12,
-                                    color: selectedTab == tab
-                                        ? Constants.black
-                                        : Constants.subtitleclr,
+                    const SizedBox(height: 20),
+                    InkWell(
+                      onTap: () {
+                        _showCityBottomSheet();
+                      },
+                      child: const customTextForWeather(
+                          title: "Select City",
+                          fontSize: 16,
+                          color: Constants.orange,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    // Tab Bar
+                    if (availableTabs.isNotEmpty)
+                      SizedBox(
+                        height: 40,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          children: availableTabs
+                              .map(
+                                (tab) => Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  child: FilterChip(
+                                    label: customTextForWeather(title: tab),
+                                    selected: selectedTab == tab,
+                                    onSelected: (_) => toggleTab(tab),
+                                    selectedColor: Colors.blue.shade100,
+                                    backgroundColor: Colors.grey.shade200,
+                                    labelStyle: GoogleFonts.merriweather(
+                                      fontSize: 12,
+                                      color: selectedTab == tab
+                                          ? Constants.black
+                                          : Constants.subtitleclr,
+                                    ),
                                   ),
                                 ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    // Job List with Pull-to-Refresh
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          await ref.read(jobListProvider.notifier).fetchJobs(
+                              isRefresh: true, applyCityFilter: true);
+                        },
+                        color: Constants.darkBlue,
+                        backgroundColor: Constants.bgColorWhite,
+                        child: filteredJobs.isEmpty && !isLoading
+                            ? const Center(child: Text('No jobs found'))
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const BouncingScrollPhysics(),
+                                itemCount: filteredJobs.length,
+                                itemBuilder: (context, index) {
+                                  final job = filteredJobs[index];
+                                  List<String> myList = job.skills != null
+                                      ? List<String>.from(
+                                          jsonDecode(job.skills!))
+                                      : [];
+                                  return Column(
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  JobDetailPage(
+                                                      jobId: job.id!,
+                                                      fromWhere:
+                                                          FromWhere.homePage),
+                                            ),
+                                          );
+                                        },
+                                        child: CustomJobCard(
+                                            job: job, skills: myList),
+                                      ),
+                                      if (index != filteredJobs.length - 1)
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          child: Divider(thickness: 1.0),
+                                        ),
+                                      const SizedBox(height: 10),
+                                    ],
+                                  );
+                                },
                               ),
-                            )
-                            .toList(),
                       ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              // Job List with Pull-to-Refresh
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await ref
-                        .read(jobListProvider.notifier)
-                        .fetchJobs(isRefresh: true);
-                  },
-                  color: Constants.darkBlue,
-                  backgroundColor: Constants.bgColorWhite,
-                  child: filteredJobs.isEmpty && !isLoading
-                      ? const Center(child: Text('No jobs found'))
-                      : ListView.builder(
-                          shrinkWrap: true,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: filteredJobs.length,
-                          itemBuilder: (context, index) {
-                            final job = filteredJobs[index];
-                            List<String> myList = job.skills != null
-                                ? List<String>.from(jsonDecode(job.skills!))
-                                : [];
-                            return Column(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            JobDetailPage(jobId: job.id!),
-                                      ),
-                                    );
-                                  },
-                                  child:
-                                      CustomJobCard(job: job, skills: myList),
-                                ),
-                                if (index != filteredJobs.length - 1)
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Divider(thickness: 1.0),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
-                ),
-              ),
-            ],
-          ),
         ),
         if (isLoading)
           const Center(
@@ -442,13 +491,9 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
   Future<void> _showFilterBottomSheet() async {
     final notifier = ref.read(jobListProvider.notifier);
 
-    // Get available filters (all possible options)
     final availableFilters = notifier.availableFilters;
-
-    // Get currently active filters (what's already applied)
     final activeFilters = notifier.activeFilters;
 
-    // Initialize with currently active filters or empty lists
     selectedFunctionalAreas = activeFilters?.functionalAreas ?? [];
     selectedLanguages = activeFilters?.languages ?? [];
 
@@ -469,7 +514,6 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
             height: MediaQuery.of(context).size.height * 0.75,
             child: Column(
               children: [
-                // Header and close button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -490,12 +534,9 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-
-                // Filter categories and options
                 Expanded(
                   child: Row(
                     children: [
-                      // Left side - Filter categories
                       Container(
                         width: 120,
                         decoration: BoxDecoration(
@@ -529,8 +570,6 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                           ],
                         ),
                       ),
-
-                      // Right side - Filter options
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -589,14 +628,11 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                     ],
                   ),
                 ),
-
-                // Action buttons
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Reset button
                       SizedBox(
                         width: 200,
                         child: CustomButtonForJobPosting(
@@ -609,8 +645,6 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                           },
                         ),
                       ),
-
-                      // Apply button
                       SizedBox(
                         width: 200,
                         child: CustomButtonForJobPosting(

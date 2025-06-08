@@ -2,6 +2,8 @@
 
 // ignore_for_file: unused_result, use_build_context_synchronously, avoid_unnecessary_containers
 
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_circle/common/utils.dart';
@@ -23,10 +25,12 @@ import 'package:job_circle/themes/colors.dart';
 
 class JobDetailPage extends ConsumerStatefulWidget {
   final int jobId;
+  final FromWhere fromWhere;
 
   const JobDetailPage({
     super.key,
     required this.jobId,
+    required this.fromWhere,
   });
 
   @override
@@ -44,88 +48,56 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
     });
   }
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     final jobDetailState = ref.watch(jobDetailProvider);
 
-    return Scaffold(
-      bottomNavigationBar: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-              width: 200,
-              child: CustomButtonForJobPosting(
-                buttonText: "Similar Jobs",
-                buttonColor: Constants.bgColorWhite,
-                isBorder: false,
-                textColor: Constants.darkBlue,
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              )),
-          SizedBox(
-              width: 200,
-              child: CustomButtonForJobPosting(
-                buttonText: "Refer Now",
-                buttonColor: Constants.darkBlue,
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddResume(
-                              // report_to: profilemodel.report_to!.toInt(),
-                              company_name: jobDetailState
-                                  .jobDetail!.companyName
-                                  .toString(),
-                              role:
-                                  jobDetailState.jobDetail!.roleName.toString(),
-                              process:
-                                  jobDetailState.jobDetail!.process.toString(),
-                              nature_of_work: jobDetailState
-                                  .jobDetail!.functionalArea
-                                  .toString(),
-                              company_id: jobDetailState.jobDetail!.companyid!,
-                              jobId: jobDetailState.jobDetail!.id!,
-                              // sourceId: profilemodel.id!.toInt(),
-                              // sourceName:
-                              //     "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}",
-                              isRefer: true,
-                              spocId: jobDetailState.jobDetail!.spocid!,
-                              is90: true,
-                              is30: false,
-                              userNumber: 8446062685,
-                              useAlternateNumber: 8446062685,
-                              interviewRounds: "")));
-                },
-              )),
-        ],
-      ),
-      resizeToAvoidBottomInset: true, // Add this line
-      backgroundColor: Colors.white,
-      // extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        titleSpacing: 0,
-        automaticallyImplyLeading: true,
-        backgroundColor: Constants.borderColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const customTextForWeather(
-          title: "Job Detail",
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
+    return Stack(
+      children: [
+        Scaffold(
+          resizeToAvoidBottomInset: true, // Add this line
+          backgroundColor: Colors.white,
+          // extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            titleSpacing: 0,
+            automaticallyImplyLeading: true,
+            backgroundColor: Constants.borderColor,
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.black),
+            title: const customTextForWeather(
+              title: "Job Detail",
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+            actions: const [
+              /*   IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.share_outlined),
+              ),
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.bookmark_border_rounded),
+              ), */
+            ],
+          ),
+          body: _buildBody(jobDetailState),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share_outlined),
+        if (isLoading)
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+              child: Container(
+                color: Colors.black.withOpacity(0.2),
+                alignment: Alignment.center,
+                child: const CircularProgressIndicator(
+                  color: Constants.darkBlue,
+                ),
+              ),
+            ),
           ),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.bookmark_border_rounded),
-          ),
-        ],
-      ),
-      body: _buildBody(jobDetailState),
+      ],
     );
   }
 
@@ -204,7 +176,8 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                 state.jobDetail!.eligibility!.isNotEmpty)
               CustomContainerForEligibility(
                 heading: "Eligibility",
-                stringList: state.jobDetail!.eligibility!,
+                stringList: state.jobDetail!.eligibility! +
+                    state.jobDetail!.eligibility2!,
                 isList: true,
               ),
             if (state.jobDetail!.boundryLimits != null &&
@@ -226,10 +199,16 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
               title: "Skills",
               valueColor: Constants.subtitleclr,
             ),
-            CustomButtonForJobPosting(
-              buttonText: "Apply Now",
-              onTap: () => handleApplyNow(context, ref, widget.jobId),
-            ),
+            if (FromWhere.homePage == widget.fromWhere)
+              CustomButtonForJobPosting(
+                buttonText: "Apply Now",
+                onTap: () {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  handleApplyNow(context, ref, widget.jobId);
+                },
+              ),
             RecruiterDetailsCard(
               title: "Posted by / Recruiter Details",
               email: state.jobDetail!.postedByEmail.toString(),
@@ -244,15 +223,64 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                   ? state.jobDetail!.postedByProfilePic!
                   : " ",
             ),
-            const ReferralProgramCard(
-              imageUrl:
-                  "https://cdn-icons-png.flaticon.com/256/14356/14356000.png",
-              subtitle: "Refer and Earn",
-              title: "Referral Program",
+            if (state.jobDetail!.payoutDetails != null)
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => AddResume(
+                                // report_to: profilemodel.report_to!.toInt(),
+                                company_name:
+                                    state.jobDetail!.companyName.toString(),
+                                role: state.jobDetail!.roleName.toString(),
+                                process: state.jobDetail!.process.toString(),
+                                nature_of_work:
+                                    state.jobDetail!.functionalArea.toString(),
+                                company_id: state.jobDetail!.companyid!,
+                                jobId: state.jobDetail!.id!,
+                                // sourceId: profilemodel.id!.toInt(),
+                                // sourceName:
+                                //     "${profilemodel.first_name.toString()} ${profilemodel.last_name.toString()}"
+                                spocId: state.jobDetail!.spocid!,
+                                is90: true,
+                                is30: false,
+                                userNumber: 8446062685,
+                                useAlternateNumber: 8446062685,
+                                interviewRounds: "",
+                                payoutDetails: state.jobDetail!.payoutDetails!,
+                              )));
+                },
+                child: ReferralProgramCard(
+                  payoutDetails: state.jobDetail!.payoutDetails!,
+                ),
+              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                      margin: const EdgeInsets.only(
+                          top: 5, left: 5, right: 5, bottom: 10),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 6, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Constants.darkBlue),
+                      ),
+                      // width: 200,
+                      child: const customTextForWeather(
+                          title: "More Jobs",
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Constants.darkBlue)),
+                ),
+              ],
             ),
-            const SizedBox(
-              height: 20,
-            )
           ],
         ),
       ),
@@ -270,7 +298,9 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
       jobId: jobId,
       userId: int.tryParse(id)!,
     );
-
+    setState(() {
+      isLoading = false;
+    });
     ref.refresh(fetchAllApplyProvider);
   }
 }

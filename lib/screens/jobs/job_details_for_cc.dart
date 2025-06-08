@@ -526,7 +526,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                 visible: usertype == 3,
                 child: InkWell(
                   onTap: () {
-                    Navigator.push(
+                    /* Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => AddResume(
@@ -560,7 +560,7 @@ class _JobDetailsForCCState extends ConsumerState<JobDetailsForCC>
                                       .replaceAll('[', '')
                                       .replaceAll(']', '')
                                       .replaceAll('"', ''),
-                                )));
+                                ))); */
                   },
                   child: Container(
                     margin: const EdgeInsets.only(right: 10),

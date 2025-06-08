@@ -18,6 +18,7 @@ class ReferAddResumeModel {
   final int? shortListFor;
   final int? spoc;
   final int? uid;
+  final String? payoutMode;
 
   ReferAddResumeModel({
     this.alternateNo,
@@ -36,6 +37,7 @@ class ReferAddResumeModel {
     this.shortListFor,
     this.spoc,
     this.uid,
+    this.payoutMode,
   });
 
   factory ReferAddResumeModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +58,7 @@ class ReferAddResumeModel {
       shortListFor: json['shortListFor'],
       spoc: json['spoc'],
       uid: json['uid'],
+      payoutMode: json['payoutMode'], 
     );
   }
 
@@ -77,6 +80,7 @@ class ReferAddResumeModel {
       'shortListFor': shortListFor,
       'spoc': spoc,
       'uid': uid,
+      'payoutMode': payoutMode,
     };
   }
 }

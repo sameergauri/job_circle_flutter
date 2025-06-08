@@ -1,8 +1,9 @@
-// ignore_for_file: unused_result
+// ignore_for_file: unused_result, prefer_const_constructors
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -10,12 +11,11 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/applied_job_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/home.dart';
-import 'package:job_circle/screens/jobs/job_details_for_candidate.dart';
+import 'package:job_circle/screens/new_jobs/job_detail/job_detail_page.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 final appliedAts = FutureProvider<AppliedJobModel>((ref) async {
   var userid =
@@ -46,6 +46,7 @@ class AppliedPage extends ConsumerWidget {
     final atsDataAsync = ref.watch(appliedAts);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: atsDataAsync.when(
         loading: () => const Center(
             child: CircularProgressIndicator(
@@ -141,14 +142,13 @@ class AppliedPage extends ConsumerWidget {
                             return Column(
                               children: [
                                 listViewItem_new(context, app, tab),
-                                if (index !=
+                                /*    if (index !=
                                     applications.length -
-                                        1) // ✅ Add Divider except last item
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Divider(thickness: 1.0),
-                                  ),
+                                        1) */ // ✅ Add Divider except last item
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Divider(thickness: 1.0),
+                                ),
                               ],
                             );
                           },
@@ -172,7 +172,16 @@ class AppliedPage extends ConsumerWidget {
 
     return InkWell(
       onTap: () async {
-        SharedPreferences pref = await Utils.getSharedPreferences();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobDetailPage(
+              jobId: item.jobId!,
+              fromWhere: FromWhere.appliedPage,
+            ),
+          ),
+        );
+        /*  SharedPreferences pref = await Utils.getSharedPreferences();
         var userType = await Utils.getPreferencesValue(
             pref, ESharedPreferences.user_type.name);
         var userrole =
@@ -196,7 +205,7 @@ class AppliedPage extends ConsumerWidget {
               );
             },
           ));
-        }
+        } */
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 15),
@@ -244,64 +253,62 @@ class AppliedPage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                      color: Constants.lightdull,
-                      borderRadius: BorderRadius.circular(8)),
-                  margin: const EdgeInsets.only(top: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  width: double.maxFinite,
-                  child: ListTile(
-                    dense: true,
-                    contentPadding: const EdgeInsets.only(left: 8),
-                    title: customTextForWeather(
-                      title: item.applyFeedback1.toString(),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: tab.contains("Not Shortlisted")
-                          ? Constants.red
-                          : Constants.darkgreen,
-                    ),
-                    subtitle: customTextForWeather(
-                      title: "• ${item.applyFeedback2.toString()}",
-                      fontSize: 11,
-                      fontWeight: FontWeight.normal,
-                      color: Constants.subtitleclr,
-                    ),
-                  ),
-                ),
+                    decoration: BoxDecoration(
+                        color: Constants.lightdull,
+                        borderRadius: BorderRadius.circular(8)),
+                    margin: const EdgeInsets.only(top: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                    width: double.maxFinite,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        customTextForWeather(
+                          title: item.applyFeedback1.toString(),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: item.statusId == 3 ||
+                                  item.statusId == 4 ||
+                                  item.statusId == 6 ||
+                                  item.statusId == 8 ||
+                                  item.statusId == 9
+                              ? Constants.red
+                              : item.statusId == 12 ||
+                                      item.statusId == 13 ||
+                                      item.statusId == 10 ||
+                                      item.statusId == 11 ||
+                                      item.statusId == 14
+                                  ? Constants.darkgreen
+                                  : Constants.darkBlue,
+                        ),
+                        customTextForWeather(
+                          title: "• ${item.applyFeedback2.toString()}",
+                          fontSize: 11,
+                          fontWeight: FontWeight.normal,
+                          color: Constants.subtitleclr,
+                        ),
+                      ],
+                    )),
                 Container(
                   child: tab.contains("Contact HR")
-                      ? TextButton(
-                          onPressed: () async {
-                            launchUrlString("tel://${item.sourcecontactNo}");
-                          },
-                          child: const customTextForWeather(
-                            title: "Call HR",
-                            color: Constants.darkBlue,
-                            fontWeight: FontWeight.bold,
-                          ))
+                      ? custombutton(item, "Call HR", () async {
+                          FlutterPhoneDirectCaller.callNumber(
+                              "91${item.sourcecontactNo}");
+                        })
                       : tab.contains("Not Shortlisted")
-                          ? TextButton(
-                              onPressed: () {
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomeScreen()),
-                                    (route) => false);
-                              },
-                              child: const customTextForWeather(
-                                title: "Similar Jobs",
-                                color: Constants.darkBlue,
-                                fontWeight: FontWeight.bold,
-                              ))
+                          ? custombutton(item, "More Jobs", () async {
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => HomeScreen()),
+                                  (route) => false);
+                            })
                           : tab.contains("Interview bey")
-                              ? TextButton(
-                                  onPressed: () {},
-                                  child: const customTextForWeather(
-                                    title: "Refer and earn",
-                                    color: Constants.darkBlue,
-                                    fontWeight: FontWeight.bold,
-                                  ))
+                              ? custombutton(item, "Refer And Earn", () async {
+                                  CustomSnackbar.show(
+                                      "You can use this feature from jobdetail page.",
+                                      true);
+                                })
                               : null,
                 )
               ],
@@ -340,6 +347,28 @@ class AppliedPage extends ConsumerWidget {
               ),
             ), */
           ],
+        ),
+      ),
+    );
+  }
+
+  InkWell custombutton(
+      AppliedApplicant item, String title, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(top: 5, left: 5, right: 5, bottom: 5),
+        decoration: BoxDecoration(
+          color: Constants.bgColorWhite,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Constants.darkBlue),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+        child: customTextForWeather(
+          title: title,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Constants.darkBlue,
         ),
       ),
     );

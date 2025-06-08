@@ -181,7 +181,7 @@ class DynamicHintTextField extends StatefulWidget {
 
 class _DynamicHintTextFieldState extends State<DynamicHintTextField>
     with SingleTickerProviderStateMixin {
-  final List<String> dynamicParts = ["Role", "Process", "Company"];
+  final List<String> dynamicParts = ["Designation", "Process", "Company"];
   int _currentIndex = 0;
   Timer? _timer;
 
@@ -314,7 +314,7 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
                     );
                   },
                   child: Text(
-                    _currentDynamicHint,
+                    "'$_currentDynamicHint'",
                     key: ValueKey(
                         _currentDynamicHint), // must be unique for each hint
                     style: GoogleFonts.merriweather(

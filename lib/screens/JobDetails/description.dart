@@ -1324,7 +1324,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                                                 ),
                                                 InkWell(
                                                   onTap: () {
-                                                    Navigator.push(
+                                                 /*    Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                             builder:
@@ -1390,7 +1390,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                                                                           .replaceAll(
                                                                               '"',
                                                                               ''),
-                                                                    )));
+                                                                    ))); */
                                                   },
                                                   child: Container(
                                                     padding: const EdgeInsets
@@ -2131,7 +2131,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                                     ),
                                   InkWell(
                                     onTap: () {
-                                      Navigator.push(
+                                      /* Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) => AddResume(
@@ -2189,7 +2189,7 @@ class _DescriptionForCCState extends State<DescriptionForCC> {
                                                             .replaceAll(']', '')
                                                             .replaceAll(
                                                                 '"', ''),
-                                                  )));
+                                                  ))); */
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.symmetric(

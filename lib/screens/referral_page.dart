@@ -11,9 +11,8 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/referl_page_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
-import 'package:job_circle/screens/jobs/job_details_for_candidate.dart';
+import 'package:job_circle/screens/new_jobs/job_detail/job_detail_page.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 final referAts = FutureProvider<RefeLeadModel>((ref) async {
   var userid =
@@ -44,6 +43,7 @@ class ReferalPage extends ConsumerWidget {
     final atsDataAsync = ref.watch(referAts);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: atsDataAsync.when(
         loading: () => const Center(
             child: CircularProgressIndicator(
@@ -165,7 +165,16 @@ class ReferalPage extends ConsumerWidget {
 
     return InkWell(
       onTap: () async {
-        SharedPreferences pref = await Utils.getSharedPreferences();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => JobDetailPage(
+              jobId: item.jobId!,
+              fromWhere: FromWhere.referalPage,
+            ),
+          ),
+        );
+        /* SharedPreferences pref = await Utils.getSharedPreferences();
         var userType = await Utils.getPreferencesValue(
             pref, ESharedPreferences.user_type.name);
         var userrole =
@@ -189,7 +198,7 @@ class ReferalPage extends ConsumerWidget {
               );
             },
           ));
-        }
+        } */
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 15),
@@ -241,41 +250,40 @@ class ReferalPage extends ConsumerWidget {
               ],
             ),
             Container(
-              decoration: BoxDecoration(
-                  color: Constants.lightdull,
-                  borderRadius: BorderRadius.circular(8)),
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              width: double.maxFinite,
-              child: ListTile(
-                dense: true,
-                contentPadding: const EdgeInsets.only(left: 8),
-                /*  leading: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: tab.contains("Application")
-                        ? Image.network(
-                            "https://cdn-icons-png.flaticon.com/128/18672/18672877.png",
-                            fit: BoxFit.contain,
-                            height: 30,
-                            width: 30,
-                          )
-                        : const Icon(Icons.verified_user)), */
-                title: customTextForWeather(
-                  title: item.referralFeedback1,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: tab.contains("Not Shortlisted")
-                      ? Constants.red
-                      : Constants.darkgreen,
-                ),
-                subtitle: customTextForWeather(
-                  title: "• ${item.referralFeedback2}",
-                  fontSize: 11,
-                  fontWeight: FontWeight.normal,
-                  color: Constants.subtitleclr,
-                ),
-              ),
-            ),
+                decoration: BoxDecoration(
+                    color: Constants.lightdull,
+                    borderRadius: BorderRadius.circular(8)),
+                margin: const EdgeInsets.only(top: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                width: double.maxFinite,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    customTextForWeather(
+                      title: item.referralFeedback1,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: item.statusId == 3 ||
+                              item.statusId == 4 ||
+                              item.statusId == 6 ||
+                              item.statusId == 8 ||
+                              item.statusId == 9 ||
+                              item.statusId == 10 ||
+                              item.statusId == 11 ||
+                              item.statusId == 14
+                          ? Constants.red
+                          : item.statusId == 12 || item.statusId == 13
+                              ? Constants.darkgreen
+                              : Constants.darkBlue,
+                    ),
+                    customTextForWeather(
+                      title: "• ${item.referralFeedback2}",
+                      fontSize: 11,
+                      fontWeight: FontWeight.normal,
+                      color: Constants.subtitleclr,
+                    ),
+                  ],
+                )),
           ],
         ),
       ),

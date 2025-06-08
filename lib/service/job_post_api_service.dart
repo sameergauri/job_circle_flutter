@@ -193,6 +193,21 @@ class JobPostApiService {
           barrierDismissible: false,
           context: context,
           builder: (context) {
+            return CustomDialogueForAddResume(
+              error: false,
+              onClose: () {
+                Navigator.pop(context);
+              },
+              subtitle: resulkey == "ERROR"
+                  ? codeValue.replaceAll(" within the last 30 days", "")
+                  : "Application Submitted Successfully!",
+            );
+          },
+        );
+        /* showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) {
             return WillPopScope(
               onWillPop: () async => false,
               child: CustomDialog(
@@ -217,7 +232,7 @@ class JobPostApiService {
                       : "Recruiter will connect you shortly"),
             );
           },
-        );
+        ); */
         print(response.body);
       } else {
         print('Post request failed with status code: ${response.statusCode}');
@@ -548,13 +563,14 @@ class JobPostApiService {
     }
   }
 
-  static Future<void> ReferAndAddResume(Map<String, dynamic> jsonData,
-      BuildContext context, bool fromDialog, String refId, bool isref) async {
-    final apiUrl = isref
-        ? Uri.parse(
-            'http://${GlobalConstants.API_Host}/leads/v1/referJobWithNewApproach?referralId=$refId')
-        : Uri.parse(
-            'http://${GlobalConstants.API_Host}/leads/v1/addResumeWithNewApproach?recruiterId=$refId');
+  static Future<void> ReferAndAddResume(
+    Map<String, dynamic> jsonData,
+    BuildContext context,
+    bool fromDialog,
+    String refId,
+  ) async {
+    final apiUrl = Uri.parse(
+        'http://${GlobalConstants.API_Host}/leads/v1/referJobWithNewApproach?referralId=$refId');
 
     try {
       final response = await http.post(

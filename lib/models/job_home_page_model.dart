@@ -12,6 +12,13 @@ class JobHomePageModel {
           : null,
     );
   }
+
+  JobHomePageModel copyWith({String? resultKey, ResultData? resultData}) {
+    return JobHomePageModel(
+      resultKey: resultKey ?? this.resultKey,
+      resultData: resultData ?? this.resultData,
+    );
+  }
 }
 
 class ResultData {
@@ -23,6 +30,12 @@ class ResultData {
     return ResultData(
       allJobs:
           json['All Jobs'] != null ? AllJobs.fromJson(json['All Jobs']) : null,
+    );
+  }
+
+  ResultData copyWith({AllJobs? allJobs}) {
+    return ResultData(
+      allJobs: allJobs ?? this.allJobs,
     );
   }
 }
@@ -39,6 +52,12 @@ class AllJobs {
           : null,
     );
   }
+
+  AllJobs copyWith({PageResponse? pageResponse}) {
+    return AllJobs(
+      pageResponse: pageResponse ?? this.pageResponse,
+    );
+  }
 }
 
 class PageResponse {
@@ -52,6 +71,12 @@ class PageResponse {
           ? List<JobContent>.from(
               json['content'].map((x) => JobContent.fromJson(x)))
           : null,
+    );
+  }
+
+  PageResponse copyWith({List<JobContent>? content}) {
+    return PageResponse(
+      content: content ?? this.content,
     );
   }
 }
@@ -75,26 +100,29 @@ class JobContent {
   final bool? isFavorite;
   final String? shifttime;
   final String? jobHeadline;
+  final int? favJobId;
 
-  const JobContent(
-      {this.jobPostType,
-      this.experienceRequired,
-      this.location,
-      this.city,
-      this.languages,
-      this.rolename,
-      this.process,
-      this.functionalArea,
-      this.locations,
-      this.isCampus,
-      this.companyId,
-      this.salaryRange,
-      this.id,
-      this.skills,
-      this.companyName,
-      this.isFavorite,
-      this.shifttime,
-      this.jobHeadline});
+  const JobContent({
+    this.jobPostType,
+    this.experienceRequired,
+    this.location,
+    this.city,
+    this.languages,
+    this.rolename,
+    this.process,
+    this.functionalArea,
+    this.locations,
+    this.isCampus,
+    this.companyId,
+    this.salaryRange,
+    this.id,
+    this.skills,
+    this.companyName,
+    this.isFavorite,
+    this.shifttime,
+    this.jobHeadline,
+    this.favJobId,
+  });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
     return JobContent(
@@ -116,6 +144,51 @@ class JobContent {
       isFavorite: json['isFavorite'],
       shifttime: json['shifttime'],
       jobHeadline: json['jobHeadline'],
+      favJobId: json['favJobId'],
+    );
+  }
+
+  JobContent copyWith({
+    int? jobPostType,
+    String? experienceRequired,
+    String? location,
+    String? city,
+    String? languages,
+    String? rolename,
+    String? process,
+    String? functionalArea,
+    String? locations,
+    int? isCampus,
+    int? companyId,
+    String? salaryRange,
+    int? id,
+    String? skills,
+    String? companyName,
+    bool? isFavorite,
+    String? shifttime,
+    String? jobHeadline,
+    int? favJobId,
+  }) {
+    return JobContent(
+      jobPostType: jobPostType ?? this.jobPostType,
+      experienceRequired: experienceRequired ?? this.experienceRequired,
+      location: location ?? this.location,
+      city: city ?? this.city,
+      languages: languages ?? this.languages,
+      rolename: rolename ?? this.rolename,
+      process: process ?? this.process,
+      functionalArea: functionalArea ?? this.functionalArea,
+      locations: locations ?? this.locations,
+      isCampus: isCampus ?? this.isCampus,
+      companyId: companyId ?? this.companyId,
+      salaryRange: salaryRange ?? this.salaryRange,
+      id: id ?? this.id,
+      skills: skills ?? this.skills,
+      companyName: companyName ?? this.companyName,
+      isFavorite: isFavorite ?? this.isFavorite,
+      shifttime: shifttime ?? this.shifttime,
+      jobHeadline: jobHeadline ?? this.jobHeadline,
+      favJobId: favJobId ?? this.favJobId,
     );
   }
 }

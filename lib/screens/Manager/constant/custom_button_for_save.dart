@@ -31,7 +31,7 @@ class CustomButtonForSave extends StatelessWidget {
             border: isBorder != null && isBorder != false
                 ? Border.all(color: Constants.darkBlue)
                 : const Border()),
-        width: double.maxFinite,
+        width: isBorder != null && isBorder! ? null : double.infinity,
         padding: const EdgeInsets.only(bottom: 8, top: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -45,6 +45,7 @@ class CustomJobHeadline extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 fontSize: jobHeadline!.length < 30 ? 16 : 14,
               ),
+              // subtitle: const customText(title: ""),
             ),
           _buildInfoRow(Icons.work_outline_outlined, experience),
           const SizedBox(height: 5),

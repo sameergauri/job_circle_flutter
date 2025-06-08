@@ -46,34 +46,35 @@ class AppliedApplicant {
   final String? companyLogo;
   final List<dynamic>? jobLocation;
   final int? sourcecontactNo;
+  final int? statusId;
 
-  AppliedApplicant({
-    this.applicantName,
-    this.lastName,
-    this.level,
-    this.process,
-    this.natureOfWork,
-    this.status,
-    this.subStatus,
-    this.companyName,
-    this.appliesTab,
-    this.applyFeedback1,
-    this.applyFeedback2,
-    this.jobSalary,
-    this.resume,
-    this.leadId,
-    this.contactNo,
-    this.profilePic,
-    this.remark,
-    this.notes,
-    this.gender,
-    this.crpfId,
-    this.jobId,
-    this.reportTo,
-    this.companyLogo,
-    this.jobLocation,
-    this.sourcecontactNo,
-  });
+  AppliedApplicant(
+      {this.applicantName,
+      this.lastName,
+      this.level,
+      this.process,
+      this.natureOfWork,
+      this.status,
+      this.subStatus,
+      this.companyName,
+      this.appliesTab,
+      this.applyFeedback1,
+      this.applyFeedback2,
+      this.jobSalary,
+      this.resume,
+      this.leadId,
+      this.contactNo,
+      this.profilePic,
+      this.remark,
+      this.notes,
+      this.gender,
+      this.crpfId,
+      this.jobId,
+      this.reportTo,
+      this.companyLogo,
+      this.jobLocation,
+      this.sourcecontactNo,
+      this.statusId});
 
   factory AppliedApplicant.fromJson(Map<String, dynamic> json) {
     return AppliedApplicant(
@@ -102,6 +103,7 @@ class AppliedApplicant {
       companyLogo: json['companyLogo'] as String?,
       jobLocation: json['jobLocation'],
       sourcecontactNo: json['sourcecontactNo'] as int?,
+      statusId: json['statusId'] as int?,
     );
   }
 }

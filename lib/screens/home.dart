@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use, avoid_print
+// ignore_for_file: must_be_immutable, use_build_context_synchronously, deprecated_member_use, avoid_print, prefer_const_constructors_in_immutables
 // ignore_for_file: todo
 import 'dart:convert';
 
@@ -7,7 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/constants/gobal.dart';
-import 'package:job_circle/screens/e_learning/e_learning_home_page.dart';
+import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
 import 'package:job_circle/screens/new_jobs/job_home_page.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -15,8 +15,9 @@ import 'package:url_launcher/url_launcher.dart';
 // Other imports...
 
 class HomeScreen extends StatefulWidget {
-  bool? isFirst;
-  HomeScreen({super.key, this.isFirst});
+  HomeScreen({
+    super.key,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -31,87 +32,76 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   final PageController pageController = PageController();
-  int selectedIndex = 0;
+  int currentIndex = 0;
+
+  final List<Widget> pages = [
+    const JobHomePage(), // new job page as per new api
+    const TrackApplication(),
+    //  ELearingHomePage()
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Constants.bgColorWhite,
-      body: PageView(
-        physics: const NeverScrollableScrollPhysics(),
-        controller: pageController,
-        children: const [
-          //  NewJobsV1(), // old job page as per old api
-           JobHomePage(), // new job page as per new api
-          TrackApplication(),
-          ELearingHomePage()
-        ],
-        onPageChanged: (index) {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
+      backgroundColor: Colors.white,
+      body: IndexedStack(
+        index: currentIndex,
+        children: pages,
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: Color.fromARGB(255, 124, 124, 124),
-              blurRadius: 10,
-            ),
+          color: Constants.borderColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            navItem("assets/images/exp_bag.png", "JOBS", 0),
+            navItem("assets/images/ats.png", "ATS", 1),
           ],
         ),
-        child: BottomNavigationBar(
-          items: [
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "assets/images/exp_bag.png",
-                height: 15.h,
+      ),
+    );
+  }
+
+  Widget navItem(String img, String label, int index) {
+    bool isSelected = currentIndex == index;
+    return GestureDetector(
+      onTap: () {
+        checkAppVersion();
+        setState(() => currentIndex = index);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        padding:
+            EdgeInsets.symmetric(horizontal: isSelected ? 16 : 0, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Constants.darkBlue : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Image.asset(img,
+                height: isSelected ? 20 : 24,
+                color: isSelected
+                    ? Constants.bgColorWhite
+                    : Constants.subtitleclr),
+            /* Icon(icon,
+                color: isSelected ? Colors.white : Constants.subtitleclr), */
+            if (isSelected)
+              Padding(
+                padding: const EdgeInsets.only(left: 6),
+                child: customTextForWeather(
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+                    title: label,
+                    color: Constants.bgColorWhite),
               ),
-              activeIcon: Image.asset(
-                "assets/images/exp_bag.png",
-                height: 25.h,
-                color: Constants.themeBgColor,
-              ),
-              label: "Jobs",
-              backgroundColor: Colors.blue,
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "assets/images/ats.png",
-                height: 20.h,
-              ),
-              activeIcon: Image.asset(
-                "assets/images/ats.png",
-                height: 20.h,
-                color: Constants.themeBgColor,
-              ),
-              label: "ATS",
-              backgroundColor: Colors.blue,
-            ),
-            BottomNavigationBarItem(
-              icon: Image.asset(
-                "assets/images/education.png",
-                height: 20.h,
-              ),
-              activeIcon: Image.asset(
-                "assets/images/education.png",
-                height: 20.h,
-                color: Constants.themeBgColor,
-              ),
-              label: "E-Learning",
-              backgroundColor: Colors.blue,
-            ),
           ],
-          type: BottomNavigationBarType.fixed,
-          currentIndex: selectedIndex,
-          showUnselectedLabels: true,
-          unselectedItemColor: Colors.black45,
-          selectedItemColor: Constants.themeBgColor,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
-          iconSize: 30,
-          onTap: onNavigationChange,
-          elevation: 100,
         ),
       ),
     );
@@ -130,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'version']; //TODO::: latest version is also as yaml file with updated one ...
 
         const String currentVersion =
-            '1.0.22'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+            '1.0.23'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
         if (latestVersion.compareTo(currentVersion) > 0) {
           // Display update notification
@@ -156,23 +146,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print('Error while fetching data: $e');
     }
   }
-
-  /* final response = await http.get(Uri.parse(
-        'http://${GlobalConstants.API_Host_one}version/v1/all?pageNumber=1&pageSize=10'));
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      final String latestVersion = data['version'];
-      const String currentVersion =
-          '1.0.3'; // Replace with your app's current version
-
-      if (latestVersion.compareTo(currentVersion) > 0) {
-        // Display update notification
-        showUpdateDialog();
-      }
-    } else {
-      // Handle the case when the version check fails
-    } */
 
   void showUpdateDialog() {
     showDialog(
@@ -205,14 +178,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       throw 'Could not launch $url';
     }
-  }
-
-  void onNavigationChange(int value) async {
-    setState(() {
-      selectedIndex = value;
-    });
-    pageController.jumpToPage(value);
-    await checkAppVersion(); //TODO:: check app version when user switch the tab.....
   }
 }
 

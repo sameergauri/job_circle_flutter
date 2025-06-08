@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:job_circle/common/app_utils.dart';
+import 'package:job_circle/constants/temp.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
-import 'package:job_circle/screens/Billing/list_of_invoice.dart';
-import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
-import 'package:job_circle/screens/career_preferrence/career_preferrence.dart';
 import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/profile/user_profile.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -129,12 +127,16 @@ class CustomDrawer extends ConsumerWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
+                          builder: (context) => const TempPage()));
+                  /*  Navigator.push(
+                      context,
+                      MaterialPageRoute(
                         builder: (context) => GenerateInvoice(
                           name: userName,
                           profilePic: userProfileImage.toString(),
                           gender: userGender,
                         ),
-                      ));
+                      )); */
                   onClose();
                 },
               ),
@@ -155,7 +157,11 @@ class CustomDrawer extends ConsumerWidget {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const ListOfInvoice()));
+                          builder: (context) => const TempPage()));
+                  /*  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ListOfInvoice())); */
                   onClose();
                 },
               ),
@@ -204,7 +210,7 @@ class CustomDrawer extends ConsumerWidget {
               onClose();
             },
           ),
-          ListTile(
+          /*   ListTile(  //TODO: Career Preference
             dense: true,
             minLeadingWidth: 0.0,
             minVerticalPadding: 5.1,
@@ -218,7 +224,7 @@ class CustomDrawer extends ConsumerWidget {
                   MaterialPageRoute(builder: (context) => CareerPreferrence()));
               onClose();
             },
-          ),
+          ), */
           ListTile(
             dense: true,
             minLeadingWidth: 0.0,

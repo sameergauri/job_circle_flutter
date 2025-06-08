@@ -39,6 +39,7 @@ class JobDetailPageModel {
   final List<String>? language;
   final List<String>? additionalDetails;
   final List<String>? boundryLimits;
+  final PayoutDetails? payoutDetails;
 
   JobDetailPageModel({
     this.id,
@@ -79,6 +80,7 @@ class JobDetailPageModel {
     this.postedByEmail,
     this.postedByLocation,
     this.postedByProfilePic,
+    this.payoutDetails,
   });
 
   factory JobDetailPageModel.fromJson(Map<String, dynamic> json) {
@@ -121,6 +123,66 @@ class JobDetailPageModel {
       postedByEmail: json['postedByEmail'],
       postedByLocation: json['postedByLocation'],
       postedByProfilePic: json['postedByProfilePic'],
+      payoutDetails: json['payoutDetails'] != null
+          ? PayoutDetails.fromJson(json['payoutDetails'])
+          : null,
+    );
+  }
+}
+
+class PayoutDetails {
+  final String payoutDuration;
+  final String partnerPayoutType;
+  final String formattedPartnerPayout;
+  final String formattedSpecialPayout;
+  final List<Slab> slabs;
+  final int paymentCluase;
+
+  PayoutDetails({
+    required this.payoutDuration,
+    required this.partnerPayoutType,
+    required this.formattedPartnerPayout,
+    required this.formattedSpecialPayout,
+    required this.slabs,
+    required this.paymentCluase,
+  });
+
+  factory PayoutDetails.fromJson(Map<String, dynamic> json) {
+    return PayoutDetails(
+      payoutDuration: json['payoutDuration'] ?? '',
+      partnerPayoutType: json['partnerPayoutType'] ?? '',
+      formattedPartnerPayout: json['formattedPartnerPayout'] ?? '',
+      formattedSpecialPayout: json['formattedSpecialPayout'] ?? '',
+      slabs: (json['slabs'] as List<dynamic>?)
+              ?.map((item) => Slab.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      paymentCluase: json['paymentCluase'] ?? 0,
+    );
+  }
+}
+
+class Slab {
+  final int minCount;
+  final int maxCount;
+  final String targetType;
+  final String formattedAmount;
+
+  Slab({
+    required this.minCount,
+    required this.maxCount,
+    required this.targetType,
+    required this.formattedAmount,
+  });
+
+  factory Slab.fromJson(Map<String, dynamic> json) {
+    return Slab(
+      minCount: json['minCount'] ?? 0,
+      maxCount: json['maxCount'] ?? 0,
+      targetType: json['targetType'] ?? '',
+      formattedAmount: (json['formattedAmount'] ?? '')
+          .replaceAll(RegExp(r'[^\x00-\x7F]'), '')
+          .replaceAll('.00', ''), // Remove zero-width characters
     );
   }
 }

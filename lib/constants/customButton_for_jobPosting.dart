@@ -3,6 +3,7 @@ import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class CustomButtonForJobPosting extends StatelessWidget {
+  final EdgeInsetsGeometry? margin;
   final String buttonText;
   final VoidCallback onTap;
   final Color? buttonColor;
@@ -16,6 +17,7 @@ class CustomButtonForJobPosting extends StatelessWidget {
     this.buttonColor,
     this.textColor,
     this.isBorder,
+    this.margin,
   });
 
   @override
@@ -23,7 +25,7 @@ class CustomButtonForJobPosting extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
+        margin: margin ?? const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10),
         decoration: BoxDecoration(
             color: buttonColor ?? Constants.darkBlue,
             borderRadius: BorderRadius.circular(8),
