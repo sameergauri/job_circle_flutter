@@ -20,6 +20,7 @@ import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart'
 import 'package:job_circle/screens/Manager/constant/custom_document_upload_button.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/home.dart';
+import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/service/FileUploadService.dart';
@@ -398,7 +399,7 @@ class _AddCvState extends ConsumerState<AddCv> {
         int usertype = await parsedResponse['resultData']['profile']
             ['userResponse']['userType'];
         ref.refresh(profileSummaryProvider);
-
+        ref.read(jobListProvider.notifier).fetchInitialJobs();
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => HomeScreen()),

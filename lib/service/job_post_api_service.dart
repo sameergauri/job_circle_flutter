@@ -902,4 +902,21 @@ class JobPostApiService {
       throw Exception('Failed to send Invoice data: ${response.statusCode}');
     }
   }
+
+  Future<void> clearCache() async {
+    final url =
+        Uri.parse('http://${GlobalConstants.API_Host_one}/api/v1/cache/clear');
+
+    try {
+      final response = await http.post(url);
+
+      if (response.statusCode == 200) {
+        print('Cache cleared successfully: ${response.body}');
+      } else {
+        print('Failed to clear cache. Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error clearing cache: $e');
+    }
+  }
 }

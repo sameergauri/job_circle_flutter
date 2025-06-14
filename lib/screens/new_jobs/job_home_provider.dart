@@ -120,7 +120,9 @@ class JobNotifier extends StateNotifier<List<JobContent>> {
       filteredJobs = filteredJobs.where((job) {
         return (job.rolename?.toLowerCase().contains(query) ?? false) ||
             (job.companyName?.toLowerCase().contains(query) ?? false) ||
-            (job.process?.toLowerCase().contains(query) ?? false);
+            (job.process?.toLowerCase().contains(query) ?? false) ||
+            (job.jobHeadline?.toLowerCase().contains(query) ?? false) ||
+            (job.skills?.toLowerCase().contains(query) ?? false);
       }).toList();
       print('After search filter: ${filteredJobs.length} jobs');
     }
@@ -190,7 +192,7 @@ class JobNotifier extends StateNotifier<List<JobContent>> {
     }
   }
 
-  Future<bool> removeFavoriteJob({required int favid}) async {
+  Future<Map<String, dynamic>> removeFavoriteJob({required int favid}) async {
     final url =
         Uri.parse('http://${GlobalConstants.API_Host_one}/favjob/v1/$favid');
 
@@ -200,16 +202,19 @@ class JobNotifier extends StateNotifier<List<JobContent>> {
 
       if (response.statusCode == 200) {
         print('Favorite job removed successfully');
+        // Check if this was the last saved job before refreshing
+        final wasLastSavedJob =
+            state.where((job) => job.isFavorite == true).length <= 1;
         await fetchJobs(isRefresh: false, applyCityFilter: true);
-        return true;
+        return {'success': true, 'wasLastSavedJob': wasLastSavedJob};
       } else {
         print(
             'Failed to remove job. Status Code: ${response.statusCode}, Response: ${response.body}');
-        return false;
+        return {'success': false, 'wasLastSavedJob': false};
       }
     } catch (e) {
       print('Error removing job: $e');
-      return false;
+      return {'success': false, 'wasLastSavedJob': false};
     }
   }
 

@@ -67,11 +67,17 @@ class ReferralProgramCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Image.network(
-                        "https://cdn-icons-png.flaticon.com/256/14356/14356000.png",
-                        height: 120,
-                        fit: BoxFit.contain,
-                      ),
+                      payoutDetails.partnerPayoutType == "FLAT"
+                          ? Image.asset(
+                              "assets/images/refer.png",
+                              height: 120,
+                              fit: BoxFit.contain,
+                            )
+                          : Image.network(
+                              "https://cdn-icons-png.flaticon.com/256/14356/14356000.png",
+                              height: 120,
+                              fit: BoxFit.contain,
+                            ),
                       const SizedBox(
                         height: 4,
                       ),
@@ -91,6 +97,28 @@ class ReferralProgramCard extends StatelessWidget {
     );
   }
 
+  String formatSlabLabel(String? input) {
+    if (input == null) return '';
+
+    final match = RegExp(r'^(.+?):\s*(\d+)$').firstMatch(input);
+
+    if (match != null) {
+      String label = match.group(1)?.trim() ?? '';
+      String amount = match.group(2)?.trim() ?? '';
+
+      if (label.contains('-')) {
+        final parts = label.split('-');
+        if (parts.length == 2 && parts[1] == '0') {
+          label = '${parts[0]} & above';
+        }
+      }
+
+      return '$label: $amount';
+    }
+
+    return input;
+  }
+
   String extractAmount(String text) {
     final regex = RegExp(r'(\d+)(?:\.00)?');
     final match = regex.firstMatch(text);
@@ -103,14 +131,19 @@ class ReferralProgramCard extends StatelessWidget {
     final String partner = payoutDetails.formattedPartnerPayout;
     final String special = payoutDetails.formattedSpecialPayout;
     final int paymentClause = payoutDetails.paymentCluase;
-    final List<Slab> slabs = payoutDetails.slabs;
+    final partnerSlabs = payoutDetails.slabs
+        .where((slab) => slab.targetType.toUpperCase() == "PARTNER")
+        .toList();
     final String partnerpayment =
         extractAmount(payoutDetails.formattedPartnerPayout);
     final String specialpayment =
         extractAmount(payoutDetails.formattedSpecialPayout);
     final int days = payoutDetails.paymentCluase;
 
-    if (payoutType == "FLAT" && special.isNotEmpty && partner.isNotEmpty) {
+    if (payoutType == "FLAT" &&
+        special.isNotEmpty &&
+        partner.isNotEmpty &&
+        specialpayment != "0") {
       // Both flat and special payouts are available
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +201,8 @@ class ReferralProgramCard extends StatelessWidget {
           ),
         ],
       );
-    } else if (payoutType == "FLAT" && special.isEmpty) {
+    } else if (payoutType == "FLAT" &&
+        (special.isEmpty || specialpayment == "0")) {
       // Only flat payout is available
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,6 +229,7 @@ class ReferralProgramCard extends StatelessWidget {
                 title: "${partnerpayment}/-",
                 color: Constants.darkBlack,
                 fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
               const customTextForWeather(
                 title: " per candidate",
@@ -205,7 +240,7 @@ class ReferralProgramCard extends StatelessWidget {
           )
         ],
       );
-    } else if (partner.isEmpty && special.isNotEmpty) {
+    } else if (partner.isEmpty && special.isNotEmpty && specialpayment != "0") {
       // Only special payout is available
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,6 +267,7 @@ class ReferralProgramCard extends StatelessWidget {
                 title: "${specialpayment}/-",
                 color: Constants.darkBlack,
                 fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
               const customTextForWeather(
                 title: " per candidate",
@@ -267,11 +303,12 @@ class ReferralProgramCard extends StatelessWidget {
               const Icon(Icons.currency_rupee_rounded,
                   size: 22, color: Constants.darkBlue),
               customTextForSignika(
-                title: slabs.isNotEmpty
-                    ? "${slabs.last.formattedAmount.split(':').last.trim()}/-"
+                title: partnerSlabs.isNotEmpty
+                    ? "${partnerSlabs.last.formattedAmount.split(':').last.trim()}/-"
                     : "N/A",
                 color: Constants.darkBlack,
                 fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
               const SizedBox(
                 width: 3,
@@ -292,10 +329,9 @@ class ReferralProgramCard extends StatelessWidget {
                         child: Material(
                           color: Colors.transparent,
                           child: Container(
-                            width: MediaQuery.of(context).size.width / 2,
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Constants.borderColor,
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: const [
                                 BoxShadow(
@@ -307,56 +343,59 @@ class ReferralProgramCard extends StatelessWidget {
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                customTextForWeather(
-                                  title: "Slab Details ($days days)",
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    customTextForWeather(
+                                      title: "Slab Details ($days days)",
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 8),
-                                ...slabs.map((slab) => Padding(
+                                ...partnerSlabs.map((slab) => Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 2.0),
                                       child: customTextForWeather(
                                           title:
-                                              "${slab.formattedAmount}/- per candidate",
-                                          fontSize: 14),
+                                              "${formatSlabLabel(slab.formattedAmount)}/- per candidate",
+                                          fontSize: 10),
                                     )),
                                 const SizedBox(height: 8),
-                                Stack(
-                                  children: [
-                                    const Divider(
-                                      color: Constants.darkBlack,
-                                      thickness: 1,
-                                    ),
-                                    Align(
-                                        alignment: Alignment.center,
-                                        child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 8),
-                                            color: Colors.white,
-                                            child: const customTextForWeather(
-                                                title: "OR")))
-                                  ],
-                                ),
-                                if (specialpayment.isNotEmpty)
+                                if (specialpayment.isNotEmpty &&
+                                    specialpayment != "0")
+                                  const Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Center(
+                                        child: Icon(Icons.linear_scale_sharp),
+                                      ),
+                                    ],
+                                  ),
+                                if (specialpayment.isNotEmpty &&
+                                    specialpayment != "0")
                                   SizedBox(
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.center,
                                       children: [
                                         const SizedBox(height: 8),
                                         const customTextForWeather(
                                           title: "Special Payout (30 days)",
-                                          fontSize: 16,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.bold,
                                         ),
                                         const SizedBox(height: 8),
                                         customTextForWeather(
                                           title:
                                               "${specialpayment}/- per candidate",
-                                          fontSize: 14,
+                                          fontSize: 10,
                                         ),
                                       ],
                                     ),
@@ -375,7 +414,7 @@ class ReferralProgramCard extends StatelessWidget {
                     });
                   },
                   child: const Icon(Icons.info_outline,
-                      size: 20, color: Constants.subtitleclr)),
+                      size: 20, color: Constants.darkBlue)),
               const customTextForWeather(
                 title: "for each successful referral!",
                 color: Constants.darkBlack,
@@ -385,7 +424,8 @@ class ReferralProgramCard extends StatelessWidget {
           ),
         ],
       );
-    } else if (payoutType == "CTC Based" && special.isEmpty) {
+    } else if (payoutType == "CTC_BASED" &&
+        (special.isEmpty || specialpayment == "0")) {
       // Payout type is CTC Based and no special payout
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,7 +447,7 @@ class ReferralProgramCard extends StatelessWidget {
           Row(
             children: [
               customTextForWeather(
-                title: "${partnerpayment} ",
+                title: "${partnerpayment}%",
                 color: Constants.darkBlue,
                 fontSize: 20,
               ),
@@ -420,7 +460,9 @@ class ReferralProgramCard extends StatelessWidget {
           ),
         ],
       );
-    } else if (payoutType == "CTC Based" && special.isNotEmpty) {
+    } else if (payoutType == "CTC_BASED" &&
+        special.isNotEmpty &&
+        specialpayment != "0") {
       // Payout type is CTC Based and special payout is available
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,6 +474,28 @@ class ReferralProgramCard extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
           const SizedBox(height: 20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              const Icon(Icons.currency_rupee_rounded,
+                  size: 22, color: Constants.darkBlue),
+              customTextForSignika(
+                title: "${partnerpayment}%",
+                color: Constants.darkBlack,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+              customTextForWeather(
+                title: " of the CTC ($days days)",
+                color: Constants.darkBlack,
+                fontStyle: FontStyle.italic,
+                fontSize: 12,
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 4,
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -451,28 +515,7 @@ class ReferralProgramCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(
-            height: 4,
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Icon(Icons.currency_rupee_rounded,
-                  size: 22, color: Constants.darkBlue),
-              customTextForSignika(
-                title: partnerpayment,
-                color: Constants.darkBlack,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-              customTextForWeather(
-                title: "of the CTC ($days days)",
-                color: Constants.darkBlack,
-                fontStyle: FontStyle.italic,
-                fontSize: 12,
-              ),
-            ],
-          ),
+
           /* const customTextForWeather(
             title:
                 "Earn ₹1,000 for quick closures in 30 days\nOr go big with 5% of the CTC for long-term in 90 days.",

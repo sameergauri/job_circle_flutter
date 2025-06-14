@@ -2,6 +2,7 @@
 // ignore_for_file: todo
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,10 +19,9 @@ import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Billing/list_of_invoice.dart';
 import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
-
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-
 import 'package:job_circle/screens/login.dart';
+import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
 import 'package:job_circle/screens/profile/profile_summary_partner.dart';
@@ -33,8 +33,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../common/utils.dart';
 
 class OTPScreen extends ConsumerStatefulWidget {
-  const 
-  OTPScreen({super.key, this.no});
+  const OTPScreen({super.key, this.no});
   final String? no;
 
   @override
@@ -89,283 +88,315 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
     });
   }
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //resizeToAvoidBottomInset: true,
-      backgroundColor: Colors.white,
-      /* appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ), */
-      body: IntrinsicHeight(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Image.asset("assets/images/otplogo.png"),
-              const customTextForWeather(
-                title: 'OTP Verification',
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const customTextForWeather(
-                  title: 'Enter the OTP sent to',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey),
-              const SizedBox(
-                height: 4,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+    return Stack(
+      children: [
+        Scaffold(
+          //resizeToAvoidBottomInset: true,
+          backgroundColor: Colors.white,
+          /* appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.white,
+            elevation: 0,
+          ), */
+          body: IntrinsicHeight(
+            child: SingleChildScrollView(
+              child: Column(
                 children: [
-                  customTextForMonst(
-                    title: "+91 ${widget.no}",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Login(
-                                    number: int.tryParse(mobileno),
-                                  )));
-                    },
-                    child: Image.asset(
-                      "assets/images/pencil.png",
-                      height: 16.h,
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 40,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 50,
-                    child: TextField(
-                      style: GoogleFonts.montserrat(),
-                      controller: otpChar1Controller,
-                      maxLength: 1,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      focusNode: otpChar1FocusNode,
-                      onChanged: ((value) => {
-                            if (value != "") {otpChar2FocusNode.requestFocus()},
-                            validateOtp()
-                          }),
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        counterText: "",
-                      ),
-                    ),
+                  Image.asset("assets/images/otplogo.png"),
+                  const customTextForWeather(
+                    title: 'OTP Verification',
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
                   ),
                   const SizedBox(
-                    width: 10,
+                    height: 20,
                   ),
-                  SizedBox(
-                    width: 50,
-                    child: TextField(
-                      style: GoogleFonts.montserrat(),
-                      autofocus: true,
-                      controller: otpChar2Controller,
-                      maxLength: 1,
-                      focusNode: otpChar2FocusNode,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      onChanged: ((value) => {
-                            if (value == "")
-                              {otpChar1FocusNode.requestFocus()}
-                            else
-                              {otpChar3FocusNode.requestFocus()},
-                            validateOtp()
-                          }),
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        counterText: "",
+                  const customTextForWeather(
+                      title: 'Enter the OTP sent to',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      customTextForMonst(
+                        title: "+91 ${widget.no}",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ),
+                      SizedBox(
+                        width: 8.w,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => Login(
+                                        number: int.tryParse(mobileno),
+                                      )));
+                        },
+                        child: Image.asset(
+                          "assets/images/pencil.png",
+                          height: 16.h,
+                        ),
+                      )
+                    ],
                   ),
                   const SizedBox(
-                    width: 10,
+                    height: 40,
                   ),
-                  SizedBox(
-                    width: 50,
-                    child: TextField(
-                      style: GoogleFonts.montserrat(),
-                      controller: otpChar3Controller,
-                      maxLength: 1,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      focusNode: otpChar3FocusNode,
-                      onChanged: ((value) => {
-                            if (value == "")
-                              {otpChar2FocusNode.requestFocus()}
-                            else
-                              {otpChar4FocusNode.requestFocus()},
-                            validateOtp()
-                          }),
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        counterText: "",
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  SizedBox(
-                    width: 50,
-                    child: TextField(
-                      style: GoogleFonts.montserrat(),
-                      controller: otpChar4Controller,
-                      focusNode: otpChar4FocusNode,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      maxLength: 1,
-                      onChanged: ((value) => {
-                            strOTP += value.toString(),
-                            if (value == "") {otpChar3FocusNode.requestFocus()},
-                            validateOtp()
-                          }),
-                      textAlign: TextAlign.center,
-                      decoration: const InputDecoration(
-                        counterText: "",
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 5,
-                ),
-                //width: 230,
-                alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisAlignment: resendOtpTimerHide
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.end,
-                  children: [
-                    resendOtpTimerHide
-                        ? Row(
-                            children: [
-                              const customTextForWeather(
-                                title: "Dont recieve the OTP ?",
-                                color: Constants.subtitleclr,
-                              ),
-                              InkWell(
-                                  onTap: () {
-                                    saveOTP();
-                                    setState(() {});
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r)),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8, horizontal: 12),
-                                    child: const customTextForWeather(
-                                      title: "Resend OTP",
-                                      color: Constants.darkBlue,
-                                    ),
-                                  )),
-                            ],
-                          )
-                        : Padding(
-                            padding: EdgeInsets.only(
-                                right: MediaQuery.of(context).size.width / 4.6),
-                            child: Text(
-                              timerText,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 50,
+                        child: TextField(
+                          style: GoogleFonts.montserrat(),
+                          controller: otpChar1Controller,
+                          maxLength: 1,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          focusNode: otpChar1FocusNode,
+                          onChanged: ((value) => {
+                                if (value != "")
+                                  {otpChar2FocusNode.requestFocus()},
+                                validateOtp()
+                              }),
+                          textAlign: TextAlign.center,
+                          decoration: const InputDecoration(
+                            counterText: "",
                           ),
-                    /*  ThemeButton(
-                      width: 100,
-                      themeButtonSize: ThemeButtonSize.xsmall,
-                      isText: true,
-                      onPressed: () {
-                        saveOTP();
-                        //Navigator.pushReplacementNamed(context, ERoute.login.name);
-                        // Navigator.pushReplacementNamed(context, ERoute.login.name);
-                      },
-                      text: "Resend OTP",
-                      hide: resendOtpHide,
-                    ), */
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 60,
-              ),
-              SizedBox(
-                width: 300,
-                child: ThemeButton(
-                  color: Constants.darkBlue,
-                  radious: 8.r,
-                  // disabled: vrifyButtonDisabled,
-                  onPressed: () async {
-                    await verifyOTP();
-                  
-                    ref.refresh(fetchAllApplyProvider);
-                    ref.refresh(fetchAllReferalProvider);
-                    ref.refresh(profileSummaryProvider);
-                    ref.refresh(jobsProvider);
-                    ref.refresh(fetchAllBillingDataProvider);
-                    ref.refresh(fetchAllInvoice);
-                    ref.refresh(fetchBankingDetails);
-                    ref.refresh(userDataProvider);
-                    ref.refresh(experienceProvider);
-                    ref.refresh(educationProvider);
-                
-                    ref.refresh(ProfileDataProvider);
-                    ref.refresh(PartnerProfileData);
-                  },
-                  text: "Verify & Proceed",
-                ),
-              ),
-
-              /* InkWell(  //TODO: 
-                onTap: () {
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => const Login()));
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(top: 5),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(8.r)),
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                  child: Text(
-                    "Edit Number",
-                    style: GoogleFonts.varela(color: Colors.red),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      SizedBox(
+                        width: 50,
+                        child: TextField(
+                          style: GoogleFonts.montserrat(),
+                          autofocus: true,
+                          controller: otpChar2Controller,
+                          maxLength: 1,
+                          focusNode: otpChar2FocusNode,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          onChanged: ((value) => {
+                                if (value == "")
+                                  {otpChar1FocusNode.requestFocus()}
+                                else
+                                  {otpChar3FocusNode.requestFocus()},
+                                validateOtp()
+                              }),
+                          textAlign: TextAlign.center,
+                          decoration: const InputDecoration(
+                            counterText: "",
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      SizedBox(
+                        width: 50,
+                        child: TextField(
+                          style: GoogleFonts.montserrat(),
+                          controller: otpChar3Controller,
+                          maxLength: 1,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          focusNode: otpChar3FocusNode,
+                          onChanged: ((value) => {
+                                if (value == "")
+                                  {otpChar2FocusNode.requestFocus()}
+                                else
+                                  {otpChar4FocusNode.requestFocus()},
+                                validateOtp()
+                              }),
+                          textAlign: TextAlign.center,
+                          decoration: const InputDecoration(
+                            counterText: "",
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      SizedBox(
+                        width: 50,
+                        child: TextField(
+                          style: GoogleFonts.montserrat(),
+                          controller: otpChar4Controller,
+                          focusNode: otpChar4FocusNode,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          maxLength: 1,
+                          onChanged: ((value) => {
+                                strOTP += value.toString(),
+                                if (value == "")
+                                  {otpChar3FocusNode.requestFocus()},
+                                validateOtp()
+                              }),
+                          textAlign: TextAlign.center,
+                          decoration: const InputDecoration(
+                            counterText: "",
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ), */
-            ],
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 5,
+                    ),
+                    //width: 230,
+                    alignment: Alignment.centerRight,
+                    child: Row(
+                      mainAxisAlignment: resendOtpTimerHide
+                          ? MainAxisAlignment.center
+                          : MainAxisAlignment.end,
+                      children: [
+                        resendOtpTimerHide
+                            ? Row(
+                                children: [
+                                  const customTextForWeather(
+                                    title: "Dont recieve the OTP ?",
+                                    color: Constants.subtitleclr,
+                                  ),
+                                  InkWell(
+                                      onTap: () {
+                                        saveOTP();
+                                        setState(() {});
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8.r)),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8, horizontal: 12),
+                                        child: const customTextForWeather(
+                                          title: "Resend OTP",
+                                          color: Constants.darkBlue,
+                                        ),
+                                      )),
+                                ],
+                              )
+                            : Padding(
+                                padding: EdgeInsets.only(
+                                    right: MediaQuery.of(context).size.width /
+                                        4.6),
+                                child: Text(
+                                  timerText,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                        /*  ThemeButton(
+                          width: 100,
+                          themeButtonSize: ThemeButtonSize.xsmall,
+                          isText: true,
+                          onPressed: () {
+                            saveOTP();
+                            //Navigator.pushReplacementNamed(context, ERoute.login.name);
+                            // Navigator.pushReplacementNamed(context, ERoute.login.name);
+                          },
+                          text: "Resend OTP",
+                          hide: resendOtpHide,
+                        ), */
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 60,
+                  ),
+                  SizedBox(
+                    width: 300,
+                    child: ThemeButton(
+                      color: Constants.darkBlue,
+                      radious: 8.r,
+                      // disabled: vrifyButtonDisabled,
+                      onPressed: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
+                        await verifyOTP();
+
+                        ref.refresh(fetchAllApplyProvider);
+                        ref.refresh(fetchAllReferalProvider);
+                        ref.refresh(profileSummaryProvider);
+                        ref.refresh(jobsProvider);
+                        ref.refresh(fetchAllBillingDataProvider);
+                        ref.refresh(fetchAllInvoice);
+                        ref.refresh(fetchBankingDetails);
+                        ref.refresh(userDataProvider);
+                        ref.refresh(experienceProvider);
+                        ref.refresh(educationProvider);
+
+                        ref.refresh(ProfileDataProvider);
+                        ref.refresh(PartnerProfileData);
+                      },
+                      text: "Verify & Proceed",
+                    ),
+                  ),
+
+                  /* InkWell(  //TODO: 
+                    onTap: () {
+                      Navigator.pushReplacement(context,
+                          MaterialPageRoute(builder: (context) => const Login()));
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 5),
+                      decoration:
+                          BoxDecoration(borderRadius: BorderRadius.circular(8.r)),
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      child: Text(
+                        "Edit Number",
+                        style: GoogleFonts.varela(color: Colors.red),
+                      ),
+                    ),
+                  ), */
+                ],
+              ),
+            ),
           ),
         ),
-      ),
+        if (isLoading)
+          Positioned.fill(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Blur Effect
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.2), // Semi-transparent overlay
+                  ),
+                ),
+                // Circular Progress Indicator
+                const CircularProgressIndicator(
+                  color: Constants.darkBlue,
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -576,9 +607,16 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
             await Utils.setPreference(pres, ESharedPreferences.user_token.name,
                     data['token'] ?? "")
                 .then((_) {
-              Utils.gotoScreen(context, datafinal, model.mobile);
-              ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
-                  title: "OTP Verified Successfully", error: false));
+              ref.read(jobListProvider.notifier).fetchInitialJobs();
+              Future.delayed(const Duration(seconds: 3), () async {
+                Utils.gotoScreen(
+                  context,
+                  datafinal,
+                  model.mobile,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(CustomSnackbarfinal(
+                    title: "OTP Verified Successfully", error: false));
+              });
             });
 
             //

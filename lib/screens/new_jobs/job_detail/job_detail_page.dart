@@ -42,6 +42,7 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(jobDetailProvider.notifier).clearJobDetails();
       ref.read(jobDetailProvider.notifier).fetchJobDetails(
             widget.jobId,
           );
@@ -124,16 +125,6 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
         ),
       );
     }
-    String salaryText = state.jobDetail!.salaryRange.toString();
-
-    String formattedSalary = '';
-    if (salaryText.endsWith('0')) {
-      formattedSalary = salaryText.replaceFirst(RegExp(r'\s*0$'), ' PA');
-    } else if (salaryText.endsWith('1')) {
-      formattedSalary = salaryText.replaceFirst(RegExp(r'\s*1$'), ' PM');
-    } else {
-      formattedSalary = salaryText; // fallback if no valid suffix
-    }
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -145,9 +136,10 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
             CustomJobHeadline(
                 jobHeadline: state.jobDetail!.jobHeadline.toString(),
                 experience: state.jobDetail!.requiredExperience.toString(),
-                salary: formattedSalary,
+                salary: _formatSalary(state.jobDetail!.salaryRange),
                 location: state.jobDetail!.locations!.join(', '),
                 empType: state.jobDetail!.employmentType.toString(),
+                companyIcon: state.jobDetail!.companyIcon.toString(),
                 noVacancy: state.jobDetail!.noOfVacancy.toString()),
             CustomJobOverview(
                 education: state.jobDetail!.requiredEducation.toString(),
@@ -172,8 +164,10 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                 stringList: state.jobDetail!.jobResponsibilities!,
                 isList: true,
               ),
-            if (state.jobDetail!.eligibility != null &&
-                state.jobDetail!.eligibility!.isNotEmpty)
+            if ((state.jobDetail!.eligibility != null &&
+                    state.jobDetail!.eligibility!.isNotEmpty) ||
+                (state.jobDetail!.eligibility2 != null &&
+                    state.jobDetail!.eligibility2!.isNotEmpty))
               CustomContainerForEligibility(
                 heading: "Eligibility",
                 stringList: state.jobDetail!.eligibility! +
@@ -255,36 +249,85 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                   payoutDetails: state.jobDetail!.payoutDetails!,
                 ),
               ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: Container(
-                      margin: const EdgeInsets.only(
-                          top: 5, left: 5, right: 5, bottom: 10),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 6, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Constants.darkBlue),
-                      ),
-                      // width: 200,
-                      child: const customTextForWeather(
-                          title: "More Jobs",
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Constants.darkBlue)),
-                ),
-              ],
-            ),
+            if (FromWhere.homePage == widget.fromWhere)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                        margin: const EdgeInsets.only(
+                            top: 5, left: 5, right: 5, bottom: 10),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 6, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Constants.darkBlue),
+                        ),
+                        // width: 200,
+                        child: const customTextForWeather(
+                            title: "More Jobs",
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Constants.darkBlue)),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
     );
+  }
+
+  String _formatSalary(String? rang) {
+    String salaryRange = rang!.replaceAll(',', '');
+    if (salaryRange.isEmpty) return '';
+
+    // Extract if it ends with " 0" or " 1"
+    String suffix = '';
+    if (salaryRange.endsWith(' 0')) {
+      suffix = ' LPA';
+      salaryRange = salaryRange.replaceFirst(RegExp(r'\s0$'), '');
+    } else if (salaryRange.endsWith(' 1')) {
+      suffix = ' per month';
+      salaryRange = salaryRange.replaceFirst(RegExp(r'\s1$'), '');
+    }
+
+    // Split range
+    List<String> parts = salaryRange.split('-').map((e) => e.trim()).toList();
+
+    String formatAmount(String str) {
+      final amount = int.tryParse(str);
+      if (amount == null || amount == 0) return '';
+
+      if (amount >= 100000) {
+        double lacs = amount / 100000;
+        return lacs.toStringAsFixed(lacs % 1 == 0 ? 0 : 1);
+      } else if (amount >= 1000) {
+        double thousands = amount / 1000;
+        return '${thousands.toStringAsFixed(thousands % 1 == 0 ? 0 : 1)}K';
+      } else {
+        return amount.toString();
+      }
+    }
+
+    String formattedRange = '';
+    if (parts.length == 2) {
+      String start = formatAmount(parts[0]);
+      String end = formatAmount(parts[1]);
+      if (end.isEmpty) {
+        formattedRange = '$start$suffix';
+      } else {
+        formattedRange = '$start - $end$suffix';
+      }
+    } else {
+      formattedRange = formatAmount(parts[0]) + suffix;
+    }
+
+    return formattedRange;
   }
 
   Future<void> handleApplyNow(

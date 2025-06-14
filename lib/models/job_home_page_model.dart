@@ -101,6 +101,8 @@ class JobContent {
   final String? shifttime;
   final String? jobHeadline;
   final int? favJobId;
+  final String? companyIcon;
+  final String? level_of_hiring;
 
   const JobContent({
     this.jobPostType,
@@ -122,12 +124,14 @@ class JobContent {
     this.shifttime,
     this.jobHeadline,
     this.favJobId,
+    this.companyIcon,
+    this.level_of_hiring,
   });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
     return JobContent(
       jobPostType: json['jobPostType'],
-      experienceRequired: json['experienceRequired'],
+      experienceRequired: json['requiredExperience'],
       location: json['location'],
       city: json['city'],
       languages: json['languages'],
@@ -145,6 +149,8 @@ class JobContent {
       shifttime: json['shifttime'],
       jobHeadline: json['jobHeadline'],
       favJobId: json['favJobId'],
+      companyIcon: json['companyIcon'],
+      level_of_hiring: json['level_of_hiring'],
     );
   }
 
@@ -168,6 +174,8 @@ class JobContent {
     String? shifttime,
     String? jobHeadline,
     int? favJobId,
+    String? companyIcon,
+    String? level_of_hiring,
   }) {
     return JobContent(
       jobPostType: jobPostType ?? this.jobPostType,
@@ -189,6 +197,8 @@ class JobContent {
       shifttime: shifttime ?? this.shifttime,
       jobHeadline: jobHeadline ?? this.jobHeadline,
       favJobId: favJobId ?? this.favJobId,
+      companyIcon: companyIcon ?? this.companyIcon,
+      level_of_hiring: level_of_hiring ?? this.level_of_hiring,
     );
   }
 }

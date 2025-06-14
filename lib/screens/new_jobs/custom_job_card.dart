@@ -1,11 +1,15 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously, unused_local_variable
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_home_page_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -13,11 +17,13 @@ import 'package:job_circle/themes/colors.dart';
 class CustomJobCard extends ConsumerWidget {
   final JobContent job;
   final List<String> skills;
+  final VoidCallback? onLastFavoriteRemoved;
 
   const CustomJobCard({
     super.key,
     required this.job,
     required this.skills,
+    this.onLastFavoriteRemoved,
   });
 
   @override
@@ -35,10 +41,11 @@ class CustomJobCard extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               width: double.infinity,
               decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
                 gradient: LinearGradient(
                   colors: [
-                    Constants.orange,
-                    Constants.orange.withOpacity(0.03),
+                    Constants.darkBlue,
+                    Constants.darkBlue.withOpacity(0.03),
                   ],
                 ),
               ),
@@ -47,7 +54,7 @@ class CustomJobCard extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Image.network(
-                    'https://assets.api.uizard.io/api/cdn/stream/a8ac9b17-39f2-4c95-a432-2d18cd35abd4.png',
+                    'https://cdn-icons-png.flaticon.com/128/17511/17511707.png',
                     width: 16,
                     height: 16,
                     fit: BoxFit.contain,
@@ -55,8 +62,9 @@ class CustomJobCard extends ConsumerWidget {
                   ),
                   const SizedBox(width: 5),
                   const customTextForWeather(
-                    title: "Urgent Hiring",
+                    title: "Premium Hiring",
                     color: Constants.bgColorWhite,
+                    fontWeight: FontWeight.bold,
                   ),
                 ],
               ),
@@ -65,35 +73,41 @@ class CustomJobCard extends ConsumerWidget {
             dense: true,
             contentPadding: EdgeInsets.zero,
             leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Constants.lightdull,
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Image.network(
-                "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
-                height: 25,
-                width: 25,
-                fit: BoxFit.cover,
-              ),
-            ),
+                padding: const EdgeInsets.all(4),
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Constants.lightdull),
+                    borderRadius: BorderRadius.circular(8)),
+                child: job.companyIcon != null && job.companyIcon != ""
+                    ? Image.network(
+                        "${GlobalConstants.Image_url}${job.companyIcon}",
+                        fit: BoxFit.fitWidth,
+                      )
+                    : Image.network(
+                        "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
+                      )),
             title: customTextForWeather(
               title: job.jobHeadline ?? '',
               fontWeight: FontWeight.w700,
               maxlines: 2,
               overflow: TextOverflow.ellipsis,
-              fontSize: job.jobHeadline!.length < 30 ? 16 : 14,
+              fontSize: job.jobHeadline != null
+                  ? job.jobHeadline!.length < 30
+                      ? 16
+                      : 14
+                  : 14,
             ),
             trailing: ValueListenableBuilder<bool>(
               valueListenable: isLoading,
               builder: (context, loading, child) {
                 return loading
                     ? const SizedBox(
-                        width: 24,
-                        height: 24,
+                        width: 20,
+                        height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Constants.orange,
+                          color: Constants.darkBlue,
                         ),
                       )
                     : InkWell(
@@ -105,23 +119,32 @@ class CustomJobCard extends ConsumerWidget {
                             if (job.id == null ||
                                 (job.isFavorite == true &&
                                     job.favJobId == null)) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text("Invalid job data")),
-                              );
+                              CustomSnackbar.show("Inavlid JobData", true);
                               return;
                             }
 
-                            isLoading.value = true; // Start loading
+                            isLoading.value = true;
                             bool success;
                             String actionMessage;
+
                             if (job.isFavorite == true) {
-                              success = await ref
+                              final result = await ref
                                   .read(jobListProvider.notifier)
                                   .removeFavoriteJob(favid: job.favJobId ?? 0);
+
+                              success = result['success'] as bool;
+                              final wasLastSavedJob =
+                                  result['wasLastSavedJob'] as bool;
+
                               actionMessage = success
                                   ? "Job removed from favorites"
                                   : "Failed to remove job from favorites";
+
+                              // Call the callback if this was the last saved job
+                              if (wasLastSavedJob &&
+                                  onLastFavoriteRemoved != null) {
+                                onLastFavoriteRemoved!();
+                              }
                             } else {
                               success = await ref
                                   .read(jobListProvider.notifier)
@@ -133,32 +156,57 @@ class CustomJobCard extends ConsumerWidget {
                                   ? "Job saved to favorites"
                                   : "Failed to save job to favorites";
                             }
-                            isLoading.value = false; // Stop loading
-                          } else {}
+
+                            isLoading.value = false;
+                            /*  if (success) {
+                              CustomSnackbar.show(actionMessage, false);
+                            } */
+                          }
                         },
-                        child: Icon(
-                          job.isFavorite == true
-                              ? Icons.bookmark_outlined
-                              : Icons.bookmark_border_outlined,
+                        child: CustomNetworkImage(
+                          height: 20,
+                          width: 20,
                           color: job.isFavorite == true
                               ? Constants.darkBlue
                               : Constants.subtitleclr,
-                        ),
-                      );
+                          imageUrl: job.isFavorite == true
+                              ? 'https://cdn-icons-png.flaticon.com/128/3916/3916594.png'
+                              : 'https://cdn-icons-png.flaticon.com/128/18561/18561365.png',
+                          defaultIcon: job.isFavorite == true
+                              ? Icons.bookmark_outlined
+                              : Icons.bookmark_border_outlined,
+                        ));
               },
             ),
           ),
           const SizedBox(height: 5),
           _buildInfoRow(
-              Icons.work_outline_outlined, job.experienceRequired.toString()),
+              Icons.work_outline_outlined,
+              formatExperience(job.experienceRequired
+                  .toString()
+                  .replaceAll('Years', 'yrs'))),
           const SizedBox(height: 5),
           _buildInfoRow(Icons.currency_rupee, _formatSalary(job.salaryRange)),
           const SizedBox(height: 5),
           _buildInfoRow(Icons.location_on_outlined, job.location ?? ''),
           const SizedBox(height: 5),
-          if (job.languages != null && job.languages != "[]")
-            _buildLanguageRow(
-                job.languages!.split(',').map((e) => e.trim()).toList()),
+          if (job.languages != null && job.languages != "[]") ...[
+            Builder(
+              builder: (context) {
+                List<String> languages =
+                    List<String>.from(jsonDecode(job.languages!));
+                List<String> filteredLanguages = languages
+                    .map((e) => e.trim())
+                    .where((lang) => !["english", "hindi", "marathi"]
+                        .contains(lang.toLowerCase()))
+                    .toList();
+                if (filteredLanguages.isNotEmpty) {
+                  return _buildLanguageRow(filteredLanguages);
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ],
           const SizedBox(height: 10),
           Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -186,24 +234,66 @@ class CustomJobCard extends ConsumerWidget {
     );
   }
 
+  String formatExperience(String exp) {
+    final regex = RegExp(r'^(\d+)\s*-\s*& above yrs$');
+    final match = regex.firstMatch(exp);
+
+    if (exp.contains("6 months & Above")) {
+      return "6 months and above";
+    }
+
+    if (match != null) {
+      final number = match.group(1);
+      return "${number}yrs and above";
+    }
+    return exp; // default return if pattern doesn't match
+  }
+
   String _formatSalary(String? salaryRange) {
-    if (salaryRange == null) return '';
+    if (salaryRange == null || salaryRange.isEmpty) return '';
 
-    String cleanedSalary = salaryRange;
-
-    // Remove " - 0" from range
-    if (cleanedSalary.contains('- 0')) {
-      cleanedSalary = cleanedSalary.replaceFirst(RegExp(r'\s*-\s*0'), '');
+    // Extract if it ends with " 0" or " 1"
+    String suffix = '';
+    if (salaryRange.endsWith(' 0')) {
+      suffix = ' LPA';
+      salaryRange = salaryRange.replaceFirst(RegExp(r'\s0$'), '');
+    } else if (salaryRange.endsWith(' 1')) {
+      suffix = ' per month';
+      salaryRange = salaryRange.replaceFirst(RegExp(r'\s1$'), '');
     }
 
-    // Trim trailing " 0" or " 1" and append appropriate suffix
-    if (cleanedSalary.endsWith(' 0')) {
-      cleanedSalary = cleanedSalary.replaceFirst(RegExp(r'\s0$'), ' PA');
-    } else if (cleanedSalary.endsWith(' 1')) {
-      cleanedSalary = cleanedSalary.replaceFirst(RegExp(r'\s1$'), ' PM');
+    // Split range
+    List<String> parts = salaryRange.split('-').map((e) => e.trim()).toList();
+
+    String formatAmount(String str) {
+      final amount = int.tryParse(str);
+      if (amount == null || amount == 0) return '';
+
+      if (amount >= 100000) {
+        double lacs = amount / 100000;
+        return lacs.toStringAsFixed(lacs % 1 == 0 ? 0 : 1);
+      } else if (amount >= 1000) {
+        double thousands = amount / 1000;
+        return '${thousands.toStringAsFixed(thousands % 1 == 0 ? 0 : 1)}K';
+      } else {
+        return amount.toString();
+      }
     }
 
-    return cleanedSalary;
+    String formattedRange = '';
+    if (parts.length == 2) {
+      String start = formatAmount(parts[0]);
+      String end = formatAmount(parts[1]);
+      if (end.isEmpty) {
+        formattedRange = '$start$suffix';
+      } else {
+        formattedRange = '$start - $end$suffix';
+      }
+    } else {
+      formattedRange = formatAmount(parts[0]) + suffix;
+    }
+
+    return formattedRange;
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
@@ -235,9 +325,9 @@ class CustomJobCard extends ConsumerWidget {
         const CustomNetworkImage(
           imageUrl: "https://cdn-icons-png.flaticon.com/128/17390/17390484.png",
           defaultIcon: Icons.error_outline,
-          height: 16,
+          height: 14,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 3),
         Expanded(
           child: customTextForWeather(
             title: language.length == 1

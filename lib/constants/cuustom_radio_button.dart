@@ -25,10 +25,37 @@ class CustomRadioOption extends StatelessWidget {
     return parsed.round();
   }
 
+  String formatSlabLabel(String? input) {
+    if (input == null) return '';
+
+    final match = RegExp(r'^(.+?):\s*(\d+)$').firstMatch(input);
+
+    if (match != null) {
+      String label = match.group(1)?.trim() ?? '';
+      String amount = match.group(2)?.trim() ?? '';
+
+      if (label.contains('-')) {
+        final parts = label.split('-');
+        if (parts.length == 2 && parts[1] == '0') {
+          label = '${parts[0]} & above';
+        }
+      }
+
+      return '$label: $amount';
+    }
+
+    return input;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final partnerpayment =
-        extractPayoutAsInt(payoutDetails.formattedPartnerPayout);
+    final partnerSlabs = payoutDetails.slabs
+        .where((slab) => slab.targetType.toUpperCase() == "PARTNER")
+        .toList();
+
+    final partnerpayment = extractPayoutAsInt(
+      partnerSlabs.isEmpty ? payoutDetails.formattedPartnerPayout : "1",
+    );
     final specialpayment =
         extractPayoutAsInt(payoutDetails.formattedSpecialPayout);
     final days = payoutDetails.paymentCluase;
@@ -62,7 +89,8 @@ class CustomRadioOption extends StatelessWidget {
                   ],
                 ),
               ),
-              if (payoutDetails.formattedSpecialPayout.isNotEmpty)
+              if (payoutDetails.formattedSpecialPayout.isNotEmpty &&
+                  specialpayment != 0)
                 Container(
                   margin: const EdgeInsets.only(
                     top: 5,
@@ -109,7 +137,7 @@ class CustomRadioOption extends StatelessWidget {
                       "I hereby confirm that I am referring a candidate under the selected payout scheme and understand that the referral reward will be processed only upon fulfillment of the respective clause."),
             ],
           )
-        : payoutDetails.partnerPayoutType == "CTC BASED"
+        : payoutDetails.partnerPayoutType == "CTC_BASED"
             ? Column(
                 children: [
                   InkWell(
@@ -125,20 +153,21 @@ class CustomRadioOption extends StatelessWidget {
                               : Constants.subtitleclr,
                         ),
                         const SizedBox(width: 10),
-                        const Icon(Icons.currency_rupee_rounded,
-                            size: 18, color: Constants.darkBlue),
-                        customTextForWeather(
-                          title:
-                              "${partnerpayment.toString()} of the candidate’s CTC if the candidate completes $days days of employment",
-                          fontSize: 12,
-                          color: Constants.black,
-                          fontWeight:
-                              isSelected1 ? FontWeight.w600 : FontWeight.w400,
+                        Expanded(
+                          child: customTextForWeather(
+                            title:
+                                "${partnerpayment.toString()}% of the candidate’s CTC if the candidate completes $days days of employment",
+                            fontSize: 12,
+                            color: Constants.black,
+                            fontWeight:
+                                isSelected1 ? FontWeight.w600 : FontWeight.w400,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  if (payoutDetails.formattedSpecialPayout.isNotEmpty)
+                  if (payoutDetails.formattedSpecialPayout.isNotEmpty &&
+                      specialpayment != 0)
                     Container(
                       margin: const EdgeInsets.only(
                         top: 5,
@@ -189,108 +218,125 @@ class CustomRadioOption extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: onTap1,
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          isSelected1
-                              ? Icons.radio_button_checked_outlined
-                              : Icons.radio_button_off,
-                          color: isSelected1
-                              ? Constants.themeBgColor
-                              : Constants.subtitleclr,
-                        ),
-                        const SizedBox(width: 10),
-                        const customTextForWeather(title: "Up to"),
-                        const Icon(Icons.currency_rupee_rounded,
-                            size: 18, color: Constants.darkBlue),
-                        customTextForWeather(
-                          title: payoutDetails.slabs.last.formattedAmount
-                              .split(':')
-                              .last
-                              .trim(),
-                          fontSize: 12,
-                          color: Constants.black,
-                          fontWeight:
-                              isSelected1 ? FontWeight.w600 : FontWeight.w400,
-                        ),
-                        InkWell(
-                            onTap: () {
-                              // Show a tooltip-like container above the icon when tapped
-                              OverlayEntry? overlayEntry;
-                              final RenderBox iconRenderBox =
-                                  context.findRenderObject() as RenderBox;
-                              final Offset iconPosition =
-                                  iconRenderBox.localToGlobal(Offset.zero);
+                        Row(
+                          children: [
+                            Icon(
+                              isSelected1
+                                  ? Icons.radio_button_checked_outlined
+                                  : Icons.radio_button_off,
+                              color: isSelected1
+                                  ? Constants.themeBgColor
+                                  : Constants.subtitleclr,
+                            ),
+                            const SizedBox(width: 10),
+                            customTextForWeather(
+                              title: "Up to",
+                              fontWeight: isSelected1
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                            const Icon(Icons.currency_rupee_rounded,
+                                size: 18, color: Constants.darkBlue),
+                            customTextForWeather(
+                              title: partnerSlabs.last.formattedAmount
+                                  .split(':')
+                                  .last
+                                  .trim(),
+                              fontSize: 12,
+                              color: Constants.black,
+                              fontWeight: isSelected1
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                            InkWell(
+                                onTap: () {
+                                  // Show a tooltip-like container above the icon when tapped
+                                  OverlayEntry? overlayEntry;
+                                  final RenderBox iconRenderBox =
+                                      context.findRenderObject() as RenderBox;
+                                  final Offset iconPosition =
+                                      iconRenderBox.localToGlobal(Offset.zero);
 
-                              overlayEntry = OverlayEntry(
-                                builder: (context) => Positioned(
-                                  left: iconPosition.dx - 10,
-                                  top: iconPosition.dy - 120,
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: Container(
-                                      width:
-                                          MediaQuery.of(context).size.width / 2,
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8),
-                                        boxShadow: const [
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            blurRadius: 8,
-                                            offset: Offset(0, 4),
+                                  overlayEntry = OverlayEntry(
+                                    builder: (context) => Positioned(
+                                      left: iconPosition.dx - 10,
+                                      top: iconPosition.dy - 120,
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            color: Constants.borderColor,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            boxShadow: const [
+                                              BoxShadow(
+                                                color: Colors.black26,
+                                                blurRadius: 8,
+                                                offset: Offset(0, 4),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const customTextForWeather(
-                                            title: "Slab Details (90 days)",
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const customTextForWeather(
+                                                title: "Slab Details (90 days)",
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              ...partnerSlabs
+                                                  .map((slab) => Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                vertical: 2.0),
+                                                        child: customTextForWeather(
+                                                            title:
+                                                                "${formatSlabLabel(slab.formattedAmount)}/- per candidate",
+                                                            fontSize: 10),
+                                                      )),
+                                            ],
                                           ),
-                                          const SizedBox(height: 8),
-                                          ...payoutDetails.slabs.map((slab) =>
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 2.0),
-                                                child: customTextForWeather(
-                                                    title:
-                                                        "${slab.formattedAmount}/- per candidate",
-                                                    fontSize: 14),
-                                              )),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                              );
+                                  );
 
-                              Overlay.of(context).insert(overlayEntry);
+                                  Overlay.of(context).insert(overlayEntry);
 
-                              Future.delayed(const Duration(seconds: 3), () {
-                                overlayEntry?.remove();
-                              });
-                            },
-                            child: const Icon(Icons.info_outline,
-                                size: 20, color: Constants.subtitleclr)),
-                        customTextForWeather(
-                          title:
-                              "(as per payout slab) if the candidate completes $days days of employment.",
-                          fontSize: 12,
-                          color: Constants.black,
-                          fontWeight:
-                              isSelected1 ? FontWeight.w600 : FontWeight.w400,
+                                  Future.delayed(const Duration(seconds: 3),
+                                      () {
+                                    overlayEntry?.remove();
+                                  });
+                                },
+                                child: const Icon(Icons.info_outline,
+                                    size: 20, color: Constants.darkBlue)),
+                            Expanded(
+                              child: customTextForWeather(
+                                softwrap: true,
+                                title:
+                                    "(as per payout slab) if the candidate completes $days days of employment.",
+                                fontSize: 12,
+                                color: Constants.black,
+                                fontWeight: isSelected1
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  if (payoutDetails.formattedSpecialPayout.isNotEmpty)
+                  if (payoutDetails.formattedSpecialPayout.isNotEmpty &&
+                      specialpayment != 0)
                     Container(
                       margin: const EdgeInsets.only(
                         top: 5,

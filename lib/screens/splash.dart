@@ -54,40 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  checkSession() async {
-    try {
-      // await verifySession();
-
-      var userId = await Utils.getPreferencesValue(
-          null, ESharedPreferences.user_id.name);
-
-      if (_isConnected) {
-        if (userId != null && userId != "0") {
-          var userRawData = await Utils.getPreferencesValue(
-              null, ESharedPreferences.user_rawData.name);
-          if (userRawData != null) {
-            var data = jsonDecode(userRawData);
-            Timer(const Duration(seconds: 2),
-                () => Utils.gotoScreen(context, data, ""));
-            /*   () => Navigator.push(       //TODO:: For job posting...
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const JobPostOneType()))); */
-          } else {
-            gotoLogin();
-          }
-        } else {
-          gotoLogin();
-        }
-      } else {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const NoInternet()));
-      }
-    } catch (e) {
-      gotoLogin();
-    } finally {}
-  }
-
   gotoLogin() {
     Timer(
         const Duration(seconds: 1),
@@ -96,6 +62,40 @@ class _SplashScreenState extends State<SplashScreen> {
         // Navigator.pushNamedAndRemoveUntil(
         //     context, ERoute.login.name, (Route<dynamic> route) => false)
         );
+  }
+
+  checkSession() async {
+    try {
+      var id = await Utils.getPreferencesValue(
+          null, ESharedPreferences.user_id.name);
+
+      if (_isConnected) {
+        if (id != null && id.toString().isNotEmpty && id != "null") {
+          var userRawData = await Utils.getPreferencesValue(
+              null, ESharedPreferences.user_rawData.name);
+
+          if (userRawData != null) {
+            var data = jsonDecode(userRawData);
+            Timer(
+                const Duration(seconds: 2),
+                () => Utils.gotoScreen(
+                      context,
+                      data,
+                      "",
+                    ));
+          } else {
+            gotoLogin();
+          }
+        } else {
+          gotoLogin();
+        }
+      } else {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => const NoInternet()));
+      }
+    } catch (e) {
+      gotoLogin();
+    }
   }
 
   @override

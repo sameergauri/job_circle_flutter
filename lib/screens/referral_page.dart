@@ -129,6 +129,7 @@ class ReferalPage extends ConsumerWidget {
                           ref.refresh(referAts);
                         },
                         child: ListView.builder(
+                          physics: const BouncingScrollPhysics(),
                           itemCount: applications.length,
                           itemBuilder: (context, index) {
                             final app = applications[index];
@@ -275,6 +276,9 @@ class ReferalPage extends ConsumerWidget {
                           : item.statusId == 12 || item.statusId == 13
                               ? Constants.darkgreen
                               : Constants.darkBlue,
+                    ),
+                    const SizedBox(
+                      height: 4,
                     ),
                     customTextForWeather(
                       title: "• ${item.referralFeedback2}",

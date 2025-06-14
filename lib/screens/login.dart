@@ -585,6 +585,8 @@ class _LoginState extends State<Login> {
           // Display OTP message if avail17able
           await Utils.setPreference(
               null, ESharedPreferences.user_mobile.name, mobileNumber);
+          await Utils.setPreference(
+              null, ESharedPreferences.msg.name, res['resultData']['msg']);
 
           Navigator.push(
             context,

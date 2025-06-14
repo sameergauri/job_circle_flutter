@@ -1,4 +1,4 @@
-// ignore_for_file: unused_local_variable, use_build_context_synchronously
+// ignore_for_file: unused_local_variable, use_build_context_synchronously, unnecessary_null_comparison
 // ignore_for_file: todo
 import 'dart:async';
 import 'dart:convert';
@@ -52,15 +52,14 @@ class _NoInternetState extends State<NoInternet> {
 
   checkSession() async {
     try {
-      // await verifySession();
-
-      var userId = await Utils.getPreferencesValue(
+      var id = await Utils.getPreferencesValue(
           null, ESharedPreferences.user_id.name);
+
       if (_isConnected) {
-        if (userId != null) {
+        if (id != null && id.toString().isNotEmpty) {
           var userRawData = await Utils.getPreferencesValue(
               null, ESharedPreferences.user_rawData.name);
-          
+
           if (userRawData != null) {
             var data = jsonDecode(userRawData);
             Timer(const Duration(seconds: 2),
@@ -72,12 +71,12 @@ class _NoInternetState extends State<NoInternet> {
           gotoLogin();
         }
       } else {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const NoInternet()));
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (_) => const NoInternet()));
       }
     } catch (e) {
       gotoLogin();
-    } finally {}
+    }
   }
 
   gotoLogin() {

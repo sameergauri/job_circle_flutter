@@ -1,15 +1,17 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_share/flutter_share.dart';
 import 'package:job_circle/common/app_utils.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/constants/temp.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/profile/user_profile.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -54,6 +56,7 @@ class CustomDrawer extends ConsumerWidget {
               children: [
                 InkWell(
                   onTap: () {
+                    onClose();
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -66,8 +69,10 @@ class CustomDrawer extends ConsumerWidget {
                       radius: 28,
                       backgroundColor: Constants.lightdull,
                       backgroundImage: userProfileImage != null &&
-                              userProfileImage != " "
-                          ? NetworkImage(userProfileImage)
+                              userProfileImage != " " &&
+                              userProfileImage != ''
+                          ? NetworkImage(
+                              "${GlobalConstants.Image_url}$userProfileImage")
                           : userGender == "Male"
                               ? const AssetImage("assets/images/leadmale.png")
                                   as ImageProvider
@@ -128,7 +133,7 @@ class CustomDrawer extends ConsumerWidget {
                       context,
                       MaterialPageRoute(
                           builder: (context) => const TempPage()));
-                  /*  Navigator.push(
+                  /* Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => GenerateInvoice(
@@ -243,27 +248,38 @@ class CustomDrawer extends ConsumerWidget {
             },
           ),
           ListTile(
-            dense: true,
-            minLeadingWidth: 0.0,
-            minVerticalPadding: 5.1,
-            leading: Image.asset(
-              'assets/images/logout.png',
-              height: 20,
-            ),
-            title: const customTextForWeather(
-                title: 'LogOut', fontSize: 12, fontWeight: FontWeight.normal),
-            onTap: () async {
-              final prefs = await SharedPreferences.getInstance();
-              prefs.clear();
-              Future.delayed(const Duration(seconds: 0), () async {
+              dense: true,
+              minLeadingWidth: 0.0,
+              minVerticalPadding: 5.1,
+              leading: Image.asset(
+                'assets/images/logout.png',
+                height: 20,
+              ),
+              title: const customTextForWeather(
+                  title: 'LogOut', fontSize: 12, fontWeight: FontWeight.normal),
+              onTap: () async {
+                JobPostApiService jobPostApiService = JobPostApiService();
+                final prefs = await SharedPreferences.getInstance();
+
+                // Clear preferences
+                await prefs.clear();
+                await prefs.setString('selectedLocation', "");
+
+                // Clear session and cache
                 await AppUtils.clearSession();
-                await Navigator.pushNamedAndRemoveUntil(context,
-                    ERoute.login.value, (Route<dynamic> route) => false);
-              });
-              prefs.setString('selectedLocation', "");
-              onClose();
-            },
-          ),
+                await jobPostApiService.clearCache();
+
+                // Safely navigate to login screen
+                if (context.mounted) {
+                  await Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    ERoute.login.value,
+                    (Route<dynamic> route) => false,
+                  );
+                }
+
+                onClose();
+              }),
         ],
       ),
     );

@@ -1,4 +1,4 @@
-// ignore_for_file: unused_result, unrelated_type_equality_checks
+// ignore_for_file: unused_result, unrelated_type_equality_checks, non_constant_identifier_names
 
 import 'dart:convert';
 import 'dart:ui';
@@ -18,6 +18,7 @@ import 'package:job_circle/models/edit_profile_model/Profile_update_request_mode
 import 'package:job_circle/screens/Manager/constant/add_space_between_location.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/Manager/constant/customtextwithviewmoreoption.dart';
+import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/new_jobs/profile_model.dart';
 import 'package:job_circle/screens/profile/add_profile_summary.dart';
@@ -72,18 +73,17 @@ class _UserProfileState extends ConsumerState<UserProfile> {
             appBar: customAppBar(height, profileData),
             body: SmartRefresher(
               controller: _refreshControllers,
+              physics: const BouncingScrollPhysics(),
               onRefresh: () {
                 ref.refresh(ProfileDataProvider);
                 _refreshControllers.refreshCompleted();
               },
               child: SingleChildScrollView(
-                //physics: const BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 child: Column(
                   children: [
-                    SafeArea(
-                      child: customContainerforBasicInfo(
-                          profileData, context, height, width),
-                    ),
+                    customContainerforBasicInfo(
+                        profileData, context, height, width),
                     if (profileData.resume == null ||
                         profileData.resume == " " ||
                         profileData.allSkills!.isEmpty ||
@@ -858,6 +858,10 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                                                   .PostUserInfo(
                                                 userUpdateRequestModel,
                                               );
+                                              ref
+                                                  .read(
+                                                      jobListProvider.notifier)
+                                                  .fetchInitialJobs();
                                               ref.refresh(ProfileDataProvider);
                                               ref.refresh(
                                                   profileSummaryProvider);
@@ -963,6 +967,7 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                             userUpdateRequestModel,
                           );
                           ref.refresh(ProfileDataProvider);
+                          ref.read(jobListProvider.notifier).fetchInitialJobs();
                           ref.refresh(profileSummaryProvider);
                           setState(() {
                             isLoading = false;

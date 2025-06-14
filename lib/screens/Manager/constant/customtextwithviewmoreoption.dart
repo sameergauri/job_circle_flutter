@@ -48,9 +48,9 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
   void _checkExceedsMaxLines() {
     final textSpan = TextSpan(
       text: widget.text,
-      style: GoogleFonts.roboto(
+      style: GoogleFonts.merriweather(
         fontSize: 12,
-        fontWeight: FontWeight.w500,
+        // fontWeight: FontWeight.w500,
       ),
     );
 

@@ -26,6 +26,7 @@ import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
 import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
+import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/new_jobs/job_provider.dart';
 import 'package:job_circle/screens/new_jobs/profile_model.dart';
 import 'package:job_circle/screens/profile/profile_summary.dart';
@@ -1272,6 +1273,7 @@ class _Screen1State extends ConsumerState<Screen1> {
     );
 
     ref.refresh(userDataProvider);
+    ref.read(jobListProvider.notifier).fetchInitialJobs();
     Navigator.pop(
       context,
     );

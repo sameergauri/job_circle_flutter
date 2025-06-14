@@ -1,7 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages
 // ignore_for_file: todo
 
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -9,7 +8,6 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/home.dart';
 import 'package:job_circle/screens/onboarding/add_intoduction.dart';
-
 import 'package:job_circle/themes/colors.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -148,31 +146,32 @@ class Utils {
     data,
     String? primNumber,
   ) async {
-    var type = await Utils.getPreferencesValue(
-        null, ESharedPreferences.user_type.name);
-    int? usertype = int.tryParse(type.toString());
+    var id =
+        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
+         var msg =
+        await Utils.getPreferencesValue(null, ESharedPreferences.msg.name);
+    
+    bool isNew = msg.toString().contains("New User")?true:false;
+    int? userid = int.tryParse(id.toString());
+
     // ignore: unnecessary_null_comparison
-    if (usertype != 0) {
-      if (usertype.toString() == EUserType.jobSeeker.value.toString()) {
-        if (data['firstName'] == null || data['firstName'] == "") {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => AddIntoduction()),
-              (route) => false);
-        } else {
-          Navigator.pushAndRemoveUntil(
-              //TODO:: Existing candidate
-              context,
-              MaterialPageRoute(builder: (context) => HomeScreen()),
-              (route) => false);
-        }
-      } 
+
+    if (userid != null && userid != 0||isNew) {
+      if (data['firstName'] == null || data['firstName'] == "") {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => AddIntoduction()),
+            (route) => false);
+      } else {
+        Navigator.pushAndRemoveUntil(
+            //TODO:: Existing candidate
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+            (route) => false);
+      }
     } else {
-      Navigator.pushAndRemoveUntil(
-          //TODO:: Existing candidate
-          context,
-          MaterialPageRoute(builder: (context) => AddIntoduction()),
-          (route) => false);
+      Navigator.pushNamedAndRemoveUntil(
+          context, ERoute.login.name, (Route<dynamic> route) => false);
     }
   }
 

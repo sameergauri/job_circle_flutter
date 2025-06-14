@@ -41,14 +41,15 @@ class JobDetailState {
 class JobDetailNotifier extends StateNotifier<JobDetailState> {
   JobDetailNotifier() : super(JobDetailState());
 
-  Future<void> fetchJobDetails(int jobId,) async {
-     var userid =
+  Future<void> fetchJobDetails(int jobId) async {
+    var userid =
         await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
-    try {
-      state = state.copyWith(isLoading: true, error: null);
 
-      // Construct the URL similar to your example
-      var url =
+    try {
+      // Reset jobDetail to null before loading
+      state = JobDetailState(isLoading: true);
+
+      final url =
           "http://${GlobalConstants.API_Host_one}/api/jobs/v1/getJobDetailsByJobId?jobId=$jobId&userId=$userid";
 
       final response = await http.post(Uri.parse(url));
@@ -61,26 +62,21 @@ class JobDetailNotifier extends StateNotifier<JobDetailState> {
           final jobDetail = JobDetailPageModel.fromJson(jobData);
           state = state.copyWith(jobDetail: jobDetail, isLoading: false);
         } else {
-          state = state.copyWith(
-            isLoading: false,
+          state = JobDetailState(
             error: jsonData['errorMessage'] ?? 'Failed to load job details',
           );
         }
       } else {
-        state = state.copyWith(
-          isLoading: false,
+        state = JobDetailState(
           error: 'Request failed with status: ${response.statusCode}',
         );
       }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: 'An error occurred: ${e.toString()}',
-      );
+      state = JobDetailState(error: 'An error occurred: ${e.toString()}');
     }
   }
 
   void clearJobDetails() {
-    state = JobDetailState();
+    state = state.copyWith(jobDetail: null);
   }
 }

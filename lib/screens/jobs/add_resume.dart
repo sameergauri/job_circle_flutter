@@ -203,7 +203,6 @@ class _AddResumeState extends ConsumerState<AddResume> {
                       isNumber: true,
                       hint: "Enter Alternate Number",
                     ),
-
                     const SizedBox(
                       height: 10,
                     ),
@@ -534,7 +533,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         userId,
       );
 
-      ref.refresh(fetchAllReferalProvider);
+      ref.refresh(fetchAllReferalProvider); 
       ref.refresh(fetchAllApplyProvider);
 
       setState(() {

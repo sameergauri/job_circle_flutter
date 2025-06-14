@@ -1,5 +1,9 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:flutter/material.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/constants/job_detail/custom_container_for_skill.dart';
+import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -9,6 +13,7 @@ class CustomJobHeadline extends StatelessWidget {
   final String location;
   final String empType;
   final String noVacancy;
+  final String companyIcon;
   final String? jobHeadline;
 
   const CustomJobHeadline(
@@ -18,6 +23,7 @@ class CustomJobHeadline extends StatelessWidget {
       required this.location,
       required this.empType,
       required this.noVacancy,
+      required this.companyIcon,
       this.jobHeadline});
 
   @override
@@ -34,12 +40,28 @@ class CustomJobHeadline extends StatelessWidget {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              trailing: Image.network(
-                "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
-                height: 25,
-                width: 25,
-                fit: BoxFit.cover,
-              ),
+              trailing: companyIcon != null &&
+                      companyIcon != "" &&
+                      companyIcon != "null"
+                  ? CustomNetworkImage(
+                      imageUrl: "${GlobalConstants.Image_url}$companyIcon",
+                      height: 50,
+                      width: 50,
+                      defaultIcon: Icons.home,
+                    )
+                  : Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Constants.lightdull,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Image.network(
+                        "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
+                        height: 25,
+                        width: 25,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
               title: customTextForWeather(
                 title: jobHeadline.toString(),
                 fontWeight: FontWeight.w700,
@@ -47,13 +69,10 @@ class CustomJobHeadline extends StatelessWidget {
               ),
               // subtitle: const customText(title: ""),
             ),
-          _buildInfoRow(Icons.work_outline_outlined, experience),
+          _buildInfoRow(Icons.work_outline_outlined,
+              formatExperience(experience.replaceAll("Years", 'yrs'))),
           const SizedBox(height: 5),
-          _buildInfoRow(
-              Icons.currency_rupee,
-              salary.contains('- 0')
-                  ? salary.replaceFirst(RegExp(r'\s*-\s*0'), '')
-                  : salary.toString()),
+          _buildInfoRow(Icons.currency_rupee, salary),
           const SizedBox(height: 5),
           _buildInfoRow(Icons.location_on_outlined, location),
           const SizedBox(height: 10),
@@ -76,6 +95,21 @@ class CustomJobHeadline extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String formatExperience(String exp) {
+    final regex = RegExp(r'^(\d+)\s*-\s*& above yrs$');
+    final match = regex.firstMatch(exp);
+
+    if (exp.contains("6 months & Above")) {
+      return "6 months and above";
+    }
+
+    if (match != null) {
+      final number = match.group(1);
+      return "${number}yrs and above";
+    }
+    return exp; // default return if pattern doesn't match
   }
 
   Widget _buildInfoRow(IconData icon, String text) {

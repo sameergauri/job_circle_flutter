@@ -30,6 +30,7 @@ class JobDetailPageModel {
   final String? postedBy;
   final String? postedByProfilePic;
   final String? postedByLocation;
+  final String? companyIcon;
   final List<String>? jobBenefits;
   final List<String>? eligibility;
   final List<String>? eligibility2;
@@ -81,6 +82,7 @@ class JobDetailPageModel {
     this.postedByLocation,
     this.postedByProfilePic,
     this.payoutDetails,
+    this.companyIcon,
   });
 
   factory JobDetailPageModel.fromJson(Map<String, dynamic> json) {
@@ -126,6 +128,7 @@ class JobDetailPageModel {
       payoutDetails: json['payoutDetails'] != null
           ? PayoutDetails.fromJson(json['payoutDetails'])
           : null,
+          companyIcon: json['companyIcon'],
     );
   }
 }

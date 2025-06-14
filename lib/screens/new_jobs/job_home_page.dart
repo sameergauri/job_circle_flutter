@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customButton_for_jobPosting.dart';
 import 'package:job_circle/constants/custom_drawer.dart';
+import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/job_home_page_model.dart';
@@ -85,7 +86,10 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
             .toSet()
             .toList();
       case 'Lateral':
-        return jobs.where((job) => job.isCampus == 1).toSet().toList();
+        return jobs
+            .where((job) => job.level_of_hiring == "Leader")
+            .toSet()
+            .toList();
       case 'Saved':
         return jobs.where((job) => job.isFavorite == true).toSet().toList();
       default:
@@ -105,8 +109,8 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
         job.languages != '[]')) {
       tabs.add('Linguistic');
     }
-    if (jobs.any((job) => job.isCampus == 1)) {
-      tabs.add('Lateral');
+    if (jobs.any((job) => job.level_of_hiring == "Leader")) {
+      tabs.add('Leadership');
     }
     if (jobs.any((job) => job.isFavorite == true)) {
       tabs.add('Saved');
@@ -158,8 +162,10 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                   radius: 28,
                   backgroundColor: Constants.borderColor,
                   backgroundImage: userData?.userProfilePic != null &&
-                          userData?.userProfilePic != " "
-                      ? NetworkImage(userData!.userProfilePic)
+                          userData?.userProfilePic != " " &&
+                          userData!.userProfilePic != ''
+                      ? NetworkImage(
+                          "${GlobalConstants.Image_url}${userData.userProfilePic}")
                       : userData?.userGender == "Male"
                           ? const AssetImage("assets/images/leadmale.png")
                               as ImageProvider
@@ -238,10 +244,13 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                                     label: customTextForWeather(title: tab),
                                     selected: selectedTab == tab,
                                     onSelected: (_) => toggleTab(tab),
-                                    selectedColor: Colors.blue.shade100,
-                                    backgroundColor: Colors.grey.shade200,
+                                    selectedColor: Constants.borderColor,
+                                    backgroundColor: Constants.lightdull,
                                     labelStyle: GoogleFonts.merriweather(
                                       fontSize: 12,
+                                      fontWeight: selectedTab == tab
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
                                       color: selectedTab == tab
                                           ? Constants.black
                                           : Constants.subtitleclr,
@@ -290,7 +299,16 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                                           );
                                         },
                                         child: CustomJobCard(
-                                            job: job, skills: myList),
+                                          job: job,
+                                          skills: myList,
+                                          onLastFavoriteRemoved: () {
+                                            if (selectedTab == 'Saved') {
+                                              setState(() {
+                                                selectedTab = '';
+                                              });
+                                            }
+                                          },
+                                        ),
                                       ),
                                       if (index != filteredJobs.length - 1)
                                         const Padding(

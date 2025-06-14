@@ -181,7 +181,7 @@ class DynamicHintTextField extends StatefulWidget {
 
 class _DynamicHintTextFieldState extends State<DynamicHintTextField>
     with SingleTickerProviderStateMixin {
-  final List<String> dynamicParts = ["Designation", "Process", "Company"];
+  final List<String> dynamicParts = ["Role", "Process", "Skills"];
   int _currentIndex = 0;
   Timer? _timer;
 

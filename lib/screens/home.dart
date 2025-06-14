@@ -69,7 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget navItem(String img, String label, int index) {
     bool isSelected = currentIndex == index;
-    return GestureDetector(
+    return InkWell(
+      splashColor: Constants.borderColor,
       onTap: () {
         checkAppVersion();
         setState(() => currentIndex = index);
@@ -78,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         padding:
-            EdgeInsets.symmetric(horizontal: isSelected ? 16 : 0, vertical: 8),
+            EdgeInsets.symmetric(horizontal: isSelected ? 20 : 20, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? Constants.darkBlue : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
@@ -120,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'version']; //TODO::: latest version is also as yaml file with updated one ...
 
         const String currentVersion =
-            '1.0.23'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+            '1.0.24'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
         if (latestVersion.compareTo(currentVersion) > 0) {
           // Display update notification

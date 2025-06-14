@@ -136,6 +136,7 @@ class AppliedPage extends ConsumerWidget {
                           ref.refresh(appliedAts);
                         },
                         child: ListView.builder(
+                          physics: BouncingScrollPhysics(),
                           itemCount: applications.length,
                           itemBuilder: (context, index) {
                             final app = applications[index];
@@ -280,6 +281,9 @@ class AppliedPage extends ConsumerWidget {
                                       item.statusId == 14
                                   ? Constants.darkgreen
                                   : Constants.darkBlue,
+                        ),
+                        SizedBox(
+                          height: 4,
                         ),
                         customTextForWeather(
                           title: "• ${item.applyFeedback2.toString()}",
