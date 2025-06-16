@@ -16,17 +16,12 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
-import 'package:job_circle/screens/Billing/list_of_invoice.dart';
-import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
-import 'package:job_circle/screens/jobs/Applied_jobs.dart';
+import 'package:job_circle/screens/applied_page.dart';
 import 'package:job_circle/screens/login.dart';
 import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
-import 'package:job_circle/screens/new_jobs/job_provider.dart';
-import 'package:job_circle/screens/profile/profile_summary.dart';
-import 'package:job_circle/screens/profile/profile_summary_partner.dart';
 import 'package:job_circle/screens/profile/user_profile.dart';
-import 'package:job_circle/screens/refer_now.dart';
+import 'package:job_circle/screens/referral_page.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -337,19 +332,10 @@ class _OTPScreenState extends ConsumerState<OTPScreen> {
                         });
                         await verifyOTP();
 
-                        ref.refresh(fetchAllApplyProvider);
-                        ref.refresh(fetchAllReferalProvider);
-                        ref.refresh(profileSummaryProvider);
-                        ref.refresh(jobsProvider);
-                        ref.refresh(fetchAllBillingDataProvider);
-                        ref.refresh(fetchAllInvoice);
                         ref.refresh(fetchBankingDetails);
-                        ref.refresh(userDataProvider);
-                        ref.refresh(experienceProvider);
-                        ref.refresh(educationProvider);
-
+                        ref.refresh(referAts);
+                        ref.refresh(appliedAts);
                         ref.refresh(ProfileDataProvider);
-                        ref.refresh(PartnerProfileData);
                       },
                       text: "Verify & Proceed",
                     ),

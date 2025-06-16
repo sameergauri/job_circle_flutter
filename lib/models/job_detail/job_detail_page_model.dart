@@ -41,6 +41,7 @@ class JobDetailPageModel {
   final List<String>? additionalDetails;
   final List<String>? boundryLimits;
   final PayoutDetails? payoutDetails;
+  final String? locationWithWorkType;
 
   JobDetailPageModel({
     this.id,
@@ -83,6 +84,7 @@ class JobDetailPageModel {
     this.postedByProfilePic,
     this.payoutDetails,
     this.companyIcon,
+    this.locationWithWorkType,
   });
 
   factory JobDetailPageModel.fromJson(Map<String, dynamic> json) {
@@ -128,7 +130,8 @@ class JobDetailPageModel {
       payoutDetails: json['payoutDetails'] != null
           ? PayoutDetails.fromJson(json['payoutDetails'])
           : null,
-          companyIcon: json['companyIcon'],
+      companyIcon: json['companyIcon'],
+      locationWithWorkType: json['locationWithWorkType'],
     );
   }
 }

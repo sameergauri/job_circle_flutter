@@ -80,10 +80,10 @@ class CustomJobCard extends ConsumerWidget {
                     border: Border.all(color: Constants.lightdull),
                     borderRadius: BorderRadius.circular(8)),
                 child: job.companyIcon != null && job.companyIcon != ""
-                    ? Image.network(
-                        "${GlobalConstants.Image_url}${job.companyIcon}",
-                        fit: BoxFit.fitWidth,
-                      )
+                    ? CustomNetworkImage(
+                        imageUrl:
+                            "${GlobalConstants.Image_url}${job.companyIcon}",
+                        defaultIcon: Icons.home)
                     : Image.network(
                         "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
                       )),
@@ -188,7 +188,8 @@ class CustomJobCard extends ConsumerWidget {
           const SizedBox(height: 5),
           _buildInfoRow(Icons.currency_rupee, _formatSalary(job.salaryRange)),
           const SizedBox(height: 5),
-          _buildInfoRow(Icons.location_on_outlined, job.location ?? ''),
+          _buildInfoRow(
+              Icons.location_on_outlined, job.locationWithWorkType ?? ''),
           const SizedBox(height: 5),
           if (job.languages != null && job.languages != "[]") ...[
             Builder(

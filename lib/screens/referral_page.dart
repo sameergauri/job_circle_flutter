@@ -79,82 +79,134 @@ class ReferalPage extends ConsumerWidget {
 
             return indexA.compareTo(indexB);
           });
-
-          return DefaultTabController(
-            length: tabs.length,
-            child: Column(
-              children: [
-                TabBar(
-                  dividerHeight: 1.0,
-                  indicator: UnderlineTabIndicator(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: Constants.orange, width: 3.0),
+          if (tabs.isNotEmpty) {
+            return DefaultTabController(
+              length: tabs.length,
+              child: Column(
+                children: [
+                  TabBar(
+                    dividerHeight: 1.0,
+                    indicator: UnderlineTabIndicator(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide:
+                          const BorderSide(color: Constants.orange, width: 3.0),
+                    ),
+                    indicatorPadding:
+                        const EdgeInsets.symmetric(horizontal: 16.0),
+                    indicatorWeight: 3.0,
+                    overlayColor: MaterialStateProperty.all(Colors.transparent),
+                    tabAlignment: TabAlignment.start,
+                    isScrollable: true,
+                    labelColor: Constants.black,
+                    unselectedLabelColor: Constants.subtitleclr,
+                    indicatorColor: Constants.orange,
+                    labelStyle: GoogleFonts.merriweather(
+                        color: Constants.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700),
+                    unselectedLabelStyle: GoogleFonts.merriweather(
+                        color: Constants.subtitleclr,
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal),
+                    tabs: tabs
+                        .map((tab) => Tab(
+                              child: customTextForWeather(
+                                title: tab,
+                                fontSize: 12,
+                              ),
+                            ))
+                        .toList(),
                   ),
-                  indicatorPadding:
-                      const EdgeInsets.symmetric(horizontal: 16.0),
-                  indicatorWeight: 3.0,
-                  overlayColor: MaterialStateProperty.all(Colors.transparent),
-                  tabAlignment: TabAlignment.start,
-                  isScrollable: true,
-                  labelColor: Constants.black,
-                  unselectedLabelColor: Constants.subtitleclr,
-                  indicatorColor: Constants.orange,
-                  labelStyle: GoogleFonts.merriweather(
-                      color: Constants.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700),
-                  unselectedLabelStyle: GoogleFonts.merriweather(
-                      color: Constants.subtitleclr,
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal),
-                  tabs: tabs
-                      .map((tab) => Tab(
-                            child: customTextForWeather(
-                              title: tab,
-                              fontSize: 12,
-                            ),
-                          ))
-                      .toList(),
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: tabs.map((tab) {
-                      final applications = atsData.applicationData[tab] ?? [];
+                  Expanded(
+                    child: TabBarView(
+                      children: tabs.map((tab) {
+                        final applications = atsData.applicationData[tab] ?? [];
 
-                      return RefreshIndicator(
-                        backgroundColor: Colors.white,
-                        color: Constants.darkBlue,
-                        onRefresh: () async {
-                          ref.refresh(referAts);
-                        },
-                        child: ListView.builder(
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: applications.length,
-                          itemBuilder: (context, index) {
-                            final app = applications[index];
-                            return Column(
-                              children: [
-                                listViewItem_new(context, app, tab),
-                                if (index !=
-                                    applications.length -
-                                        1) // ✅ Add Divider except last item
-                                  const Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    child: Divider(thickness: 1.0),
-                                  ),
-                              ],
-                            );
+                        return RefreshIndicator(
+                          backgroundColor: Colors.white,
+                          color: Constants.darkBlue,
+                          onRefresh: () async {
+                            ref.refresh(referAts);
                           },
-                        ),
-                      );
-                    }).toList(),
+                          child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: applications.length,
+                            itemBuilder: (context, index) {
+                              final app = applications[index];
+                              return Column(
+                                children: [
+                                  listViewItem_new(context, app, tab),
+                                  if (index !=
+                                      applications.length -
+                                          1) // ✅ Add Divider except last item
+                                    const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(horizontal: 10),
+                                      child: Divider(thickness: 1.0),
+                                    ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          } else {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/noref.gif"),
+                  Text(
+                    "You haven't refer anyone yet!",
+                    style: GoogleFonts.varela(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Search for jobs and start refer your friend. You can track your applications here!",
+                          style: GoogleFonts.varela(color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                  /* InkWell(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen()));
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                          color: Constants.darkBlue,
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      child: Text(
+                        "View Jobs",
+                        style: GoogleFonts.varela(color: Colors.white),
+                      ),
+                    ),
+                  ), */
+                  const Spacer(),
+                ],
+              ),
+            );
+          }
         },
       ),
     );
@@ -170,6 +222,7 @@ class ReferalPage extends ConsumerWidget {
           context,
           MaterialPageRoute(
             builder: (context) => JobDetailPage(
+              resume: "",
               jobId: item.jobId!,
               fromWhere: FromWhere.referalPage,
             ),

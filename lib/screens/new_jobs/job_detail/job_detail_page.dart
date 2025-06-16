@@ -1,6 +1,6 @@
 // screens/new_jobs/job_detail/job_detail_page.dart
 
-// ignore_for_file: unused_result, use_build_context_synchronously, avoid_unnecessary_containers
+// ignore_for_file: unused_result, use_build_context_synchronously, avoid_unnecessary_containers, unnecessary_null_comparison
 
 import 'dart:ui';
 
@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customButton_for_jobPosting.dart';
+import 'package:job_circle/constants/dialogue_for_add_resume.dart';
 import 'package:job_circle/constants/job_detail/custom_container_for_elegibility.dart';
 import 'package:job_circle/constants/job_detail/custom_container_for_job_benefits.dart';
 import 'package:job_circle/constants/job_detail/custom_job_headline.dart';
@@ -17,6 +18,7 @@ import 'package:job_circle/constants/job_detail/custom_referral_card.dart';
 import 'package:job_circle/constants/job_detail/view_container_for_skills.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
+import 'package:job_circle/screens/applied_page.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
 import 'package:job_circle/screens/new_jobs/job_detail/job_detail_page_provider.dart';
@@ -26,11 +28,13 @@ import 'package:job_circle/themes/colors.dart';
 class JobDetailPage extends ConsumerStatefulWidget {
   final int jobId;
   final FromWhere fromWhere;
+  final String resume;
 
   const JobDetailPage({
     super.key,
     required this.jobId,
     required this.fromWhere,
+    required this.resume,
   });
 
   @override
@@ -137,7 +141,7 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                 jobHeadline: state.jobDetail!.jobHeadline.toString(),
                 experience: state.jobDetail!.requiredExperience.toString(),
                 salary: _formatSalary(state.jobDetail!.salaryRange),
-                location: state.jobDetail!.locations!.join(', '),
+                location: state.jobDetail!.locationWithWorkType!,
                 empType: state.jobDetail!.employmentType.toString(),
                 companyIcon: state.jobDetail!.companyIcon.toString(),
                 noVacancy: state.jobDetail!.noOfVacancy.toString()),
@@ -174,7 +178,7 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                     state.jobDetail!.eligibility2!,
                 isList: true,
               ),
-            if (state.jobDetail!.boundryLimits != null &&
+            if (state.jobDetail!.boundryLimits != null && 
                 state.jobDetail!.boundryLimits!.isNotEmpty)
               CustomContainerForEligibility(
                 heading: "Boundry Limits",
@@ -197,10 +201,28 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
               CustomButtonForJobPosting(
                 buttonText: "Apply Now",
                 onTap: () {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  handleApplyNow(context, ref, widget.jobId);
+                  if (widget.resume != null &&
+                      widget.resume != "null" &&
+                      widget.resume != "" &&
+                      widget.resume != " ") {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    handleApplyNow(context, ref, widget.jobId);
+                  } else {
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (context) {
+                        return CustomDialogueForAddResume(
+                            error: false,
+                            onClose: () {
+                              Navigator.pop(context);
+                            },
+                            subtitle: "Your cv is not uplaod in the profile");
+                      },
+                    );
+                  }
                 },
               ),
             RecruiterDetailsCard(
@@ -341,6 +363,7 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
       jobId: jobId,
       userId: int.tryParse(id)!,
     );
+    ref.refresh(appliedAts);
     setState(() {
       isLoading = false;
     });

@@ -96,12 +96,14 @@ class UserData {
   final String userGender;
   final String userName;
   final String userLocation;
+  final String cv_link;
 
   UserData({
     required this.userProfilePic,
     required this.userGender,
     required this.userName,
     required this.userLocation,
+    required this.cv_link,
   });
 
   factory UserData.fromJson(Map<String, dynamic> json) {
@@ -110,6 +112,7 @@ class UserData {
       userGender: json['userGender'] ?? '',
       userName: json['userName'] ?? '',
       userLocation: json['userLocation'] ?? '',
+      cv_link: json['cv_link'] ?? '',
     );
   }
 }

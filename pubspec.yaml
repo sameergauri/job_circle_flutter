@@ -4,7 +4,7 @@ description: Job circle.
 #Flutter version of the project : 3.19.4
 
 publish_to: "none"
-version: 1.0.1+24
+version: 1.0.1+25
 
 environment:
   sdk: ">=2.17.0-0 <3.0.0"
@@ -89,20 +89,6 @@ dependencies:
   #month_picker_dialog: ^2.2.1
   #mobile_number: ^1.0.4
   #permission_handler: ^11.0.1
-  
-  
-
- 
-  
-  
-  
-  
- 
- 
-  
- 
-  
- 
 
 dev_dependencies:
   flutter_lints: ^3.0.1

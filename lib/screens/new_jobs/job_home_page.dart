@@ -85,7 +85,7 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                 job.languages != '[]')
             .toSet()
             .toList();
-      case 'Lateral':
+      case 'Leadership':
         return jobs
             .where((job) => job.level_of_hiring == "Leader")
             .toSet()
@@ -163,7 +163,7 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                   backgroundColor: Constants.borderColor,
                   backgroundImage: userData?.userProfilePic != null &&
                           userData?.userProfilePic != " " &&
-                          userData!.userProfilePic != ''
+                          userData!.userProfilePic != ""
                       ? NetworkImage(
                           "${GlobalConstants.Image_url}${userData.userProfilePic}")
                       : userData?.userGender == "Male"
@@ -292,6 +292,7 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   JobDetailPage(
+                                                      resume: userData!.cv_link,
                                                       jobId: job.id!,
                                                       fromWhere:
                                                           FromWhere.homePage),

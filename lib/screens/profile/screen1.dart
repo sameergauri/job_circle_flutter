@@ -1245,8 +1245,9 @@ class _Screen1State extends ConsumerState<Screen1> {
         firstName: firstName.text.trim(),
         lastName: lastName.text.trim(),
         middleName: middleName.text == "" ? " " : middleName.text.trim(),
-        alternateNo:
-            alternateNumber.text == "" ? 1 : int.tryParse(alternateNumber.text),
+        alternateNo: alternateNumber.text == ""
+            ? null
+            : int.tryParse(alternateNumber.text),
         email: emailadr.text == "" ? "null" : emailadr.text,
         gender: genderValue,
         dateOfBirth: dateOfBirth,

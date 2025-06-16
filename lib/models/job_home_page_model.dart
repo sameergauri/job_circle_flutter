@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 class JobHomePageModel {
   final String? resultKey;
   final ResultData? resultData;
@@ -103,6 +105,7 @@ class JobContent {
   final int? favJobId;
   final String? companyIcon;
   final String? level_of_hiring;
+  final String? locationWithWorkType;
 
   const JobContent({
     this.jobPostType,
@@ -126,6 +129,7 @@ class JobContent {
     this.favJobId,
     this.companyIcon,
     this.level_of_hiring,
+    this.locationWithWorkType,
   });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
@@ -151,6 +155,7 @@ class JobContent {
       favJobId: json['favJobId'],
       companyIcon: json['companyIcon'],
       level_of_hiring: json['level_of_hiring'],
+      locationWithWorkType: json['locationWithWorkType'],
     );
   }
 
@@ -176,6 +181,7 @@ class JobContent {
     int? favJobId,
     String? companyIcon,
     String? level_of_hiring,
+    String? locationWithWorkType,
   }) {
     return JobContent(
       jobPostType: jobPostType ?? this.jobPostType,
@@ -199,6 +205,7 @@ class JobContent {
       favJobId: favJobId ?? this.favJobId,
       companyIcon: companyIcon ?? this.companyIcon,
       level_of_hiring: level_of_hiring ?? this.level_of_hiring,
+      locationWithWorkType: locationWithWorkType ?? this.locationWithWorkType,
     );
   }
 }

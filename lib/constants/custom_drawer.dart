@@ -24,6 +24,13 @@ class CustomDrawer extends ConsumerWidget {
     required this.onClose,
     super.key,
   });
+  String cleanedLocation(String userLocation) {
+    // Split by comma, trim each part, remove duplicates, and join back
+    final uniqueParts =
+        userLocation.split(',').map((e) => e.trim()).toSet().toList();
+
+    return uniqueParts.join(', ');
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,10 +95,7 @@ class CustomDrawer extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
                 customTextForWeather(
-                    title: userLocation.startsWith(' ')
-                        ? userLocation.replaceFirst(' ', '')
-                        : userLocation,
-                    fontSize: 14),
+                    title: cleanedLocation(userLocation), fontSize: 14),
               ],
             ),
           ),

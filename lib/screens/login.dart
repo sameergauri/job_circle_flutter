@@ -15,6 +15,7 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/otp.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 
 class Login extends StatefulWidget {
@@ -487,7 +488,8 @@ class _LoginState extends State<Login> {
           color: Constants.darkBlue,
           radious: 8.r,
           text: "Get OTP",
-          onPressed: () {
+          onPressed: () async {
+            JobPostApiService jobPostApiService = JobPostApiService();
             if (_formKey2.currentState!.validate()) {
               setState(() {
                 isLoading = true;
@@ -496,6 +498,7 @@ class _LoginState extends State<Login> {
               return;
             }
             generateOTP(otpcontroller.text);
+            await jobPostApiService.clearCache(); // to clear cache before login
 
             // setState(() {
             //   isManual = true;

@@ -84,83 +84,136 @@ class AppliedPage extends ConsumerWidget {
 
             return indexA.compareTo(indexB);
           });
+          if (tabs.isNotEmpty) {
+            return DefaultTabController(
+              length: tabs.length,
+              child: Column(
+                children: [
+                  TabBar(
+                    dividerHeight: 1.0,
+                    indicator: UnderlineTabIndicator(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide:
+                          const BorderSide(color: Constants.orange, width: 3.0),
+                    ),
+                    indicatorPadding:
+                        const EdgeInsets.symmetric(horizontal: 16.0),
+                    indicatorWeight: 3.0,
+                    overlayColor: MaterialStateProperty.all(Colors.transparent),
+                    tabAlignment: TabAlignment.start,
+                    isScrollable: true,
+                    labelColor: Constants.black,
+                    unselectedLabelColor: Constants.subtitleclr,
+                    indicatorColor: Constants.orange,
+                    labelStyle: GoogleFonts.merriweather(
+                        color: Constants.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700),
+                    unselectedLabelStyle: GoogleFonts.merriweather(
+                        color: Constants.subtitleclr,
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal),
+                    tabs: tabs
+                        .map((tab) => Tab(
+                              child: customTextForWeather(
+                                title: tab,
+                                fontSize: 12,
 
-          return DefaultTabController(
-            length: tabs.length,
-            child: Column(
-              children: [
-                TabBar(
-                  dividerHeight: 1.0,
-                  indicator: UnderlineTabIndicator(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide:
-                        const BorderSide(color: Constants.orange, width: 3.0),
+                                // fontWeight: FontWeight.w600,
+                              ),
+                            ))
+                        .toList(),
                   ),
-                  indicatorPadding:
-                      const EdgeInsets.symmetric(horizontal: 16.0),
-                  indicatorWeight: 3.0,
-                  overlayColor: MaterialStateProperty.all(Colors.transparent),
-                  tabAlignment: TabAlignment.start,
-                  isScrollable: true,
-                  labelColor: Constants.black,
-                  unselectedLabelColor: Constants.subtitleclr,
-                  indicatorColor: Constants.orange,
-                  labelStyle: GoogleFonts.merriweather(
-                      color: Constants.black,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700),
-                  unselectedLabelStyle: GoogleFonts.merriweather(
-                      color: Constants.subtitleclr,
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal),
-                  tabs: tabs
-                      .map((tab) => Tab(
-                            child: customTextForWeather(
-                              title: tab,
-                              fontSize: 12,
+                  Expanded(
+                    child: TabBarView(
+                      children: tabs.map((tab) {
+                        final applications = atsData.applicationData[tab] ?? [];
 
-                              // fontWeight: FontWeight.w600,
-                            ),
-                          ))
-                      .toList(),
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: tabs.map((tab) {
-                      final applications = atsData.applicationData[tab] ?? [];
-
-                      return RefreshIndicator(
-                        backgroundColor: Colors.white,
-                        color: Constants.darkBlue,
-                        onRefresh: () async {
-                          ref.refresh(appliedAts);
-                        },
-                        child: ListView.builder(
-                          physics: BouncingScrollPhysics(),
-                          itemCount: applications.length,
-                          itemBuilder: (context, index) {
-                            final app = applications[index];
-                            return Column(
-                              children: [
-                                listViewItem_new(context, app, tab),
-                                /*    if (index !=
+                        return RefreshIndicator(
+                          backgroundColor: Colors.white,
+                          color: Constants.darkBlue,
+                          onRefresh: () async {
+                            ref.refresh(appliedAts);
+                          },
+                          child: ListView.builder(
+                            physics: BouncingScrollPhysics(),
+                            itemCount: applications.length,
+                            itemBuilder: (context, index) {
+                              final app = applications[index];
+                              return Column(
+                                children: [
+                                  listViewItem_new(context, app, tab),
+                                  /*    if (index !=
                                     applications.length -
                                         1) */ // ✅ Add Divider except last item
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
-                                  child: Divider(thickness: 1.0),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      );
-                    }).toList(),
+                                  const Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    child: Divider(thickness: 1.0),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          } else {
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/images/nojobs.gif"),
+                  Text(
+                    "You haven't applied yet!",
+                    style: GoogleFonts.varela(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Search for jobs and start applying. You can track your applications here!",
+                          style: GoogleFonts.varela(color: Colors.grey),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                  /* InkWell(
+                    onTap: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => HomeScreen()));
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 20),
+                      decoration: BoxDecoration(
+                          color: Constants.darkBlue,
+                          borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 20),
+                      child: Text(
+                        "View Jobs",
+                        style: GoogleFonts.varela(color: Colors.white),
+                      ),
+                    ),
+                  ), */
+                  const Spacer(),
+                ],
+              ),
+            );
+          }
         },
       ),
     );
@@ -177,6 +230,7 @@ class AppliedPage extends ConsumerWidget {
           context,
           MaterialPageRoute(
             builder: (context) => JobDetailPage(
+              resume: "",
               jobId: item.jobId!,
               fromWhere: FromWhere.appliedPage,
             ),
@@ -307,12 +361,12 @@ class AppliedPage extends ConsumerWidget {
                                       builder: (context) => HomeScreen()),
                                   (route) => false);
                             })
-                          : tab.contains("Interview bey")
+                          /* : tab.contains("Interview bey")
                               ? custombutton(item, "Refer And Earn", () async {
                                   CustomSnackbar.show(
                                       "You can use this feature from jobdetail page.",
                                       true);
-                                })
+                                }) */
                               : null,
                 )
               ],

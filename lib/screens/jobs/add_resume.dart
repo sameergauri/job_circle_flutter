@@ -21,7 +21,7 @@ import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield_for_all.dart';
 import 'package:job_circle/screens/jobs/Applied_jobs.dart';
-import 'package:job_circle/screens/refer_now.dart';
+import 'package:job_circle/screens/referral_page.dart';
 // import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -533,7 +533,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
         userId,
       );
 
-      ref.refresh(fetchAllReferalProvider); 
+      ref.refresh(referAts);
       ref.refresh(fetchAllApplyProvider);
 
       setState(() {

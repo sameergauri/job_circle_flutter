@@ -12,6 +12,7 @@ import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customRow.dart';
 import 'package:job_circle/constants/customwidget_upload_file.dart';
 import 'package:job_circle/constants/gobal.dart';
+import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
@@ -299,6 +300,7 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                       await JobPostApiService.PostUserInfo(
                         userUpdateRequestModel,
                       );
+                      ref.read(jobListProvider.notifier).fetchInitialJobs();
                       ref.refresh(ProfileDataProvider);
                       Future.delayed(const Duration(seconds: 10));
                       setState(() {
@@ -1314,9 +1316,11 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                             contentPadding: const EdgeInsets.only(
                                 left: 4, right: 10, top: 0, bottom: 0),
                             leading: SizedBox(
-                                width: 70.w,
-                                height: 70.h,
-                                child: data![index].certLogo != null
+                                width: 50,
+                                height: 50,
+                                child: data![index].certLogo != null &&
+                                        data[index].certLogo != "" &&
+                                        data[index].certLogo != " "
                                     ? Image.network(
                                         "${GlobalConstants.Image_url}${data[index].certLogo.toString()}",
                                         fit: BoxFit.contain,
@@ -1555,16 +1559,17 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                             contentPadding: const EdgeInsets.only(
                                 left: 4, right: 10, top: 0, bottom: 0),
                             leading: SizedBox(
-                                width: 70.w,
-                                height: 70.h,
-                                child: data![index].icon != null
-                                    ? Image.network(
-                                        "${GlobalConstants.Image_url}${data[index].icon.toString()}",
-                                        fit: BoxFit.contain,
-                                        // color: Constants.themeBgColor,
-                                      )
-                                    : Image.asset(
-                                        "assets/images/education_d.png",
+                                width: 50,
+                                height: 50,
+                                child: data![index].icon != null &&
+                                        data[index].icon != "" &&
+                                        data[index].icon != " "
+                                    ? CustomNetworkImage(
+                                        imageUrl:
+                                            "${GlobalConstants.Image_url}${data[index].icon.toString()}",
+                                        defaultIcon: Icons.bungalow_outlined)
+                                    : Image.network(
+                                        "https://cdn-icons-png.flaticon.com/128/16312/16312802.png",
                                         fit: BoxFit.contain,
                                         color: Constants.subtitleclr,
                                       )),
@@ -1945,16 +1950,17 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                               contentPadding: const EdgeInsets.only(
                                   left: 4, right: 10, top: 0, bottom: 0),
                               leading: SizedBox(
-                                  width: 70.w,
-                                  height: 70.h,
-                                  child: data[index].companyLogo != null
-                                      ? Image.network(
-                                          "${GlobalConstants.Image_url}${data[index].companyLogo.toString()}",
-                                          fit: BoxFit.contain,
-                                          // color: Constants.themeBgColor,
-                                        )
-                                      : Image.asset(
-                                          "assets/images/cmpny.png",
+                                  width: 50,
+                                  height: 50,
+                                  child: data[index].companyLogo != null &&
+                                          data[index].companyLogo != "" &&
+                                          data[index].companyLogo != " "
+                                      ? CustomNetworkImage(
+                                          imageUrl:
+                                              "${GlobalConstants.Image_url}${data[index].companyLogo.toString()}",
+                                          defaultIcon: Icons.business_sharp)
+                                      : Image.network(
+                                          "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
                                           fit: BoxFit.contain,
                                           color: Constants.subtitleclr,
                                         )),
@@ -2277,6 +2283,7 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                   await JobPostApiService.PostUserInfo(
                     userUpdateRequestModel,
                   );
+                  ref.read(jobListProvider.notifier).fetchInitialJobs();
                   ref.refresh(ProfileDataProvider);
                   Future.delayed(const Duration(seconds: 10));
                   setState(() {
