@@ -495,7 +495,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                               fontSize: 12,
                               fontWeight: FontWeight.normal),
                           onTap: () {
-                            Navigator.push(
+                           /*  Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => GenerateInvoice(
@@ -506,7 +506,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                                     profilePic: data.profilePic.toString(),
                                     gender: data.gender.toString(),
                                   ),
-                                ));
+                                )); */
                             closeDrawer();
                             //Navigator.pop(context);
                           },

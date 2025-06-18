@@ -10,6 +10,7 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/jobs/track_application.dart';
 import 'package:job_circle/screens/new_jobs/job_home_page.dart';
+import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 // Other imports...
@@ -118,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
         final String latestVersion = data['resultData'][
-            'version']; //TODO::: latest version is also as yaml file with updated one ...
+            'version']; //TODO::: latest version is one previous version of the currenct app ...
 
         const String currentVersion =
             '1.0.25'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
@@ -159,9 +160,12 @@ class _HomeScreenState extends State<HomeScreen> {
           actions: <Widget>[
             ElevatedButton(
               child: const Text('Update Now'),
-              onPressed: () {
+              onPressed: () async {
                 _launchURL(
                     'https://play.google.com/store/apps/details?id=com.job_circle_flutter');
+                JobPostApiService jobPostApiService = JobPostApiService();
+                await jobPostApiService.clearCache();
+
                 Navigator.pop(context);
                 // Redirect users to the app store or a download page
                 // Example: launch('https://your-app-store-link');

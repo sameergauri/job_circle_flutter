@@ -141,9 +141,7 @@ class CustomDrawer extends ConsumerWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => GenerateInvoice(
-                          name: userName,
-                          profilePic: userProfileImage.toString(),
-                          gender: userGender,
+                       
                         ),
                       )); */
                   onClose();
