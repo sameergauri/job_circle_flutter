@@ -1,25 +1,27 @@
-// ignore_for_file: override_on_non_overriding_member, file_names, avoid_print, avoid_unnecessary_containers, use_build_context_synchronously, prefer_typing_uninitialized_variables, unused_result
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/customchechbox.dart';
-import 'package:job_circle/models/invoice_model.dart';
+import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
+import 'package:job_circle/models/view_and_generate_model.dart';
+import 'package:job_circle/screens/Billing/model/submit_invoice_model.dart';
+import 'package:job_circle/screens/Billing/provider/view_and_generate_provider.dart';
+import 'package:job_circle/screens/Billing/service/generate_bill_service.dart';
 import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
-import 'package:job_circle/service/job_post_api_service.dart';
 import 'package:job_circle/themes/colors.dart';
 
-final fetchPaymentStatus = FutureProvider<List<InvoiceModel>>((ref) {
-  Future.delayed(const Duration(milliseconds: 10));
-  return _InvoiceState.fetchPayment();
-});
-
 class Invoice extends ConsumerStatefulWidget {
-  const Invoice({super.key});
+  final List<JoinerData> joinersdata;
+  const Invoice({super.key, required this.joinersdata});
 
   @override
   ConsumerState<Invoice> createState() => _InvoiceState();
@@ -27,407 +29,415 @@ class Invoice extends ConsumerStatefulWidget {
 
 class _InvoiceState extends ConsumerState<Invoice> {
   bool terncondition = false;
+  List<JoinerData> filteredJoiners = [];
+  List<OrganizationInfo> organizationList = [];
+  OrganizationInfo? selectedOrganization;
+  int totalAmount = 0;
+  String invoiceNumber = '';
+  bool isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    invoiceNumber = InvoiceGenerator.generate(widget.joinersdata.isNotEmpty
+        ? widget.joinersdata.first.referralId!.toString()
+        : '0000');
+    filteredJoiners = widget.joinersdata;
 
-//
-//
-//
-//
-  static Future<List<InvoiceModel>> fetchPayment() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
+    final uniqueOrgs = <String, OrganizationInfo>{};
+    for (var joiner in widget.joinersdata) {
+      final String orgId = (joiner.organizationId ?? '').toString();
+      final orgName = joiner.organizationName ?? '';
+      final orgAddress = joiner.organizationFullAddress ?? '';
 
-    // Dummy data that matches InvoiceModel structure
-    return [
-      InvoiceModel(
-        candidateAmount: 12500.00,
-        attr_status: "Payable",
-        candidateName: "John Doe",
-        companyName: "Tech Solutions Inc.",
-        referralName: "John Doe",
-        userId: 123,
-        process: "Software Development",
-        accountNumber: "1234567890",
-        accountType: "Savings",
-        bankName: "ABC Bank",
-        id: 1,
-        ifscCode: "ABC123456",
-      ),
-      InvoiceModel(
-        candidateAmount: 12500.00,
-        attr_status: "Payable",
-        candidateName: "John Doe",
-        companyName: "Tech Solutions Inc.",
-        referralName: "John Doe",
-        userId: 123,
-        process: "Software Development",
-        accountNumber: "1234567890",
-        accountType: "Savings",
-        bankName: "ABC Bank",
-        id: 1,
-        ifscCode: "ABC123456",
-      ),
-      InvoiceModel(
-        candidateAmount: 12500.00,
-        attr_status: "Payable",
-        candidateName: "John Doe",
-        companyName: "Tech Solutions Inc.",
-        referralName: "John Doe",
-        userId: 123,
-        process: "Software Development",
-        accountNumber: "1234567890",
-        accountType: "Savings",
-        bankName: "ABC Bank",
-        id: 1,
-        ifscCode: "ABC123456",
-      ),
-      InvoiceModel(
-        candidateAmount: 12500.00,
-        attr_status: "Payable",
-        candidateName: "John Doe",
-        companyName: "Tech Solutions Inc.",
-        referralName: "John Doe",
-        userId: 123,
-        process: "Software Development",
-        accountNumber: "1234567890",
-        accountType: "Savings",
-        bankName: "ABC Bank",
-        id: 1,
-        ifscCode: "ABC123456",
-      ),
-      InvoiceModel(
-        candidateAmount: 12500.00,
-        attr_status: "Payable",
-        candidateName: "John Doe",
-        companyName: "Tech Solutions Inc.",
-        referralName: "John Doe",
-        userId: 123,
-        process: "Software Development",
-        accountNumber: "1234567890",
-        accountType: "Savings",
-        bankName: "ABC Bank",
-        id: 1,
-        ifscCode: "ABC123456",
-      ),
-    ]
-        .where((invoice) =>
-            invoice.attr_status != null &&
-            invoice.attr_status!.toLowerCase() == 'payable')
-        .toList();
-  }
-  /* static Future<List<InvoiceModel>> fetchPayment() async {
-    var userid =
-        await Utils.getPreferencesValue(null, ESharedPreferences.user_id.name);
-    final url = Uri.parse(
-        'http://${GlobalConstants.API_Host_one}/leads/v1/getInvoiceDetailsOfReferral?rid=$userid&pageNumber=1&pageSize=100');
-
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final jsonData = jsonDecode(response.body);
-        final List<dynamic> contentList = jsonData['resultData']['content'];
-
-        // Convert the list of Map to a list of Applicant objects
-        /*   List<InvoiceModel> applicants =
-            contentList.map((json) => InvoiceModel.fromJson(json)).toList(); */
-        List<InvoiceModel> applicants = contentList
-            .map((json) => InvoiceModel.fromJson(json))
-            .where((invoice) =>
-                invoice.attr_status != null &&
-                invoice.attr_status!.toLowerCase() == 'payable')
-            .toList();
-
-        return applicants;
-      } else {
-        print(
-            'Failed to fetch banking data. Status Code: ${response.statusCode}');
-        return [];
+      if (orgId.isNotEmpty && !uniqueOrgs.containsKey(orgId)) {
+        uniqueOrgs[orgId] = OrganizationInfo(
+          id: orgId,
+          name: orgName,
+          address: orgAddress,
+        );
       }
-    } catch (e) {
-      print('Error while fetching data: $e');
-      return [];
     }
-  } */
-
-  String nextInvoiceNumber = '';
+    organizationList = uniqueOrgs.values.toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('dd MMM yyyy').format(now);
-    var fetchPaymentStatusData = ref.watch(fetchPaymentStatus);
-    return fetchPaymentStatusData != null
-        ? fetchPaymentStatusData.when(data: (data) {
-            if (data.isNotEmpty) {
-              nextInvoiceNumber = InvoiceNumberGenerator.generateInvoiceNumber(
-                  data.first.userId.toString());
-            }
-            double totalAmount = 0.0; // Initialize total amount variable
-            List<int?>? leadIdList = data.map((e) => e.id).toList();
-            List<int> filteredLeadIdList =
-                leadIdList.where((id) => id != null).cast<int>().toList();
 
-            List<List<String>> tableData = data.map((invoice) {
-              // Increment total amount with each invoice amount
-              totalAmount += invoice.candidateAmount ?? 0.0;
+    totalAmount = 0;
+    List<List<String>> tableData = filteredJoiners.map((invoice) {
+      totalAmount += (invoice.partnerPayout ?? 0.0).toInt();
+      String formattedAmount = invoice.partnerPayout != null
+          ? (invoice.partnerPayout! % 1 == 0
+              ? invoice.partnerPayout!.toInt().toString()
+              : invoice.partnerPayout!.toStringAsFixed(2))
+          : '0';
 
-              // Format candidate amount based on whether it's a whole number or not
-              String formattedAmount = invoice.candidateAmount != null
-                  ? (invoice.candidateAmount! % 1 == 0
-                      ? invoice.candidateAmount!
-                          .toInt()
-                          .toString() // Display as integer if it's a whole number
-                      : invoice.candidateAmount!.toStringAsFixed(
-                          2)) // Display with 2 decimal places if it's not a whole number
-                  : 'Unknown';
+      return [
+        invoice.candidateName ?? 'Unknown',
+        (invoice.companyShortName ?? invoice.companyName ?? 'Unknown'),
+        invoice.process ?? 'Unknown',
+        invoice.dateOfJoining ?? '',
+        formattedAmount,
+      ];
+    }).toList();
 
-              return [
-                invoice.candidateName ?? 'Unknown',
-                "${invoice.short_code ?? invoice.companyName}",
-                invoice.process ?? 'Unknown',
-                DateFormat('dd-MMM-yy').format(invoice.doj ?? DateTime.now()),
-                formattedAmount,
-              ];
-            }).toList();
-            return Scaffold(
-              bottomNavigationBar: CustomButtonForSave(
+    return Stack(
+      children: [
+        Scaffold(
+          bottomNavigationBar: selectedOrganization != null
+              ? CustomButtonForSave(
                   onTap: () async {
-                    try {
-                      Navigator.pop(context);
-                      JobPostApiService api = JobPostApiService();
-                      /*     await api.updateInvoiceDetails(
-                        partnerInvoiceNo: nextInvoiceNumber,
-                        partnerTotalAmount: totalAmount,
-                        invoiceDate: DateTime.now(),
-                        payment_status: "Invoice Submitted",
-                        id: filteredLeadIdList,
-                        context: context);
-                    ref.refresh(fetchAllBillingDataProvider);
-                    ref.refresh(fetchAllInvoice); */
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        CustomSnackbarfinal(
-                          title: "Error submitting invoice",
-                          error: true,
-                        ),
-                      );
+                    if (!terncondition) {
+                      CustomSnackbar.show(
+                          "Acknowledge to submit the invoice", true);
+                    } else {
+                      submitInvoice();
                     }
                   },
-                  title: "Submit Invoice"),
-              appBar: AppBar(
-                titleSpacing: 0.0,
-                // centerTitle: true,
-                automaticallyImplyLeading: true,
-                iconTheme: const IconThemeData(color: Constants.black),
-                backgroundColor: Constants.borderColor,
-                elevation: 0,
-                title: const customTextForWeather(
-                    title: 'Invoice',
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Colors.white,
-              body: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  title: 'Submit Invoice',
+                )
+              : null,
+          appBar: AppBar(
+            titleSpacing: 0.0,
+            automaticallyImplyLeading: true,
+            iconTheme: const IconThemeData(color: Constants.black),
+            backgroundColor: Constants.borderColor,
+            elevation: 0,
+            title: const customTextForWeather(
+              title: 'Invoice',
+              color: Colors.black,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            customTextForWeather(
-                                title: formattedDate,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const customTextForWeather(
-                                    title: "To,",
-                                    fontSize: 14,
-                                  ),
-                                  const customTextForWeather(
-                                      title: "Job Circle",
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                  const customTextForWeather(
-                                    title: "Thane ${"(W)"},\nMumbai-400601",
-                                    fontSize: 14,
-                                  ),
-                                  const SizedBox(
-                                    height: 15,
-                                  ),
-                                  customTextForWeather(
-                                    title: "Invoice No :  $nextInvoiceNumber",
-                                    // generateInvoiceNumber(data.first.userId.toString())
-
-                                    fontSize: 14,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        DynamicTable(data: tableData, totalAmount: totalAmount),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        Row(
-                          children: [
-                            const customTextForWeather(
-                              title: "Amount in words : ",
-                              fontSize: 12,
-                            ),
-                            Expanded(
-                              child: customTextForWeather(
-                                title:
-                                    "${amountToWords(totalAmount.toInt())} only",
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        const Divider(),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        const customTextForWeather(
-                          title: "Banking Detail",
-                          fontSize: 12,
+                        customTextForWeather(
+                          title: formattedDate,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: 10.h),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const customTextForWeather(
+                              title: 'To,',
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            GestureDetector(
+                              onTap: _showOrganizationBottomSheet,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 8.h),
+                                child: Row(
+                                  children: [
+                                    customTextForWeather(
+                                      title: selectedOrganization?.name ??
+                                          'Select Organization',
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: selectedOrganization != null
+                                          ? Colors.black
+                                          : Constants.orange,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Icon(
+                                      Icons.arrow_drop_down,
+                                      color: selectedOrganization != null
+                                          ? Constants.orange
+                                          : Constants.black,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            if (selectedOrganization != null)
+                              customTextForWeather(
+                                title: selectedOrganization!.address != ''
+                                    ? selectedOrganization!.address
+                                    : 'No Address',
+                                fontSize: 14,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10, bottom: 5),
+                      child: customTextForWeather(
+                        title: 'Invoice No: $invoiceNumber',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    DynamicTable(data: tableData, totalAmount: totalAmount),
+                    SizedBox(height: 10.h),
+                    Row(
+                      children: [
+                        const customTextForWeather(
+                          title: 'Amount in words: ',
+                          fontSize: 12,
+                        ),
+                        Expanded(
+                          child: customTextForWeather(
+                            title: '${amountToWords(totalAmount)} only',
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10.h),
+                    const Divider(),
+                    SizedBox(height: 10.h),
+                    const customTextForWeather(
+                      title: 'Banking Detail',
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 10.h),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Row(
+                              const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      customTextForWeather(
-                                        title: "Bank Name",
-                                      ),
-                                      customTextForWeather(
-                                        title: "Account Type",
-                                      ),
-                                      customTextForWeather(
-                                        title:
-                                            "Holder Name(As per Bank Record)",
-                                      ),
-                                      customTextForWeather(
-                                        title: "Account No",
-                                      ),
-                                      customTextForWeather(
-                                        title: "IFSC Code",
-                                      ),
-                                    ],
+                                  customTextForWeather(title: 'Bank Name'),
+                                  customTextForWeather(title: 'Account Type'),
+                                  customTextForWeather(title: 'Holder Name'),
+                                  customTextForWeather(title: 'Account No'),
+                                  customTextForWeather(title: 'IFSC Code'),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  customTextForWeather(
+                                    title:
+                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.bankName ?? 'Unknown' : 'Unknown'}',
                                   ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      customTextForWeather(
-                                        title:
-                                            " : ${data.isNotEmpty ? data.first.bankName ?? 'Unknown' : 'Unknown'}",
-                                      ),
-                                      customTextForWeather(
-                                        title:
-                                            " : ${data.isNotEmpty ? data.first.accountType ?? 'Unknown' : 'Unknown'}",
-                                      ),
-                                      customTextForWeather(
-                                        title:
-                                            " : ${data.isNotEmpty ? data.first.referralName ?? 'Unknown' : 'Unknown'}",
-                                      ),
-                                      customTextForWeather(
-                                        title:
-                                            " : ${data.isNotEmpty ? data.first.accountNumber ?? 'Unknown' : 'Unknown'}",
-                                      ),
-                                      customTextForWeather(
-                                        title:
-                                            " : ${data.isNotEmpty ? data.first.ifscCode ?? 'Unknown' : 'Unknown'}",
-                                      ),
-                                    ],
-                                  )
+                                  customTextForWeather(
+                                    title:
+                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.accountType ?? 'Unknown' : 'Unknown'}',
+                                  ),
+                                  customTextForWeather(
+                                    title:
+                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.accountHolderName ?? 'Unknown' : 'Unknown'}',
+                                  ),
+                                  customTextForWeather(
+                                    title:
+                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.accountNumber ?? 'Unknown' : 'Unknown'}',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  customTextForWeather(
+                                    title:
+                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.ifscCode ?? 'Unknown' : 'Unknown'}',
+                                  ),
                                 ],
                               ),
                             ],
                           ),
-                        ),
-                        CustomCheckboxRow(
-                            title:
-                                'I ${"User Name"} hereby acknowledge and agree that the above invoice, accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
-                            value: terncondition,
-                            onChanged: (value) {
-                              setState(() {
-                                terncondition = value!;
-                              });
-                            }),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    CustomCheckboxRow(
+                      title:
+                          'I, User Name, hereby acknowledge and agree that the above invoice accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
+                      value: terncondition,
+                      onChanged: (value) {
+                        setState(() {
+                          terncondition = value!;
+                        });
+                      },
+                    ),
+                  ],
                 ),
               ),
-            );
-          }, error: (error, stackTrace) {
-            return const Scaffold(
-              body: Center(
-                child: Text(
-                    "Oops! Something went wrong on our end. Our team is working to fix the issue. Please be patient and bear with us as we resolve this. Thank you for your understanding."),
-              ),
-            );
-          }, loading: () {
-            return const Scaffold(
-              body: Center(
-                  child: CircularProgressIndicator(
-                color: Constants.themeBgColor,
-                strokeWidth: 1,
-              )),
-            );
-          })
-        : Scaffold(
-            backgroundColor: Colors.white,
-            body: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset("assets/images/nopayment.gif"),
-                  Text(
-                    "No Invoice",
-                    style: GoogleFonts.varela(
-                        fontSize: 20.sp, fontWeight: FontWeight.bold),
-                  )
-                ],
+            ),
+          ),
+        ),
+        if (isLoading)
+          BackdropFilter(
+            filter: ImageFilter.blur(
+                sigmaX: 5, sigmaY: 5), // Adjust blur intensity as needed
+            child: const Center(
+              child: AbsorbPointer(
+                absorbing: true, // Prevent interaction with elements behind
+                child: CircularProgressIndicator(strokeWidth: 2),
               ),
             ),
-          );
+          )
+      ],
+    );
+  }
+
+  void submitInvoice() async {
+    setState(() {
+      isLoading = true;
+    });
+    SubmitInvoiceModel invoiceData = SubmitInvoiceModel(
+      invoiceAmount: 2000,
+      invoiceDate: DateTime.now(),
+      invoiceNumber: invoiceNumber,
+      leadId:
+          filteredJoiners.map((e) => e.id).whereType<int>().toSet().toList(),
+      orgId: int.tryParse(selectedOrganization!.id) ?? 0,
+      status: 'invoiceSent',
+    );
+
+    try {
+      bool success = await GenrateBillService.submitInvoice(invoiceData);
+      if (success) {
+        CustomSnackbar.show('Invoice submitted successfully', false);
+        ref.read(generateInvoiceProvider.notifier).fetchJoinersData();
+        Navigator.pop(context);
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        CustomSnackbar.show('Failed to submit invoice', true);
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        CustomSnackbarfinal(
+          title: 'Error submitting invoice',
+          error: true,
+        ),
+      );
+    }
+  }
+
+  void _showOrganizationBottomSheet() {
+    showModalBottomSheet(
+      barrierColor: Colors.black.withOpacity(0.3),
+      backgroundColor: Colors.transparent,
+      elevation: 1,
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const customTextForWeather(
+                    title: 'Select Organization',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.blue,
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedOrganization = null;
+                        filteredJoiners = widget.joinersdata;
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: customTextForWeather(
+                      title: 'Reset',
+                      fontSize: 14.sp,
+                      color: Constants.orange,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Flexible(
+                child: ListView.builder(
+                  itemCount: organizationList.length,
+                  itemBuilder: (context, index) {
+                    final org = organizationList[index];
+                    final isSelected = selectedOrganization?.id == org.id;
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          selectedOrganization = org;
+                          filteredJoiners = widget.joinersdata
+                              .where((joiner) =>
+                                  joiner.organizationId == int.tryParse(org.id))
+                              .toList();
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: index % 2 == 0
+                              ? Constants.lightdull
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.only(
+                            left: 20, bottom: 10, top: 10, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            customTextForWeather(
+                              title: org.name,
+                              fontSize: 14.sp,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            if (isSelected)
+                              const CustomNetworkImage(
+                                  color: Constants.darkBlue,
+                                  imageUrl:
+                                      "https://cdn-icons-png.flaticon.com/128/7794/7794658.png",
+                                  defaultIcon: Icons.check),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   String amountToWords(int amount) {
-    if (amount == 0) {
-      return 'Zero';
-    }
+    if (amount == 0) return 'Zero';
 
     final List<String> units = [
       '',
@@ -441,7 +451,6 @@ class _InvoiceState extends ConsumerState<Invoice> {
       'Eight',
       'Nine'
     ];
-
     final List<String> teens = [
       'Ten',
       'Eleven',
@@ -454,7 +463,6 @@ class _InvoiceState extends ConsumerState<Invoice> {
       'Eighteen',
       'Nineteen'
     ];
-
     final List<String> tens = [
       '',
       '',
@@ -473,17 +481,14 @@ class _InvoiceState extends ConsumerState<Invoice> {
       words += '${amountToWords(amount ~/ 100000)} Lakh ';
       amount %= 100000;
     }
-
     if (amount >= 1000) {
       words += '${amountToWords(amount ~/ 1000)} Thousand ';
       amount %= 1000;
     }
-
     if (amount >= 100) {
       words += '${units[amount ~/ 100]} Hundred ';
       amount %= 100;
     }
-
     if (amount >= 10 && amount < 20) {
       words += '${teens[amount - 10]} ';
       amount = 0;
@@ -491,41 +496,25 @@ class _InvoiceState extends ConsumerState<Invoice> {
       words += '${tens[amount ~/ 10]} ';
       amount %= 10;
     }
-
     if (amount > 0) {
       words += '${units[amount]} ';
     }
-
     return words.trim();
   }
 }
 
-class InvoiceNumberGenerator {
-  static int _lastSequenceNumber = 1000; // Initial sequence number
-
-  // Function to generate the next sequence number
-  static int _getNextSequenceNumber() {
-    return ++_lastSequenceNumber; // Increment and return the last sequence number
-  }
-
-  // Generate the invoice number
-  static String generateInvoiceNumber(String userId) {
-    // Get the current month and year
-    DateTime now = DateTime.now();
-    String month = DateFormat('MM').format(now);
-    String year = DateFormat('yy').format(now);
-
-    // Get the next sequence number
-    int sequenceNumber = _getNextSequenceNumber();
-
-    // Concatenate the parts to form the invoice number
-    return '$userId/$month$year/$sequenceNumber';
+class InvoiceGenerator {
+  static String generate(String userId) {
+    final String datePart = DateFormat('ddMM').format(DateTime.now());
+    final Random random = Random();
+    final int randomCode = 1000 + random.nextInt(9000);
+    return '$datePart/$userId/$randomCode';
   }
 }
 
 class DynamicTable extends StatelessWidget {
   final List<List<String>> data;
-  final totalAmount;
+  final int totalAmount;
 
   const DynamicTable(
       {super.key, required this.data, required this.totalAmount});
@@ -533,124 +522,116 @@ class DynamicTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: Colors.white,
-        // padding: const EdgeInsets.all(20.0),
-        child: Table(
-          defaultVerticalAlignment: TableCellVerticalAlignment.top,
-
-          border: TableBorder.all(), // Add borders to the table
-          columnWidths: const {
-            0: FlexColumnWidth(
-                1.2), // Set the width of the first column to flex to fit content
-            1: FlexColumnWidth(
-                1.2), // Set the width of the second column to flex to fit content
-            2: FlexColumnWidth(
-                1), // Set the width of the third column to flex to fit content
-            3: FlexColumnWidth(
-                1), // Set the width of the fourth column to flex to fit content
-            4: FlexColumnWidth(
-                1), // Set the width of the fifth column to flex to fit content
-          },
-          children: [
-            const TableRow(
-              // Create a table row for the headings
-              children: [
-                TableCell(
-                  child: Center(
-                    child: customTextForWeather(
-                      title: 'Candidate Name',
-                      fontWeight: FontWeight.bold,
-                    ),
+      color: Colors.white,
+      child: Table(
+        defaultVerticalAlignment: TableCellVerticalAlignment.top,
+        border: TableBorder.all(),
+        columnWidths: const {
+          0: FlexColumnWidth(1.2),
+          1: FlexColumnWidth(1.2),
+          2: FlexColumnWidth(1),
+          3: FlexColumnWidth(1),
+          4: FlexColumnWidth(1),
+        },
+        children: [
+          const TableRow(
+            children: [
+              TableCell(
+                child: Center(
+                  child: customTextForWeather(
+                    title: 'Candidate Name',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                TableCell(
-                  child: Center(
-                    child: customTextForWeather(
-                        title: 'Co. Name', fontWeight: FontWeight.bold),
+              ),
+              TableCell(
+                child: Center(
+                  child: customTextForWeather(
+                    title: 'Co. Name',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                TableCell(
-                  child: Center(
-                    child: customTextForWeather(
-                      title: 'Process',
-                      fontWeight: FontWeight.bold,
-                    ),
+              ),
+              TableCell(
+                child: Center(
+                  child: customTextForWeather(
+                    title: 'Process',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                TableCell(
-                  child: Center(
-                    child: customTextForWeather(
-                      title: 'DOJ',
-                      fontWeight: FontWeight.bold,
-                    ),
+              ),
+              TableCell(
+                child: Center(
+                  child: customTextForWeather(
+                    title: 'DOJ',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                TableCell(
-                  child: Center(
-                    child: customTextForWeather(
-                      title: 'Amt',
-                      fontWeight: FontWeight.bold,
-                    ),
+              ),
+              TableCell(
+                child: Center(
+                  child: customTextForWeather(
+                    title: 'Amt',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
-            ),
-            ...data.map((row) => TableRow(
-                  children: [
-                    TableCell(
-                        child: Center(
-                            child: customTextForWeather(
-                                title: row.isNotEmpty ? row[0] : ''))),
-                    TableCell(
-                        child: Center(
-                            child: customTextForWeather(
-                                title: row.length > 1 ? row[1] : ''))),
-                    TableCell(
-                        child: Center(
-                            child: customTextForWeather(
-                                title: row.length > 2 ? row[2] : ''))),
-                    TableCell(
-                        child: Center(
-                            child: customTextForWeather(
-                                title: row.length > 3 ? row[3] : ''))),
-                    TableCell(
-                        child: Center(
-                            child: customTextForWeather(
-                                title: row.length > 4 ? row[4] : ''))),
-                  ],
-                )),
-            // Total row
-            TableRow(
-              decoration: BoxDecoration(
-                  color: Colors.grey[
-                      300]), // Optional: Add background color to total row
-              children: [
-                const TableCell(
-                    child: SizedBox()), // Leave empty cell for other columns
-
-                const TableCell(
-                    child: SizedBox()), // Leave empty cell for other columns
-                const TableCell(child: SizedBox()),
-                const TableCell(
-                  child: Center(
-                    child: customTextForWeather(
-                      title: 'Total',
-                      fontWeight: FontWeight.bold,
-                    ),
+              ),
+            ],
+          ),
+          ...data.map((row) => TableRow(
+                children: [
+                  TableCell(
+                    child: Center(child: customTextForWeather(title: row[0])),
                   ),
-                ), // Leave empty cell for other columns
-                TableCell(
-                  child: Center(
-                    child: customTextForWeather(
-                      title: totalAmount.toStringAsFixed(0),
-                      fontWeight: FontWeight.bold,
-                    ),
+                  TableCell(
+                    child: Center(child: customTextForWeather(title: row[1])),
+                  ),
+                  TableCell(
+                    child: Center(child: customTextForWeather(title: row[2])),
+                  ),
+                  TableCell(
+                    child: Center(child: customTextForWeather(title: row[3])),
+                  ),
+                  TableCell(
+                    child: Center(child: customTextForWeather(title: row[4])),
+                  ),
+                ],
+              )),
+          TableRow(
+            decoration: BoxDecoration(color: Colors.grey[300]),
+            children: [
+              const TableCell(child: SizedBox()),
+              const TableCell(child: SizedBox()),
+              const TableCell(child: SizedBox()),
+              const TableCell(
+                child: Center(
+                  child: customTextForWeather(
+                    title: 'Total',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
-            ),
-            // Add more rows as needed
-          ],
-        ));
+              ),
+              TableCell(
+                child: Center(
+                  child: customTextForWeather(
+                    title: totalAmount.toStringAsFixed(0),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
+}
+
+class OrganizationInfo {
+  final String id;
+  final String name;
+  final String address;
+
+  OrganizationInfo(
+      {required this.id, required this.name, required this.address});
 }

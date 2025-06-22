@@ -8,6 +8,7 @@ import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/constants/temp.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Billing/banking_detal.dart';
+import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/new_jobs/job_home_provider.dart';
 import 'package:job_circle/screens/profile/user_profile.dart';
@@ -133,17 +134,15 @@ class CustomDrawer extends ConsumerWidget {
                     fontSize: 12,
                     fontWeight: FontWeight.normal),
                 onTap: () {
+                  /*    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const TempPage())); */
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const TempPage()));
-                  /* Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GenerateInvoice(
-                       
-                        ),
-                      )); */
+                        builder: (context) => GenerateInvoice(),
+                      ));
                   onClose();
                 },
               ),

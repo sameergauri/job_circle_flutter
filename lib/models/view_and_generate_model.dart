@@ -107,6 +107,12 @@ class JoinerData {
   final int? jobId;
   final String? natureOfwork;
   final int? crpfId;
+  final String? bankName;
+  final String? accountType;
+  final String? accountHolderName;
+  final String? accountNumber;
+  final String? ifscCode;
+  final String? organizationFullAddress;
 
   JoinerData({
     this.id,
@@ -138,6 +144,12 @@ class JoinerData {
     this.jobId,
     this.natureOfwork,
     this.crpfId,
+    this.accountHolderName,
+    this.accountNumber,
+    this.accountType,
+    this.bankName,
+    this.ifscCode,
+    this.organizationFullAddress,
   });
 
   factory JoinerData.fromJson(Map<String, dynamic> json) {
@@ -171,6 +183,12 @@ class JoinerData {
       jobId: json['jobId'] as int?,
       natureOfwork: json['natureOfwork'] as String?,
       crpfId: json['crpfId'] as int?,
+      accountHolderName: json['accountHolderName'] as String?,
+      accountNumber: json['accountNumber'] as String?,
+      accountType: json['accountType'] as String?,
+      bankName: json['bankName'] as String?,
+      ifscCode: json['ifscCode'] as String?,
+      organizationFullAddress: json['organizationFullAddress'] as String?,
     );
   }
 }

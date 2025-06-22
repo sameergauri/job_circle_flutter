@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors
 
-
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/custom_remark.dart';
 import 'package:job_circle/components/custom_title_button.dart';
@@ -50,10 +49,8 @@ class CustomJoinerCard extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
-                         
                         ],
                       ),
-                      
                     ],
                   ),
                   subtitle: Column(
@@ -95,6 +92,11 @@ class CustomJoinerCard extends StatelessWidget {
               children: [
                 CustomIconTitleButton(
                     imageUrl:
+                        "https://cdn-icons-png.flaticon.com/128/14644/14644423.png",
+                    onTap: () {},
+                    title: joiner.companyShortName.toString()),
+                CustomIconTitleButton(
+                    imageUrl:
                         "https://cdn-icons-png.flaticon.com/128/16774/16774139.png",
                     onTap: () {},
                     title: joiner.dateOfJoining.toString()),
@@ -104,7 +106,7 @@ class CustomJoinerCard extends StatelessWidget {
                   imageUrl:
                       "https://cdn-icons-png.flaticon.com/128/9798/9798241.png",
                   onTap: () {},
-                  title: joiner.clientPayout.toString().replaceAll('.0', ''),
+                  title: joiner.partnerPayout.toString().replaceAll('.0', ''),
                 ),
               ],
             ),

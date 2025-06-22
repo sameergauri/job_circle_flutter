@@ -5,9 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:job_circle/components/customTextFieldForAll.dart';
 import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
 import 'package:job_circle/models/view_and_generate_model.dart';
+import 'package:job_circle/screens/Billing/Invoice.dart';
 import 'package:job_circle/screens/Billing/custom_joiners_card.dart';
 import 'package:job_circle/screens/Billing/provider/view_and_generate_provider.dart';
 import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
+import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -94,27 +96,60 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
                   FloatingActionButtonLocation.centerFloat,
               floatingActionButtonAnimator:
                   FloatingActionButtonAnimator.scaling,
+              /*   floatingActionButton: _currentPage ==
+                      state.statusCategories.indexWhere((e) => e == 'Payable') */
               floatingActionButton: _currentPage ==
-                      state.statusCategories.indexWhere((e) => e == 'Payable')
+                          state.statusCategories
+                              .indexWhere((e) => e == 'Payable') &&
+                      state.filteredResponse!.resultData!.payable!.entries.first
+                          .value.isNotEmpty &&
+                      state.selectedMonth != null &&
+                      state.selectedYear != null
                   ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        customTextForWeather(
+                          title:
+                              "Total: Rs${state.getTotalPayable().toStringAsFixed(2)}",
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Constants.darkBlue,
+                        ),
+                        const SizedBox(width: 16),
                         SizedBox(
                           width: 200,
                           child: CustomButtonForSave(
                             title: "Create Invoice",
                             onTap: () {
-                              // TODO: Implement create invoice functionality
+                              if (state
+                                      .joinersResponse!
+                                      .resultData!
+                                      .payable!
+                                      .entries
+                                      .first
+                                      .value
+                                      .first
+                                      .isBankDetailsAdded !=
+                                  1) {
+                                CustomSnackbar.show(
+                                    "Add banking detail to generate invoice",
+                                    true);
+                              } else {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Invoice(
+                                              joinersdata: state
+                                                  .joinersResponse!
+                                                  .resultData!
+                                                  .payable!
+                                                  .entries
+                                                  .expand((e) => e.value)
+                                                  .toList(),
+                                            )));
+                              }
                             },
                           ),
-                        ),
-                        const SizedBox(width: 16),
-                        customTextForWeather(
-                          title:
-                              "Total: \$${state.getTotalPayable().toStringAsFixed(2)}",
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Constants.darkBlue,
                         ),
                       ],
                     )
