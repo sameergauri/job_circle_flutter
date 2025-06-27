@@ -14,9 +14,9 @@ import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/models/active_state_model.dart';
 import 'package:job_circle/models/new_job_model.dart';
-import 'package:job_circle/screens/Billing/banking_detal.dart';
-import 'package:job_circle/screens/Billing/list_of_invoice.dart';
-import 'package:job_circle/screens/Billing/view_and_generate_invoice.dart';
+import 'package:job_circle/screens/Billing/ui/banking_detal.dart';
+import 'package:job_circle/screens/Billing/ui/list_of_invoice.dart';
+import 'package:job_circle/screens/Billing/ui/view_and_generate_invoice.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/jobs/add_resume.dart';
 import 'package:job_circle/screens/jobs/job_details.dart';
@@ -525,11 +525,11 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                               fontSize: 12,
                               fontWeight: FontWeight.normal),
                           onTap: () {
-                            Navigator.push(
+                          /*   Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const ListOfInvoice()));
+                                        const ListOfInvoice())); */
                           },
                         ),
                         ListTile(

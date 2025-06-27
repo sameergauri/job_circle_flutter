@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
@@ -20,10 +22,9 @@ class GenrateBillService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // Success
-        print('Invoice submitted successfully.');
+
         return true;
       } else {
-        print('Failed to submit invoice: ${response.body}');
         return false;
       }
     } catch (e) {

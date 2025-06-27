@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_null_comparison, unused_result, avoid_print, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, avoid_unnecessary_containers
+/* // ignore_for_file: unnecessary_null_comparison, unused_result, avoid_print, use_full_hex_values_for_flutter_colors, non_constant_identifier_names, avoid_unnecessary_containers
 // ignore_for_file: todo
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/components/custom_remark.dart';
 import 'package:job_circle/models/list_of_invoice_model.dart';
-import 'package:job_circle/screens/Billing/invoice_detail.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -602,14 +601,14 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice>
       itemBuilder: (context, index) {
         final billingData = additionalFilteredData[index];
         return GestureDetector(
-            onTap: () {
+            /*  onTap: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => InvoiceDetail(
                             invoiceModel: billingData,
                           )));
-            },
+            }, */
             child: CustomCard(billingData));
       },
     );
@@ -689,3 +688,4 @@ class _ListOfInvoiceState extends ConsumerState<ListOfInvoice>
   //
   //TODO:: Function dec end
 }
+ */

@@ -15,7 +15,7 @@ import 'package:job_circle/constants/customSnackBar.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/models/card_model.dart';
-import 'package:job_circle/screens/Billing/banking_detal.dart';
+import 'package:job_circle/screens/Billing/ui/banking_detal.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/screens/applied_page.dart';
 import 'package:job_circle/screens/login.dart';

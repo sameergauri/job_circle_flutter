@@ -57,11 +57,8 @@ enum EPartnerApproval {
   const EPartnerApproval(this.value);
   final num value;
 }
-enum FromWhere{
-  homePage,
-  appliedPage,
-  referalPage
-}
+
+enum FromWhere { homePage, appliedPage, referalPage }
 
 enum EUserType {
   jobSeeker(1),
@@ -71,3 +68,5 @@ enum EUserType {
   const EUserType(this.value);
   final num value;
 }
+
+enum InvoiceTab { invoicesent, validation, paid, reject, incorrect }
