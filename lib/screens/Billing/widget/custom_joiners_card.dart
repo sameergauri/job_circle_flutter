@@ -25,7 +25,7 @@ class CustomJoinerCard extends StatelessWidget {
           Stack(
             children: [
               Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   dense: true,
                   contentPadding: const EdgeInsets.only(left: 10, right: 10),
@@ -45,7 +45,9 @@ class CustomJoinerCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           customText(
-                            title: joiner.candidateName.toString(),
+                            title: joiner.candidateName
+                                .toString()
+                                .replaceAll(',', ''),
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),

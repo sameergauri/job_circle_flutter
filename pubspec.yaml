@@ -76,6 +76,7 @@ dependencies:
   dotted_border: ^2.1.0
   auto_size_text_field: ^2.2.4
   carousel_slider: ^5.0.0
+  flutter_sticky_header: ^0.7.0
 
 
   

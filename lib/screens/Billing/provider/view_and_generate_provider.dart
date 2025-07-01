@@ -53,19 +53,23 @@ class GenerateInvoiceState {
 
   List<String> get statusCategories {
     final categories = <String>[];
-    final resultData =
-        filteredResponse?.resultData ?? joinersResponse?.resultData;
+    final resultData = (searchQuery.isNotEmpty ||
+            selectedMonth != null ||
+            selectedYear != null)
+        ? filteredResponse?.resultData
+        : filteredResponse?.resultData;
 
-    if (resultData?.joiners?.isNotEmpty ?? false) {
+    if (resultData?.joiners?.values.any((list) => list.isNotEmpty) ?? false) {
       categories.add('Joiners');
     }
-    if (resultData?.pending?.isNotEmpty ?? false) {
+    if (resultData?.pending?.values.any((list) => list.isNotEmpty) ?? false) {
       categories.add('Pending');
     }
-    if (resultData?.payable?.isNotEmpty ?? false) {
+    if (resultData?.payable?.values.any((list) => list.isNotEmpty) ?? false) {
       categories.add('Payable');
     }
-    if (resultData?.notPayable?.isNotEmpty ?? false) {
+    if (resultData?.notPayable?.values.any((list) => list.isNotEmpty) ??
+        false) {
       categories.add('Not Payable');
     }
 
@@ -154,11 +158,13 @@ class GenerateInvoiceNotifier extends AsyncNotifier<GenerateInvoiceState> {
   }
 
   void resetFilters() {
-    state = AsyncData(state.value!.copyWith(
+    final currentState = state.value!;
+    state = AsyncData(GenerateInvoiceState(
+      joinersResponse: currentState.joinersResponse,
+      filteredResponse: currentState.joinersResponse, // Reset to original data
       searchQuery: '',
       selectedMonth: null,
       selectedYear: null,
-      filteredResponse: state.value!.joinersResponse,
     ));
   }
 

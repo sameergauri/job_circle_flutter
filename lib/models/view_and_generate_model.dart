@@ -95,7 +95,7 @@ class JoinerData {
   final String? organizationName;
   final int? organizationId;
   final double? partnerPayout;
-  final int? clientPayout;
+  final double? clientPayout;
   final int? referralId;
   final String? referralSource;
   final String? partnerPayoutMode;
@@ -103,7 +103,7 @@ class JoinerData {
   final String? sourceName;
   final int? sourceId;
   final String? empId;
-  final String? salary;
+  final double? salary;
   final int? jobId;
   final String? natureOfwork;
   final int? crpfId;
@@ -171,7 +171,7 @@ class JoinerData {
       organizationName: json['organizationName'] as String?,
       organizationId: json['organizationId'] as int?,
       partnerPayout: json['partnerPayout'] as double?,
-      clientPayout: json['clientPayout'] as int?,
+      clientPayout: json['clientPayout'] as double?,
       referralId: json['referralId'] as int?,
       referralSource: json['referralSource'] as String?,
       partnerPayoutMode: json['partnerPayoutMode'] as String?,
@@ -179,7 +179,7 @@ class JoinerData {
       sourceName: json['sourceName'] as String?,
       sourceId: json['sourceId'] as int?,
       empId: json['empId'] as String?,
-      salary: json['salary'] as String?,
+      salary: json['salary'] as double?,
       jobId: json['jobId'] as int?,
       natureOfwork: json['natureOfwork'] as String?,
       crpfId: json['crpfId'] as int?,

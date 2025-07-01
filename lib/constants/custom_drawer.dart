@@ -130,7 +130,7 @@ class CustomDrawer extends ConsumerWidget {
                   color: Colors.black,
                 ),
                 title: const customTextForWeather(
-                    title: 'View & Generate Invoice',
+                    title: 'Hired Candidate',
                     fontSize: 12,
                     fontWeight: FontWeight.normal),
                 onTap: () {
@@ -156,7 +156,7 @@ class CustomDrawer extends ConsumerWidget {
                   color: Colors.black,
                 ),
                 title: const customTextForWeather(
-                    title: 'Payment Status',
+                    title: 'Payment Tracker',
                     fontSize: 12,
                     fontWeight: FontWeight.normal),
                 onTap: () {

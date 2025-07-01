@@ -507,6 +507,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
       });
 
       ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
+        
           // partnerPaymentMode: "Special",
           alternateNo:
               secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,

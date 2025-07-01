@@ -307,7 +307,7 @@ class _InvoiceState extends ConsumerState<Invoice> {
       leadId:
           filteredJoiners.map((e) => e.id).whereType<int>().toSet().toList(),
       orgId: int.tryParse(selectedOrganization!.id) ?? 0,
-      status: 'invoiceSent',
+      status: 'invoicesent',
     );
 
     try {

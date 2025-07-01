@@ -15,47 +15,60 @@ class CustomInvoiceCard extends StatelessWidget {
   //final InvoiceTab invoiceTab;
 
   @override
+  @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Column(
-          children: [
-            ListTile(
-              splashColor: Constants.bgColorWhite,
-              dense: true,
-              contentPadding: const EdgeInsets.only(left: 10, right: 10),
-              leading: const CustomNetworkImage(
-                  imageUrl:
-                      "https://cdn-icons-png.flaticon.com/128/1159/1159679.png",
-                  height: 24,
-                  defaultIcon: Icons.abc),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  customTextForWeather(
-                    title: invoice.orgizationName,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ],
-              ),
-              subtitle: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  customText(
-                    title: invoice.invoiceNo.toString(),
-                    fontSize: 12,
-                    color: Constants.subtitleclr,
-                  ),
-                  customText(
-                    title:
-                        "₹ ${invoice.invoiceAmount.toString().replaceAll('.0', '')}",
-                    fontWeight: FontWeight.bold,
-                  ),
-                ],
-              ),
+      //  decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(4),
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+                border: Border.all(color: Constants.subtitleclr),
+                borderRadius: BorderRadius.circular(8)),
+            child: const CustomNetworkImage(
+              imageUrl:
+                  "https://cdn-icons-png.flaticon.com/128/1159/1159679.png",
+              height: 24,
+              defaultIcon: Icons.abc,
             ),
-          ],
-        ));
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                customTextForWeather(
+                  title: invoice.orgizationName,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    customTextForMonst(
+                      title: invoice.invoiceNo.toString(),
+                      fontSize: 12,
+                      color: Constants.subtitleclr,
+                    ),
+                    customTextForMonst(
+                      title:
+                          "₹ ${invoice.invoiceAmount.toString().replaceAll('.0', '')}",
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

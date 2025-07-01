@@ -23,8 +23,8 @@ class PaymentStatusModel {
 
 class ResultData {
   final List<InvoiceSent> invoiceSent;
-  final List<dynamic> validation;
-  final List<dynamic> paidData;
+  final List<InvoiceSent> validation;
+  final List<InvoiceSent> paidData;
 
   ResultData({
     required this.invoiceSent,
@@ -37,8 +37,12 @@ class ResultData {
       invoiceSent: (json['invoiceSent'] as List<dynamic>)
           .map((e) => InvoiceSent.fromJson(e))
           .toList(),
-      validation: json['validation'] ?? [],
-      paidData: json['paidData'] ?? [],
+      validation: (json['validation'] as List<dynamic>)
+          .map((e) => InvoiceSent.fromJson(e))
+          .toList(),
+      paidData: (json['paidData'] as List<dynamic>)
+          .map((e) => InvoiceSent.fromJson(e))
+          .toList(),
     );
   }
 }
@@ -118,16 +122,17 @@ class Candidate {
   final String doj;
   final double payoutAmount;
   final String? crpfId;
+  final String? companyShortName;
 
-  Candidate({
-    required this.id,
-    required this.name,
-    required this.process,
-    required this.level,
-    required this.doj,
-    required this.payoutAmount,
-    this.crpfId,
-  });
+  Candidate(
+      {required this.id,
+      required this.name,
+      required this.process,
+      required this.level,
+      required this.doj,
+      required this.payoutAmount,
+      this.crpfId,
+      this.companyShortName});
 
   factory Candidate.fromJson(Map<String, dynamic> json) {
     return Candidate(
@@ -138,6 +143,7 @@ class Candidate {
       doj: json['doj'] ?? '',
       payoutAmount: json['payoutAmount'] ?? 0,
       crpfId: json['crpfId'],
+      companyShortName: json['companyShortName'],
     );
   }
 }

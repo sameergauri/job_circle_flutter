@@ -363,7 +363,7 @@ class ReferralProgramCard extends StatelessWidget {
                                           vertical: 2.0),
                                       child: customTextForWeather(
                                           title:
-                                              "${formatSlabLabel(slab.formattedAmount)}/- per candidate",
+                                              "${formatSlabLabel(slab.formattedAmount)}/- Per Joiner",
                                           fontSize: 10),
                                     )),
                                 const SizedBox(height: 8),
@@ -394,7 +394,7 @@ class ReferralProgramCard extends StatelessWidget {
                                         const SizedBox(height: 8),
                                         customTextForWeather(
                                           title:
-                                              "${specialpayment}/- per candidate",
+                                              "${specialpayment}/- Per Joiner",
                                           fontSize: 10,
                                         ),
                                       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/constants/customchechbox.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Billing/model/payment_status_model.dart';
@@ -29,30 +30,38 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 title: "Invoice date: ${invoice.invoiceSubmitDate}",
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Constants.subtitleclr,
+                color: Constants.black,
               ),
             ),
             const SizedBox(height: 10),
 
             // Organization Name & Address (Assumed Static)
-            const customText(
+            const customTextForWeather(
               title: "To,",
               fontWeight: FontWeight.bold,
             ),
-            customText(
+            customTextForWeather(
               title: invoice.orgizationName.toString(),
               fontSize: 12,
               // fontWeight: FontWeight.bold,
             ),
-            customText(
-              title: invoice.orgizationAddress.toString(),
+            customTextForWeather(
+              title: invoice.orgizationAddress
+                  .toString()
+                  .split(',')
+                  .asMap()
+                  .entries
+                  .map((entry) => entry.key == 2
+                      ? '\n${entry.value.trim()}'
+                      : entry.value.trim())
+                  .where((part) => part.isNotEmpty)
+                  .join(', '),
               fontSize: 12,
               color: Constants.subtitleclr,
             ),
             const SizedBox(height: 10),
-
             // Invoice Number
-            customText(
+            customTextForMonst(
               title: "Invoice No: ${invoice.invoiceNo}",
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -69,24 +78,27 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     flex: 5,
                     child: Padding(
                       padding: EdgeInsets.only(left: 8),
-                      child: Text("Candidate Name",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: customTextForWeather(
+                        title: "Candidate Name",
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                   Expanded(
                     flex: 4,
-                    child: Text("Company",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: customTextForWeather(
+                        title: "Company Name", fontWeight: FontWeight.bold),
                   ),
                   Expanded(
                     flex: 3,
-                    child: Text("Designation",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: customTextForWeather(
+                        title: "Designation", fontWeight: FontWeight.bold),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Text("Amount",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: customTextForWeather(
+                        title: "Amount", fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -106,20 +118,23 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                         flex: 5,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 8),
-                          child: customText(title: candidate.name.toString()),
+                          child: customTextForWeather(
+                              title: candidate.name.toString()),
                         ),
                       ),
                       Expanded(
                         flex: 4,
-                        child: customText(title: candidate.level.toString()),
+                        child: customTextForWeather(
+                            title: candidate.companyShortName.toString()),
                       ),
                       Expanded(
                         flex: 3,
-                        child: customText(title: candidate.process.toString()),
+                        child: customTextForWeather(
+                            title: candidate.level.toString()),
                       ),
                       Expanded(
                         flex: 2,
-                        child: customText(
+                        child: customTextForWeather(
                             title: candidate.payoutAmount != null
                                 ? "₹ ${candidate.payoutAmount.toStringAsFixed(0)}"
                                 : "null"),
@@ -133,7 +148,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
             // Total Amount
             Align(
               alignment: Alignment.centerRight,
-              child: customText(
+              child: customTextForMonst(
                 title: "Total: ₹ ${invoice.invoiceAmount.toStringAsFixed(0)}",
                 fontWeight: FontWeight.bold,
               ),
@@ -141,18 +156,18 @@ class CustomInvoiveDetailCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const customText(
+                const customTextForWeather(
                   title: "Amount In Words : ",
                   fontWeight: FontWeight.bold,
                 ),
-                customText(
+                customTextForWeather(
                     title: convertNumberToWords(invoice.invoiceAmount.toInt())),
               ],
             ),
             const SizedBox(
               height: 10,
             ),
-            const customText(
+            const customTextForWeather(
               title: "Banking Detail",
               fontSize: 13,
               fontWeight: FontWeight.bold,
@@ -162,19 +177,19 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    customText(
+                    customTextForWeather(
                       title: "Bank Name",
                     ),
-                    customText(
+                    customTextForWeather(
                       title: "Account Type",
                     ),
-                    customText(
+                    customTextForWeather(
                       title: "Holder Name(As per Bank Record)",
                     ),
-                    customText(
+                    customTextForWeather(
                       title: "Account No",
                     ),
-                    customText(
+                    customTextForWeather(
                       title: "IFSC Code",
                     ),
                   ],
@@ -182,20 +197,22 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    customText(
+                    customTextForWeather(
                       title: " : ${invoice.bankName}",
                     ),
-                    customText(
+                    customTextForWeather(
                       title: " : ${invoice.accountType}",
                     ),
-                    customText(
+                    customTextForWeather(
                       title: " : ${invoice.accountHolderName}",
                     ),
-                    customText(
+                    customTextForMonst(
                       title: " : ${invoice.accountNumber}",
+                      fontWeight: FontWeight.w500,
                     ),
-                    customText(
+                    customTextForMonst(
                       title: " : ${invoice.ifscCode}",
+                      fontWeight: FontWeight.w500,
                     ),
                   ],
                 )
@@ -225,11 +242,12 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     const SizedBox(height: 10),
 
                     // Organization Name & Address (Assumed Static)
-                    const customText(
+                    const customTextForWeather(
                       title: "From,",
                       fontWeight: FontWeight.bold,
                     ),
-                    customText(title: invoice.accountHolderName.toString()),
+                    customTextForWeather(
+                        title: invoice.accountHolderName.toString()),
                   ],
                 ),
               ],
@@ -305,7 +323,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
       }
     }
 
-    return words.trim();
+    return words.trim().toTitleCase();
   }
 }
 
