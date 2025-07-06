@@ -16,6 +16,7 @@ class CustomPopUpForLocation extends StatefulWidget {
   final String name;
   Function(String) onSubmit;
   final String title;
+  final String? pageHeading;
 
   // final Function(FocusNode) onFocusNodeRequested;
 
@@ -25,7 +26,9 @@ class CustomPopUpForLocation extends StatefulWidget {
       required this.onSubmit,
       required this.isSelect,
       required this.title,
-      required this.name});
+      required this.name,
+      this.pageHeading,
+      });
 
   @override
   _CustomPopUpForLocationState createState() => _CustomPopUpForLocationState();
@@ -182,8 +185,8 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                             color: Constants.themeBgColor),
                       ),
                       SizedBox(width: 10.w),
-                      const customTextForWeather(
-                        title: "Reside At",
+                       customTextForWeather(
+                        title: widget.pageHeading?? "Reside At",
                         color: Constants.themeBgColor,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,

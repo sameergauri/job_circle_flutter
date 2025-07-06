@@ -113,6 +113,7 @@ class JoinerData {
   final String? accountNumber;
   final String? ifscCode;
   final String? organizationFullAddress;
+  final String? attrStatus2;
 
   JoinerData({
     this.id,
@@ -150,6 +151,7 @@ class JoinerData {
     this.bankName,
     this.ifscCode,
     this.organizationFullAddress,
+    this.attrStatus2,
   });
 
   factory JoinerData.fromJson(Map<String, dynamic> json) {
@@ -189,6 +191,7 @@ class JoinerData {
       bankName: json['bankName'] as String?,
       ifscCode: json['ifscCode'] as String?,
       organizationFullAddress: json['organizationFullAddress'] as String?,
+      attrStatus2: json['attrStatus2'] as String?,
     );
   }
 }

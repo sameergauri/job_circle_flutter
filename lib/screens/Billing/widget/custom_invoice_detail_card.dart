@@ -1,8 +1,14 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
+import 'package:job_circle/components/custom_remark.dart';
 import 'package:job_circle/constants/customchechbox.dart';
+import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Billing/model/payment_status_model.dart';
+import 'package:job_circle/screens/Manager/constant/custom_document_view.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
 
@@ -75,10 +81,11 @@ class CustomInvoiveDetailCard extends StatelessWidget {
               child: const Row(
                 children: [
                   Expanded(
-                    flex: 5,
+                    flex: 8,
                     child: Padding(
                       padding: EdgeInsets.only(left: 8),
                       child: customTextForWeather(
+                        textAlign: TextAlign.center,
                         title: "Candidate Name",
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -86,19 +93,25 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    flex: 4,
+                    flex: 7,
                     child: customTextForWeather(
-                        title: "Company Name", fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                        title: "PO No.",
+                        fontWeight: FontWeight.bold),
                   ),
                   Expanded(
-                    flex: 3,
+                    flex: 6,
                     child: customTextForWeather(
-                        title: "Designation", fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                        title: "DOJ",
+                        fontWeight: FontWeight.bold),
                   ),
                   Expanded(
-                    flex: 2,
+                    flex: 5,
                     child: customTextForWeather(
-                        title: "Amount", fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                        title: "Amount",
+                        fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -115,7 +128,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Expanded(
-                        flex: 5,
+                        flex: 8,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 8),
                           child: customTextForWeather(
@@ -123,18 +136,23 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                         ),
                       ),
                       Expanded(
-                        flex: 4,
+                        flex: 7,
                         child: customTextForWeather(
-                            title: candidate.companyShortName.toString()),
+                            textAlign: TextAlign.center,
+                            title: candidate.id.toString()),
                       ),
                       Expanded(
-                        flex: 3,
+                        flex: 6,
                         child: customTextForWeather(
-                            title: candidate.level.toString()),
+                            textAlign: TextAlign.center,
+                            title: candidate.doj != null
+                                ? _formatDate(candidate.doj.toString())
+                                : ""),
                       ),
                       Expanded(
-                        flex: 2,
+                        flex: 5,
                         child: customTextForWeather(
+                            textAlign: TextAlign.center,
                             title: candidate.payoutAmount != null
                                 ? "₹ ${candidate.payoutAmount.toStringAsFixed(0)}"
                                 : "null"),
@@ -209,10 +227,12 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     customTextForMonst(
                       title: " : ${invoice.accountNumber}",
                       fontWeight: FontWeight.w500,
+                      letterSpacing: 0.6,
                     ),
                     customTextForMonst(
                       title: " : ${invoice.ifscCode}",
                       fontWeight: FontWeight.w500,
+                      letterSpacing: 0.6,
                     ),
                   ],
                 )
@@ -252,6 +272,64 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (invoice.paymentStatus == "paid" &&
+                invoice.invoicePaymentReciept != null &&
+                invoice.invoicePaymentReciept != "" &&
+                invoice.invoicePaymentReciept != "null")
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const customTextForWeather(
+                      title: "Payment Receipt",
+                      fontSize: 14,
+                    ),
+                    CustomContainerSelectToViewDoc(
+                      title: invoice.invoicePaymentReciept.toString(),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CustomPDFViewerDialog(
+                                      pdfUrl:
+                                          "https://s3.ap-south-1.amazonaws.com/job-circle-2/$invoice.invoicePaymentReciept",
+                                    )));
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            if (invoice.paymentStatus == "reject")
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  CustomRemarkConatiner(
+                      titleColor: Constants.red,
+                      fontsize: 11,
+                      subtitle: invoice.invoiceRemark.toString(),
+                      valueColor: Constants.black,
+                      title: "Reason of rejection")
+                ],
+              ),
+            if (invoice.paymentStatus == "incorrect")
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  CustomRemarkConatiner(
+                      titleColor: Constants.red,
+                      fontsize: 11,
+                      subtitle: invoice.invoiceRemark.toString(),
+                      valueColor: Constants.black,
+                      title: "Incorrect")
+                ],
+              ),
           ],
         ),
       ],
@@ -324,6 +402,15 @@ class CustomInvoiveDetailCard extends StatelessWidget {
     }
 
     return words.trim().toTitleCase();
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      DateTime parsedDate = DateFormat('dd MMMM yyyy').parse(dateStr);
+      return DateFormat('dd MMM yy').format(parsedDate); // e.g., 15 Mar 25
+    } catch (e) {
+      return ''; // fallback if parsing fails
+    }
   }
 }
 

@@ -30,7 +30,7 @@ class CustomDrawer extends ConsumerWidget {
     final uniqueParts =
         userLocation.split(',').map((e) => e.trim()).toSet().toList();
 
-    return uniqueParts.join(', ');
+    return uniqueParts.reversed.join(', ');
   }
 
   @override
@@ -96,7 +96,7 @@ class CustomDrawer extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
                 customTextForWeather(
-                    title: cleanedLocation(userLocation), fontSize: 14),
+                    title: cleanedLocation(userLocation), fontSize: 12),
               ],
             ),
           ),
@@ -281,6 +281,97 @@ class CustomDrawer extends ConsumerWidget {
 
                 onClose();
               }),
+          const Spacer(),
+          Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        final url = Uri.parse(
+                            "https://www.linkedin.com/company/job-circle/");
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                      child: CircleAvatar(
+                          backgroundColor: Colors.grey.shade300,
+                          child: Image.asset(
+                            "assets/images/linkdin.png",
+                            height: 18,
+                          )),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        final url = Uri.parse(
+                            "https://whatsapp.com/channel/0029VaWd8KB7NoZwpZQLCN35");
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                      child: CircleAvatar(
+                          backgroundColor: Colors.grey.shade300,
+                          child: Image.asset(
+                            "assets/images/whatsapp.png",
+                            height: 18,
+                            color: Colors.green,
+                          )),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        final url = Uri.parse(
+                            "https://www.instagram.com/jobcircleofficial?igsh=MTZzbXJ4dGJjaGt3ag==");
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                      child: CircleAvatar(
+                          backgroundColor: Colors.grey.shade300,
+                          child: Image.asset(
+                            "assets/images/instagram.png",
+                            height: 18,
+                          )),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        final url = Uri.parse(
+                            "https://www.facebook.com/JobCircleOfficial");
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url);
+                        } else {
+                          throw 'Could not launch $url';
+                        }
+                      },
+                      child: CircleAvatar(
+                          backgroundColor: Colors.grey.shade300,
+                          child: Image.asset(
+                            "assets/images/facebook.png",
+                            height: 18,
+                          )),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: customTextForWeather(
+                    title: 'Version 1.0.26',
+                    fontSize: 10,
+                    fontWeight: FontWeight.normal,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
@@ -77,7 +78,12 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
             } else if (_tabController == null) {
               _updateTabController(state.statusCategories);
             }
-            if (state.statusCategories.isEmpty) {
+            if (state.joinersResponse != null &&
+                state.joinersResponse!.resultData != null &&
+                state.joinersResponse!.resultData!.payable == null &&
+                state.joinersResponse!.resultData!.notPayable == null &&
+                state.joinersResponse!.resultData!.pending == null &&
+                state.joinersResponse!.resultData!.joiners == null) {
               return const Scaffold(
                 backgroundColor: Constants.bgColorWhite,
                 body: Center(
@@ -92,69 +98,51 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
             } else {
               return Scaffold(
                 backgroundColor: Constants.bgColorWhite,
-                floatingActionButtonLocation:
-                    FloatingActionButtonLocation.centerFloat,
-                floatingActionButtonAnimator:
-                    FloatingActionButtonAnimator.scaling,
-                /*   floatingActionButton: _currentPage ==
-                      state.statusCategories.indexWhere((e) => e == 'Payable') */
-                floatingActionButton: _tabController!.index ==
+                /* bottomNavigationBar: state
+                                .statusCategories[_tabController!.index] ==
+                            'Payable' &&
+
+                        // Check if date is selected
+                        state.selectedMonth != null &&
+                        state.selectedYear != null
+
+                    /* _tabController!.index ==
                             state.statusCategories
                                 .indexWhere((e) => e == 'Payable') &&
                         state.filteredResponse!.resultData!.payable!.entries
                             .first.value.isNotEmpty &&
                         state.selectedMonth != null &&
-                        state.selectedYear != null
+                        state.selectedYear != null */
                     ? Container(
-                        color: Constants.bgColorWhite,
+                        padding: const EdgeInsets.only(left: 10),
+                        color: Constants.borderColor,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const SizedBox(
-                              width: 20,
-                            ),
                             customTextForWeather(
-                              title: "Total: Rs ${state.joinersResponse!.resultData!.payable!.entries.first.value.where((joiner) => joiner.attrStatus == "Payable" && joiner.dateOfJoining != null && (() {
-                                    try {
-                                      final date = DateFormat('dd MMM yyyy')
-                                          .parse(joiner.dateOfJoining!);
-                                      final month =
-                                          DateFormat('MM').format(date);
-                                      final year =
-                                          DateFormat('yyyy').format(date);
-                                      return month == state.selectedMonth &&
-                                          year == state.selectedYear;
-                                    } catch (e) {
-                                      return false;
-                                    }
-                                  })()).fold<num>(0, (sum, joiner) => sum + (joiner.partnerPayout ?? 0))}",
+                              title:
+                                  "Total Rs. ${_calculateFilteredPayableTotal(state).toString().replaceAll('.0', '')}",
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: Constants.darkBlue,
                             ),
-                            /*  customTextForWeather(  //Old code to display the total amount..
-                            title:
-                                "Total: Rs${state.getTotalPayable().toStringAsFixed(2)}",
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Constants.darkBlue,
-                          ), */
-                            const SizedBox(width: 16),
                             SizedBox(
                               width: 200,
                               child: CustomButtonForSave(
                                 title: "Create Invoice",
                                 onTap: () {
-                                  if (state
-                                          .joinersResponse!
-                                          .resultData!
-                                          .payable!
-                                          .entries
-                                          .first
-                                          .value
-                                          .first
-                                          .isBankDetailsAdded !=
-                                      1) {
+                                  final bankdetail = state
+                                      .joinersResponse!
+                                      .resultData!
+                                      .payable!
+                                      .entries
+                                      .first
+                                      .value
+                                      .first
+                                      .accountNumber;
+                                  if (bankdetail == null ||
+                                      bankdetail.isEmpty ||
+                                      bankdetail == "null") {
                                     CustomSnackbar.show(
                                         "Add banking detail to generate invoice",
                                         true);
@@ -197,7 +185,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
                           ],
                         ),
                       )
-                    : null,
+                    : null, */
                 appBar: AppBar(
                   elevation: 0,
                   iconTheme: const IconThemeData(color: Constants.black),
@@ -208,6 +196,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
                     child: CustomTextFieldforAll(
                       isSearch: true,
                       controller: searchController,
+                      isGmail: true,
                       hint: "Search Candidate",
                       onChanged: (query) {
                         ref
@@ -236,61 +225,110 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
                     ),
                   ],
                 ),
-                body: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      color: Colors.white,
-                      child: TabBar(
-                        controller: _tabController,
-                        /*  onTap: (index) {
+                body: state.statusCategories.isEmpty
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              customTextForWeather(
+                                title: "Oops!",
+                                fontSize: 18,
+                                color: Constants.darkBlue,
+                              ),
+                              customTextForWeather(
+                                textAlign: TextAlign.center,
+                                title:
+                                    "We couldn't find any candidate matching your search",
+                                fontSize: 16,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            child: TabBar(
+                              controller: _tabController,
+                              /*  onTap: (index) {
                         _pageController.animateToPage(
                           index,
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.linear,
                         );
                       }, */
-                        tabs: state.statusCategories.map((status) {
-                          return Tab(
-                            text:
-                                "$status (${state.getJoinersByStatus(status)!.length})",
-                          );
-                        }).toList(),
-                        overlayColor:
-                            MaterialStateProperty.all(Colors.transparent),
-                        tabAlignment: TabAlignment.start,
-                        isScrollable: true,
-                        indicatorSize: TabBarIndicatorSize.label,
-                        labelColor: Constants.black,
-                        unselectedLabelColor: Constants.subtitleclr,
-                        indicatorColor: Constants.orange,
-                        labelStyle: GoogleFonts.merriweather(
-                            fontSize: 12, fontWeight: FontWeight.w700),
-                        unselectedLabelStyle: GoogleFonts.merriweather(
-                            fontSize: 12, fontWeight: FontWeight.normal),
-                      ),
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        /*   onPageChanged: (index) {
+                              tabs: state.statusCategories.map((status) {
+                                return Tab(
+                                  text:
+                                      "$status (${state.getJoinersByStatus(status)!.length})",
+                                );
+                              }).toList(),
+                              overlayColor:
+                                  MaterialStateProperty.all(Colors.transparent),
+                              tabAlignment: TabAlignment.start,
+                              isScrollable: true,
+                              indicatorSize: TabBarIndicatorSize.label,
+                              labelColor: Constants.black,
+                              unselectedLabelColor: Constants.subtitleclr,
+                              indicatorColor: Constants.orange,
+                              labelStyle: GoogleFonts.merriweather(
+                                  fontSize: 12, fontWeight: FontWeight.w700),
+                              unselectedLabelStyle: GoogleFonts.merriweather(
+                                  fontSize: 12, fontWeight: FontWeight.normal),
+                            ),
+                          ),
+                          Expanded(
+                            child: TabBarView(
+                              dragStartBehavior: DragStartBehavior.start,
+                              controller: _tabController,
+                              /*   onPageChanged: (index) {
                         setState(() {
                           _currentPage = index;
                           _tabController?.animateTo(index);
                         });
                       }, */
-                        children: state.statusCategories
-                            .map((status) => _buildJoinerList(
-                                context, state.getJoinersByStatus(status)))
-                            .toList(),
+                              children: state.statusCategories
+                                  .map((status) => _buildJoinerList(
+                                      context,
+                                      state.getJoinersByStatus(status),
+                                      state,
+                                      status))
+                                  .toList(),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
               );
             }
           },
         );
+  }
+
+  num _calculateFilteredPayableTotal(GenerateInvoiceState state) {
+    final allPayableJoiners = state.joinersResponse?.resultData?.payable?.values
+            .expand((list) => list)
+            .toList() ??
+        [];
+
+    return allPayableJoiners.where((joiner) {
+      // Check attrStatus and date of joining
+      if (joiner.attrStatus?.toLowerCase() != "payable" &&
+          joiner.attrStatus2?.toLowerCase() != "payable") return false;
+      if (joiner.dateOfJoining == null) return false;
+      try {
+        final date = DateFormat('dd MMM yyyy').parse(joiner.dateOfJoining!);
+        final month = DateFormat('MM').format(date);
+        final year = DateFormat('yyyy').format(date);
+        return month == state.selectedMonth && year == state.selectedYear;
+      } catch (_) {
+        return false;
+      }
+    }).fold<num>(0, (sum, joiner) => sum + (joiner.partnerPayout ?? 0));
   }
 
   void _showDateFilterBottomSheet(
@@ -435,7 +473,8 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
     );
   }
 
-  Widget _buildJoinerList(BuildContext context, List<JoinerData>? joiners) {
+  Widget _buildJoinerList(BuildContext context, List<JoinerData>? joiners,
+      GenerateInvoiceState state, String status) {
     if (joiners == null || joiners.isEmpty) {
       return const Center(
         child: customText(title: "No data available"),
@@ -445,7 +484,7 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
     final Map<String, List<JoinerData>> groupedJoiners = {};
     for (var joiner in joiners) {
       groupedJoiners
-          .putIfAbsent(joiner.companyName ?? 'Unknown', () => [])
+          .putIfAbsent(joiner.organizationName ?? 'Unknown', () => [])
           .add(joiner);
     }
     final sortedEntries = groupedJoiners.entries.toList()
@@ -453,67 +492,147 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
 
     final dateFormat = DateFormat('dd MMM yyyy');
 
-    return RefreshIndicator(
-      color: Constants.darkBlue,
-      onRefresh: () async {
-        await ref.read(generateInvoiceProvider.notifier).fetchJoinersData();
-      },
-      child: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: sortedEntries.map((entry) {
-          final companyName = entry.key;
-          final companyJoiners = List.from(entry.value)
-            ..sort((a, b) {
-              final dateA = dateFormat.parse(a.dateOfJoining.trim());
-              final dateB = dateFormat.parse(b.dateOfJoining.trim());
-              return dateA.compareTo(dateB);
-            });
+    return Stack(
+      children: [
+        RefreshIndicator(
+          color: Constants.darkBlue,
+          onRefresh: () async {
+            await ref.read(generateInvoiceProvider.notifier).fetchJoinersData();
+          },
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: sortedEntries.map((entry) {
+              final companyName = entry.key;
+              final companyJoiners = List.from(entry.value)
+                ..sort((a, b) {
+                  final dateA = dateFormat.parse(a.dateOfJoining.trim());
+                  final dateB = dateFormat.parse(b.dateOfJoining.trim());
+                  return dateA.compareTo(dateB);
+                });
 
-          return SliverStickyHeader(
-            header: Container(
-              color: Constants.lightdull,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
-              alignment: Alignment.centerLeft,
-              child: customText(
-                title: "$companyName (${companyJoiners.length})",
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                color: Constants.darkBlue,
-              ),
-            ),
-            sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final joiner = companyJoiners[index];
-                final isLast = index == companyJoiners.length - 1;
-                return Column(
+              return SliverStickyHeader(
+                header: Container(
+                  color: Constants.lightdull,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6),
+                  alignment: Alignment.centerLeft,
+                  child: customText(
+                    title: "$companyName (${companyJoiners.length})",
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: Constants.darkBlue,
+                  ),
+                ),
+                sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final joiner = companyJoiners[index];
+                    final isLast = index == companyJoiners.length - 1;
+                    return Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            // NavigationService.push(JoinersDetail(applicant: joiner));
+                          },
+                          child: CustomJoinerCard(
+                            joiner: joiner,
+                            context: context,
+                          ),
+                        ),
+                        if (!isLast)
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Divider(
+                              thickness: 1,
+                              endIndent: 10,
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                  childCount: companyJoiners.length,
+                )),
+              );
+            }).toList(),
+          ),
+        ),
+        if (status.toLowerCase() == 'payable' &&
+            state.selectedMonth != null &&
+            state.selectedYear != null &&
+            joiners.isNotEmpty)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              height: kToolbarHeight,
+              child: Container(
+                color: Constants.borderColor,
+                padding: const EdgeInsets.only(
+                  left: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    InkWell(
-                      onTap: () {
-                        // NavigationService.push(JoinersDetail(applicant: joiner));
-                      },
-                      child: CustomJoinerCard(
-                        joiner: joiner,
-                        context: context,
+                    customTextForWeather(
+                      title:
+                          "Total Rs. ${_calculateFilteredPayableTotal(state).toString().replaceAll('.0', '')}",
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Constants.darkBlue,
+                    ),
+                    SizedBox(
+                      width: 200,
+                      child: CustomButtonForSave(
+                        title: "Create Invoice",
+                        onTap: () {
+                          final bankdetail = state.joinersResponse!.resultData!
+                              .payable!.entries.first.value.first.accountNumber;
+                          if (bankdetail == null ||
+                              bankdetail.isEmpty ||
+                              bankdetail == "null") {
+                            CustomSnackbar.show(
+                                "Add banking detail to generate invoice", true);
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Invoice(
+                                  joinersdata: state.joinersResponse!
+                                      .resultData!.payable!.entries
+                                      .expand((e) => e.value)
+                                      .where((joiner) {
+                                    if (joiner.dateOfJoining == null) {
+                                      return false;
+                                    }
+
+                                    try {
+                                      final date = DateFormat('dd MMM yyyy')
+                                          .parse(joiner.dateOfJoining!);
+                                      final month =
+                                          DateFormat('MM').format(date);
+                                      final year =
+                                          DateFormat('yyyy').format(date);
+
+                                      return month == state.selectedMonth &&
+                                          year == state.selectedYear;
+                                    } catch (e) {
+                                      return false;
+                                    }
+                                  }).toList(),
+                                ),
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ),
-                    if (!isLast)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Divider(
-                          thickness: 1,
-                          endIndent: 10,
-                        ),
-                      ),
                   ],
-                );
-              },
-              childCount: companyJoiners.length,
-            )),
-          );
-        }).toList(),
-      ),
+                ),
+              ),
+            ),
+          )
+      ],
     );
   }
 }

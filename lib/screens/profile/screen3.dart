@@ -1055,6 +1055,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                   child: Row(
                     children: [
                       CustomPopUpForLocation(
+                        pageHeading: "Job Location",
                         isSelect: isOnsite,
                         title: "On-Site",
                         name: "location",
@@ -1069,6 +1070,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                         },
                       ),
                       CustomPopUpForLocation(
+                        pageHeading: "Job Location",
                         isSelect: isHybrid,
                         title: "Hybrid",
                         name: "location",
@@ -1083,6 +1085,7 @@ class _Screen3State extends ConsumerState<Screen3> {
                         },
                       ),
                       CustomPopUpForLocation(
+                        pageHeading: "Job Location",
                         isSelect: isWfh,
                         title: "WFH",
                         name: "city",

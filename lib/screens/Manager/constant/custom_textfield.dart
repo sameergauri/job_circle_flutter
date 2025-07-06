@@ -442,6 +442,7 @@ class customTextForMonst extends StatelessWidget {
   final int? maxlines;
   final FontStyle? fontStyle;
   final TextOverflow? overflow;
+  final double? letterSpacing;
 
   const customTextForMonst(
       {super.key,
@@ -453,7 +454,8 @@ class customTextForMonst extends StatelessWidget {
       this.textAlign,
       this.maxlines,
       this.fontStyle,
-      this.overflow});
+      this.overflow,
+      this.letterSpacing});
 
   @override
   Widget build(BuildContext context) {
@@ -469,6 +471,7 @@ class customTextForMonst extends StatelessWidget {
         fontWeight: fontWeight,
         decoration: TextDecoration.none,
         fontStyle: fontStyle,
+        letterSpacing: letterSpacing,
       ),
     );
   }
@@ -526,6 +529,7 @@ class customTextForRoboto extends StatelessWidget {
   final int? maxlines;
   final FontStyle? fontStyle;
   final TextOverflow? overflow;
+  final double? letterSpacing;
 
   const customTextForRoboto(
       {required this.title,
@@ -537,7 +541,8 @@ class customTextForRoboto extends StatelessWidget {
       this.textAlign,
       this.maxlines,
       this.fontStyle,
-      this.overflow});
+      this.overflow,
+      this.letterSpacing});
 
   @override
   Widget build(BuildContext context) {
@@ -553,6 +558,7 @@ class customTextForRoboto extends StatelessWidget {
         fontWeight: fontWeight,
         decoration: TextDecoration.none,
         fontStyle: fontStyle,
+        letterSpacing: letterSpacing,
       ),
     );
   }

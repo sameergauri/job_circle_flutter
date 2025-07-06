@@ -25,11 +25,13 @@ class ResultData {
   final List<InvoiceSent> invoiceSent;
   final List<InvoiceSent> validation;
   final List<InvoiceSent> paidData;
+  final List<InvoiceSent> rejectData;
 
   ResultData({
     required this.invoiceSent,
     required this.validation,
     required this.paidData,
+    required this.rejectData,
   });
 
   factory ResultData.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,9 @@ class ResultData {
           .map((e) => InvoiceSent.fromJson(e))
           .toList(),
       paidData: (json['paidData'] as List<dynamic>)
+          .map((e) => InvoiceSent.fromJson(e))
+          .toList(),
+           rejectData: (json['rejectData'] as List<dynamic>)
           .map((e) => InvoiceSent.fromJson(e))
           .toList(),
     );
@@ -66,6 +71,7 @@ class InvoiceSent {
   final String orgizationName;
   final String orgizationAddress;
   final List<Candidate> candidates;
+  final String? invoicePaymentReciept;
 
   InvoiceSent({
     required this.invoiceNo,
@@ -86,7 +92,9 @@ class InvoiceSent {
     required this.orgizationName,
     required this.orgizationAddress,
     required this.candidates,
+    this.invoicePaymentReciept,
   });
+
 
   factory InvoiceSent.fromJson(Map<String, dynamic> json) {
     return InvoiceSent(
@@ -107,6 +115,7 @@ class InvoiceSent {
       paymentStatus: json['paymentStatus'] ?? '',
       orgizationName: json['orgizationName'] ?? '',
       orgizationAddress: json['orgizationAddress'] ?? '',
+      invoicePaymentReciept: json['invoicePaymentReciept'],
       candidates: (json['candidates'] as List<dynamic>)
           .map((e) => Candidate.fromJson(e))
           .toList(),

@@ -175,6 +175,7 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
               ),
             ),
             title: DynamicHintTextField(
+              isGmail: true,
               onChanged: (value) {
                 ref.read(jobListProvider.notifier).updateSearchQuery(value);
               },

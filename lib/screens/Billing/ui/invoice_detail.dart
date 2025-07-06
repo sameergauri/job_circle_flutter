@@ -23,7 +23,7 @@ class InvoiceDetail extends StatelessWidget {
         titleSpacing: 0,
         iconTheme: const IconThemeData(color: Colors.black),
         title: const OnboardingTitle(
-          title: "Invoice Detail",
+          title: "Invoice",
         ),
       ),
       body: _buildList(context),
@@ -31,8 +31,6 @@ class InvoiceDetail extends StatelessWidget {
   }
 
   Widget _buildList(BuildContext context) {
-    var width = MediaQuery.of(context).size.width;
-
     return SingleChildScrollView(
       child: Column(
         children: [

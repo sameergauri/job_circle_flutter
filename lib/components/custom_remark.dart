@@ -6,13 +6,16 @@ class CustomRemarkConatiner extends StatelessWidget {
   final String subtitle;
   final Color valueColor;
   final String title;
+  final double? fontsize;
+  final Color? titleColor;
 
-  const CustomRemarkConatiner({
-    super.key,
-    required this.subtitle,
-    required this.valueColor,
-    required this.title,
-  });
+  const CustomRemarkConatiner(
+      {super.key,
+      required this.subtitle,
+      required this.valueColor,
+      required this.title,
+      this.fontsize,
+      this.titleColor});
 
   @override
   Widget build(BuildContext context) {
@@ -23,26 +26,27 @@ class CustomRemarkConatiner extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         children: [
-          RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: "$title : ",
-                  style: GoogleFonts.merriweather(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12,
-                      color: Colors.black),
-                ),
-                TextSpan(
-                  text: subtitle,
-                  style: GoogleFonts.merriweather(
-                    fontWeight: FontWeight.normal,
-                    fontSize: 12,
-                    color: valueColor,
-                    
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: "$title : ",
+                    style: GoogleFonts.merriweather(
+                        fontWeight: FontWeight.w700,
+                        fontSize: fontsize ?? 12,
+                        color: titleColor ?? Colors.black),
                   ),
-                ),
-              ],
+                  TextSpan(
+                    text: subtitle,
+                    style: GoogleFonts.merriweather(
+                      fontWeight: FontWeight.normal,
+                      fontSize: fontsize ?? 12,
+                      color: valueColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

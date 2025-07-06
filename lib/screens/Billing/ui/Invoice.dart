@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, unused_result
 
 import 'dart:math';
 import 'dart:ui';
@@ -14,6 +14,7 @@ import 'package:job_circle/models/view_and_generate_model.dart';
 import 'package:job_circle/screens/Billing/model/submit_invoice_model.dart';
 import 'package:job_circle/screens/Billing/provider/view_and_generate_provider.dart';
 import 'package:job_circle/screens/Billing/service/generate_bill_service.dart';
+import 'package:job_circle/screens/Billing/ui/payment_status_home_page.dart';
 import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
 import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
@@ -78,7 +79,7 @@ class _InvoiceState extends ConsumerState<Invoice> {
       return [
         invoice.candidateName ?? 'Unknown',
         (invoice.companyShortName ?? invoice.companyName ?? 'Unknown'),
-        invoice.process ?? 'Unknown',
+        invoice.designation ?? 'Unknown',
         invoice.dateOfJoining ?? '',
         formattedAmount,
       ];
@@ -128,9 +129,10 @@ class _InvoiceState extends ConsumerState<Invoice> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         customTextForWeather(
-                          title: formattedDate,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          title: "Invoice date: $formattedDate",
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Constants.black,
                         ),
                       ],
                     ),
@@ -141,70 +143,179 @@ class _InvoiceState extends ConsumerState<Invoice> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const customTextForWeather(
-                              title: 'To,',
-                              fontSize: 14,
+                              title: "To,",
                               fontWeight: FontWeight.bold,
                             ),
                             GestureDetector(
                               onTap: _showOrganizationBottomSheet,
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8.h),
-                                child: Row(
-                                  children: [
-                                    customTextForWeather(
-                                      title: selectedOrganization?.name ??
-                                          'Select Organization',
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: selectedOrganization != null
-                                          ? Colors.black
-                                          : Constants.orange,
-                                    ),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Icon(
-                                      Icons.arrow_drop_down,
-                                      color: selectedOrganization != null
-                                          ? Constants.orange
-                                          : Constants.black,
-                                    )
-                                  ],
-                                ),
+                              child: Row(
+                                children: [
+                                  customTextForWeather(
+                                    title: selectedOrganization?.name ??
+                                        'Select Organization',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: selectedOrganization != null
+                                        ? Colors.black
+                                        : Constants.orange,
+                                  ),
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    color: selectedOrganization != null
+                                        ? Constants.orange
+                                        : Constants.black,
+                                  )
+                                ],
                               ),
                             ),
                             if (selectedOrganization != null)
                               customTextForWeather(
                                 title: selectedOrganization!.address != ''
                                     ? selectedOrganization!.address
+                                        .toString()
+                                        .replaceAll(', ,', ',')
+                                        .split('\n')
+                                        .map((line) =>
+                                            line.trim()) // remove extra spaces
+                                        .where((line) =>
+                                            line.isNotEmpty && line != ',')
+                                        .join('\n')
                                     : 'No Address',
-                                fontSize: 14,
+                                fontSize: 12,
                               ),
                           ],
                         ),
                       ],
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 10, bottom: 5),
-                      child: customTextForWeather(
-                        title: 'Invoice No: $invoiceNumber',
-                        fontSize: 14,
+                      padding: const EdgeInsets.only(top: 10, bottom: 10),
+                      child: customTextForMonst(
+                        title: "Invoice No: $invoiceNumber",
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    DynamicTable(data: tableData, totalAmount: totalAmount),
+                    // DynamicTable(data: tableData, totalAmount: totalAmount),
+                    //
+                    //
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      color: Constants.lightdull,
+                      child: const Row(
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: customTextForWeather(
+                                textAlign: TextAlign.center,
+                                title: "Candidate Name",
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 4,
+                            child: customTextForWeather(
+                                textAlign: TextAlign.center,
+                                title: "PO No.",
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: customTextForWeather(
+                                textAlign: TextAlign.center,
+                                title: "DOJ",
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: customTextForWeather(
+                                textAlign: TextAlign.center,
+                                title: "Amount",
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ...filteredJoiners.map((candidate) => Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              bottom:
+                                  BorderSide(color: Colors.grey, width: 0.2),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 5,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: customTextForWeather(
+                                      title: candidate.candidateName
+                                              ?.toString()
+                                              .replaceAll(',', '') ??
+                                          'Unknown'),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 4,
+                                child: customTextForWeather(
+                                    textAlign: TextAlign.center,
+                                    title: candidate.id?.toString() ??
+                                        candidate.id?.toString() ??
+                                        'Unknown'),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: customTextForWeather(
+                                    textAlign: TextAlign.center,
+                                    title: _formatDate(
+                                        candidate.dateOfJoining?.toString() ??
+                                            "Unknown")),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: customTextForWeather(
+                                    textAlign: TextAlign.center,
+                                    title: candidate.partnerPayout != null
+                                        ? "₹ ${candidate.partnerPayout!.toStringAsFixed(0)}"
+                                        : "null"),
+                              ),
+                            ],
+                          ),
+                        )),
+                    const SizedBox(height: 16),
+
+                    // Total Amount
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: customTextForMonst(
+                          title: "Total: ₹ $totalAmount",
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    //
+                    //
                     SizedBox(height: 10.h),
                     Row(
                       children: [
                         const customTextForWeather(
                           title: 'Amount in words: ',
-                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
                         Expanded(
                           child: customTextForWeather(
                             title: '${amountToWords(totalAmount)} only',
                             fontSize: 12,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -213,57 +324,63 @@ class _InvoiceState extends ConsumerState<Invoice> {
                     const Divider(),
                     SizedBox(height: 10.h),
                     const customTextForWeather(
-                      title: 'Banking Detail',
-                      fontSize: 12,
+                      title: "Banking Detail",
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 10.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  customTextForWeather(title: 'Bank Name'),
-                                  customTextForWeather(title: 'Account Type'),
-                                  customTextForWeather(title: 'Holder Name'),
-                                  customTextForWeather(title: 'Account No'),
-                                  customTextForWeather(title: 'IFSC Code'),
-                                ],
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  customTextForWeather(
-                                    title:
-                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.bankName ?? 'Unknown' : 'Unknown'}',
-                                  ),
-                                  customTextForWeather(
-                                    title:
-                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.accountType ?? 'Unknown' : 'Unknown'}',
-                                  ),
-                                  customTextForWeather(
-                                    title:
-                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.accountHolderName ?? 'Unknown' : 'Unknown'}',
-                                  ),
-                                  customTextForWeather(
-                                    title:
-                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.accountNumber ?? 'Unknown' : 'Unknown'}',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  customTextForWeather(
-                                    title:
-                                        ': ${widget.joinersdata.isNotEmpty ? widget.joinersdata.first.ifscCode ?? 'Unknown' : 'Unknown'}',
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    Row(
+                      children: [
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            customTextForWeather(
+                              title: "Bank Name",
+                            ),
+                            customTextForWeather(
+                              title: "Account Type",
+                            ),
+                            customTextForWeather(
+                              title: "Holder Name(As per Bank Record)",
+                            ),
+                            customTextForWeather(
+                              title: "Account No",
+                            ),
+                            customTextForWeather(
+                              title: "IFSC Code",
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            customTextForWeather(
+                              title: " : ${widget.joinersdata.first.bankName}",
+                            ),
+                            customTextForWeather(
+                              title:
+                                  " : ${widget.joinersdata.first.accountType}",
+                            ),
+                            customTextForWeather(
+                              title:
+                                  " : ${widget.joinersdata.first.accountHolderName}",
+                            ),
+                            customTextForMonst(
+                              title:
+                                  " : ${widget.joinersdata.first.accountNumber}",
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.6,
+                            ),
+                            customTextForMonst(
+                              title: " : ${widget.joinersdata.first.ifscCode}",
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.6,
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 15,
                     ),
                     CustomCheckboxRow(
                       title:
@@ -274,6 +391,27 @@ class _InvoiceState extends ConsumerState<Invoice> {
                           terncondition = value!;
                         });
                       },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+
+                            // Organization Name & Address (Assumed Static)
+                            const customTextForWeather(
+                              title: "From,",
+                              fontWeight: FontWeight.bold,
+                            ),
+                            customTextForWeather(
+                                title: widget
+                                    .joinersdata.first.accountHolderName
+                                    .toString()),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -294,6 +432,15 @@ class _InvoiceState extends ConsumerState<Invoice> {
           )
       ],
     );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      DateTime parsedDate = DateFormat('dd MMM yyyy').parse(dateStr);
+      return DateFormat('dd MMM yy').format(parsedDate); // e.g., 15 Mar 25
+    } catch (e) {
+      return ''; // fallback if parsing fails
+    }
   }
 
   void submitInvoice() async {
@@ -319,6 +466,7 @@ class _InvoiceState extends ConsumerState<Invoice> {
         setState(() {
           isLoading = false;
         });
+        ref.refresh(invoiceProvider);
       } else {
         CustomSnackbar.show('Failed to submit invoice', true);
         setState(() {
@@ -555,7 +703,7 @@ class DynamicTable extends StatelessWidget {
               TableCell(
                 child: Center(
                   child: customTextForWeather(
-                    title: 'Process',
+                    title: 'Designation',
                     fontWeight: FontWeight.bold,
                   ),
                 ),

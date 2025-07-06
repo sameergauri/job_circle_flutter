@@ -32,7 +32,7 @@ class PaymentStatusHomePage extends ConsumerStatefulWidget {
 }
 
 class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   TabController? _tabController;
   TextEditingController searchController = TextEditingController();
   String searchQuery = '';
@@ -103,6 +103,17 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
 
       // Collect dates from validation
       for (var item in resultData.validation) {
+        if (item.invoiceSubmitDate.isNotEmpty) {
+          try {
+            final date =
+                DateFormat('dd MMM yyyy').parse(item.invoiceSubmitDate);
+            availableDates.add(DateFormat('MMM yyyy').format(date));
+          } catch (e) {
+            // Skip invalid date
+          }
+        }
+      }
+      for (var item in resultData.rejectData) {
         if (item.invoiceSubmitDate.isNotEmpty) {
           try {
             final date =
@@ -232,22 +243,29 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
     final invoiceAsync = ref.watch(invoiceProvider);
     final selectedDate = ref.watch(dateFilterProvider);
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Calculate responsive font size (e.g., 3% of screen width, capped at 14)
+    final tabFontSize = (screenWidth * 0.03).clamp(10.0, 14.0);
+
     return invoiceAsync.when(
       data: (data) {
         final resultData = data.resultData;
         final invoices = resultData.invoiceSent;
         final paidData = resultData.paidData;
         final validation = resultData.validation;
+        final rejectedData = resultData.rejectData;
 
         // Filter data based on search query
         final filteredInvoices = _filterInvoices(invoices, searchQuery);
         final filteredPaidData = _filterInvoices(paidData, searchQuery);
         final filteredValidation = _filterInvoices(validation, searchQuery);
+        final filteredRejected = _filterInvoices(rejectedData, searchQuery);
 
         // Apply date filter if selected
         List<InvoiceSent> dateFilteredInvoices = filteredInvoices;
         List<InvoiceSent> dateFilteredPaidData = filteredPaidData;
         List<InvoiceSent> dateFilteredValidation = filteredValidation;
+        List<InvoiceSent> dateFilteredRejectedData = filteredRejected;
 
         if (selectedDate != null) {
           final selectedMonth = selectedDate['month'];
@@ -291,21 +309,33 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
             }
             return false;
           }).toList();
+
+          dateFilteredRejectedData = filteredRejected.where((item) {
+            if (item.invoiceSubmitDate.isNotEmpty) {
+              try {
+                final date =
+                    DateFormat('dd MMM yyyy').parse(item.invoiceSubmitDate);
+                return DateFormat('MM').format(date) == selectedMonth &&
+                    DateFormat('yyyy').format(date) == selectedYear;
+              } catch (e) {
+                return false;
+              }
+            }
+            return false;
+          }).toList();
         }
 
         // Determine which lists have data after filtering
         final tabData = [
           if (dateFilteredInvoices.isNotEmpty)
             {'name': 'Invoices Sent', 'data': dateFilteredInvoices},
-          if (dateFilteredPaidData.isNotEmpty)
-            {'name': 'Paid Data', 'data': dateFilteredPaidData},
           if (dateFilteredValidation.isNotEmpty)
             {'name': 'Validation', 'data': dateFilteredValidation},
+          if (dateFilteredPaidData.isNotEmpty)
+            {'name': 'Paid Data', 'data': dateFilteredPaidData},
+          if (dateFilteredRejectedData.isNotEmpty)
+            {'name': 'Not Paid', 'data': dateFilteredRejectedData},
         ];
-
-        if (tabData.isEmpty) {
-          return const Center(child: Text('No data available'));
-        }
 
         // Dispose of the previous TabController if the number of tabs changes
         if (_tabController != null &&
@@ -332,6 +362,7 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
           );
         } else {
           return Scaffold(
+              backgroundColor: Colors.white,
               appBar: AppBar(
                 elevation: 0,
                 iconTheme: const IconThemeData(color: Constants.black),
@@ -342,7 +373,8 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
                   child: CustomTextFieldforAll(
                     isSearch: true,
                     controller: searchController,
-                    hint: "Search by organization, invoice or candidate",
+                    isGmail: true,
+                    hint: "Search by candidate name",
                     onChanged: (query) {
                       setState(() {
                         searchQuery = query.toLowerCase();
@@ -368,42 +400,56 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
                   ),
                 ],
               ),
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TabBar(
-                    controller: _tabController,
-                    tabs: tabData
-                        .map((tab) => Tab(
-                              text:
-                                  "${tab['name']} (${(tab['data'] as List).length})",
-                            ))
-                        .toList(),
-                    overlayColor: MaterialStateProperty.all(Colors.transparent),
-                    tabAlignment: TabAlignment.start,
-                    isScrollable: true,
-                    labelColor: Constants.black,
-                    unselectedLabelColor: Constants.subtitleclr,
-                    indicatorColor: Constants.orange,
-                    indicatorSize: TabBarIndicatorSize.label,
-                    labelStyle: GoogleFonts.merriweather(
-                        fontSize: 12, fontWeight: FontWeight.w700),
-                    unselectedLabelStyle: GoogleFonts.merriweather(
-                        fontSize: 12, fontWeight: FontWeight.normal),
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: tabData.map((tab) {
-                        final data = tab['data'] as List<dynamic>;
-                        final tabName = tab['name'] as String;
+              body: tabData.isEmpty
+                  ? const Center(
+                      child: customTextForWeather(
+                        title: "No data found",
+                        fontSize: 16,
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TabBar(
+                          isScrollable: true,
+                          controller: _tabController,
+                          tabs: tabData
+                              .map((tab) => Tab(
+                                    text: tab['name'] == "Paid Data"
+                                        ? "Paid (${(tab['data'] as List).length})"
+                                        : "${tab['name']} (${(tab['data'] as List).length})",
+                                  ))
+                              .toList(),
+                          overlayColor:
+                              MaterialStateProperty.all(Colors.transparent),
+                          labelColor: Constants.black,
+                          unselectedLabelColor: Constants.subtitleclr,
+                          indicatorColor: Constants.orange,
+                          labelStyle: GoogleFonts.merriweather(
+                              fontSize: tabFontSize,
+                              fontWeight: FontWeight.w700),
+                          unselectedLabelStyle: GoogleFonts.merriweather(
+                              fontSize: tabFontSize,
+                              fontWeight: FontWeight.normal),
+                          indicatorSize: TabBarIndicatorSize.label,
+                          labelPadding: EdgeInsets.symmetric(
+                            horizontal:
+                                screenWidth * 0.02, // Responsive padding
+                          ),
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: tabData.map((tab) {
+                              final data = tab['data'] as List<dynamic>;
+                              final tabName = tab['name'] as String;
 
-                        return _buildInvoiceList(data, tabName);
-                      }).toList(),
-                    ),
-                  ),
-                ],
-              ));
+                              return _buildInvoiceList(data, tabName);
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ));
         }
       },
       loading: () => const Scaffold(
@@ -419,12 +465,6 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
   }
 
   Widget _buildInvoiceList(List<dynamic> items, String tabName) {
-    if (items.isEmpty) {
-      return const Center(
-        child: Text('No data available'),
-      );
-    }
-
     return RefreshIndicator(
       color: Constants.darkBlue,
       onRefresh: () async {
@@ -440,28 +480,31 @@ class _PaymentStatusHomePageState extends ConsumerState<PaymentStatusHomePage>
 
           // Handle InvoiceSent for "Invoices Sent" tab
 
-          return Column(
-            children: [
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InvoiceDetail(
-                        invoice: item,
-                        invoiceTab: InvoiceTab.invoicesent,
+          return Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Column(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InvoiceDetail(
+                          invoice: item,
+                          invoiceTab: InvoiceTab.invoicesent,
+                        ),
                       ),
-                    ),
-                  );
-                },
-                child: CustomInvoiceCard(invoice: item),
-              ),
-              if (index != items.length - 1)
-                const Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: Divider(thickness: 1, endIndent: 10),
+                    );
+                  },
+                  child: CustomInvoiceCard(invoice: item),
                 ),
-            ],
+                if (index != items.length - 1)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Divider(thickness: 1, endIndent: 10),
+                  ),
+              ],
+            ),
           );
         },
       ),

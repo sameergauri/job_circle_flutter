@@ -525,7 +525,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
           resume: icon_data,
           shortListFor: widget.company_id,
           spoc: widget.spocId,
-          payoutMode: termAndConditionOne ? "Default" : "Special",
+          payoutMode: termAndConditionOne ? "DEFAULT" : "SPECIAL",
           uid: int.tryParse(userId));
       await JobPostApiService.ReferAndAddResume(
         referAddResumeModel.toJson(),

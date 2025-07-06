@@ -96,6 +96,7 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
           fontSize: 12,
           color: Colors.black,
           fontWeight: FontWeight.normal,
+          letterSpacing: 0.8,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,

@@ -188,6 +188,8 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
   String get _staticPrefix => "Search job by ";
   String get _currentDynamicHint => dynamicParts[_currentIndex];
 
+  FocusNode focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -214,7 +216,7 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
               ? MediaQuery.of(context).size.height / 24
               : null,
           child: TextFormField(
-            focusNode: widget.focusNode,
+            focusNode: focusNode,
             onTap: () {
               widget.onTab != null ? widget.onTab!() : null;
             },
@@ -282,49 +284,54 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
 
         // 🧠 Manual hint when controller is empty
         if (widget.controller.text.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              children: [
-                Text(
-                  _staticPrefix,
-                  style: GoogleFonts.montserrat(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                ),
-                AnimatedSwitcher(
-                  duration:
-                      const Duration(milliseconds: 1000), // slow fade-slide
-                  transitionBuilder:
-                      (Widget child, Animation<double> animation) {
-                    final slideIn = Tween<Offset>(
-                      begin: const Offset(0, -1), // from top
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                        parent: animation, curve: Curves.linear));
-
-                    return SlideTransition(
-                      textDirection: TextDirection.rtl,
-                      position: slideIn,
-                      child: FadeTransition(
-                        opacity: animation,
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: Text(
-                    "'$_currentDynamicHint'",
-                    key: ValueKey(
-                        _currentDynamicHint), // must be unique for each hint
-                    style: GoogleFonts.merriweather(
-                      color: Constants.darkBlack,
-                      fontStyle: FontStyle.italic,
+          InkWell(
+            onTap: () {
+              focusNode.requestFocus();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Text(
+                    _staticPrefix,
+                    style: GoogleFonts.montserrat(
+                      color: Colors.grey,
                       fontSize: 14,
                     ),
                   ),
-                ),
-              ],
+                  AnimatedSwitcher(
+                    duration:
+                        const Duration(milliseconds: 1000), // slow fade-slide
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                      final slideIn = Tween<Offset>(
+                        begin: const Offset(0, -1), // from top
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                          parent: animation, curve: Curves.linear));
+
+                      return SlideTransition(
+                        textDirection: TextDirection.rtl,
+                        position: slideIn,
+                        child: FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        ),
+                      );
+                    },
+                    child: Text(
+                      "'$_currentDynamicHint'",
+                      key: ValueKey(
+                          _currentDynamicHint), // must be unique for each hint
+                      style: GoogleFonts.merriweather(
+                        color: Constants.darkBlack,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
       ],

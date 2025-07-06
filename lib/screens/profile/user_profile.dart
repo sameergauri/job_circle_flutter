@@ -2014,7 +2014,7 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                                         .replaceAll(',', '')
                                         .toString(), */
                                     fontSize: 12,
-                                    fontWeight: FontWeight.normal,
+                                    fontWeight: FontWeight.w500,
                                     color: Constants.subtitleclr,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -2024,7 +2024,7 @@ class _UserProfileState extends ConsumerState<UserProfile> {
                                     ),
                                     color: Constants.subtitleclr,
                                     fontSize: 12,
-                                    fontWeight: FontWeight.normal,
+                                    fontWeight: FontWeight.w500,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
