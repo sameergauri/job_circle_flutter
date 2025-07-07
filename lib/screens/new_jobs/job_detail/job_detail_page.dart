@@ -178,7 +178,7 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                     state.jobDetail!.eligibility2!,
                 isList: true,
               ),
-            if (state.jobDetail!.boundryLimits != null && 
+            if (state.jobDetail!.boundryLimits != null &&
                 state.jobDetail!.boundryLimits!.isNotEmpty)
               CustomContainerForEligibility(
                 heading: "Boundry Limits",
@@ -219,26 +219,27 @@ class _JobDetailPageState extends ConsumerState<JobDetailPage> {
                             onClose: () {
                               Navigator.pop(context);
                             },
-                            subtitle: "Your cv is not uplaod in the profile");
+                            subtitle: "Your cv is not uplaoded in the profile");
                       },
                     );
                   }
                 },
               ),
-            RecruiterDetailsCard(
-              title: "Posted by / Recruiter Details",
-              email: state.jobDetail!.postedByEmail.toString(),
-              recruiterName: state.jobDetail!.postedBy.toString(),
-              designation: state.jobDetail!.postedByDesignation
-                  .toString(), // replace with actual value
-              location: state.jobDetail!.postedByLocation != null
-                  ? state.jobDetail!.postedByLocation.toString()
-                  : " ", // replace with actual value
-              contactNumber: state.jobDetail!.postedByContactNo!,
-              profilepic: state.jobDetail!.postedByProfilePic != null
-                  ? state.jobDetail!.postedByProfilePic!
-                  : " ",
-            ),
+            if (state.jobDetail!.active != null && state.jobDetail!.active != 0)
+              RecruiterDetailsCard(
+                title: "Posted by / Recruiter Details",
+                email: state.jobDetail!.postedByEmail.toString(),
+                recruiterName: state.jobDetail!.postedBy.toString(),
+                designation: state.jobDetail!.postedByDesignation
+                    .toString(), // replace with actual value
+                location: state.jobDetail!.postedByLocation != null
+                    ? state.jobDetail!.postedByLocation.toString()
+                    : " ", // replace with actual value
+                contactNumber: state.jobDetail!.postedByContactNo!,
+                profilepic: state.jobDetail!.postedByProfilePic != null
+                    ? state.jobDetail!.postedByProfilePic!
+                    : " ",
+              ),
             if (state.jobDetail!.payoutDetails != null)
               InkWell(
                 onTap: () {

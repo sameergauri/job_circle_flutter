@@ -248,11 +248,11 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 onChanged: (value) {}),
 
             Row(
-              mainAxisAlignment: invoiceTab == InvoiceTab.paid
+              mainAxisAlignment: invoice.paymentStatus == "paid"
                   ? MainAxisAlignment.spaceBetween
                   : MainAxisAlignment.end,
               children: [
-                if (invoiceTab == InvoiceTab.paid)
+                if (invoice.paymentStatus == "paid")
                   Image.network(
                       height: 50,
                       "https://cdn-icons-png.flaticon.com/128/4272/4272841.png"),
@@ -330,6 +330,21 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       title: "Incorrect")
                 ],
               ),
+            if (invoice.paymentStatus == "invoicesent")
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 8,
+                  ),
+                  CustomRemarkConatiner(
+                      fontsize: 11,
+                      subtitle:
+                          "Pending by Processing Team will be process shortly.",
+                      valueColor: Constants.black,
+                      title: "Invoice Sent")
+                ],
+              ),
           ],
         ),
       ],
@@ -401,7 +416,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
       }
     }
 
-    return words.trim().toTitleCase();
+    return "${words.trim().toTitleCase()} Only";
   }
 
   String _formatDate(String dateStr) {

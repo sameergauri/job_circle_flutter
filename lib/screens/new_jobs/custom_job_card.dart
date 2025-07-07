@@ -310,7 +310,7 @@ class CustomJobCard extends ConsumerWidget {
         const SizedBox(width: 5),
         Expanded(
           child: customTextForWeather(
-            title: text,
+            title: text.replaceAll('(OnSite)', '(Onsite)'),
             fontSize: 12,
             color: Constants.subtitleclr,
           ),

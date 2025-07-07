@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/custom_remark.dart';
 import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
-import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Billing/model/payment_status_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -114,7 +113,7 @@ class CustomInvoiceCard extends StatelessWidget {
                     title: "Validation")
               ],
             ),
-          if (invoice.paymentStatus == InvoiceTab.invoicesent)
+          if (invoice.paymentStatus == "invoicesent")
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -129,7 +128,7 @@ class CustomInvoiceCard extends StatelessWidget {
                     title: "Invoice Sent")
               ],
             ),
-            if (invoice.paymentStatus == "Incorrect")
+          if (invoice.paymentStatus == "Incorrect")
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

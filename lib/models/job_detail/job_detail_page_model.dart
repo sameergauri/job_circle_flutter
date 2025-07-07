@@ -42,6 +42,7 @@ class JobDetailPageModel {
   final List<String>? boundryLimits;
   final PayoutDetails? payoutDetails;
   final String? locationWithWorkType;
+  final int? active;
 
   JobDetailPageModel({
     this.id,
@@ -85,6 +86,7 @@ class JobDetailPageModel {
     this.payoutDetails,
     this.companyIcon,
     this.locationWithWorkType,
+    this.active,
   });
 
   factory JobDetailPageModel.fromJson(Map<String, dynamic> json) {
@@ -132,6 +134,7 @@ class JobDetailPageModel {
           : null,
       companyIcon: json['companyIcon'],
       locationWithWorkType: json['locationWithWorkType'],
+      active: json['active'],
     );
   }
 }

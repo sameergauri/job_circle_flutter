@@ -384,7 +384,7 @@ class _InvoiceState extends ConsumerState<Invoice> {
                     ),
                     CustomCheckboxRow(
                       title:
-                          'I, User Name, hereby acknowledge and agree that the above invoice accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
+                          'I, ${widget.joinersdata.first.accountHolderName!.replaceAll(',', '')}, hereby acknowledge and agree that the above invoice accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
                       value: terncondition,
                       onChanged: (value) {
                         setState(() {

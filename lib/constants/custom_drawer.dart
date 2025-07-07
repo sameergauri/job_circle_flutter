@@ -130,7 +130,7 @@ class CustomDrawer extends ConsumerWidget {
                   color: Colors.black,
                 ),
                 title: const customTextForWeather(
-                    title: 'Hired Candidate',
+                    title: "Joiner's",
                     fontSize: 12,
                     fontWeight: FontWeight.normal),
                 onTap: () {
