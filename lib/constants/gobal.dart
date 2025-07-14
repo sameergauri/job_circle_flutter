@@ -4,7 +4,7 @@ class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
 
   static const API_Host =
-      "ec2-13-200-109-136.ap-south-1.comp ute.amazonaws.com:9090";
+      "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
       // "192.168.219.234:8081";
   // "192.168.193.236:9090";
 

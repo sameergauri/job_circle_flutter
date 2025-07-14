@@ -4,7 +4,7 @@ description: Job circle.
 #Flutter version of the project : 3.19.4
 
 publish_to: "none"
-version: 1.0.1+26
+version: 1.0.1+27
 
 environment:
   sdk: ">=2.17.0-0 <3.0.0"

@@ -363,7 +363,7 @@ class CustomDrawer extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(top: 10),
                   child: customTextForWeather(
-                    title: 'Version 1.0.26',
+                    title: 'Version 1.0.27',
                     fontSize: 10,
                     fontWeight: FontWeight.normal,
                     fontStyle: FontStyle.italic,

@@ -122,10 +122,10 @@ class _HomeScreenState extends State<HomeScreen> {
             'version']; //TODO::: latest version is one previous version of the currenct app ...
 
         const String currentVersion =
-            '1.0.26'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+            '1.0.27'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
         if (latestVersion.compareTo(currentVersion) > 0) {
-          // Display update notification
+          // Display update notificationra
 
           showDialog(
             context: context,

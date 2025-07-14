@@ -24,7 +24,6 @@ class ServiceBase {
       };
       return http.post(url,
           body: const JsonEncoder().convert(params), headers: _headers);
-          
     } catch (ex) {
       print(ex);
     }
@@ -91,7 +90,7 @@ class ServiceBase {
 
   Future httpSingleFile(String endpoint, objFile) async {
     SharedPreferences prefs;
-    Uri url = Uri.parse("http://" + GlobalConstants.API_Host + endpoint);
+    Uri url = Uri.parse("http://" + GlobalConstants.API_Host_one + endpoint);
     var request = http.MultipartRequest('POST', url);
     var mimtype = Utils.getMimType(objFile.name);
     request.headers['Content-Type'] = 'multipart/form-data';
@@ -105,14 +104,13 @@ class ServiceBase {
 
     return http.Response.fromStream(result)
         .then((response) {
-          if (response.statusCode == 200) {   
+          if (response.statusCode == 200) {
             // print("Uploaded! ");
             // print('response.body ' + response.body);
             return response;
-            
           }
           return response;
-        })      
+        })
         .catchError((err) => err)
         .whenComplete(() {});
   }
