@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/models/job_detail/job_detail_page_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart'; // assuming for `customTextForWeather`
 import 'package:job_circle/themes/colors.dart'; // update with your actual theme import
@@ -65,43 +66,57 @@ class CustomRadioOption extends StatelessWidget {
             children: [
               InkWell(
                 onTap: onTap1,
-                child: Row(
-                  children: [
-                    Icon(
-                      isSelected1
-                          ? Icons.radio_button_checked_outlined
-                          : Icons.radio_button_off,
-                      color: isSelected1
-                          ? Constants.themeBgColor
-                          : Constants.subtitleclr,
-                    ),
-                    const SizedBox(width: 10),
-                    const Icon(Icons.currency_rupee_rounded,
-                        size: 18, color: Constants.darkBlue),
-                    customTextForWeather(
-                      title:
-                          "${partnerpayment.toString()} if the candidate completes $days of employment",
-                      fontSize: 12,
-                      color: Constants.black,
-                      fontWeight:
-                          isSelected1 ? FontWeight.w600 : FontWeight.w400,
-                    ),
-                  ],
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: Icon(
+                          isSelected1
+                              ? Icons.radio_button_checked_outlined
+                              : Icons.radio_button_off,
+                          color: isSelected1
+                              ? Constants.themeBgColor
+                              : Constants.subtitleclr,
+                        ),
+                      ),
+                      const WidgetSpan(child: SizedBox(width: 8)),
+                      const WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: Icon(
+                          Icons.currency_rupee_rounded,
+                          size: 16,
+                          color: Constants.darkBlue,
+                        ),
+                      ),
+                      const WidgetSpan(child: SizedBox(width: 4)),
+                      TextSpan(
+                        text:
+                            "$partnerpayment if the candidate completes $days of employment",
+                        style: GoogleFonts.merriweather(
+                          fontSize: 12,
+                          color: Constants.black,
+                          fontWeight:
+                              isSelected1 ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                  softWrap: true,
                 ),
               ),
               if (payoutDetails.formattedSpecialPayout.isNotEmpty &&
                   specialpayment != 0)
                 Container(
-                  margin: const EdgeInsets.only(
-                    top: 5,
-                  ),
-                  child: Column(
-                    children: [
-                      InkWell(
-                        onTap: onTap2,
-                        child: Row(
-                          children: [
-                            Icon(
+                  margin: const EdgeInsets.only(top: 5),
+                  child: InkWell(
+                    onTap: onTap2,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Icon(
                               isSelected2
                                   ? Icons.radio_button_checked_outlined
                                   : Icons.radio_button_off,
@@ -109,22 +124,32 @@ class CustomRadioOption extends StatelessWidget {
                                   ? Constants.themeBgColor
                                   : Constants.subtitleclr,
                             ),
-                            const SizedBox(width: 10),
-                            const Icon(Icons.currency_rupee_rounded,
-                                size: 18, color: Constants.darkBlue),
-                            customTextForWeather(
-                              title:
-                                  "${specialpayment.toString()} if the candidate completes 30 days of employment",
+                          ),
+                          const WidgetSpan(child: SizedBox(width: 8)),
+                          const WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Icon(
+                              Icons.currency_rupee_rounded,
+                              size: 16,
+                              color: Constants.darkBlue,
+                            ),
+                          ),
+                          const WidgetSpan(child: SizedBox(width: 4)),
+                          TextSpan(
+                            text:
+                                "$specialpayment if the candidate completes 30 days of employment",
+                            style: GoogleFonts.merriweather(
                               fontSize: 12,
                               color: Constants.black,
                               fontWeight: isSelected2
                                   ? FontWeight.w600
                                   : FontWeight.w400,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                      softWrap: true,
+                    ),
                   ),
                 ),
               const SizedBox(
@@ -142,43 +167,49 @@ class CustomRadioOption extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: onTap1,
-                    child: Row(
-                      children: [
-                        Icon(
-                          isSelected1
-                              ? Icons.radio_button_checked_outlined
-                              : Icons.radio_button_off,
-                          color: isSelected1
-                              ? Constants.themeBgColor
-                              : Constants.subtitleclr,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: customTextForWeather(
-                            title:
-                                "${partnerpayment.toString()}% of the candidate’s CTC if the candidate completes $days days of employment",
-                            fontSize: 12,
-                            color: Constants.black,
-                            fontWeight:
-                                isSelected1 ? FontWeight.w600 : FontWeight.w400,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.middle,
+                            child: Icon(
+                              isSelected1
+                                  ? Icons.radio_button_checked_outlined
+                                  : Icons.radio_button_off,
+                              color: isSelected1
+                                  ? Constants.themeBgColor
+                                  : Constants.subtitleclr,
+                            ),
                           ),
-                        ),
-                      ],
+                          const WidgetSpan(child: SizedBox(width: 8)),
+                          TextSpan(
+                            text:
+                                "$partnerpayment% of the candidate’s CTC if the candidate completes $days days of employment",
+                            style: GoogleFonts.merriweather(
+                              fontSize: 12,
+                              color: Constants.black,
+                              fontWeight: isSelected1
+                                  ? FontWeight.w600
+                                  : FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
+                      softWrap: true,
                     ),
                   ),
                   if (payoutDetails.formattedSpecialPayout.isNotEmpty &&
                       specialpayment != 0)
                     Container(
-                      margin: const EdgeInsets.only(
-                        top: 5,
-                      ),
-                      child: Column(
-                        children: [
-                          InkWell(
-                            onTap: onTap2,
-                            child: Row(
-                              children: [
-                                Icon(
+                      margin: const EdgeInsets.only(top: 5),
+                      child: InkWell(
+                        onTap: onTap2,
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Icon(
                                   isSelected2
                                       ? Icons.radio_button_checked_outlined
                                       : Icons.radio_button_off,
@@ -186,22 +217,32 @@ class CustomRadioOption extends StatelessWidget {
                                       ? Constants.themeBgColor
                                       : Constants.subtitleclr,
                                 ),
-                                const SizedBox(width: 10),
-                                const Icon(Icons.currency_rupee_rounded,
-                                    size: 18, color: Constants.darkBlue),
-                                customTextForWeather(
-                                  title:
-                                      "${specialpayment.toString()} if the candidate completes 30 days of employment",
+                              ),
+                              const WidgetSpan(child: SizedBox(width: 8)),
+                              const WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Icon(
+                                  Icons.currency_rupee_rounded,
+                                  size: 16,
+                                  color: Constants.darkBlue,
+                                ),
+                              ),
+                              const WidgetSpan(child: SizedBox(width: 4)),
+                              TextSpan(
+                                text:
+                                    "$specialpayment if the candidate completes 30 days of employment",
+                                style: GoogleFonts.merriweather(
                                   fontSize: 12,
                                   color: Constants.black,
                                   fontWeight: isSelected2
                                       ? FontWeight.w600
                                       : FontWeight.w400,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                          softWrap: true,
+                        ),
                       ),
                     ),
                   const SizedBox(
@@ -217,48 +258,60 @@ class CustomRadioOption extends StatelessWidget {
             : Column(
                 children: [
                   InkWell(
-                    onTap: onTap1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                      onTap: onTap1,
+                      child: Text.rich(
+                        TextSpan(
                           children: [
-                            Icon(
-                              isSelected1
-                                  ? Icons.radio_button_checked_outlined
-                                  : Icons.radio_button_off,
-                              color: isSelected1
-                                  ? Constants.themeBgColor
-                                  : Constants.subtitleclr,
+                            WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: Icon(
+                                isSelected1
+                                    ? Icons.radio_button_checked_outlined
+                                    : Icons.radio_button_off,
+                                color: isSelected1
+                                    ? Constants.themeBgColor
+                                    : Constants.subtitleclr,
+                              ),
                             ),
-                            const SizedBox(width: 10),
-                            customTextForWeather(
-                              title: "Up to",
-                              fontWeight: isSelected1
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
+                            const WidgetSpan(child: SizedBox(width: 6)),
+                            TextSpan(
+                              text: "Up to ",
+                              style: GoogleFonts.merriweather(
+                                fontWeight: isSelected1
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: Constants.black,
+                                fontSize: 12,
+                              ),
                             ),
-                            const Icon(Icons.currency_rupee_rounded,
-                                size: 18, color: Constants.darkBlue),
-                            customTextForWeather(
-                              title: partnerSlabs.last.formattedAmount
-                                  .split(':')
-                                  .last
-                                  .trim(),
-                              fontSize: 12,
-                              color: Constants.black,
-                              fontWeight: isSelected1
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
+                            const WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: Icon(
+                                Icons.currency_rupee_rounded,
+                                size: 16,
+                                color: Constants.darkBlue,
+                              ),
                             ),
-                            InkWell(
+                            TextSpan(
+                              text:
+                                  "${partnerSlabs.last.formattedAmount.split(':').last.trim()} ",
+                              style: GoogleFonts.merriweather(
+                                fontWeight: isSelected1
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: Constants.black,
+                                fontSize: 12,
+                              ),
+                            ),
+                            WidgetSpan(
+                              alignment: PlaceholderAlignment.middle,
+                              child: GestureDetector(
                                 onTap: () {
-                                  // Show a tooltip-like container above the icon when tapped
                                   OverlayEntry? overlayEntry;
-                                  final RenderBox iconRenderBox =
+                                  final RenderBox renderBox =
                                       context.findRenderObject() as RenderBox;
                                   final Offset iconPosition =
-                                      iconRenderBox.localToGlobal(Offset.zero);
+                                      renderBox.localToGlobal(Offset.zero);
 
                                   overlayEntry = OverlayEntry(
                                     builder: (context) => Positioned(
@@ -281,9 +334,9 @@ class CustomRadioOption extends StatelessWidget {
                                             ],
                                           ),
                                           child: Column(
-                                            mainAxisSize: MainAxisSize.min,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
                                             children: [
                                               const customTextForWeather(
                                                 title: "Slab Details (90 days)",
@@ -291,17 +344,17 @@ class CustomRadioOption extends StatelessWidget {
                                                 fontWeight: FontWeight.bold,
                                               ),
                                               const SizedBox(height: 8),
-                                              ...partnerSlabs
-                                                  .map((slab) => Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                vertical: 2.0),
-                                                        child: customTextForWeather(
-                                                            title:
-                                                                "${formatSlabLabel(slab.formattedAmount)}/- per candidate",
-                                                            fontSize: 10),
-                                                      )),
+                                              ...partnerSlabs.map((slab) =>
+                                                  Padding(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 2.0),
+                                                    child: customTextForWeather(
+                                                      title:
+                                                          "${formatSlabLabel(slab.formattedAmount)}/- per candidate",
+                                                      fontSize: 10,
+                                                    ),
+                                                  )),
                                             ],
                                           ),
                                         ),
@@ -310,44 +363,43 @@ class CustomRadioOption extends StatelessWidget {
                                   );
 
                                   Overlay.of(context).insert(overlayEntry);
-
                                   Future.delayed(const Duration(seconds: 3),
                                       () {
                                     overlayEntry?.remove();
                                   });
                                 },
                                 child: const Icon(Icons.info_outline,
-                                    size: 20, color: Constants.darkBlue)),
-                            Expanded(
-                              child: customTextForWeather(
-                                softwrap: true,
-                                title:
-                                    "(as per payout slab) if the candidate completes $days days of employment.",
-                                fontSize: 12,
-                                color: Constants.black,
+                                    size: 16, color: Constants.darkBlue),
+                              ),
+                            ),
+                            const WidgetSpan(child: SizedBox(width: 4)),
+                            TextSpan(
+                              text:
+                                  "(as per payout slab) if the candidate completes $days days of employment.",
+                              style: GoogleFonts.merriweather(
                                 fontWeight: isSelected1
                                     ? FontWeight.w600
                                     : FontWeight.w400,
+                                color: Constants.black,
+                                fontSize: 12,
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
+                        softWrap: true,
+                      )),
                   if (payoutDetails.formattedSpecialPayout.isNotEmpty &&
                       specialpayment != 0)
                     Container(
-                      margin: const EdgeInsets.only(
-                        top: 5,
-                      ),
-                      child: Column(
-                        children: [
-                          InkWell(
-                            onTap: onTap2,
-                            child: Row(
-                              children: [
-                                Icon(
+                      margin: const EdgeInsets.only(top: 5),
+                      child: InkWell(
+                        onTap: onTap2,
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Icon(
                                   isSelected2
                                       ? Icons.radio_button_checked_outlined
                                       : Icons.radio_button_off,
@@ -355,22 +407,32 @@ class CustomRadioOption extends StatelessWidget {
                                       ? Constants.themeBgColor
                                       : Constants.subtitleclr,
                                 ),
-                                const SizedBox(width: 10),
-                                const Icon(Icons.currency_rupee_rounded,
-                                    size: 18, color: Constants.darkBlue),
-                                customTextForWeather(
-                                  title:
-                                      "${specialpayment.toString()} if the candidate completes 30 days of employment",
+                              ),
+                              const WidgetSpan(child: SizedBox(width: 8)),
+                              const WidgetSpan(
+                                alignment: PlaceholderAlignment.middle,
+                                child: Icon(
+                                  Icons.currency_rupee_rounded,
+                                  size: 16,
+                                  color: Constants.darkBlue,
+                                ),
+                              ),
+                              const WidgetSpan(child: SizedBox(width: 4)),
+                              TextSpan(
+                                text:
+                                    "$specialpayment if the candidate completes 30 days of employment",
+                                style: GoogleFonts.merriweather(
                                   fontSize: 12,
                                   color: Constants.black,
                                   fontWeight: isSelected2
                                       ? FontWeight.w600
                                       : FontWeight.w400,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                          softWrap: true,
+                        ),
                       ),
                     ),
                   const SizedBox(

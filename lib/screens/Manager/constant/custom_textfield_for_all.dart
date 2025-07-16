@@ -99,8 +99,7 @@ class CustomTextFieldforAll extends StatelessWidget {
               : isSearch != null && isSearch!
                   ? Colors.white
                   : Colors.transparent,
-          contentPadding:
-              const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
+          contentPadding: const EdgeInsets.only(left: 10, right: 10),
           counterText: headline != null && headline == true ? null : '',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
