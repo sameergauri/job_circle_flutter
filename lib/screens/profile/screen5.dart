@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/customButton_for_jobPosting.dart';
 import 'package:job_circle/models/edit_profile_model/Profile_update_request_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
 import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
@@ -226,11 +227,11 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
                           }
                         });
                       },
-                      onTabOutside: (event) {
+                      /*   onTabOutside: (event) {
                         FocusScope.of(context).unfocus();
                         skillsController.clear();
                         getSkills("");
-                      },
+                      }, */
                       onEditingComplete: () {
                         FocusScope.of(context).unfocus();
                         skillsController.clear();
@@ -295,83 +296,112 @@ class _SkillsMultiState extends ConsumerState<SkillsMulti> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const customTextForWeather(
-                        title: "Suggestions",
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                      if (suggestions.isNotEmpty)
+                        const customTextForWeather(
+                          title: "Suggestions",
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       SizedBox(
                         height: 5.h,
                       ),
-                      isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                color: Constants.themeBgColor,
+                      if (isLoading)
+                        const Center(
+                          child: CircularProgressIndicator(
+                            color: Constants.themeBgColor,
+                          ),
+                        ),
+                      if (suggestions.isEmpty)
+                        Center(
+                          child: Column(
+                            children: [
+                              const customTextForWeather(
+                                textAlign: TextAlign.center,
+                                title:
+                                    "No Skills found as per your search result click 'ADD' to add this skill",
                               ),
-                            )
-                          : Container(
-                              width: MediaQuery.of(context).size.width,
-                              padding: EdgeInsets.only(
-                                top: 10.h,
-                                bottom: 40.h,
-                                left: 10.w,
-                              ),
-                              decoration: BoxDecoration(
-                                  color: Constants.lightdull,
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.shade300,
-                                        blurRadius: 2.1,
-                                        spreadRadius: 3.2,
-                                        offset: const Offset(4.0, 8.0))
-                                  ],
-                                  borderRadius: BorderRadius.circular(8.r)),
-                              child: Wrap(
-                                children:
-                                    suggestions.take(20).map((suggestion) {
-                                  return InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        if (!selectedlist!
-                                            .contains(suggestion)) {
-                                          selectedlist!.add(suggestion);
-                                          suggestions.remove(suggestion);
-                                        } else {
-                                          CustomSnackbar.show(
-                                              "'$suggestion Already added in the list.'",
-                                              true);
-                                        }
-                                      });
-                                    },
-                                    child: Container(
-                                        margin: const EdgeInsets.only(
-                                            bottom: 6,
-                                            top: 2,
-                                            left: 6,
-                                            right: 2),
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(8.r)),
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 6.h, horizontal: 10.w),
-                                        child: customTextForWeather(
-                                            title: suggestion.toString(),
-                                            fontWeight: FontWeight.w400,
-                                            color: Constants.subtitleclr)),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
+                              CustomToggleButton(
+                                  title: " Add ",
+                                  onTap: () {
+                                    setState(() {
+                                      if (!selectedlist!
+                                          .contains(skillsController.text)) {
+                                        selectedlist!
+                                            .add(skillsController.text);
+                                        suggestions
+                                            .remove(skillsController.text);
+                                        skillsController.clear();
+                                        getSkills('');
+                                      } else {
+                                        CustomSnackbar.show(
+                                            "'${skillsController.text} Already added in the list.'",
+                                            true);
+                                      }
+                                    });
+                                  })
+                            ],
+                          ),
+                        ),
+                      if (suggestions.isNotEmpty)
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: EdgeInsets.only(
+                            top: 10.h,
+                            bottom: 40.h,
+                            left: 10.w,
+                          ),
+                          decoration: BoxDecoration(
+                              color: Constants.lightdull,
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.shade300,
+                                    blurRadius: 2.1,
+                                    spreadRadius: 3.2,
+                                    offset: const Offset(4.0, 8.0))
+                              ],
+                              borderRadius: BorderRadius.circular(8.r)),
+                          child: Wrap(
+                            children: suggestions.take(20).map((suggestion) {
+                              return InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    if (!selectedlist!.contains(suggestion)) {
+                                      selectedlist!.add(suggestion);
+                                      suggestions.remove(suggestion);
+                                    } else {
+                                      CustomSnackbar.show(
+                                          "'$suggestion Already added in the list.'",
+                                          true);
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                    margin: const EdgeInsets.only(
+                                        bottom: 6, top: 2, left: 6, right: 2),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                            BorderRadius.circular(8.r)),
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 6.h, horizontal: 10.w),
+                                    child: customTextForWeather(
+                                        title: suggestion.toString(),
+                                        fontWeight: FontWeight.w400,
+                                        color: Constants.subtitleclr)),
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       const SizedBox(
                         height: 10,
                       ),
-                      const customTextForWeather(
-                          title:
-                              'We recommend adding your top 5 skill used in this role',
-                          fontSize: 12,
-                          color: Constants.subtitleclr),
+                      if (suggestions.isNotEmpty)
+                        const customTextForWeather(
+                            title:
+                                'We recommend adding your top 5 skill used in this role',
+                            fontSize: 12,
+                            color: Constants.subtitleclr),
                     ],
                   ),
                   const SizedBox(height: 20),

@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:job_circle/constants/customButton_for_jobPosting.dart';
 import 'package:job_circle/models/user_data_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_button_for_save.dart';
 import 'package:job_circle/screens/Manager/constant/custom_snackbar.dart';
@@ -72,7 +73,6 @@ class _AddSkillState extends State<AddSkill> {
   }
 
   @override
-  
   List<String> suggestions = [];
   List<dynamic> selectedlist = [];
   FocusNode skillnode = FocusNode();
@@ -222,11 +222,11 @@ class _AddSkillState extends State<AddSkill> {
                       hint: "Enter your skills that match your role",
                       focusNode: skillnode,
                       controller: LanguageController,
-                      onTabOutside: (p0) {
+                      /*   onTabOutside: (p0) {
                         FocusScope.of(context).unfocus();
                         LanguageController.clear();
                         getJobTitle("");
-                      },
+                      }, */
                       onEditingComplete: () {
                         FocusScope.of(context).unfocus();
                         LanguageController.clear();
@@ -307,6 +307,36 @@ class _AddSkillState extends State<AddSkill> {
                           ),
                           const Divider(thickness: 0.8),
                         ],
+                      ),
+                    if (suggestions.isEmpty)
+                      Center(
+                        child: Column(
+                          children: [
+                            const customTextForWeather(
+                              textAlign: TextAlign.center,
+                              title:
+                                  "No Skills found as per your search result click 'ADD' to add this skill",
+                            ),
+                            CustomToggleButton(
+                                title: " Add ",
+                                onTap: () {
+                                  setState(() {
+                                    if (!selectedlist
+                                        .contains(LanguageController.text)) {
+                                      selectedlist.add(LanguageController.text);
+                                      suggestions
+                                          .remove(LanguageController.text);
+                                      LanguageController.clear();
+                                      getJobTitle("");
+                                    } else {
+                                      CustomSnackbar.show(
+                                          "${LanguageController.text} Already added in the list.",
+                                          true);
+                                    }
+                                  });
+                                })
+                          ],
+                        ),
                       ),
                     if (suggestions.isNotEmpty)
                       Column(
