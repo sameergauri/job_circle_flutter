@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/components/customTextFieldForAll.dart';
 import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
+import 'package:job_circle/constants/salary_round_off.dart';
 import 'package:job_circle/models/view_and_generate_model.dart';
 import 'package:job_circle/screens/Billing/provider/view_and_generate_provider.dart';
 import 'package:job_circle/screens/Billing/ui/Invoice.dart';
@@ -574,12 +575,23 @@ class _GenerateInvoiceState extends ConsumerState<GenerateInvoice>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    customTextForWeather(
-                      title:
-                          "Total Rs. ${_calculateFilteredPayableTotal(state).toString().replaceAll('.0', '')}",
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Constants.darkBlue,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const customTextForWeather(
+                          title: "Total Rs. ",
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Constants.darkBlue,
+                        ),
+                        customTextForWeather(
+                          title: SalaryRoundOff.customRoundOff(
+                              _calculateFilteredPayableTotal(state).toString()),
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Constants.darkBlue,
+                        ),
+                      ],
                     ),
                     SizedBox(
                       width: 200,

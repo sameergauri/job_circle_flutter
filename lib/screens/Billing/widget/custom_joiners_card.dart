@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/components/custom_remark.dart';
 import 'package:job_circle/components/custom_title_button.dart';
 import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
+import 'package:job_circle/constants/salary_round_off.dart';
 import 'package:job_circle/models/view_and_generate_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -139,7 +140,8 @@ class CustomJoinerCard extends StatelessWidget {
                 imageUrl:
                     "https://cdn-icons-png.flaticon.com/128/9798/9798241.png",
                 onTap: () {},
-                title: joiner.partnerPayout.toString().replaceAll('.0', ''),
+                title: SalaryRoundOff.customRoundOff(
+                    joiner.partnerPayout.toString()),
               ),
             ],
           ),

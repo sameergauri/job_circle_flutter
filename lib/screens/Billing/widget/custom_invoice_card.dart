@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/components/custom_remark.dart';
+import 'package:job_circle/components/custom_title_button.dart';
 import 'package:job_circle/constants/job_detail/custom_netwrok_image.dart';
+import 'package:job_circle/constants/salary_round_off.dart';
 import 'package:job_circle/screens/Billing/model/payment_status_model.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
@@ -62,10 +64,14 @@ class CustomInvoiceCard extends StatelessWidget {
                           fontSize: 12,
                           color: Constants.subtitleclr,
                         ),
-                        customTextForMonst(
-                          title:
-                              "₹ ${invoice.invoiceAmount.toString().replaceAll('.0', '')}",
-                          fontWeight: FontWeight.bold,
+                        CustomIconTitleButton(
+                          height: 20.0,
+                          width: 20.0,
+                          imageUrl:
+                              "https://cdn-icons-png.flaticon.com/128/9798/9798241.png",
+                          onTap: () {},
+                          title: SalaryRoundOff.customRoundOff(
+                              invoice.invoiceAmount.toString()),
                         ),
                       ],
                     ),

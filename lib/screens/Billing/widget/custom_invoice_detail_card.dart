@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/components/custom_remark.dart';
+import 'package:job_circle/components/custom_title_button.dart';
 import 'package:job_circle/constants/customchechbox.dart';
+import 'package:job_circle/constants/salary_round_off.dart';
 import 'package:job_circle/constants/viewuploadfile.dart';
 import 'package:job_circle/enums/enums.dart';
 import 'package:job_circle/screens/Billing/model/payment_status_model.dart';
@@ -151,11 +153,15 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       ),
                       Expanded(
                         flex: 5,
-                        child: customTextForWeather(
-                            textAlign: TextAlign.center,
-                            title: candidate.payoutAmount != null
-                                ? "₹ ${candidate.payoutAmount.toStringAsFixed(0)}"
-                                : "null"),
+                        child: CustomIconTitleButton(
+                          height: 20.0,
+                          width: 20.0,
+                          imageUrl:
+                              "https://cdn-icons-png.flaticon.com/128/9798/9798241.png",
+                          onTap: () {},
+                          title: SalaryRoundOff.customRoundOff(
+                              candidate.payoutAmount.toString()),
+                        ),
                       ),
                     ],
                   ),
@@ -164,12 +170,23 @@ class CustomInvoiveDetailCard extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Total Amount
-            Align(
-              alignment: Alignment.centerRight,
-              child: customTextForMonst(
-                title: "Total: ₹ ${invoice.invoiceAmount.toStringAsFixed(0)}",
-                fontWeight: FontWeight.bold,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                const customTextForMonst(
+                  title: "Total: ₹ ",
+                  fontWeight: FontWeight.bold,
+                ),
+                CustomIconTitleButton(
+                  height: 20.0,
+                  width: 20.0,
+                  imageUrl:
+                      "https://cdn-icons-png.flaticon.com/128/9798/9798241.png",
+                  onTap: () {},
+                  title: SalaryRoundOff.customRoundOff(
+                      invoice.invoiceAmount.toString()),
+                ),
+              ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
