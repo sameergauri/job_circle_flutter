@@ -13,10 +13,10 @@ class GlobalConstants {
 
   static const API_Host_one =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-      // "192.168.219.234:8081";
-  // "192.168.193.236:9090";
+      //"192.168.219.234:8081";
+  //"192.168.193.236:9090";
 
-  // 'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
+  //'ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090';
   //"ec2-43-204-102-150.ap-south-1.compute.amazonaws.com:9090";
   //static const API_Host = "localhost:9090";
   //static const API_Host = "192.168.1.9:9090";
@@ -36,7 +36,6 @@ class GlobalConstants {
   static const API_Users_v1_profileSummary = "/users/v1/profileSummary/";
   static const API_Users_v1_userDetails = "/users/v1/details/";
   static const API_Users_v1_allUserDetails = "/users/v1/allUserDeails";
-
   static const API_files_v1_multiUpload = "/api/files/v1/multiUpload";
 
   // static const API_Users_v1_authenticate = "/users/v1/authenticate"; //TODO:: Old OTP generate api...

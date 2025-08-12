@@ -149,6 +149,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /*  Future<void> checkUserActiveOrNot() async {
+    final provider = Provider.of<UserUpdateProvider>(context, listen: false);
+    try {
+      await provider.getUserDetailsById(
+          SharedPrefsHelper.getInt(ESharedPreferences.user_id));
+      if (provider.usermodel != null &&
+          provider.usermodel!.activeFlag == false) {
+        SharedPrefsHelper.clearAllPreferences();
+        await CacheClearService.clearCache();
+        NavigationService.pushAndRemoveUntil(const LoginSignup());
+      } else {
+        print('Failed to fetch data. Status Code:');
+      }
+    } catch (e) {
+      print('Error while fetching data: $e');
+    }
+  } */
+
   void showUpdateDialog() {
     showDialog(
       context: context,

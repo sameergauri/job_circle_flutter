@@ -507,7 +507,7 @@ class _AddResumeState extends ConsumerState<AddResume> {
       });
 
       ReferAddResumeModel referAddResumeModel = ReferAddResumeModel(
-        
+
           // partnerPaymentMode: "Special",
           alternateNo:
               secondry.text.isNotEmpty ? int.parse(secondry.text.trim()) : null,
@@ -604,6 +604,18 @@ class _AddResumeState extends ConsumerState<AddResume> {
               subtitle: "Primary number is mandatory");
         },
       );
+    } else if (primary_number.text == widget.userNumber.toString()) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return customDialogueforDublicate(
+            onClose: () {
+              Navigator.pop(context);
+              //  text3.requestFocus();
+            },
+          );
+        },
+      );
     } else if (primary_number.text == secondry.text) {
       showDialog(
         context: context,
@@ -641,18 +653,6 @@ class _AddResumeState extends ConsumerState<AddResume> {
                 text2.requestFocus();
               },
               subtitle: "Add resume first");
-        },
-      );
-    } else if (primary_number.text == widget.userNumber.toString()) {
-      showDialog(
-        context: context,
-        builder: (context) {
-          return customDialogueforDublicate(
-            onClose: () {
-              Navigator.pop(context);
-              //  text3.requestFocus();
-            },
-          );
         },
       );
     } else if (secondry.text == widget.userNumber.toString()) {

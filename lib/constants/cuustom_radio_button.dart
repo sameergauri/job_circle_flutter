@@ -63,6 +63,7 @@ class CustomRadioOption extends StatelessWidget {
 
     return payoutDetails.partnerPayoutType == "FLAT"
         ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InkWell(
                 onTap: onTap1,
@@ -164,6 +165,7 @@ class CustomRadioOption extends StatelessWidget {
           )
         : payoutDetails.partnerPayoutType == "CTC_BASED"
             ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InkWell(
                     onTap: onTap1,
@@ -256,6 +258,7 @@ class CustomRadioOption extends StatelessWidget {
                 ],
               )
             : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   InkWell(
                       onTap: onTap1,

@@ -192,7 +192,9 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                   child: customTextForWeather(
                     color: Constants.darkBlue,
                     fontWeight: FontWeight.bold,
-                    title: selectedCityFromProvider ?? "Select City",
+                    title: selectedCityFromProvider == "Maharashtra"
+                        ? "WFH / Remote"
+                        : selectedCityFromProvider ?? "Select City",
                   ),
                 ),
               ),
@@ -426,7 +428,10 @@ class _JobHomePageState extends ConsumerState<JobHomePage> {
                                 dense: true,
                                 contentPadding:
                                     const EdgeInsets.only(left: 10, right: 10),
-                                title: customTextForWeather(title: city),
+                                title: customTextForWeather(
+                                    title: city == "Maharashtra"
+                                        ? "WFH / Remote"
+                                        : city),
                                 trailing: selectedCity == city
                                     ? Image.network(
                                         "https://cdn-icons-png.flaticon.com/128/7794/7794658.png",
