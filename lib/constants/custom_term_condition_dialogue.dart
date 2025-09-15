@@ -1,6 +1,5 @@
-import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
+// import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
-
 
 class PdfViewerDialog extends StatelessWidget {
   final String assetPath;
@@ -10,7 +9,8 @@ class PdfViewerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<PDFDocument>(
+        body:
+            SizedBox() /*  FutureBuilder<PDFDocument>(
         future: PDFDocument.fromAsset(assetPath),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
@@ -30,7 +30,7 @@ class PdfViewerDialog extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
         },
-      ),
-    );
+      ), */
+        );
   }
 }

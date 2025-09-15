@@ -2,7 +2,7 @@
 // ignore_for_file: todo
 import 'dart:convert';
 
-import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
+// import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -571,7 +571,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                 )
                               ],
                             ),
-                            body: Container(
+                            body:SizedBox() /* Container(
                               child: FutureBuilder<PDFDocument>(
                                 future: PDFDocument.fromURL(
                                     "https://s3.ap-south-1.amazonaws.com/job-circle-2/${data.profileSummary.resume}"),
@@ -599,7 +599,7 @@ class _ProfileSummaryState extends ConsumerState<ProfileSummary>
                                   }
                                 },
                               ),
-                            ),
+                            ), */
                           );
                         },
                       );

@@ -3,7 +3,7 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
+// import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -117,7 +117,7 @@ class _AddCvState extends ConsumerState<AddCv> {
                       )
                     ],
                   ),
-                  body: Container(
+                  body:SizedBox()/*  Container(
                     child: FutureBuilder<PDFDocument>(
                       future: PDFDocument.fromURL(
                           "https://s3.ap-south-1.amazonaws.com/job-circle-2/$resume"),
@@ -144,7 +144,7 @@ class _AddCvState extends ConsumerState<AddCv> {
                         }
                       },
                     ),
-                  ),
+                  ), */
                 ),
                 isloading
                     ? BackdropFilter(

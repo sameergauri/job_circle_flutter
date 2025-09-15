@@ -6,7 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:timelines/timelines.dart';
+// import 'package:timelines/timelines.dart';
 
 class ManagerNegative extends StatefulWidget {
   final Applicant item;
@@ -207,7 +207,7 @@ class _ManagerNegativeState extends State<ManagerNegative> {
               //
               if (widget.item.hr_status_id ==
                   16) //TODO:: interview rounds for reject
-                Container(
+               /*  Container(
                   margin: EdgeInsets.only(top: 4.h),
                   width: double.maxFinite,
                   decoration: BoxDecoration(
@@ -295,7 +295,7 @@ class _ManagerNegativeState extends State<ManagerNegative> {
                     ),
                   ),
                 ),
-              //
+             */  //
               //
               //
               //

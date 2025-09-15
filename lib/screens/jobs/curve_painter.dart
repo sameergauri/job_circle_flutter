@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:job_circle/screens/Manager/constant/custom_textfield.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:timelines/timelines.dart';
+// import 'package:timelines/timelines.dart';
 
 class CustomTimeline extends StatelessWidget {
   final List<String> keyResponsible;
@@ -17,7 +17,7 @@ class CustomTimeline extends StatelessWidget {
     return SizedBox(
       height: size,
       // margin: const EdgeInsets.only(top: 8),
-      child: Timeline.tileBuilder(
+      /* child: Timeline.tileBuilder(
         physics: const NeverScrollableScrollPhysics(),
         theme: TimelineTheme.of(context).copyWith(
           direction: Axis.vertical,
@@ -40,7 +40,7 @@ class CustomTimeline extends StatelessWidget {
             );
           },
         ),
-      ),
+      ), */
     );
   }
 }

@@ -138,61 +138,57 @@ class _CustomJobFormTextFieldRespoOneProfileState
                           children: [
                             SizedBox(
                               height: MediaQuery.of(context).size.height / 24,
-                              child: TypeAheadFormField<dynamic>(
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "This Text field can't be empty";
-                                  }
-                                  return null;
-                                },
-                                textFieldConfiguration: TextFieldConfiguration(
-                                  maxLength: 6,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter
-                                        .digitsOnly, // Allows only numbers
-                                  ],
-                                  style: GoogleFonts.varela(
-                                    color: Constants.black,
-                                    fontSize: 12.sp,
-                                  ),
-                                  onChanged: (value) {
-                                    suggestion = null;
-                                  },
-                                  //autofocus: true,
-                                  focusNode: _focusNode,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                  controller: controllerForbottomsheer,
-                                  decoration: InputDecoration(
-                                    counterText: "",
-                                    labelStyle: const TextStyle(
-                                      color: Constants.themeBgColor,
-                                    ),
-                                    /*  prefixIcon:
-                                        const Icon(Icons.house_outlined),
-                                    prefixIconColor: Constants.themeBgColor, */
-                                    //label: Text("Reside at"),
-                                    hintText: "Type to search",
-                                    hintStyle: GoogleFonts.varela(
-                                      color: Constants.subtitleclr,
+                              child: TypeAheadField<dynamic>(
+                                builder: (context, controller, focusNode) {
+                                  return TextField(
+                                    maxLength: 6,
+                                    keyboardType: TextInputType.number,
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter
+                                          .digitsOnly, // Allows only numbers
+                                    ],
+                                    style: GoogleFonts.varela(
+                                      color: Constants.black,
                                       fontSize: 12.sp,
                                     ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          color: Constants.themeBgColor),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                        color: Color(0xffff0eceb),
+                                    onChanged: (value) {
+                                      suggestion = null;
+                                    },
+                                    //autofocus: true,
+                                    focusNode: _focusNode,
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                    controller: controllerForbottomsheer,
+                                    decoration: InputDecoration(
+                                      counterText: "",
+                                      labelStyle: const TextStyle(
+                                        color: Constants.themeBgColor,
                                       ),
-                                      borderRadius: BorderRadius.circular(8),
+                                      /*  prefixIcon:
+                                        const Icon(Icons.house_outlined),
+                                    prefixIconColor: Constants.themeBgColor, */
+                                      //label: Text("Reside at"),
+                                      hintText: "Type to search",
+                                      hintStyle: GoogleFonts.varela(
+                                        color: Constants.subtitleclr,
+                                        fontSize: 12.sp,
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            color: Constants.themeBgColor),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                          color: Color(0xffff0eceb),
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.only(left: 15),
                                     ),
-                                    contentPadding:
-                                        const EdgeInsets.only(left: 15),
-                                  ),
-                                ),
+                                  );
+                                },
                                 suggestionsCallback: (pattern) async {
                                   if (pattern.isNotEmpty) {
                                     return await getJobIndustry(pattern);
@@ -206,7 +202,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                             fontWeight: FontWeight.bold)),
                                   );
                                 },
-                                onSuggestionSelected: (suggestion) {
+                                onSelected: (suggestion) {
                                   setState(() {
                                     widget.onSubmit!(suggestion.toString());
                                     controllerForbottomsheer.text =
@@ -214,7 +210,7 @@ class _CustomJobFormTextFieldRespoOneProfileState
                                     Navigator.pop(context);
                                   });
                                 },
-                                noItemsFoundBuilder: (context) {
+                                emptyBuilder: (context) {
                                   return InkWell(
                                     onTap: () {
                                       if (controllerForbottomsheer

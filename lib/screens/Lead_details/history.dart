@@ -17,7 +17,7 @@ import 'package:job_circle/screens/jobs/Applied_jobs.dart';
 
 import 'package:job_circle/screens/refer_now.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:timelines/timelines.dart';
+// import 'package:timelines/timelines.dart';
 
 final getLeadHistory =
     FutureProvider.family<List<Applicant>, int>((ref, no) async {
@@ -792,7 +792,7 @@ class _HistoryState extends ConsumerState<History> {
                       //
                       if (item.status_id ==
                           1) //TODO:: Interview rounds for in process
-                        Container(
+                    /*     Container(
                           margin: EdgeInsets.only(bottom: 4.h),
                           width: double.maxFinite,
                           decoration: BoxDecoration(
@@ -881,7 +881,7 @@ class _HistoryState extends ConsumerState<History> {
                             ),
                           ),
                         ),
-                      //
+                     */  //
                       //
                       //
                       //
@@ -890,7 +890,7 @@ class _HistoryState extends ConsumerState<History> {
                           item.hr_sub_status == "On-Hold" ||
                           item.hr_status == "Reject" ||
                           item.s2HrStatus == "Reject")
-                        Container(
+                   /*      Container(
                           margin: EdgeInsets.only(bottom: 4.h),
                           width: double.maxFinite,
                           decoration: BoxDecoration(
@@ -979,7 +979,7 @@ class _HistoryState extends ConsumerState<History> {
                             ),
                           ),
                         ),
-                      //
+                     */  //
                       //
                       //
                       //

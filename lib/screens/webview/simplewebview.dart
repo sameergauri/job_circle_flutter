@@ -47,7 +47,7 @@ class _SimpleWebViewState extends State<SimpleWebView> {
       } else {
         url = widget.url! + "?usertype=" + usertype.toString();
       }
-      webViewController?.loadUrl(urlRequest: URLRequest(url: Uri.parse(url)));
+      webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri(url)));
       setState(() {});
     });
     print(url);
@@ -82,7 +82,7 @@ class _SimpleWebViewState extends State<SimpleWebView> {
           key: webViewKey,
           // contextMenu: contextMenu,
           initialUrlRequest: URLRequest(
-              url: Uri.parse(
+              url: WebUri(
                   "https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf")),
           // initialFile: "assets/index.html",
 

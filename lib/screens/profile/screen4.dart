@@ -197,33 +197,31 @@ class _SkillSelection extends State<SkillSelection> {
                     ),
                     SizedBox(
                       height: MediaQuery.of(context).size.height / 25.h,
-                      child: TypeAheadFormField<dynamic>(
-                        suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          elevation: 4.0,
-                        ),
-                        textFieldConfiguration: TextFieldConfiguration(
-                          scrollPadding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom),
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(RegExp(
-                                r'^\s')), // Disallow spaces at the beginning
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'[a-zA-Z\s]')),
-                          ],
-                          maxLines: 1,
-                          onChanged: (value) {
-                            setState(() {
-                              if (widget.isSkill) {
-                                customValue = value;
-                                showAddButton = !suggestions.contains(value);
-                              }
-                            });
-                          },
+                      child: TypeAheadField<dynamic>(
+                        builder: (context, controller, focusNode) {
+                          return TextField(
+                              scrollPadding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom),
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(RegExp(
+                                  r'^\s')), // Disallow spaces at the beginning
+                              FilteringTextInputFormatter.allow(
+                                  RegExp(r'[a-zA-Z\s]')),
+                            ],
+                            maxLines: 1,
+                            onChanged: (value) {
+                              setState(() {
+                                if (widget.isSkill) {
+                                  customValue = value;
+                                  showAddButton = !suggestions.contains(value);
+                                }
+                              });
+                            },
 
-                          //enabled: false,
+                            //enabled: false,
 
-                          /*  autofocus: true,
+                            /*  autofocus: true,
                           focusNode: textFieldFocusNode,
                           textCapitalization:
                               TextCapitalization.sentences,
@@ -251,41 +249,43 @@ class _SkillSelection extends State<SkillSelection> {
                             /* errorText: isDuplicate
                                   ? 'This skill is already added'
                                   : null, */ */
-                          autofocus: true,
-                          focusNode: textFieldFocusNode,
-                          textCapitalization: TextCapitalization.sentences,
-                          controller: controller,
-                          style: GoogleFonts.varela(
-                              color: Constants.hintColor, fontSize: 14.sp),
-                          decoration: InputDecoration(
-                            label: const Text("Skills"),
-                            labelStyle: GoogleFonts.varela(
-                                color: Constants.themeBgColor, fontSize: 15.sp),
-                            prefixIcon: const Icon(
-                              Icons.lightbulb_outline,
-                              color: Constants.themeBgColor,
-                            ),
-                            prefixIconColor: Constants.themeBgColor,
-                            //label: Text("Reside at"),
-                            hintText: hintText,
-                            hintStyle: GoogleFonts.varela(
-                              color: Constants.subtitleclr,
-                              fontSize: 14.sp,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  color: Constants.themeBgColor),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Color(0xffff0eceb),
+                            autofocus: true,
+                            focusNode: textFieldFocusNode,
+                            textCapitalization: TextCapitalization.sentences,
+                            controller: controller,
+                            style: GoogleFonts.varela(
+                                color: Constants.hintColor, fontSize: 14.sp),
+                            decoration: InputDecoration(
+                              label: const Text("Skills"),
+                              labelStyle: GoogleFonts.varela(
+                                  color: Constants.themeBgColor,
+                                  fontSize: 15.sp),
+                              prefixIcon: const Icon(
+                                Icons.lightbulb_outline,
+                                color: Constants.themeBgColor,
                               ),
-                              borderRadius: BorderRadius.circular(8),
+                              prefixIconColor: Constants.themeBgColor,
+                              //label: Text("Reside at"),
+                              hintText: hintText,
+                              hintStyle: GoogleFonts.varela(
+                                color: Constants.subtitleclr,
+                                fontSize: 14.sp,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    color: Constants.themeBgColor),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                  color: Color(0xffff0eceb),
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.only(left: 15),
                             ),
-                            contentPadding: const EdgeInsets.only(left: 15),
-                          ),
-                        ),
+                          );
+                        },
                         suggestionsCallback: (pattern) async {
                           if (pattern.isNotEmpty) {
                             isLoading =
@@ -331,7 +331,7 @@ class _SkillSelection extends State<SkillSelection> {
                             ),
                           );
                         },
-                        onSuggestionSelected: (suggestion) {
+                        onSelected: (suggestion) {
                           if (selectedValuesList!.contains(suggestion.value)) {
                             // Dialog for duplicate value
                             showDialog(
@@ -386,7 +386,7 @@ class _SkillSelection extends State<SkillSelection> {
                             }
                           }
                         },
-                        noItemsFoundBuilder: widget.isSkill
+                        emptyBuilder: widget.isSkill
                             ? (BuildContext context) {
                                 return AddButtonVisibilityWidget(
                                   suggestions: suggestion,

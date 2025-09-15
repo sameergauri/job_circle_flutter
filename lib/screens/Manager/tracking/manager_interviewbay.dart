@@ -9,7 +9,7 @@ import 'package:job_circle/models/drop_down_model.dart';
 import 'package:job_circle/models/fetch_applied_job_model.dart';
 import 'package:job_circle/screens/jobs/talent_pool_detail.dart';
 import 'package:job_circle/themes/colors.dart';
-import 'package:timelines/timelines.dart';
+// import 'package:timelines/timelines.dart';
 
 class ManagerInterViewBayStatus extends ConsumerStatefulWidget {
   final Applicant item;
@@ -156,7 +156,7 @@ class _ManagerInterViewBayStatusState
               //TODO:: Drop out and on hold interview rounds....
               if (widget.item.hr_sub_status == "Drop-out" ||
                   widget.item.hr_sub_status == "On-Hold")
-                Container(
+            /*     Container(
                   margin: EdgeInsets.only(top: 4.h),
                   width: double.maxFinite,
                   decoration: BoxDecoration(
@@ -244,7 +244,7 @@ class _ManagerInterViewBayStatusState
                     ),
                   ),
                 ),
-
+ */
               //
               //
               //

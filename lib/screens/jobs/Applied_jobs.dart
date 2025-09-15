@@ -19,7 +19,7 @@ import 'package:job_circle/screens/jobs/job_details.dart';
 import 'package:job_circle/screens/jobs/job_details_for_candidate.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timelines/timelines.dart';
+// import 'package:timelines/timelines.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
@@ -665,7 +665,7 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                   //
                   //
                   if (item.status_id == 1)
-                    Container(
+                    /*   Container(
                       margin: EdgeInsets.only(top: 4.h),
                       width: double.maxFinite,
                       decoration: BoxDecoration(
@@ -753,92 +753,108 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                         ),
                       ),
                     ),
-
-                  //
-                  //
-                  //
-                  //
-                  //
-                  //
-                  //
-                  //
-                  // TODO:: Interview rounds end ........}
-                  if (item.status_id != 1)
-                    Container(
-                      margin: const EdgeInsets.only(top: 6),
-                      padding: const EdgeInsets.only(
-                          top: 6, bottom: 6, right: 6, left: 6),
-                      decoration: BoxDecoration(
-                          color: Colors.grey.shade200,
-                          // border: Border.all(color: Colors.amber),
-                          //color: Colors.amberAccent.shade100,
-                          borderRadius: BorderRadius.circular(08)),
-                      width: double.maxFinite,
-                      child: Row(
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              (item.apply_icon != null &&
-                                          item.apply_icon != "null") ||
-                                      item.s2ApplyIcon != null
-                                  ? CircleAvatar(
-                                      backgroundColor: Colors.white,
-                                      child: CustomImage(
-                                          imageUrl:
-                                              "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.apply_icon ?? item.s2ApplyIcon}",
-                                          height: 24.h,
-                                          defaultImageUrl:
-                                              "assets/images/error.png")
-                                      /*  Image.network(
+ */
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //
+                    //
+                    // TODO:: Interview rounds end ........}
+                    if (item.status_id != 1)
+                      Container(
+                        margin: const EdgeInsets.only(top: 6),
+                        padding: const EdgeInsets.only(
+                            top: 6, bottom: 6, right: 6, left: 6),
+                        decoration: BoxDecoration(
+                            color: Colors.grey.shade200,
+                            // border: Border.all(color: Colors.amber),
+                            //color: Colors.amberAccent.shade100,
+                            borderRadius: BorderRadius.circular(08)),
+                        width: double.maxFinite,
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                (item.apply_icon != null &&
+                                            item.apply_icon != "null") ||
+                                        item.s2ApplyIcon != null
+                                    ? CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        child: CustomImage(
+                                            imageUrl:
+                                                "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.apply_icon ?? item.s2ApplyIcon}",
+                                            height: 24.h,
+                                            defaultImageUrl:
+                                                "assets/images/error.png")
+                                        /*  Image.network(
                                         "https://s3.ap-south-1.amazonaws.com/job-circle-2/${item.apply_icon ?? item.s2ApplyIcon}",
                                         fit: BoxFit.fill,
                                         height: 24.h,
                                       ), */
-                                      )
-                                  : const SizedBox()
-                            ],
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 6),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  item.is_ref == 1
-                                      ? Row(
-                                          children: [
-                                            FittedBox(
-                                              fit: BoxFit.scaleDown,
-                                              child: Text(
-                                                "Application referred for interview.",
-                                                style: GoogleFonts.varela(
-                                                    color: Constants.darkBlue,
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14.sp),
-                                                softWrap: true,
-                                              ),
-                                            )
-                                          ],
                                         )
-                                      : Row(
-                                          children: [
-                                            item.apply_feedback1 != null ||
-                                                    item.s2ApplyFeedback2 !=
-                                                        null ||
-                                                    item.apply_feedback1 != ""
-                                                ? FittedBox(
-                                                    fit: BoxFit.scaleDown,
-                                                    child: Text(
-                                                      item.apply_feedback1 !=
-                                                              null
-                                                          ? item.apply_feedback1
-                                                              .toString()
-                                                          : item
-                                                              .s2ApplyFeedback1
-                                                              .toString(),
+                                    : const SizedBox()
+                              ],
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    item.is_ref == 1
+                                        ? Row(
+                                            children: [
+                                              FittedBox(
+                                                fit: BoxFit.scaleDown,
+                                                child: Text(
+                                                  "Application referred for interview.",
+                                                  style: GoogleFonts.varela(
+                                                      color: Constants.darkBlue,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 14.sp),
+                                                  softWrap: true,
+                                                ),
+                                              )
+                                            ],
+                                          )
+                                        : Row(
+                                            children: [
+                                              item.apply_feedback1 != null ||
+                                                      item.s2ApplyFeedback2 !=
+                                                          null ||
+                                                      item.apply_feedback1 != ""
+                                                  ? FittedBox(
+                                                      fit: BoxFit.scaleDown,
+                                                      child: Text(
+                                                        item.apply_feedback1 !=
+                                                                null
+                                                            ? item
+                                                                .apply_feedback1
+                                                                .toString()
+                                                            : item
+                                                                .s2ApplyFeedback1
+                                                                .toString(),
+                                                        style:
+                                                            GoogleFonts.varela(
+                                                                color: Constants
+                                                                    .darkBlue,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                fontSize:
+                                                                    14.sp),
+                                                        softWrap: true,
+                                                      ),
+                                                    )
+                                                  : Text(
+                                                      "Status Not Found",
                                                       style: GoogleFonts.varela(
                                                           color: Constants
                                                               .darkBlue,
@@ -847,34 +863,24 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                                           fontSize: 14.sp),
                                                       softWrap: true,
                                                     ),
-                                                  )
-                                                : Text(
-                                                    "Status Not Found",
-                                                    style: GoogleFonts.varela(
-                                                        color:
-                                                            Constants.darkBlue,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        fontSize: 14.sp),
-                                                    softWrap: true,
-                                                  ),
-                                          ],
-                                        ),
-                                  if (item.apply_feedback2 != null ||
-                                      item.s2ApplyFeedback2 != null)
-                                    Text(
-                                      item.apply_feedback2 != null
-                                          ? item.apply_feedback2.toString()
-                                          : item.s2ApplyFeedback2 != null
-                                              ? item.s2ApplyFeedback2.toString()
-                                              : "",
-                                      softWrap: true,
-                                      // maxLines: 2,
-                                      style: GoogleFonts.varela(
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 12.sp),
-                                    ),
-                                  /* if (item.apply_feedback2 == null ||
+                                            ],
+                                          ),
+                                    if (item.apply_feedback2 != null ||
+                                        item.s2ApplyFeedback2 != null)
+                                      Text(
+                                        item.apply_feedback2 != null
+                                            ? item.apply_feedback2.toString()
+                                            : item.s2ApplyFeedback2 != null
+                                                ? item.s2ApplyFeedback2
+                                                    .toString()
+                                                : "",
+                                        softWrap: true,
+                                        // maxLines: 2,
+                                        style: GoogleFonts.varela(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12.sp),
+                                      ),
+                                    /* if (item.apply_feedback2 == null ||
                                     item.s2ApplyFeedback2 == null)
                                   Text(
                                     "We apologize for any inconvenience caused; please be advised that your status could not be retrieved due to a technical fault. Kindly wait as we work to resolve the issue. We appreciate your understanding and patience in this matter.",
@@ -884,13 +890,13 @@ class _AppliedJobState extends ConsumerState<AppliedJob>
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14.sp),
                                   ), */
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
                   Padding(
                     padding: const EdgeInsets.only(top: 5),
                     child: Row(

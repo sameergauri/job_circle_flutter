@@ -22,7 +22,7 @@ import 'package:job_circle/screens/jobs/pdf.dart';
 // import 'package:pdftron_flutter/pdftron_flutter.dart' as pdftron;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timelines/timelines.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../common/utils.dart';
@@ -1131,7 +1131,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                   //
                   //
                   if (item.status_id == 1)
-                    Container(
+                  /*   Container(
                       margin: EdgeInsets.only(top: 4.h),
                       width: double.maxFinite,
                       decoration: BoxDecoration(
@@ -1219,7 +1219,7 @@ class _AllReferStatusState extends ConsumerState<AllReferStatus>
                         ),
                       ),
                     ),
-
+ */
                   //
                   //
                   //

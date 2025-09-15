@@ -7,9 +7,9 @@ import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_share/flutter_share.dart';
+// import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/models/active_state_model.dart';
@@ -34,7 +34,7 @@ import 'package:screenshot/screenshot.dart';
 // import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:whatsapp_share2/whatsapp_share2.dart';
+
 
 import '../../enums/enums.dart';
 import '../../themes/colors.dart';
@@ -199,14 +199,14 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
               ));
   }
 
-  Future<void> share() async {
+ /*  Future<void> share() async {
     await FlutterShare.share(
         title: 'Job circle App',
         text: 'Install jobcircle app',
         linkUrl:
             'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
         chooserTitle: 'Example Chooser Title');
-  }
+  } */
 
   late SharedPreferences prefs;
 
@@ -632,7 +632,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
                         fontSize: 12,
                         fontWeight: FontWeight.normal),
                     onTap: () {
-                      share();
+                      //share();
                       Navigator.pop(context);
                     },
                   ),
@@ -2384,7 +2384,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     });
   }
 
-  void captureAndShareImage() async {
+  /* void captureAndShareImage() async {
     try {
       // Capture the screenshot
       final image = await screenshotController.capture();
@@ -2415,7 +2415,7 @@ class _NewJobsV1State extends ConsumerState<NewJobsV1>
     } catch (e) {
       print("Error capturing and sharing image: $e");
     }
-  }
+  } */
 
   String formatLocality(String locality) {
     // Split the string by comma

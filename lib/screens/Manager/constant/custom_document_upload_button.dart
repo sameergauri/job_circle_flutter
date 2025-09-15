@@ -25,44 +25,49 @@ class _CustomDocumentUploadButtonState
       onTap: () {
         widget.onTab();
       },
-      child: DottedBorder(
-          borderType: BorderType.RRect,
-          radius: const Radius.circular(8),
-          dashPattern: const [4, 4],
-          color: Constants.subtitleclr,
-          strokeWidth: 2,
-          child: Center(
-              child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.only(top: 8.h, bottom: 8.h),
-                padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.r),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                          offset: const Offset(1, 1),
-                          blurStyle: BlurStyle.outer,
-                          color: Colors.grey.shade400,
-                          blurRadius: 2.1)
-                    ]),
-                child: customTextForWeather(
-                  title: widget.title,
-                  color: Constants.darkBlue,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: DottedBorder(
+            options: RectDottedBorderOptions(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+              strokeWidth: 1,
+              dashPattern: const [4, 4],
+              color: Constants.subtitleclr,
+            ),
+            child: Center(
+                child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: 8.h, bottom: 8.h),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8.r),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                            offset: const Offset(1, 1),
+                            blurStyle: BlurStyle.outer,
+                            color: Colors.grey.shade400,
+                            blurRadius: 2.1)
+                      ]),
+                  child: customTextForWeather(
+                    title: widget.title,
+                    color: Constants.darkBlue,
+                  ),
                 ),
-              ),
-              customTextForWeather(
-                title: widget.subTitle ?? "Supported formate : PDF",
-                fontSize: 10.sp,
-                color: Constants.subtitleclr,
-                fontStyle: FontStyle.italic,
-              ),
-              SizedBox(
-                height: 6.h,
-              )
-            ],
-          ))),
+                customTextForWeather(
+                  title: widget.subTitle ?? "Supported formate : PDF",
+                  fontSize: 10.sp,
+                  color: Constants.subtitleclr,
+                  fontStyle: FontStyle.italic,
+                ),
+                SizedBox(
+                  height: 6.h,
+                )
+              ],
+            ))),
+      ),
     );
   }
 }

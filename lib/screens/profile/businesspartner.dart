@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 
-import 'package:csc_picker/csc_picker.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -643,7 +643,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                   ),
                   Row(
                     children: [
-                      Expanded(
+                    /*   Expanded(
                         child: CSCPicker(
                           showStates: true,
                           showCities: true,
@@ -698,7 +698,7 @@ class _BusinessPartnerState extends State<BusinessPartner> {
                           //   disableCountry: true,
                         ),
                       ),
-
+ */
                       /* Expanded(
                         child: CustomControls.AutoCompleteCustom(
                           context,

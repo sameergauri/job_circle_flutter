@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_share/flutter_share.dart';
+// import 'package:flutter_share/flutter_share.dart';
 import 'package:job_circle/common/app_utils.dart';
 import 'package:job_circle/constants/gobal.dart';
 import 'package:job_circle/enums/enums.dart';
@@ -244,7 +244,7 @@ class CustomDrawer extends ConsumerWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.normal),
             onTap: () {
-              share();
+             // share();
               onClose();
             },
           ),
@@ -377,12 +377,12 @@ class CustomDrawer extends ConsumerWidget {
     );
   }
 
-  Future<void> share() async {
+ /*  Future<void> share() async {
     await FlutterShare.share(
         title: 'Job circle App',
         text: 'Install jobcircle app',
         linkUrl:
             'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
         chooserTitle: 'Example Chooser Title');
-  }
+  } */
 }

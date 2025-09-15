@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:job_circle/common/utils.dart';
 import 'package:job_circle/screens/jobs/filter.dart';
 

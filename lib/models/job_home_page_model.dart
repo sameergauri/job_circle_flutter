@@ -82,7 +82,7 @@ class PageResponse {
     );
   }
 }
-
+  
 class JobContent {
   final int? jobPostType;
   final String? experienceRequired;

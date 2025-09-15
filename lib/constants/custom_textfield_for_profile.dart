@@ -313,56 +313,55 @@ class _CustomTextFieldComapanyLocationState
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
       ),
-      child: TypeAheadFormField<dynamic>(
-        validator: (value) {
+      child: TypeAheadField<dynamic>(
+        /* validator: (value) {
           if (value!.isEmpty) {
             return "This Text field Cant be empty";
           }
           return null;
-        },
-        suggestionsBoxDecoration: SuggestionsBoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          elevation: 4.0,
-        ),
-        textFieldConfiguration: TextFieldConfiguration(
-          cursorColor: Constants.themeBgColor,
-          onChanged: (value) {
-            suggestion = null;
-          },
-          //autofocus: true,
-          //focusNode: widget.focusNode,
-          textCapitalization: TextCapitalization.sentences,
-          controller: controller,
-          style: GoogleFonts.varela(color: Constants.black, fontSize: 12.sp),
-          decoration: InputDecoration(
-            //  label: Text(widget.labelText.toString()),
-            labelStyle: GoogleFonts.varela(
-                color: Constants.themeBgColor, fontSize: 12.sp),
-            // prefixIcon: widget.icon,
-            /*  const Icon(
+        }, */
+        builder: (context, controller, focusNode) {
+          return TextField(
+            cursorColor: Constants.themeBgColor,
+            onChanged: (value) {
+              suggestion = null;
+            },
+            //autofocus: true,
+            //focusNode: widget.focusNode,
+            textCapitalization: TextCapitalization.sentences,
+            controller: controller,
+            style: GoogleFonts.varela(color: Constants.black, fontSize: 12.sp),
+
+            decoration: InputDecoration(
+              //  label: Text(widget.labelText.toString()),
+              labelStyle: GoogleFonts.varela(
+                  color: Constants.themeBgColor, fontSize: 12.sp),
+              // prefixIcon: widget.icon,
+              /*  const Icon(
              widget.icon,
               color: Constants.themeBgColor,
             ), */
-            prefixIconColor: Constants.themeBgColor,
-            //label: Text("Reside at"),
-            hintText: widget.hintText,
-            hintStyle: GoogleFonts.varela(
-              color: Constants.subtitleclr,
-              fontSize: 12.sp,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Constants.black),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            border: OutlineInputBorder(
-              borderSide: const BorderSide(
-                color: Color(0xffff0eceb),
+              prefixIconColor: Constants.themeBgColor,
+              //label: Text("Reside at"),
+              hintText: widget.hintText,
+              hintStyle: GoogleFonts.varela(
+                color: Constants.subtitleclr,
+                fontSize: 12.sp,
               ),
-              borderRadius: BorderRadius.circular(8),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Constants.black),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              border: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Color(0xffff0eceb),
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.only(left: 15),
             ),
-            contentPadding: const EdgeInsets.only(left: 15),
-          ),
-        ),
+          );
+        },
         suggestionsCallback: (pattern) async {
           if (pattern.isNotEmpty) {
             if (widget.isCity) {
@@ -406,7 +405,7 @@ class _CustomTextFieldComapanyLocationState
             ),
           );
         },
-        onSuggestionSelected: (suggestion) {
+        onSelected: (suggestion) {
           setState(() {
             widget.isCity
                 ? controller!.text = suggestion.value.toString()
@@ -428,7 +427,7 @@ class _CustomTextFieldComapanyLocationState
             //FocusScope.of(context).nextFocus();
           });
         },
-        noItemsFoundBuilder: (value) {
+        emptyBuilder: (value) {
           final message = suggestion != null && suggestion!.isEmpty
               ? 'No result found. Search again and select from suggestion or add a new item.'
               : 'Searching';
@@ -705,7 +704,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                 ), */
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 25.h,
-                  child: TypeAheadFormField<dynamic>(
+                  child: TypeAheadField<dynamic>(
                     /* validator: (value) {
                         if (value!.isEmpty) {
                           return 'Please enter a value';
@@ -718,111 +717,108 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         return null;
                       }, */
 
-                    suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      elevation: 4.0,
-                    ),
-                    textFieldConfiguration: TextFieldConfiguration(
-                      cursorColor: Constants.themeBgColor,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.deny(
-                            RegExp(r'^\s')), // Disallow spaces at the beginning
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'[a-zA-Z\s]')),
-                      ],
-                      maxLines: 1,
-                      onChanged: (value) {
-                        setState(() {
-                          if (widget.isSkill) {
-                            customValue = value;
-                            showAddButton = !suggestions.contains(value);
-                          }
-                        });
-                      },
-                      onSubmitted: (value) {
-                        selectedValuesList!.add(customValue!);
-                        isDuplicate = false;
-                        controller!.clear();
-                      },
+                    builder: (context, controller, focusNode) {
+                      return TextField(
+                        inputFormatters: [
+                          FilteringTextInputFormatter.deny(RegExp(
+                              r'^\s')), // Disallow spaces at the beginning
+                          FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z\s]')),
+                        ],
+                        maxLines: 1,
+                        onChanged: (value) {
+                          setState(() {
+                            if (widget.isSkill) {
+                              customValue = value;
+                              showAddButton = !suggestions.contains(value);
+                            }
+                          });
+                        },
+                        onSubmitted: (value) {
+                          selectedValuesList!.add(customValue!);
+                          isDuplicate = false;
+                          controller!.clear();
+                        },
 
-                      //enabled: false,
+                        //enabled: false,
 
-                      //autofocus: true,
-                      // focusNode: textFieldFocusNode,
-                      textCapitalization: TextCapitalization.sentences,
-                      controller: controller,
-                      style: GoogleFonts.varela(
-                          color: Constants.hintColor, fontSize: 14.sp),
-                      decoration: InputDecoration(
-                        suffixIcon: suggestion != null &&
-                                suggestion!.isEmpty &&
-                                controller!.text.isNotEmpty &&
-                                widget.isSkill
-                            ? IconButton(
-                                onPressed: () {
-                                  if (selectedValuesList!
-                                      .contains(customValue)) {
-                                    setState(() {
-                                      isDuplicate = true;
-                                      controller!.clear();
-                                    });
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return CustomDialog(
-                                          fetchDataFromApi: () {},
-                                          isFisrt: false,
-                                          onClose: () {
-                                            Navigator.of(context).pop();
-                                            textFieldFocusNode.requestFocus();
-                                          },
-                                          title: "Error!",
-                                          subtitle:
-                                              " 'This skill is already added',",
-                                        );
-                                      },
-                                    );
-                                  } else {
-                                    setState(() {
-                                      selectedValuesList!.add(customValue!);
-                                      isDuplicate = false;
-                                      controller!.clear();
-                                    });
-                                  }
-                                },
-                                icon: const Icon(
-                                  Icons.add,
-                                  color: Constants.themeBgColor,
-                                ))
-                            : null,
-                        label: const Text("Skills"),
-                        labelStyle: GoogleFonts.varela(
-                            color: Constants.themeBgColor, fontSize: 15.sp),
-                        prefixIcon: const Icon(
-                          Icons.star_border_outlined,
-                          color: Constants.themeBgColor,
-                        ),
-                        prefixIconColor: Constants.themeBgColor,
-                        //label: Text("Reside at"),
-                        hintText: hintText,
-                        hintStyle: GoogleFonts.varela(
-                          color: Constants.subtitleclr,
-                          fontSize: 14.sp,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              const BorderSide(color: Constants.themeBgColor),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                            color: Color(0xffff0eceb),
+                        //autofocus: true,
+                        // focusNode: textFieldFocusNode,
+                        textCapitalization: TextCapitalization.sentences,
+                        controller: controller,
+                        style: GoogleFonts.varela(
+                            color: Constants.hintColor, fontSize: 14.sp),
+                        decoration: InputDecoration(
+                          suffixIcon: suggestion != null &&
+                                  suggestion!.isEmpty &&
+                                  controller!.text.isNotEmpty &&
+                                  widget.isSkill
+                              ? IconButton(
+                                  onPressed: () {
+                                    if (selectedValuesList!
+                                        .contains(customValue)) {
+                                      setState(() {
+                                        isDuplicate = true;
+                                        controller!.clear();
+                                      });
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return CustomDialog(
+                                            fetchDataFromApi: () {},
+                                            isFisrt: false,
+                                            onClose: () {
+                                              Navigator.of(context).pop();
+                                              textFieldFocusNode.requestFocus();
+                                            },
+                                            title: "Error!",
+                                            subtitle:
+                                                " 'This skill is already added',",
+                                          );
+                                        },
+                                      );
+                                    } else {
+                                      setState(() {
+                                        selectedValuesList!.add(customValue!);
+                                        isDuplicate = false;
+                                        controller!.clear();
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.add,
+                                    color: Constants.themeBgColor,
+                                  ))
+                              : null,
+                          label: const Text("Skills"),
+                          labelStyle: GoogleFonts.varela(
+                              color: Constants.themeBgColor, fontSize: 15.sp),
+                          prefixIcon: const Icon(
+                            Icons.star_border_outlined,
+                            color: Constants.themeBgColor,
                           ),
-                          borderRadius: BorderRadius.circular(8),
+                          prefixIconColor: Constants.themeBgColor,
+                          //label: Text("Reside at"),
+                          hintText: hintText,
+                          hintStyle: GoogleFonts.varela(
+                            color: Constants.subtitleclr,
+                            fontSize: 14.sp,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                const BorderSide(color: Constants.themeBgColor),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                              color: Color(0xffff0eceb),
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.only(left: 15),
                         ),
-                        contentPadding: const EdgeInsets.only(left: 15),
-                      ),
-                    ),
+                      );
+                    },
                     suggestionsCallback: (pattern) async {
                       if (pattern.isNotEmpty) {
                         isLoading =
@@ -865,7 +861,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         ),
                       );
                     },
-                    onSuggestionSelected: (suggestion) {
+                    onSelected: (suggestion) {
                       if (selectedValuesList!.contains(suggestion.skills)) {
                         // Dialog for duplicate value
                         showDialog(
@@ -929,7 +925,7 @@ class _CustomFormTextFieldMultiSelectForProfileState
                         }
                       }
                     },
-                    noItemsFoundBuilder: /* widget.isSkill
+                    emptyBuilder: /* widget.isSkill
                         ? (BuildContext context) {
                             return Material(
                               child: AddButtonVisibilityWidget(
@@ -1222,41 +1218,32 @@ class _customCompanyforExperienceState
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
       ),
-      child: TypeAheadFormField<dynamic>(
-        enabled: false,
-        validator: (value) {
-          if (value!.isEmpty) {
-            return "This Text field Cant be empty";
-          }
-          return null;
-        },
-        suggestionsBoxDecoration: SuggestionsBoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          elevation: 4.0,
-        ),
-        textFieldConfiguration: TextFieldConfiguration(
-          cursorColor: Constants.themeBgColor,
-          // enabled: !suggestionSelected,
-          focusNode: widget.focusNode,
-          onEditingComplete: () {
-            setState(() {
-              controller!.clear();
-            });
-          },
-          onTapOutside: (event) {
-            setState(() {
-              controller!.clear();
-            });
-          },
-          onChanged: (value) {
-            setState(() {});
-          },
-          onSubmitted: (value) {
-            setState(() {
-              controller!.clear();
-            });
-          },
-          /* onSubmitted: (value) {
+      child: TypeAheadField<dynamic>(
+        builder: (context, controller, focusNode) {
+          return TextField(
+            enabled: false,
+            cursorColor: Constants.themeBgColor,
+            // enabled: !suggestionSelected,
+            focusNode: widget.focusNode,
+            onEditingComplete: () {
+              setState(() {
+                controller!.clear();
+              });
+            },
+            onTapOutside: (event) {
+              setState(() {
+                controller!.clear();
+              });
+            },
+            onChanged: (value) {
+              setState(() {});
+            },
+            onSubmitted: (value) {
+              setState(() {
+                controller!.clear();
+              });
+            },
+            /* onSubmitted: (value) {
             setState(() {
               suggestionSelected = true;
             });
@@ -1265,18 +1252,18 @@ class _customCompanyforExperienceState
           onChanged: (value) {
             suggestion = null;
           }, */
-          // autofocus: true,
+            // autofocus: true,
 
-          // focusNode: focusNode,
-          textCapitalization: TextCapitalization.sentences,
-          controller: controller,
-          style: GoogleFonts.montserrat(
-              color: Constants.black,
-              fontSize: 14,
-              fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
-            // label: const Text("Enter your comapany name"),
-            /*   suffixIcon: suggestion != null &&
+            // focusNode: focusNode,
+            textCapitalization: TextCapitalization.sentences,
+            controller: controller,
+            style: GoogleFonts.montserrat(
+                color: Constants.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              // label: const Text("Enter your comapany name"),
+              /*   suffixIcon: suggestion != null &&
                     suggestion!.isEmpty &&
                     controller!.text.isNotEmpty
                 ? IconButton(
@@ -1293,30 +1280,31 @@ class _customCompanyforExperienceState
                     ))
                 : null, */
 
-            /*  prefixIcon: const Icon(
+              /*  prefixIcon: const Icon(
               Icons.domain_add_outlined,
               color: Constants.themeBgColor,
             ), */
-            prefixIconColor: Constants.themeBgColor,
-            //label: Text("Reside at"),
-            hintText: hintText,
-            hintStyle: GoogleFonts.montserrat(
-              color: Constants.subtitleclr,
-              fontSize: 14,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(color: Constants.black),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            border: OutlineInputBorder(
-              borderSide: const BorderSide(
-                color: Color(0xffff0eceb),
+              prefixIconColor: Constants.themeBgColor,
+              //label: Text("Reside at"),
+              hintText: hintText,
+              hintStyle: GoogleFonts.montserrat(
+                color: Constants.subtitleclr,
+                fontSize: 14,
               ),
-              borderRadius: BorderRadius.circular(8),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Constants.black),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              border: OutlineInputBorder(
+                borderSide: const BorderSide(
+                  color: Color(0xffff0eceb),
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.only(left: 15),
             ),
-            contentPadding: const EdgeInsets.only(left: 15),
-          ),
-        ),
+          );
+        },
         suggestionsCallback: (pattern) async {
           if (pattern.isNotEmpty) {
             suggestion = await getSuggestions(pattern);
@@ -1366,7 +1354,7 @@ class _customCompanyforExperienceState
             ),
           );
         }, */
-        onSuggestionSelected: (suggestion) {
+        onSelected: (suggestion) {
           setState(() {
             widget.onChanged(true);
             controller!.text = suggestion.name.toString();
@@ -1376,7 +1364,7 @@ class _customCompanyforExperienceState
             widget.onSubmit!(suggestion.id);
           });
         },
-        noItemsFoundBuilder: (value) {
+        emptyBuilder: (value) {
           final message = suggestion != null && suggestion!.isEmpty
               ? 'Add ${widget.name}'
               : 'Searching';
@@ -1546,45 +1534,36 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
       ),
-      child: TypeAheadFormField<dynamic>(
-        enabled: false,
-        validator: (value) {
-          if (value!.isEmpty) {
-            return "This Text field Cant be empty";
-          }
-          return null;
-        },
-        suggestionsBoxDecoration: SuggestionsBoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          elevation: 4.0,
-        ),
-        textFieldConfiguration: TextFieldConfiguration(
-          cursorColor: Constants.themeBgColor,
-          // enabled: !suggestionSelected,
-          // focusNode: widget.focusNode,
-          onTapOutside: (event) {
-            setState(() {
-              controller!.clear();
-            });
-          },
-          onChanged: (value) {
-            setState(() {});
-          },
-          onSubmitted: (event) {
-            if (controller != null) {
+      child: TypeAheadField<dynamic>(
+        builder: (context, controller, focusNode) {
+          return TextField(
+            enabled: false,
+            cursorColor: Constants.themeBgColor,
+            // enabled: !suggestionSelected,
+            // focusNode: widget.focusNode,
+            onTapOutside: (event) {
               setState(() {
                 controller!.clear();
               });
-            }
-          },
+            },
+            onChanged: (value) {
+              setState(() {});
+            },
+            onSubmitted: (event) {
+              if (controller != null) {
+                setState(() {
+                  controller!.clear();
+                });
+              }
+            },
 
-          textCapitalization: TextCapitalization.sentences,
-          controller: controller,
-          style: GoogleFonts.montserrat(
-              color: Constants.black,
-              fontSize: 14,
-              fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
+            textCapitalization: TextCapitalization.sentences,
+            controller: controller,
+            style: GoogleFonts.montserrat(
+                color: Constants.black,
+                fontSize: 14,
+                fontWeight: FontWeight.w500),
+                 decoration: InputDecoration(
               contentPadding:
                   const EdgeInsets.only(top: 8, bottom: 8, left: 10, right: 10),
               counterText: '',
@@ -1602,7 +1581,12 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
               hintText: "Type to search",
               hintStyle: GoogleFonts.montserrat(
                   color: Constants.subtitleclr, fontSize: 14)),
-        ),
+        
+          );
+        },
+       
+         
+         
         suggestionsCallback: (pattern) async {
           if (pattern.isNotEmpty) {
             suggestion = await getSuggestions(pattern);
@@ -1632,14 +1616,14 @@ class _customTextFieldForBankState extends State<customTextFieldForBank> {
             ),
           );
         },
-        onSuggestionSelected: (suggestion) {
+        onSelected: (suggestion) {
           setState(() {
             controller!.text = suggestion.name.toString();
             widget.getid(suggestion.id.toString());
             widget.getvalue(suggestion.name.toString());
           });
         },
-        noItemsFoundBuilder: (value) {
+        emptyBuilder: (value) {
           final message = suggestion != null && suggestion!.isEmpty
               ? 'No result found. Search again.'
               : 'Searching';

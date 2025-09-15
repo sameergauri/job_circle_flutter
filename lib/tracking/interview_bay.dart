@@ -1,4 +1,4 @@
-// ignore_for_file: unused_result, avoid_unnecessary_containers, avoid_print, use_build_context_synchronously, use_full_hex_values_for_flutter_colors, deprecated_member_use
+/* // ignore_for_file: unused_result, avoid_unnecessary_containers, avoid_print, use_build_context_synchronously, use_full_hex_values_for_flutter_colors, deprecated_member_use
 // ignore_for_file: todo
 import 'dart:ui';
 
@@ -1011,3 +1011,4 @@ class _InterViewBayStatusState extends ConsumerState<InterViewBayStatus> {
 
   bool note = false;
 }
+ */

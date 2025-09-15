@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_unnecessary_containers
 
-import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
+// import 'package:advance_pdf_viewer2/advance_pdf_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:job_circle/themes/colors.dart';
 // Make sure to import the necessary package(s)
@@ -35,7 +35,7 @@ class CustomPDFViewerDialog extends StatelessWidget {
                   }
                   Navigator.pop(context);
                 }),
-            body: Container(
+            body:SizedBox()/* Container(
               child: FutureBuilder<PDFDocument>(
                 future: PDFDocument.fromURL(pdfUrl),
                 builder: (context, snapshot) {
@@ -61,7 +61,7 @@ class CustomPDFViewerDialog extends StatelessWidget {
                   }
                 },
               ),
-            ),
+            ), */
           ),
         );
       },

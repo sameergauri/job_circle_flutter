@@ -140,54 +140,47 @@ class _CustomCompanyForManagerLeadFormState
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
             ),
-            child: TypeAheadFormField<dynamic>(
-              enabled: false,
-              validator: (value) {
-                if (value!.isEmpty) {
-                  return "This Text field Cant be empty";
-                }
-                return null;
-              },
-              suggestionsBoxDecoration: SuggestionsBoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                elevation: 4.0,
-              ),
-              textFieldConfiguration: TextFieldConfiguration(
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
-                ],
-                onChanged: (value) {
-                  suggestion = null;
-                },
-                autofocus: true,
+            child: TypeAheadField<dynamic>(
+              builder: (context, controller, focusNode) {
+                return TextField(
+                  enabled: false,
+                   inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z]')),
+                  ],
+                  onChanged: (value) {
+                    suggestion = null;
+                  },
+                  autofocus: true,
 
-                // focusNode: focusNode,
-                textCapitalization: TextCapitalization.sentences,
-                controller: controller,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: "Aditya birla Health Insurance",
-                  hintStyle: GoogleFonts.varela(
-                    color: Constants.subtitleclr,
-                    fontSize: 15.sp,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                      color: Color.fromARGB(255, 122, 113, 111),
+                  // focusNode: focusNode,
+                  textCapitalization: TextCapitalization.sentences,
+                  controller: controller,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white,
+                    hintText: "Aditya birla Health Insurance",
+                    hintStyle: GoogleFonts.varela(
+                      color: Constants.subtitleclr,
+                      fontSize: 15.sp,
                     ),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  border: OutlineInputBorder(
-                    borderSide: const BorderSide(
-                      // ignore: use_full_hex_values_for_flutter_colors
-                      color: Color(0xffff0eceb),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        color: Color.fromARGB(255, 122, 113, 111),
+                      ),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                        // ignore: use_full_hex_values_for_flutter_colors
+                        color: Color(0xffff0eceb),
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.only(left: 15),
                   ),
-                  contentPadding: const EdgeInsets.only(left: 15),
-                ),
-              ),
+                );
+              },
+              
               suggestionsCallback: (pattern) async {
                 if (pattern.isNotEmpty) {
                   suggestion = await getSuggestions(pattern);
@@ -217,7 +210,7 @@ class _CustomCompanyForManagerLeadFormState
                   ),
                 );
               },
-              onSuggestionSelected: (suggestion) {
+              onSelected: (suggestion) {
                 setState(() {
                   controller!.text = suggestion.name.toString();
                   handleBoolChange(true);
@@ -229,7 +222,7 @@ class _CustomCompanyForManagerLeadFormState
                   handleOngetResumeId(suggestion.isResumeId);
                 });
               },
-              noItemsFoundBuilder: (value) {
+              emptyBuilder: (value) {
                 final message = suggestion != null && suggestion!.isEmpty
                     ? 'No result found. Search again and select from suggestion.'
                     : 'Searching';

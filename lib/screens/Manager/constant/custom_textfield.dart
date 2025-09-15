@@ -88,68 +88,60 @@ class _CustomStatusManagerState extends State<CustomStatusManager> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
         ),
-        child: TypeAheadFormField<dynamic>(
-          validator: (value) {
-            if (value!.isEmpty) {
-              return "This Text field Cant be empty";
-            }
-            return null;
-          },
-          suggestionsBoxDecoration: SuggestionsBoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            elevation: 4.0,
-          ),
-          textFieldConfiguration: TextFieldConfiguration(
-            /* onTapOutside: (event) {
+        child: TypeAheadField<dynamic>(
+          builder: (context, controller, focusNode) {
+            return TextField(
+                  /* onTapOutside: (event) {
               setState(() {
                 suggestionSelected = true;
               });
             }, */
-            onSubmitted: (value) {
-              setState(() {
-                suggestionSelected = true;
-              });
-            },
-            // enabled: !suggestionSelected,
-            onChanged: (value) {
-              suggestion = null;
-            },
-            autofocus: true,
+              onSubmitted: (value) {
+                setState(() {
+                  suggestionSelected = true;
+                });
+              },
+              // enabled: !suggestionSelected,
+              onChanged: (value) {
+                suggestion = null;
+              },
+              autofocus: true,
 
-            textCapitalization: TextCapitalization.sentences,
-            controller: controller,
-            style:
-                GoogleFonts.varela(color: Constants.hintColor, fontSize: 14.sp),
-            decoration: InputDecoration(
-              label: const Text("Status"),
-              labelStyle: GoogleFonts.varela(
-                  color: Constants.themeBgColor, fontSize: 15.sp),
-              prefixIcon: const Icon(
-                Icons.badge_outlined,
-                color: Constants.themeBgColor,
-              ),
-              prefixIconColor: Constants.themeBgColor,
-              //label: Text("Reside at"),
-              hintText: "Application",
-              hintStyle: GoogleFonts.varela(
-                color: Constants.subtitleclr,
-                fontSize: 14.sp,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Constants.themeBgColor),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              border: OutlineInputBorder(
-                borderSide: const BorderSide(
-                  color: Color(0xffff0eceb),
+              textCapitalization: TextCapitalization.sentences,
+              controller: controller,
+              style: GoogleFonts.varela(
+                  color: Constants.hintColor, fontSize: 14.sp),
+              decoration: InputDecoration(
+                label: const Text("Status"),
+                labelStyle: GoogleFonts.varela(
+                    color: Constants.themeBgColor, fontSize: 15.sp),
+                prefixIcon: const Icon(
+                  Icons.badge_outlined,
+                  color: Constants.themeBgColor,
                 ),
-                borderRadius: BorderRadius.circular(8),
+                prefixIconColor: Constants.themeBgColor,
+                //label: Text("Reside at"),
+                hintText: "Application",
+                hintStyle: GoogleFonts.varela(
+                  color: Constants.subtitleclr,
+                  fontSize: 14.sp,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Constants.themeBgColor),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Color(0xffff0eceb),
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.only(
+                  left: 15,
+                ),
               ),
-              contentPadding: const EdgeInsets.only(
-                left: 15,
-              ),
-            ),
-          ),
+            );
+          },
           suggestionsCallback: (pattern) async {
             if (pattern.isNotEmpty) {
               suggestion = await getHrStatus(pattern);
@@ -179,7 +171,7 @@ class _CustomStatusManagerState extends State<CustomStatusManager> {
               ),
             );
           },
-          onSuggestionSelected: (suggestion) {
+          onSelected: (suggestion) {
             // widget.focusNode!.nextFocus();
             widget.onChanged(true);
             setState(() {
@@ -187,7 +179,7 @@ class _CustomStatusManagerState extends State<CustomStatusManager> {
               widget.getHrStatusID(suggestion.id.toString());
             });
           },
-          noItemsFoundBuilder: (value) {
+          emptyBuilder: (value) {
             final message = suggestion != null && suggestion!.isEmpty
                 ? 'No result found. Search again.'
                 : 'Searching';
