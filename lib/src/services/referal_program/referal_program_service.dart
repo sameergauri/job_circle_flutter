@@ -5,14 +5,14 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/enum.dart';
-import 'package:job_circle/src/model/referal_program/banking_model.dart';
+import 'package:job_circle/src/model/bank/bank_post_model.dart';
+import 'package:job_circle/src/model/bank/fetch_bank_detail_model.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/model/referal_program/ppayment_status_model.dart';
 import 'package:job_circle/src/model/referal_program/submit_invoice_model.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class ReferalProgramService {
-  
   static Future<JoinersResponseModel?> fetchJoinersData() async {
     int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     try {
@@ -49,7 +49,7 @@ class ReferalProgramService {
     }
   }
 
-  static Future<List<GetBankingModel>> fetchBankingData() async {
+  static Future<List<FetchBankDetailModel>> fetchBankingData() async {
     int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     final url = Uri.parse(
       '${GlobalConstants.fetchbankdetailurl}$userid&pageNumber=1&pageSize=10',
@@ -62,8 +62,8 @@ class ReferalProgramService {
         final List<dynamic> contentList = jsonData['resultData']['content'];
 
         // Convert the list of Map to a list of Applicant objects
-        List<GetBankingModel> applicants = contentList
-            .map((json) => GetBankingModel.fromJson(json))
+        List<FetchBankDetailModel> applicants = contentList
+            .map((json) => FetchBankDetailModel.fromJson(json))
             .toList();
         return applicants;
       } else {
@@ -78,20 +78,16 @@ class ReferalProgramService {
     }
   }
 
-  static Future<void> addBankingDetails(Map<String, dynamic> jsonData) async {
-    // Implement your API call to add banking details
-    // This should make a POST request to your banking details endpoint
+  static Future<bool> addBankingDetails(PostBankDetailModel jsonData) async {
     try {
       final response = await http.post(
         Uri.parse(GlobalConstants.postbankdetailurl),
-        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(jsonData),
       );
-
-      if (response.statusCode != 200) {
-        throw Exception(
-          'Failed to add banking details: ${response.statusCode}',
-        );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        return false;
       }
     } catch (e) {
       throw Exception('Failed to add banking details: $e');
@@ -107,10 +103,7 @@ class ReferalProgramService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(model.toJson()),
       );
-
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Success
-
         return true;
       } else {
         return false;

@@ -5,7 +5,7 @@ class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
   static const API_Host_one =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-      // "10.27.96.234:8081";
+  // "10.178.63.234:8081";
   // "10.163.64.234:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const Image_url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/";
@@ -72,7 +72,7 @@ class GlobalConstants {
   //
   // TODO:: bank
   //
-  static const postbankdetailurl = '$_baseurl/bankDetails/v1/add';
+  static const postbankdetailurl = '$_baseurl/bankDetails/v1/saveBankDetails';
   static const fetchbankdetailurl =
       '$_baseurl/bankDetails/v1/getBankingDetailsOfUserByUserId?uid=';
   //
@@ -100,6 +100,8 @@ class GlobalConstants {
   //
   static const fetchcompanydataurl =
       "$_baseurl/company/v1/all?pageNumber=1&pageSize=10000";
+  static const fetchBankList =
+      '$_baseurl/company/v1/allBank?pageNumber=1&pageSize=10000';
   //
   //
   // TODO:: fav job

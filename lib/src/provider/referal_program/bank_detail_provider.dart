@@ -1,98 +1,150 @@
 // providers/banking_provider.dart
-import 'package:flutter/foundation.dart';
-import 'package:job_circle/src/model/referal_program/banking_model.dart';
+import 'package:flutter/material.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/bank/bank_post_model.dart';
+import 'package:job_circle/src/model/bank/fetch_bank_detail_model.dart';
 import 'package:job_circle/src/services/referal_program/referal_program_service.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class BankingProvider with ChangeNotifier {
- 
+  List<FetchBankDetailModel>? _fetchBankDetailModel;
 
-  BankingState _state = BankingState();
+  // Form controllers
+  final TextEditingController accountHolderNameController =
+      TextEditingController();
+  final TextEditingController bankNameController = TextEditingController();
+  final TextEditingController acNoController = TextEditingController();
+  final TextEditingController acNoVerifyController = TextEditingController();
+  final TextEditingController ifscCodeController = TextEditingController();
 
-  BankingState get state => _state;
+  // Form state
+  int _selectedBankId = 0;
+  String _selectedBankName = "";
+  String _cancelChequePath = "";
+  bool _isSavingAccount = false;
+  bool _isCurrentAccount = false;
+  bool _obscureAccountNumber = true;
+  bool _isLoading = false;
+
+  int get selectedBankId => _selectedBankId;
+  String get selectedBankName => _selectedBankName;
+  String get cancelChequePath => _cancelChequePath;
+  bool get isSavingAccount => _isSavingAccount;
+  bool get isCurrentAccount => _isCurrentAccount;
+  bool get obscureAccountNumber => _obscureAccountNumber;
+  bool get isLoading => _isLoading;
+  List<FetchBankDetailModel>? get fetchBankDetail => _fetchBankDetailModel;
+
+  @override
+  void dispose() {
+    accountHolderNameController.dispose();
+    bankNameController.dispose();
+    acNoController.dispose();
+    acNoVerifyController.dispose();
+    ifscCodeController.dispose();
+    super.dispose();
+  }
+
+  void setAccountHolderName(String name) {
+    clearForm();
+    accountHolderNameController.text = name;
+    notifyListeners();
+  }
+
+  void setSelectedBankId(int id) {
+    _selectedBankId = id;
+    _selectedBankName = bankNameController.text;
+    notifyListeners();
+  }
+
+  void setCancelChequePath(String path) {
+    _cancelChequePath = path;
+    notifyListeners();
+  }
+
+  void selectSavingAccount() {
+    _isSavingAccount = true;
+    _isCurrentAccount = false;
+    notifyListeners();
+  }
+
+  void selectCurrentAccount() {
+    _isSavingAccount = false;
+    _isCurrentAccount = true;
+    notifyListeners();
+  }
+
+  void showAccountNumber() {
+    _obscureAccountNumber = false;
+    notifyListeners();
+  }
+
+  void hideAccountNumber() {
+    _obscureAccountNumber = true;
+    notifyListeners();
+  }
+
+  void clearForm() {
+    accountHolderNameController.clear();
+    bankNameController.clear();
+    acNoController.clear();
+    acNoVerifyController.clear();
+    ifscCodeController.clear();
+    _selectedBankId = 0;
+    _selectedBankName = "";
+    _cancelChequePath = "";
+    _isSavingAccount = false;
+    _isCurrentAccount = false;
+    _obscureAccountNumber = true;
+    notifyListeners();
+  }
 
   Future<void> fetchBankingData() async {
     try {
-      _state = _state.copyWith(isLoading: true);
+      _fetchBankDetailModel = [];
+      _isLoading = true;
       notifyListeners();
-
-      final data = await ReferalProgramService.fetchBankingData();
-
-      _state = BankingState(bankingData: data, isLoading: false);
+      _fetchBankDetailModel = await ReferalProgramService.fetchBankingData();
     } catch (e) {
-      _state = _state.copyWith(error: e.toString(), isLoading: false);
+      _isLoading = false;
+    } finally {
+      _isLoading = false;
     }
-
     notifyListeners();
   }
 
-  Future<void> addBankingDetails(Map<String, dynamic> jsonData) async {
+  Future<void> submitBankingDetails() async {
+    _isLoading = true;
+    notifyListeners();
     try {
-      _state = _state.copyWith(isSaving: true);
-      notifyListeners();
-
-      await ReferalProgramService.addBankingDetails(jsonData);
-
-      // Refresh the data after adding new banking details
-      await fetchBankingData();
-
-      _state = _state.copyWith(isSaving: false);
+      final userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+      PostBankDetailModel postBankDetailModel = PostBankDetailModel(
+        uid: userid,
+        accountNumber: int.tryParse(acNoController.text),
+        accountType: _isSavingAccount ? "Saving" : "Current",
+        bankName: bankNameController.text,
+        bankId: _selectedBankId,
+        ifscCode: ifscCodeController.text,
+        cancleCheque: _cancelChequePath,
+      );
+      var result = await ReferalProgramService.addBankingDetails(
+        postBankDetailModel,
+      );
+      if (result) {
+        await fetchBankingData();
+        CustomSnackbar.show("Banking Detail added Successfully", false);
+        clearForm();
+      } else {
+        CustomSnackbar.show("Getting error while saving bank detail", true);
+      }
     } catch (e) {
-      _state = _state.copyWith(error: e.toString(), isSaving: false);
+      _isLoading = false;
+      CustomSnackbar.show("Getting exception while saving bank detail", true);
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    notifyListeners();
-  }
-
-  void resetState() {
-    _state = BankingState(
-      bankingData: _state.bankingData,
-      isLoading: false,
-      isSaving: false,
-    );
-    notifyListeners();
-  }
-}
-
-class BankingState {
-  final List<GetBankingModel> bankingData;
-  final bool isLoading;
-  final bool isSaving;
-  final String? error;
-
-  BankingState({
-    this.bankingData = const [],
-    this.isLoading = false,
-    this.isSaving = false,
-    this.error,
-  });
-
-  BankingState copyWith({
-    List<GetBankingModel>? bankingData,
-    bool? isLoading,
-    bool? isSaving,
-    String? error,
-  }) {
-    return BankingState(
-      bankingData: bankingData ?? this.bankingData,
-      isLoading: isLoading ?? this.isLoading,
-      isSaving: isSaving ?? this.isSaving,
-      error: error ?? this.error,
-    );
-  }
-
-  bool get hasActiveBanking {
-    return bankingData.any((data) => data.isVerify == 1);
-  }
-
-  List<GetBankingModel> get activeBankingData {
-    return bankingData.where((data) => data.isVerify == 1).toList();
-  }
-
-  List<GetBankingModel> get inactiveBankingData {
-    return bankingData.where((data) => data.isVerify == 0).toList();
-  }
-
-  List<GetBankingModel> get pendingBankingData {
-    return bankingData.where((data) => data.isVerify == null).toList();
   }
 }

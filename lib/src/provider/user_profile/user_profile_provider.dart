@@ -17,7 +17,7 @@ import 'package:job_circle/src/utils/date_formater.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class ProfileProvider with ChangeNotifier {
-  var _userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+  final _userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
   ProfileModel? _profile;
   CreateNewUserModel? _createNewUserModel;
   ResponsibilityAiModel? _responsibilityAiModel;
@@ -45,7 +45,7 @@ class ProfileProvider with ChangeNotifier {
   TextEditingController profileHeadline = TextEditingController();
   TextEditingController skillController = TextEditingController();
   List<String> _language = [];
-  List<String> _selectedLanguage = [];
+  final List<String> _selectedLanguage = [];
   bool _isLoadingLanguages = false,
       _male = false,
       _female = false,
@@ -55,7 +55,7 @@ class ProfileProvider with ChangeNotifier {
   String _vaccinationcertificate = 'null';
   String? _age;
   List<String> _tempSelectedSkill = [];
-  List<String> _selectedSkills = [];
+  final List<String> _selectedSkills = [];
   List<String> _apifetchSkills = [];
   bool _isSummaryLoading = false, _isSummaryGenereted = false;
 

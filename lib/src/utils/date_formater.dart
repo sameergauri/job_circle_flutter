@@ -85,8 +85,8 @@ class CvParseDateToApiFormat {
 
       // Common possible input formats
       final possibleFormats = [
-        'dd-MM-yyyy',
         'dd-MMM-yyyy',
+        'dd-MM-yyyy',
         'MM-dd-yyyy',
         'MMM-yyyy',
         'MMMM-yyyy',

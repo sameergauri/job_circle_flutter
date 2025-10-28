@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/custom_icon_url.dart';
+import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/ats/ats_applied_page_model.dart';
@@ -225,10 +226,13 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
                 CircleAvatar(
                   backgroundColor: Constants.lightdull,
                   child: Image.network(
-                    CustomIconUrl.companyicon,
-                    height: 25,
-                    width: 25,
-                    fit: BoxFit.cover,
+                    item.companyLogo != null &&
+                            item.companyLogo != 'null' &&
+                            item.companyLogo != ""
+                        ? "${GlobalConstants.Image_url}${item.companyLogo}"
+                        : CustomIconUrl.companyicon,
+
+                    fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(width: 8),
