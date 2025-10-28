@@ -3,9 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  file_selector_windows
   flutter_inappwebview_windows
   pdfx
+  share_plus
   url_launcher_windows
 )
 
