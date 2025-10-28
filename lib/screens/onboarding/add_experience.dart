@@ -2629,19 +2629,7 @@ class _AddExperienceState extends State<AddExperience> {
                         },
                         title: "Offer Letter")
                     : const SizedBox(),
-                /* customContainerSelect(
-                        isAnother: true,
-                        onPressed: () async {
-                          setState(() async {
-                            // offerletter = true;
-                            offerLetter = await uploadFile(
-                                allowExt: ["pdf"], isoffer: true);
-                          });
-                        },
-                        isSelect: offerletter,
-                        title: offerLetter != null
-                            ? offerLetter.toString()
-                            : "Offer letter"), */
+               
                 appointmentLetter != null
                     ? CustomContainerSelectToViewDoc(
                         onPressed: () {

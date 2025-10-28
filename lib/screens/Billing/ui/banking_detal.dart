@@ -685,6 +685,4 @@ class _BankingDetalsState extends ConsumerState<BankingDetals> {
       },
     );
   }
-
-  //TODO : custom function end...
 }

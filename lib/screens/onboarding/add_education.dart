@@ -1031,26 +1031,9 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                   hint: "Select Month",
                 ),
               ),
-              /*  CustomTextField(
-                  maxLength: 4,
-                  isNumber: true,
-                  context: context,
-                  hint: "Year",
-                  label: "First Year",
-                  focusNode: firstyearfocus,
-                  controller: firstYearController,
-                  icon: const Icon(Icons.edit_calendar)), */
               SizedBox(
                   width: MediaQuery.of(context).size.width / 2.5,
                   child: DropDownYear("Select Year", firstYearController, true)
-                  /*  YearDropdown(
-                  previousyear: firstYearController.text,
-                  controller: firstYearController,
-                  focusNode: firstyearfocus,
-                  hint: "Select Year",
-                  isNumber: true,
-                  maxLength: 4,
-                ), */
                   ),
             ],
           ),
@@ -1070,15 +1053,6 @@ class _AddEducationState extends ConsumerState<AddEducation> {
                     hint: "Select Month",
                   ),
                 ),
-                /*  CustomTextField(
-                  maxLength: 4,
-                  isNumber: true,
-                  context: context,
-                  hint: "Month",
-                  label: "Final Year",
-                  focusNode: finalyearfocus,
-                  controller: passingYearController,
-                  icon: const Icon(Icons.edit_calendar)), */
                 SizedBox(
                   width: MediaQuery.of(context).size.width / 2.5,
                   child:
