@@ -82,7 +82,11 @@ class ReferalProgramService {
     try {
       final response = await http.post(
         Uri.parse(GlobalConstants.postbankdetailurl),
-        body: jsonEncode(jsonData),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(jsonData.toJson()),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         return true;

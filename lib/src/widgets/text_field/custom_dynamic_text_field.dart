@@ -97,7 +97,9 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
             onChanged: widget.onChanged,
             onFieldSubmitted: widget.onFieldSubmitted,
             onEditingComplete: widget.onEditingComplete,
-            onTapOutside: widget.onTabOutside,
+            onTapOutside: (event) {
+              focusNode.unfocus();
+            },
             maxLines: widget.maxline,
             enabled: widget.isDisabled,
             controller: widget.controller,

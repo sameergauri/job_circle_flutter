@@ -3,12 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/custom_row.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_skills_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_summary_edit.dart';
+import 'package:provider/provider.dart';
 
 class CustomMissingInfoContainer extends StatelessWidget {
   final ProfileProvider provider;
@@ -18,6 +20,7 @@ class CustomMissingInfoContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     FileUploader fileUploader = FileUploader();
     final profileData = provider.profile;
+    final jobProvider = Provider.of<JobProvider>(context, listen: false);
     return Container(
       padding: const EdgeInsets.only(left: 10),
       margin: const EdgeInsets.only(top: 10, bottom: 10),
@@ -56,7 +59,9 @@ class CustomMissingInfoContainer extends StatelessWidget {
               ),
 
             /// ---------------- Profile Pic ----------------
-            if (profileData.profilePic == null || profileData.profilePic == " ")
+            if (profileData.profilePic == null ||
+                profileData.profilePic == " " ||
+                profileData.profilePic == "null")
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: CustomFieldBlock(
@@ -80,7 +85,11 @@ class CustomMissingInfoContainer extends StatelessWidget {
                       "icon",
                     );
                     if (profilePicPath != null) {
-                      provider.updateProfilePic(profileData, profilePicPath);
+                      await provider.updateProfilePic(
+                        profileData,
+                        profilePicPath,
+                      );
+                      await jobProvider.fetchJobs(applyCityFilter: true);
                     }
                   },
                 ),

@@ -1,5 +1,6 @@
 // providers/banking_provider.dart
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/bank/bank_post_model.dart';
@@ -127,6 +128,7 @@ class BankingProvider with ChangeNotifier {
         bankId: _selectedBankId,
         ifscCode: ifscCodeController.text,
         cancleCheque: _cancelChequePath,
+        updatedDate: DateFormat('yyyy-MM-dd').format(DateTime.now()),
       );
       var result = await ReferalProgramService.addBankingDetails(
         postBankDetailModel,

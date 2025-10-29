@@ -28,7 +28,7 @@ class UserProfile extends StatefulWidget {
 
 class _UserProfileState extends State<UserProfile> {
   FileUploader fileUploader = FileUploader();
-  bool _localLoading = false;
+  final bool _localLoading = false;
 
   @override
   void initState() {
@@ -91,7 +91,8 @@ class _UserProfileState extends State<UserProfile> {
                               profileData.bio == "" ||
                               profileData.bio == "null") ||
                           (profileData.profilePic == " " ||
-                              profileData.profilePic == null))
+                              profileData.profilePic == null ||
+                              profileData.profilePic == "null"))
                         CustomMissingInfoContainer(provider: provider),
                       if ((profileData.bio != null &&
                               profileData.bio != " " &&

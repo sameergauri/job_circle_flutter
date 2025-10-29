@@ -8,6 +8,7 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
@@ -40,10 +41,7 @@ class _JobHomePageState extends State<JobHomePage> {
     super.initState();
     _initializeCity();
     /*   WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<JobProvider>(
-        context,
-        listen: false,
-      ).fetchJobs(applyCityFilter: true);
+      Provider.of<JobProvider>(context, listen: false).fetchRecomendJob();
     }); */
   }
 
@@ -77,6 +75,12 @@ class _JobHomePageState extends State<JobHomePage> {
     setState(() {
       selectedTab = selectedTab == tab ? '' : tab;
     });
+    if (selectedTab == "Recommended Jobs") {
+      final provider = Provider.of<JobProvider>(context, listen: false);
+      if (provider.recommendedJob?.data?.recommendations?.isEmpty ?? true) {
+        provider.fetchRecomendJob();
+      }
+    }
   }
 
   List<JobContent> filterJobs(List<JobContent> jobs) {
@@ -150,8 +154,7 @@ class _JobHomePageState extends State<JobHomePage> {
         final isLoading = jobProvider.isLoading;
         final selectedCityFromProvider = jobProvider.selectedCity;
         final userData = jobProvider.userData;
-        final availableTabs = getAvailableTabs(jobs);
-
+        final availableTabs = ["Recommended Jobs", ...getAvailableTabs(jobs)];
         return Stack(
           children: [
             Scaffold(
@@ -194,6 +197,7 @@ class _JobHomePageState extends State<JobHomePage> {
                   ),
                 ),
                 title: DynamicHintTextField(
+                  focusNode: jobProvider.searchBarFocusNode,
                   isGmail: true,
                   onChanged: (value) {
                     jobProvider.updateSearchQuery(value);
@@ -282,22 +286,7 @@ class _JobHomePageState extends State<JobHomePage> {
                                         onTap: () {
                                           toggleTab(tab);
                                         },
-                                      ) /* FilterChip(
-                                        label: customText(title: tab),
-                                        selected: selectedTab == tab,
-                                        onSelected: (_) => toggleTab(tab),
-                                        selectedColor: Constants.borderColor,
-                                        backgroundColor: Constants.lightdull,
-                                        labelStyle: GoogleFonts.merriweather(
-                                          fontSize: 12,
-                                          fontWeight: selectedTab == tab
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                          color: selectedTab == tab
-                                              ? Constants.black
-                                              : Constants.subtitleclr,
-                                        ),
-                                      ), */,
+                                      ),
                                     ),
                                   )
                                   .toList(),
@@ -307,61 +296,27 @@ class _JobHomePageState extends State<JobHomePage> {
                         Expanded(
                           child: RefreshIndicator(
                             onRefresh: () async {
-                              await jobProvider.fetchJobs(
-                                isRefresh: true,
-                                applyCityFilter: true,
-                              );
+                              if (selectedTab == "Recommended Jobs") {
+                                await jobProvider.fetchRecomendJob();
+                              } else {
+                                await jobProvider.fetchJobs(
+                                  isRefresh: true,
+                                  applyCityFilter: true,
+                                );
+                              }
                             },
                             color: Constants.darkBlue,
                             backgroundColor: Constants.white,
-                            child: filteredJobs.isEmpty && !isLoading
-                                ? const Center(child: Text('No jobs found'))
-                                : ListView.builder(
-                                    shrinkWrap: true,
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: filteredJobs.length,
-                                    itemBuilder: (context, index) {
-                                      final job = filteredJobs[index];
-                                      List<String> myList = job.skills != null
-                                          ? List<String>.from(
-                                              jsonDecode(job.skills!),
-                                            )
-                                          : [];
-                                      return Column(
-                                        children: [
-                                          InkWell(
-                                            onTap: () {
-                                              NavigationService.push(
-                                                JobDetailPage(
-                                                  resume: userData!.cv_link,
-                                                  jobId: job.id!,
-                                                  fromWhere: FromWhere.homePage,
-                                                ),
-                                              );
-                                            },
-                                            child: CustomJobCard(
-                                              job: job,
-                                              skills: myList,
-                                              onLastFavoriteRemoved: () {
-                                                if (selectedTab == 'Saved') {
-                                                  setState(() {
-                                                    selectedTab = '';
-                                                  });
-                                                }
-                                              },
-                                            ),
-                                          ),
-                                          if (index != filteredJobs.length - 1)
-                                            const Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                              ),
-                                              child: Divider(thickness: 1.0),
-                                            ),
-                                          const SizedBox(height: 10),
-                                        ],
-                                      );
-                                    },
+                            child: selectedTab == "Recommended Jobs"
+                                ? _buildRecommendedJobsList(
+                                    jobProvider,
+                                    userData,
+                                  )
+                                : _buildRegularJobsList(
+                                    filteredJobs,
+                                    // filterJobs(jobs),
+                                    isLoading,
+                                    userData,
                                   ),
                           ),
                         ),
@@ -372,6 +327,115 @@ class _JobHomePageState extends State<JobHomePage> {
               const Center(
                 child: CircularProgressIndicator(color: Constants.darkBlue),
               ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRegularJobsList(
+    List<JobContent> filteredJobs,
+    bool isLoading,
+    UserData? userData,
+  ) {
+    return filteredJobs.isEmpty && !isLoading
+        ? const Center(child: Text('No jobs found'))
+        : ListView.builder(
+            shrinkWrap: true,
+            physics: const BouncingScrollPhysics(),
+            itemCount: filteredJobs.length,
+            itemBuilder: (context, index) {
+              final job = filteredJobs[index];
+              List<String> myList = job.skills != null
+                  ? List<String>.from(jsonDecode(job.skills!))
+                  : [];
+              return Column(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      NavigationService.push(
+                        JobDetailPage(
+                          resume: userData!.cv_link,
+                          jobId: job.id!,
+                          fromWhere: FromWhere.homePage,
+                        ),
+                      );
+                    },
+                    child: CustomJobCard(
+                      job: job,
+                      skills: myList,
+                      onLastFavoriteRemoved: () {
+                        if (selectedTab == 'Saved') {
+                          setState(() {
+                            selectedTab = '';
+                          });
+                        }
+                      },
+                    ),
+                  ),
+                  if (index != filteredJobs.length - 1)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      child: Divider(thickness: 1.0),
+                    ),
+                  const SizedBox(height: 10),
+                ],
+              );
+            },
+          );
+  }
+
+  Widget _buildRecommendedJobsList(
+    JobProvider jobProvider,
+    UserData? userData,
+  ) {
+    final recommendedJobs =
+        jobProvider.recommendedJob?.data?.recommendations ?? [];
+    final isLoading = jobProvider.recommendLoading;
+
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Constants.darkBlue),
+      );
+    }
+
+    if (recommendedJobs.isEmpty) {
+      return const Center(child: Text('No recommended jobs found'));
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: recommendedJobs.length,
+      itemBuilder: (context, index) {
+        final job = recommendedJobs[index];
+        List<String> myList = job.skills != null
+            ? List<String>.from(job.skills!)
+            : [];
+        return Column(
+          children: [
+            InkWell(
+              onTap: () {
+                NavigationService.push(
+                  JobDetailPage(
+                    resume: userData!.cv_link,
+                    jobId: job.id!,
+                    fromWhere: FromWhere.homePage,
+                  ),
+                );
+              },
+              child: CustomRecommendJobcard(
+                job: job,
+                skills: myList,
+                onLastFavoriteRemoved: () {},
+              ),
+            ),
+            if (index != recommendedJobs.length - 1)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Divider(thickness: 1.0),
+              ),
+            const SizedBox(height: 10),
           ],
         );
       },

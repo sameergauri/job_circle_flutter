@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
+import 'package:job_circle/src/model/job_model/recommend_job_model.dart';
 
 class JobServices {
   Future<Map<String, dynamic>> fetchJobs({
@@ -109,6 +110,25 @@ class JobServices {
     } catch (e) {
       print('Error removing job: $e');
       return false;
+    }
+  }
+
+  Future<RecommendJobModel?> fetchRecomendJob(int userId) async {
+    final url = Uri.parse("${GlobalConstants.recomendedJobUrl}$userId/jobs");
+
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonData = json.decode(response.body);
+        return RecommendJobModel.fromJson(jsonData);
+      } else {
+        print("❌ Failed to load data. Status code: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("⚠️ Error fetching job recommendations: $e");
+      return null;
     }
   }
 }

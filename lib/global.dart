@@ -4,8 +4,8 @@
 class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
   static const API_Host_one =
-      "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-  // "10.178.63.234:8081";
+      // "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
+      "10.178.63.234:8081";
   // "10.163.64.234:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const Image_url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/";
@@ -51,7 +51,7 @@ class GlobalConstants {
   static const _jobbaseUrl = '$_baseurl/api/jobs/v1';
   static const getAllJobsUrl = '$_jobbaseUrl/getAllJobs';
   static const getJobDetailUrl = '$_jobbaseUrl/getJobDetailsByJobId?';
-
+  static const recomendedJobUrl = '$_baseurl/api/v1/recommendations/users/';
   //
   //
   //TODO:: Lead

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
+import 'package:job_circle/src/model/job_model/recommend_job_model.dart';
 import 'package:job_circle/src/services/job/job_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
@@ -15,8 +16,11 @@ class JobProvider extends ChangeNotifier {
   String _searchQuery = '';
   JobfilterModel? _availableFilters;
   JobfilterModel? _activeFilters;
+  RecommendJobModel? _recommendedJob;
   UserData? _userData;
   String? _selectedCity;
+  bool _recommendLoading = false;
+  FocusNode _searchBarFocusNode = FocusNode();
 
   // Getters
   List<JobContent> get jobs => _jobs;
@@ -24,14 +28,17 @@ class JobProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   JobfilterModel? get availableFilters => _availableFilters;
   JobfilterModel? get activeFilters => _activeFilters;
+  RecommendJobModel? get recommendedJob => _recommendedJob;
   UserData? get userData => _userData;
   String? get selectedCity => _selectedCity;
+  bool get recommendLoading => _recommendLoading;
+  FocusNode get searchBarFocusNode => _searchBarFocusNode;
 
   Future<void> fetchJobs({
     bool isRefresh = false,
     required bool applyCityFilter,
   }) async {
-     _selectedCity = SharedPrefsHelper.getString(
+    _selectedCity = SharedPrefsHelper.getString(
       ESharedPreferences.user_selected_lcoation,
     );
     if (_isLoading) {
@@ -63,6 +70,27 @@ class JobProvider extends ChangeNotifier {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
+  }
+
+  Future<void> fetchRecomendJob() async {
+    _recommendLoading = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+    try {
+      _recommendedJob = await _jobServices.fetchRecomendJob(
+        SharedPrefsHelper.getInt(ESharedPreferences.user_id),
+      );
+    } catch (e, stackTrace) {
+      print('Error fetching recommended job: $e');
+      print(stackTrace);
+      _recommendedJob = null;
+    } finally {
+      _recommendLoading = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
+    }
   }
 
   void _applyLocalFilters() {
@@ -135,6 +163,7 @@ class JobProvider extends ChangeNotifier {
     _isLoading = false;
     if (success) {
       await fetchJobs(isRefresh: false, applyCityFilter: true);
+      await fetchRecomendJob();
     }
     notifyListeners();
     return success;
@@ -150,6 +179,7 @@ class JobProvider extends ChangeNotifier {
 
     _isLoading = false;
     await fetchJobs(isRefresh: false, applyCityFilter: true);
+    await fetchRecomendJob();
     notifyListeners();
     return {'success': success, 'wasLastSavedJob': wasLastSavedJob};
   }
