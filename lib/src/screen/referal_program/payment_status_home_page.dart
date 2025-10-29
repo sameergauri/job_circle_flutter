@@ -10,6 +10,7 @@ import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/referal_program/ppayment_status_model.dart';
 import 'package:job_circle/src/provider/referal_program/paymet_status_provider.dart';
 import 'package:job_circle/src/screen/referal_program/invoice_detail_page.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/referal_program/custom_invoice_card.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
@@ -124,7 +125,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                   InkWell(
                     onTap: () {
                       provider.resetFilters();
-                      Navigator.pop(context);
+                      NavigationService.pop();
                     },
                     child: Text(
                       "Reset",
@@ -152,7 +153,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                         ).format(DateFormat('MMM').parse(parts[0]));
                         final year = parts[1];
                         provider.filterByDate({'month': month, 'year': year});
-                        Navigator.of(context).pop();
+                        NavigationService.pop();
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -182,8 +183,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                                     "${DateFormat('MMM').format(DateFormat('MM').parse(selectedDate['month']!))} ${selectedDate['year']}")
                               const CustomNetworkImage(
                                 color: Constants.darkBlue,
-                                imageUrl:
-                                    CustomIconUrl.locicon,
+                                imageUrl: CustomIconUrl.locicon,
                                 defaultIcon: Icons.check,
                               ),
                           ],
@@ -364,13 +364,10 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => InvoiceDetail(
-                          invoice: item,
-                          invoiceTab: _getInvoiceTabFromName(tabName),
-                        ),
+                    NavigationService.push(
+                      InvoiceDetail(
+                        invoice: item,
+                        invoiceTab: _getInvoiceTabFromName(tabName),
                       ),
                     );
                   },

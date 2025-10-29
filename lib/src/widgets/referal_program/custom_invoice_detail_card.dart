@@ -1,13 +1,14 @@
-
 // ignore_for_file: unnecessary_null_comparison, dead_code, file_names
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/custom_icon_url.dart';
+import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/referal_program/ppayment_status_model.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/salary_round_off.dart';
 import 'package:job_circle/src/utils/utils.dart';
 import 'package:job_circle/src/widgets/container/custom_container_to_view_document.dart';
@@ -46,10 +47,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
             const SizedBox(height: 10),
 
             // Organization Name & Address (Assumed Static)
-            const customText(
-              title: "To,",
-              fontWeight: FontWeight.bold,
-            ),
+            const customText(title: "To,", fontWeight: FontWeight.bold),
             customText(
               title: invoice.orgizationName.toString(),
               fontSize: 12,
@@ -74,7 +72,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
             const SizedBox(height: 10),
             // Invoice Number
             customText(
-            monst: true,
+              monst: true,
               title: "Invoice No: ${invoice.invoiceNo}",
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -142,9 +140,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       flex: 8,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: customText(
-                          title: candidate.name.toString(),
-                        ),
+                        child: customText(title: candidate.name.toString()),
                       ),
                     ),
                     Expanded(
@@ -188,7 +184,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 const customText(
-                monst: true,
+                  monst: true,
                   title: "Total: ₹ ",
                   fontWeight: FontWeight.bold,
                 ),
@@ -229,9 +225,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                   children: [
                     customText(title: "Bank Name"),
                     customText(title: "Account Type"),
-                    customText(
-                      title: "Holder Name(As per Bank Record)",
-                    ),
+                    customText(title: "Holder Name(As per Bank Record)"),
                     customText(title: "Account No"),
                     customText(title: "IFSC Code"),
                   ],
@@ -241,17 +235,15 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                   children: [
                     customText(title: " : ${invoice.bankName}"),
                     customText(title: " : ${invoice.accountType}"),
+                    customText(title: " : ${invoice.accountHolderName}"),
                     customText(
-                      title: " : ${invoice.accountHolderName}",
-                    ),
-                    customText(
-                    monst: true,
+                      monst: true,
                       title: " : ${invoice.accountNumber}",
                       fontWeight: FontWeight.w500,
                       letterspacing: 0.6,
                     ),
                     customText(
-                    monst: true,
+                      monst: true,
                       title: " : ${invoice.ifscCode}",
                       fontWeight: FontWeight.w500,
                       letterspacing: 0.6,
@@ -274,10 +266,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                   : MainAxisAlignment.end,
               children: [
                 if (invoice.paymentStatus == "paid")
-                  Image.network(
-                    height: 50,
-                    CustomIconUrl.paidicon,
-                  ),
+                  Image.network(height: 50, CustomIconUrl.paidicon),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -288,9 +277,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       title: "From,",
                       fontWeight: FontWeight.bold,
                     ),
-                    customText(
-                      title: invoice.accountHolderName.toString(),
-                    ),
+                    customText(title: invoice.accountHolderName.toString()),
                   ],
                 ),
               ],
@@ -304,25 +291,22 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const customText(
-                      title: "Payment Receipt",
-                      fontSize: 14,
-                    ),
+                    const customText(title: "Payment Receipt", fontSize: 14),
                     CustomContainerSelectToViewDoc(
                       heading: '',
                       candidateName: '',
-                      isDocx: invoice.invoicePaymentReciept!.contains('docx')||
-                          invoice.invoicePaymentReciept!.contains('doc')?true:false,
+                      isDocx:
+                          invoice.invoicePaymentReciept!.contains('docx') ||
+                              invoice.invoicePaymentReciept!.contains('doc')
+                          ? true
+                          : false,
                       title: invoice.invoicePaymentReciept.toString(),
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CustomPDFViewerDialog(
-                              isFromAts: true,
-                              pdfUrl:
-                                  "https://s3.ap-south-1.amazonaws.com/job-circle-2/${invoice.invoicePaymentReciept}",
-                            ),
+                        NavigationService.push(
+                          CustomPDFViewerDialog(
+                            isFromAts: true,
+                            pdfUrl:
+                                "${GlobalConstants.Image_url}${invoice.invoicePaymentReciept}",
                           ),
                         );
                       },
@@ -366,7 +350,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                   CustomRemarkConatiner(
                     fontsize: 11,
                     subtitle:
-                        "Pending by Processing Team will be process shortly.",
+                        "Pending by Processing, Team will be process shortly.",
                     valueColor: Constants.black,
                     title: "Invoice Sent",
                   ),

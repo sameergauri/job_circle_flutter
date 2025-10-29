@@ -86,8 +86,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                                         backgroundColor: Colors.white,
                                         child: IconButton(
                                           onPressed: () async {
-                                            Navigator.pop(context);
-
+                                           NavigationService.pop();
                                             await profileProvider
                                                 .deleteProfilePic(
                                                   profileProvider.profile!,

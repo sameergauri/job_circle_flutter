@@ -8,6 +8,7 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/model/location_model.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/button/custom_button.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -100,7 +101,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
         }
       } else {
         widget.onSubmit(item);
-        Navigator.pop(context);
+       NavigationService.pop();
       }
     });
 
@@ -187,7 +188,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                       Row(
                         children: [
                           InkWell(
-                            onTap: () => Navigator.pop(context),
+                            onTap: () =>NavigationService.pop(),
                             child: const Icon(
                               Icons.arrow_back,
                               color: Constants.themeBgColor,
@@ -271,7 +272,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                           onTap: () {
                             widget.onSelectionComplete(selectedItems);
 
-                            Navigator.pop(context);
+                           NavigationService.pop();
                           },
                         ),
                     ],

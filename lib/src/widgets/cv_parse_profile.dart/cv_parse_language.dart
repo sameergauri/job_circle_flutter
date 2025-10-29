@@ -57,20 +57,7 @@ class CvParseLanguage extends StatelessWidget {
                         if (profileData.languages == null)
                           InkWell(
                             onTap: () {
-                              // 👉 Add navigation here
-                              // Example:
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => Screen1(
-                              //       profileskill: profileData.allSkills!,
-                              //       userid: profileData.id!,
-                              //       isbio: false,
-                              //       isfirst: false,
-                              //       prevPageModel: profileData,
-                              //     ),
-                              //   ),
-                              // );
+                              NavigationService.push(EditBasicInfo());
                             },
                             child: const Icon(
                               Icons.add,
@@ -84,22 +71,6 @@ class CvParseLanguage extends StatelessWidget {
                           InkWell(
                             onTap: () {
                               NavigationService.push(EditBasicInfo());
-
-                              // 👉 Edit navigation here
-                              // Example:
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => Screen1(
-                              //       profileskill: profileData.allSkills!,
-                              //       userid: profileData.id!,
-                              //       isbio: false,
-                              //       isfirst: false,
-                              //       prevPageModel: profileData,
-                              //       primaryNumberValue: profileData.mobile.toString(),
-                              //     ),
-                              //   ),
-                              // );
                             },
                             child: CustomNetworkImage(
                               imageUrl: CustomIconUrl.editicon,

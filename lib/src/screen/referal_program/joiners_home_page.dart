@@ -12,6 +12,7 @@ import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/provider/referal_program/joiners_provider.dart';
 import 'package:job_circle/src/screen/referal_program/invoice.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/salary_round_off.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
@@ -327,7 +328,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                       InkWell(
                         onTap: () {
                           provider.resetFilters();
-                          Navigator.pop(context);
+                          NavigationService.pop();
                         },
                         child: const customText(
                           title: "Reset",
@@ -354,7 +355,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                             final year = parts[1];
 
                             provider.filterByDate(month, year);
-                            Navigator.of(context).pop();
+                            NavigationService.pop();
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -383,8 +384,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                                         "${DateFormat('MMM').format(DateFormat('MM').parse(state.selectedMonth!))} ${state.selectedYear}")
                                   const CustomNetworkImage(
                                     color: Constants.darkBlue,
-                                    imageUrl:
-                                        CustomIconUrl.locicon,
+                                    imageUrl: CustomIconUrl.locicon,
                                     defaultIcon: Icons.check,
                                   ),
                               ],
@@ -543,39 +543,36 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                               true,
                             );
                           } else {
-                             Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => InvoiceScreen(
-                                  joinersdata: state
-                                      .joinersResponse!
-                                      .resultData!
-                                      .payable!
-                                      .entries
-                                      .expand((e) => e.value)
-                                      .where((joiner) {
-                                        if (joiner.dateOfJoining == null) {
-                                          return false;
-                                        }
-                                        try {
-                                          final date = DateFormat(
-                                            'dd MMM yyyy',
-                                          ).parse(joiner.dateOfJoining!);
-                                          final month = DateFormat(
-                                            'MM',
-                                          ).format(date);
-                                          final year = DateFormat(
-                                            'yyyy',
-                                          ).format(date);
+                            NavigationService.push(
+                              InvoiceScreen(
+                                joinersdata: state
+                                    .joinersResponse!
+                                    .resultData!
+                                    .payable!
+                                    .entries
+                                    .expand((e) => e.value)
+                                    .where((joiner) {
+                                      if (joiner.dateOfJoining == null) {
+                                        return false;
+                                      }
+                                      try {
+                                        final date = DateFormat(
+                                          'dd MMM yyyy',
+                                        ).parse(joiner.dateOfJoining!);
+                                        final month = DateFormat(
+                                          'MM',
+                                        ).format(date);
+                                        final year = DateFormat(
+                                          'yyyy',
+                                        ).format(date);
 
-                                          return month == state.selectedMonth &&
-                                              year == state.selectedYear;
-                                        } catch (e) {
-                                          return false;
-                                        }
-                                      })
-                                      .toList(),
-                                ),
+                                        return month == state.selectedMonth &&
+                                            year == state.selectedYear;
+                                      } catch (e) {
+                                        return false;
+                                      }
+                                    })
+                                    .toList(),
                               ),
                             );
                           }

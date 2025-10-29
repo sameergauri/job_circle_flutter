@@ -1000,19 +1000,19 @@ class ExperienceListEdit extends StatelessWidget {
                       'pdf',
                     ], "offerLetter");
                     provider.setOfferLetter(offer!);
-                    Navigator.pop(context);
+                   NavigationService.pop();
                   } else if (option == "Appointment Letter") {
                     final app = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "appointmentLetter");
                     provider.setAppointmentLetter(app!);
-                    Navigator.pop(context);
+                   NavigationService.pop();
                   } else if (option == "Salary Slip") {
                     final sal = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "alarySlip");
                     provider.setSalarySlip(sal!);
-                    Navigator.pop(context);
+                   NavigationService.pop();
                   } else if (option == "Increment Letter") {
                     final incrementLetter = await fileUploader.uploadFile(
                       context,
@@ -1020,7 +1020,7 @@ class ExperienceListEdit extends StatelessWidget {
                       "incrementLetter",
                     );
                     provider.setIncrementLetter(incrementLetter!);
-                    Navigator.pop(context);
+                   NavigationService.pop();
                   } else if (option == "Experience / Relieving Letter") {
                     final experienceLetter = await fileUploader.uploadFile(
                       context,
@@ -1028,7 +1028,7 @@ class ExperienceListEdit extends StatelessWidget {
                       "experienceLetter",
                     );
                     provider.setExperienceLetter(experienceLetter!);
-                    Navigator.pop(context);
+                   NavigationService.pop();
                     /*  experienceLetter = await uploadFile(
                           allowExt: ['pdf'], isexperience: true); */
                   }

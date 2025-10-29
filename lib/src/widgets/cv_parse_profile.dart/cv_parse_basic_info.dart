@@ -92,7 +92,7 @@ class CvParseBasicInfoState extends StatelessWidget {
                                                   provider.profilePic!,
                                                 );
                                             provider.setProfilePic("");
-                                            Navigator.pop(context);
+                                           NavigationService.pop();
                                           },
                                           icon: CustomNetworkImage(
                                             imageUrl: CustomIconUrl.deleteicon,

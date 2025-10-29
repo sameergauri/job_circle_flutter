@@ -11,6 +11,7 @@ import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/provider/referal_program/invoice_provider.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -53,7 +54,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                             'Invoice submitted successfully',
                             false,
                           );
-                          Navigator.pop(context);
+                         NavigationService.pop();
                         } else if (state.error != null) {
                           CustomSnackbar.show(state.error!, true);
                         }
@@ -548,7 +549,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   TextButton(
                     onPressed: () {
                       provider.filterByOrganization(null);
-                      Navigator.pop(context);
+                    NavigationService.pop();
                     },
                     child: customText(
                       title: 'Reset',
@@ -569,7 +570,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     return InkWell(
                       onTap: () {
                         provider.filterByOrganization(org.id);
-                        Navigator.pop(context);
+                      NavigationService.pop();
                       },
                       child: Container(
                         decoration: BoxDecoration(

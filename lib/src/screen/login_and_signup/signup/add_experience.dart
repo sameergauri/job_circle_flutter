@@ -986,7 +986,7 @@ class AddExperience extends StatelessWidget {
                                   exp.joiningDate != '')
                                 customText(
                                   title:
-                                      '${CvParseExpDateFormatter.formatDate(exp.joiningDate.toString(),true)}',
+                                      '${CvParseExpDateFormatter.formatDate(exp.joiningDate.toString(), true)}',
                                   fontWeight: FontWeight.w500,
                                   color: Constants.subtitleclr,
                                 ),
@@ -1011,7 +1011,7 @@ class AddExperience extends StatelessWidget {
                                       'current')
                                 customText(
                                   title:
-                                      " - ${CvParseExpDateFormatter.formatDate(exp.lastWorkingDate,true)}",
+                                      " - ${CvParseExpDateFormatter.formatDate(exp.lastWorkingDate, true)}",
                                   fontWeight: FontWeight.w500,
                                   color: Constants.subtitleclr,
                                 ),
@@ -1111,19 +1111,19 @@ class AddExperience extends StatelessWidget {
                       'pdf',
                     ], "offerLetter");
                     provider.setOfferLetter(offer!);
-                    Navigator.pop(context);
+                    NavigationService.pop();
                   } else if (option == "Appointment Letter") {
                     final app = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "appointmentLetter");
                     provider.setAppointmentLetter(app!);
-                    Navigator.pop(context);
+                    NavigationService.pop();
                   } else if (option == "Salary Slip") {
                     final sal = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "alarySlip");
                     provider.setSalarySlip(sal!);
-                    Navigator.pop(context);
+                   NavigationService.pop();
                   } else if (option == "Increment Letter") {
                     final incrementLetter = await fileUploader.uploadFile(
                       context,
@@ -1131,7 +1131,7 @@ class AddExperience extends StatelessWidget {
                       "incrementLetter",
                     );
                     provider.setIncrementLetter(incrementLetter!);
-                    Navigator.pop(context);
+                    NavigationService.pop();
                   } else if (option == "Experience / Relieving Letter") {
                     final experienceLetter = await fileUploader.uploadFile(
                       context,
@@ -1139,7 +1139,7 @@ class AddExperience extends StatelessWidget {
                       "experienceLetter",
                     );
                     provider.setExperienceLetter(experienceLetter!);
-                    Navigator.pop(context);
+                  NavigationService.pop();
                     /*  experienceLetter = await uploadFile(
                           allowExt: ['pdf'], isexperience: true); */
                   }

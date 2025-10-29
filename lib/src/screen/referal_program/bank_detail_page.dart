@@ -149,7 +149,7 @@ class _BankingDetailsState extends State<BankingDetails> {
                   provider.submitBankingDetails();
                   /*  if (widget.fromInvoice == null ||
                       widget.fromInvoice == false) {
-                    Navigator.pop(context);
+                   NavigationService.pop();
                   } */
                 }
               },
