@@ -20,7 +20,7 @@ class JobProvider extends ChangeNotifier {
   UserData? _userData;
   String? _selectedCity;
   bool _recommendLoading = false;
-  FocusNode _searchBarFocusNode = FocusNode();
+  final FocusNode _searchBarFocusNode = FocusNode();
 
   // Getters
   List<JobContent> get jobs => _jobs;
@@ -211,5 +211,6 @@ class JobProvider extends ChangeNotifier {
   void updateCityFilter(String? city) {
     _selectedCity = city;
     fetchJobs(isRefresh: true, applyCityFilter: true);
+    fetchRecomendJob();
   }
 }

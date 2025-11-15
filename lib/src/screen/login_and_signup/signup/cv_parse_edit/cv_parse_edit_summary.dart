@@ -23,18 +23,15 @@ class CvParseEditSummary extends StatelessWidget {
             Scaffold(
               bottomNavigationBar: CustomButtonForSave(
                 title:
-                    /*  provider.bio.text != null &&
-                        provider.bio.text != "" &&
-                        provider.bio.text != " "
-                    ? "Update"
-                    : */
                     "Save",
                 onTap: () async {
                   if (provider.bio.text.isEmpty) {
                     CustomSnackbar.show("Enter Summary to submit", true);
                     return;
                   }
-                  provider.updateSummaryFromControllerToModel();
+                  provider.updateSummaryFromControllerToModel(
+                    provider.profileModel!,
+                  );
                   NavigationService.pop();
                 },
               ),

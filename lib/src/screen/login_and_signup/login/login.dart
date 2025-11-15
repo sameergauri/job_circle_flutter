@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/bottom_dialogue.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/login_signup_provider/login_provider.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/otp.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -154,6 +155,8 @@ class _LoginPageState extends State<LoginPage> {
                     final success = await provider.generateOTP(context);
                     if (success) {
                       NavigationService.pushReplacement(OTPScreen());
+                    } else {
+                      CustomSnackbar.show("Failed to generate OTP", true);
                     }
                   }
                 },

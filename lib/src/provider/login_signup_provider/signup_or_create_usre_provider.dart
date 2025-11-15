@@ -1,4 +1,4 @@
-// ignore_for_file: todo, non_constant_identifier_names, avoid_print
+// ignore_for_file: todo, non_constant_identifier_names, avoid_print, use_build_context_synchronously
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -103,7 +103,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   String? _skillError;
   List<String> _apifetchSkills = [];
   List<String> _tempSelectedSkills = [];
-  List<String> _selectedSkills = [];
+  final List<String> _selectedSkills = [];
 
   // Experience States
   String? _empType;
@@ -1603,22 +1603,22 @@ class SignupCreateUserProvider with ChangeNotifier {
     _profileModel = _profileModel!.copyWith(
       userRequest: updatedUserRequest,
       experienceRequest: updatedExperiences,
-      educationRequest: _educationModel,
-      certificationsRequest: _certificateModel.isEmpty ? [] : _certificateModel,
-      userProjectRequest: _projectModel.isEmpty ? [] : _projectModel,
+      educationRequest: _profileModel!.educationRequest ?? [],
+      certificationsRequest: _profileModel!.certificationsRequest ?? [],
+      userProjectRequest: _profileModel!.userProjectRequest ?? [],
     );
     notifyListeners();
   }
 
-  void updateSummaryFromControllerToModel() {
-    if (_profileModel == null) return;
+  void updateSummaryFromControllerToModel(CreateNewUserModel profileModel) {
+    // if (_profileModel == null) return;
 
     // Update user request from controllers
-    final updatedUserRequest = _profileModel!.userRequest!.copyWith(
+    final updatedUserRequest = profileModel.userRequest!.copyWith(
       bio: bio.text,
     );
 
-    _profileModel = _profileModel!.copyWith(userRequest: updatedUserRequest);
+    _profileModel = profileModel.copyWith(userRequest: updatedUserRequest);
     notifyListeners();
   }
 

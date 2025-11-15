@@ -652,6 +652,7 @@ class ProfileProvider with ChangeNotifier {
         profileHeadline: profileHeadline.text.isNotEmpty
             ? profileHeadline.text
             : 'null',
+        alternateNo: _profile!.alternateNo,
       ),
       experienceRequest: formattedExperiences,
       educationRequest: [],
@@ -986,7 +987,12 @@ class ProfileProvider with ChangeNotifier {
     bool isEditing =
         _editingEducationIndex != null &&
         _editingEducationIndex! >= 0 &&
-        _editingEducationIndex! < _educationModel.length;
+        _editingEducationIndex! < _educationModel.length &&
+        // Only consider it an edit when the target item represents an
+        // existing/persisted record (has a non-null id). This prevents
+        // accidental overwrites when the index is stale or points to a
+        // placeholder entry (common when there's only one item).
+        _educationModel[_editingEducationIndex!].id != null;
     if (isEditing) {
       _educationModel[_editingEducationIndex!] = education.copyWith(
         id: _educationModel[_editingEducationIndex!].id,
@@ -1002,7 +1008,10 @@ class ProfileProvider with ChangeNotifier {
     }
 
     _createNewUserModel = CreateNewUserModel(
-      userRequest: UserRequest(userId: _userid),
+      userRequest: UserRequest(
+        userId: _userid,
+        alternateNo: _profile!.alternateNo,
+      ),
       experienceRequest: [],
       educationRequest: _educationModel,
       certificationsRequest: [],
@@ -1033,19 +1042,7 @@ class ProfileProvider with ChangeNotifier {
       return;
     }
 
-    Map<String, int> monthMap = {
-      // FIX: Local map for clarity (moved from bottom)
-      "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
-      "July": 7,
-      "August": 8,
-      "September": 9,
-      "October": 10,
-      "November": 11,
-      "December": 12,
-    };
-    Map<int, String> monthIntToString = monthMap.map(
-      (k, v) => MapEntry(v, k),
-    ); // FIX: Bidirectional for fetch/edit consistency
+    // Use class-level month converters to keep representations consistent
 
     final edu = _profile!.educationDetails![originalIndex];
     schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
@@ -1054,12 +1051,10 @@ class ProfileProvider with ChangeNotifier {
     degree.text = edu.degreeSpc ?? '';
     fieldOfStudy.text = edu.fieldOfStudy ?? '';
 
-    // FIX: Handle month/year consistently (assume API strings; convert if ints)
-    startmonth.text = edu.startMonth != null
-        ? (edu.startMonth) ?? ''
-        : ''; // FIX: Use converter for display
+    // Handle month/year consistently and safely for display
+    startmonth.text = _monthIntToName(edu.startMonth);
     startyear.text = edu.firstYear?.toString() ?? '';
-    endmonth.text = edu.endMonth != null ? (edu.endMonth) ?? '' : '';
+    endmonth.text = _monthIntToName(edu.endMonth);
     endyear.text = edu.passingYear?.toString() ?? '';
     _currentlyStudying = edu.isCurrent == 1;
     _markSheet = edu.marksheet;
@@ -1075,9 +1070,13 @@ class ProfileProvider with ChangeNotifier {
       degreeSpc: edu.degreeSpc,
       fieldOfStudy: edu.fieldOfStudy,
       firstYear: edu.firstYear,
-      startMonth: monthMap[edu.startMonth] ?? 1, // FIX: Safe mapping
+      startMonth:
+          _monthNameToInt(edu.startMonth) ??
+          (edu.startMonth is int ? edu.startMonth as int? : null),
       passingYear: edu.passingYear,
-      endMonth: monthMap[edu.endMonth] ?? 1, // FIX: Safe mapping
+      endMonth:
+          _monthNameToInt(edu.endMonth) ??
+          (edu.endMonth is int ? edu.endMonth as int? : null),
       isCurrent: edu.isCurrent,
       marksheet: edu.marksheet,
     );
@@ -1268,9 +1267,13 @@ class ProfileProvider with ChangeNotifier {
           : null, */
     );
 
-    if (_editingCertificateIndex != null &&
+    bool isCertEditing =
+        _editingCertificateIndex != null &&
         _editingCertificateIndex! >= 0 &&
-        _editingCertificateIndex! < _certificateModel.length) {
+        _editingCertificateIndex! < _certificateModel.length &&
+        _certificateModel[_editingCertificateIndex!].id != null;
+
+    if (isCertEditing) {
       _certificateModel[_editingCertificateIndex!] = certificate.copyWith(
         id: _certificateModel[_editingCertificateIndex!].id,
       );
@@ -1281,7 +1284,10 @@ class ProfileProvider with ChangeNotifier {
     }
 
     _createNewUserModel = CreateNewUserModel(
-      userRequest: UserRequest(userId: _userid),
+      userRequest: UserRequest(
+        userId: _userid,
+        alternateNo: _profile!.alternateNo,
+      ),
       experienceRequest: [],
       educationRequest: [],
       certificationsRequest: _certificateModel,
@@ -1465,9 +1471,13 @@ class ProfileProvider with ChangeNotifier {
       itSkillsByProject: _project_it_skills.join(','),
     );
 
-    if (_editProjectIndex != null &&
+    bool isProjEditing =
+        _editProjectIndex != null &&
         _editProjectIndex! >= 0 &&
-        _editProjectIndex! < _projectModel.length) {
+        _editProjectIndex! < _projectModel.length &&
+        _projectModel[_editProjectIndex!].id != null;
+
+    if (isProjEditing) {
       _projectModel[_editProjectIndex!] = project.copyWith(
         id: _projectModel[_editProjectIndex!].id,
       );
@@ -1478,7 +1488,10 @@ class ProfileProvider with ChangeNotifier {
     }
 
     _createNewUserModel = CreateNewUserModel(
-      userRequest: UserRequest(userId: _userid),
+      userRequest: UserRequest(
+        userId: _userid,
+        alternateNo: _profile!.alternateNo,
+      ),
       experienceRequest: [],
       educationRequest: [],
       certificationsRequest: [],
@@ -1718,7 +1731,6 @@ class ProfileProvider with ChangeNotifier {
         if (_profile!.educationDetails != null) {
           _educationModel.addAll(
             _profile!.educationDetails!.map((edu) {
-              Map<String, int> monthMap = {/* same as above */};
               return EducationRequest(
                 id: edu.id,
                 userId: _userid,
@@ -1728,11 +1740,10 @@ class ProfileProvider with ChangeNotifier {
                 degreeSpc: edu.degreeSpc,
                 fieldOfStudy: edu.fieldOfStudy,
                 firstYear: edu.firstYear,
-                startMonth:
-                    monthMap[edu.startMonth] ??
-                    0, // FIX: Safe, handles string/int mismatch
+                // Use helper to convert month representations (string/int) to int
+                startMonth: _monthNameToInt(edu.startMonth),
                 passingYear: edu.passingYear,
-                endMonth: monthMap[edu.endMonth] ?? 0,
+                endMonth: _monthNameToInt(edu.endMonth),
                 isCurrent: edu.isCurrent,
                 marksheet: edu.marksheet,
               );
@@ -1990,4 +2001,53 @@ class ProfileProvider with ChangeNotifier {
     "November": 11,
     "December": 12,
   };
+
+  // Convert various month formats (int, numeric string, month name) to int (1-12)
+  int? _monthNameToInt(dynamic m) {
+    if (m == null) return null;
+    if (m is int) return m;
+    if (m is String) {
+      final s = m.trim();
+      if (s.isEmpty) return null;
+      final parsed = int.tryParse(s);
+      if (parsed != null) return parsed;
+      final map = {
+        "january": 1,
+        "february": 2,
+        "march": 3,
+        "april": 4,
+        "may": 5,
+        "june": 6,
+        "july": 7,
+        "august": 8,
+        "september": 9,
+        "october": 10,
+        "november": 11,
+        "december": 12,
+      };
+      return map[s.toLowerCase()];
+    }
+    return null;
+  }
+
+  // Convert month int to standard month name for display ('' when null)
+  String _monthIntToName(dynamic m) {
+    final i = _monthNameToInt(m);
+    if (i == null) return '';
+    const names = {
+      1: 'January',
+      2: 'February',
+      3: 'March',
+      4: 'April',
+      5: 'May',
+      6: 'June',
+      7: 'July',
+      8: 'August',
+      9: 'September',
+      10: 'October',
+      11: 'November',
+      12: 'December',
+    };
+    return names[i] ?? '';
+  }
 }

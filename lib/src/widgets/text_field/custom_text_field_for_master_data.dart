@@ -101,7 +101,10 @@ class _CustomTextFieldForMasterDataState
         builder: (context, textEditingController, focusNode) {
           return CustomTextFieldforAll(
             isNumber: widget.name == 'pin_code' ? true : false,
-            isGmail: widget.name == 'pin_code' ? true : false,
+            isGmail: true,
+            /*  isGmail: widget.name == 'pin_code' || widget.name == 'school'
+                ? true
+                : false, */
             controller: widget.controller, // ✅ yeh change karein
             focusNode: focusNode, // focus node fallback
             onFieldSubmitted: (value) {

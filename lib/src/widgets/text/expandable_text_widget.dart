@@ -91,7 +91,7 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
           title: widget.text,
           maxlines: widget.initialMaxLines,
           overflow: TextOverflow.ellipsis,
-          fontSize:widget.isSummary?14: 12,
+          fontSize: widget.isSummary ? 14 : 12,
           color: Colors.black,
           fontWeight: FontWeight.normal,
           //letterSpacing: 0.8,s
@@ -103,7 +103,7 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
               GestureDetector(
                 onTap: () {
                   setState(() {
-                    widget.initialMaxLines = 5;
+                    widget.initialMaxLines = 4;
                   });
                 },
                 child: const customText(

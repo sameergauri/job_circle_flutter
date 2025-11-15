@@ -4,9 +4,11 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
+import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/model/job_model/recommend_job_model.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class JobServices {
   Future<Map<String, dynamic>> fetchJobs({
@@ -75,7 +77,6 @@ class JobServices {
     try {
       print('Saving favorite job: userId=$userId, jobId=$jobId');
       final response = await http.post(url);
-
       if (response.statusCode == 200) {
         print('Favorite job saved successfully');
         return true;
@@ -114,7 +115,12 @@ class JobServices {
   }
 
   Future<RecommendJobModel?> fetchRecomendJob(int userId) async {
-    final url = Uri.parse("${GlobalConstants.recomendedJobUrl}$userId/jobs");
+    var locaton = SharedPrefsHelper.getString(
+      ESharedPreferences.user_selected_lcoation,
+    );
+    final url = Uri.parse(
+      "${GlobalConstants.recomendedJobUrl}$userId/jobs?locations=$locaton",
+    );
 
     try {
       final response = await http.get(url);

@@ -154,7 +154,11 @@ class _JobHomePageState extends State<JobHomePage> {
         final isLoading = jobProvider.isLoading;
         final selectedCityFromProvider = jobProvider.selectedCity;
         final userData = jobProvider.userData;
-        final availableTabs = ["Recommended Jobs", ...getAvailableTabs(jobs)];
+        final availableTabs =
+            jobProvider.recommendedJob != null &&
+                jobProvider.recommendedJob!.data != null
+            ? ["Recommended Jobs", ...getAvailableTabs(jobs)]
+            : getAvailableTabs(jobs);
         return Stack(
           children: [
             Scaffold(

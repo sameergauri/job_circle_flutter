@@ -53,7 +53,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
   String? SelectedValue;
 
   Future<void> GetLocation() async {
-    final response = await http.post(
+    final response = await http.post( 
       Uri.parse(
         '${GlobalConstants.fetchmasterdatasuggestionurl}${widget.name}&pageNumber=1&pageSize=10000',
       ),
@@ -68,6 +68,13 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
           .map((entry) => LocationData.fromJson(entry))
           .where((item) => item.formateData!.isNotEmpty) // ❌ Empty ko hatao
           .toList();
+
+      // 🟢 Remove "Hybrid" only if widget.name == "location"
+      if (widget.name == 'location') {
+        suggestions.removeWhere(
+          (item) => item.formateData?.trim().toLowerCase() == 'hybrid',
+        );
+      }
 
       items = suggestions; // ✅ Model-based List Store
       filteredItems = List.from(items);
@@ -101,7 +108,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
         }
       } else {
         widget.onSubmit(item);
-       NavigationService.pop();
+        NavigationService.pop();
       }
     });
 
@@ -188,7 +195,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                       Row(
                         children: [
                           InkWell(
-                            onTap: () =>NavigationService.pop(),
+                            onTap: () => NavigationService.pop(),
                             child: const Icon(
                               Icons.arrow_back,
                               color: Constants.themeBgColor,
@@ -272,7 +279,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                           onTap: () {
                             widget.onSelectionComplete(selectedItems);
 
-                           NavigationService.pop();
+                            NavigationService.pop();
                           },
                         ),
                     ],

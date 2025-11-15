@@ -100,7 +100,7 @@ class ProfileEducationEdit extends StatelessWidget {
               controller: provider.schoolCollegeName,
               hintText: "Type to search",
               name: "school",
-              title: "School College Name",
+              title: "School/College Name",
             ),
             if (provider.schoolCollegeName.text.isEmpty)
               Padding(

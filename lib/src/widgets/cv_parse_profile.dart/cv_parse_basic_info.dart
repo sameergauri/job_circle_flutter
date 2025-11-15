@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, must_be_immutable
+// ignore_for_file: unused_field, must_be_immutable, prefer_final_fields
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
