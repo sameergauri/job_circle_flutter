@@ -51,7 +51,7 @@ class CustomEducationContainer extends StatelessWidget {
         children: [
           /// Header
           Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: 14, top: 5),
             child: Row(
               children: [
                 Padding(

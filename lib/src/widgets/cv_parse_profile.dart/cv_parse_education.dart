@@ -31,7 +31,7 @@ class CvParseEducation extends StatelessWidget {
         children: [
           /// Header
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 4, top: 5),
             child: Row(
               children: [
                 CustomNetworkImage(

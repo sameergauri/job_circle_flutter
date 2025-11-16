@@ -21,7 +21,7 @@ class CvParseSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.only(bottom: 5, top: 5),
       margin: const EdgeInsets.only(left: 20, right: 20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -74,6 +74,7 @@ class CvParseSummary extends StatelessWidget {
               color: Colors.white,
             ),
             child: ExpandableTextWidget(
+              isSummary: true,
               key: ValueKey(DateTime.now().millisecondsSinceEpoch),
               initialMaxLines: 5,
               text: profileData.bio.toString(),

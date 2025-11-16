@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:job_circle/main.dart';
 import 'package:job_circle/src/constants/colors.dart';

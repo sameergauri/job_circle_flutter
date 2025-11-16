@@ -15,7 +15,7 @@ class CustomSummaryContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(bottom: 5),
+      padding: const EdgeInsets.only(bottom: 5, top: 5),
       margin: const EdgeInsets.only(left: 10, right: 10),
       decoration: BoxDecoration(
         color: Colors.white,

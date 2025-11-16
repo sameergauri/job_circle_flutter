@@ -5,8 +5,7 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/widgets/button/custom_call_sms_new_button.dart'
-    show CustomcallsmsButton;
+import 'package:job_circle/src/widgets/button/custom_call_sms_new_button.dart' show CustomcallsmsButton;
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/pdf_doc_view/docs_webview.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';

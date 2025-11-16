@@ -30,7 +30,7 @@ class CvParseExperience extends StatelessWidget {
         children: [
           /// Header Row
           Padding(
-            padding: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.only(bottom: 4, top: 5),
             child: Row(
               children: [
                 Image.asset(CustomAssetUrl.jobicon, height: 20, width: 20),

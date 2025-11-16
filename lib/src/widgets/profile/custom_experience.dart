@@ -54,7 +54,7 @@ class CustomExperienceContainer extends StatelessWidget {
         children: [
           /// Header Row
           Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: 14, top: 5),
             child: Row(
               children: [
                 Padding(

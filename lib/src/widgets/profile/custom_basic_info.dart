@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, must_be_immutable, prefer_final_fields
+// ignore_for_file: unused_field, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
@@ -17,8 +17,8 @@ import 'package:provider/provider.dart';
 class CustomBasicInfoContainer extends StatelessWidget {
   final ProfileProvider profileProvider;
 
-  CustomBasicInfoContainer({super.key, required this.profileProvider});
-  bool _localLoading = false;
+  const CustomBasicInfoContainer({super.key, required this.profileProvider});
+  final bool _localLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +86,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                                         backgroundColor: Colors.white,
                                         child: IconButton(
                                           onPressed: () async {
-                                           NavigationService.pop();
+                                            NavigationService.pop();
                                             await profileProvider
                                                 .deleteProfilePic(
                                                   profileProvider.profile!,
@@ -187,44 +187,30 @@ class CustomBasicInfoContainer extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Expanded(
-                          child:
-                              profileProvider.profile!.educationDetails !=
-                                      null &&
-                                  profileProvider
-                                      .profile!
-                                      .educationDetails!
-                                      .isNotEmpty
-                              ? customTextFornCambria(
-                                  monst: false,
-                                  title:
+                          child: customTextFornCambria(
+                            monst: false,
+                            title:
+                                profileProvider.profile!.profileHeadline !=
+                                        null &&
+                                    profileProvider.profile!.profileHeadline !=
+                                        "" &&
+                                    profileProvider.profile!.profileHeadline !=
+                                        "null"
+                                ? "${profileProvider.profile!.profileHeadline}"
+                                : profileProvider.profile!.experiences !=
+                                          null &&
                                       profileProvider
-                                                  .profile!
-                                                  .profileHeadline !=
-                                              null &&
-                                          profileProvider
-                                                  .profile!
-                                                  .profileHeadline !=
-                                              "" &&
-                                          profileProvider
-                                                  .profile!
-                                                  .profileHeadline !=
-                                              "null"
-                                      ? "${profileProvider.profile!.profileHeadline}"
-                                      : profileProvider.profile!.experiences !=
-                                                null &&
-                                            profileProvider
-                                                .profile!
-                                                .experiences!
-                                                .isNotEmpty
-                                      ? "${profileProvider.profile!.experiences!.first.jobTitle} at ${profileProvider.profile!.experiences!.first.companyName}"
-                                      : "${profileProvider.profile!.educationDetails!.first.degreeSpc} from ${profileProvider.profile!.educationDetails!.first.university}",
-                                  softwrap: true,
-                                  maxlines: 3,
-                                  textAlign: TextAlign.center,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
-                                )
-                              : const SizedBox(),
+                                          .profile!
+                                          .experiences!
+                                          .isNotEmpty
+                                ? "${profileProvider.profile!.experiences!.first.jobTitle} at ${profileProvider.profile!.experiences!.first.companyName}"
+                                : "${profileProvider.profile!.educationDetails!.first.degreeSpc} from ${profileProvider.profile!.educationDetails!.first.university}",
+                            softwrap: true,
+                            maxlines: 3,
+                            textAlign: TextAlign.center,
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ],
                     ),
