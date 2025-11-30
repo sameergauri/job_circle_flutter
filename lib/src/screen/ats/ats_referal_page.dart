@@ -24,8 +24,7 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final pro = Provider.of<ReferalPageProvider>(context, listen: false);
-      pro.fetchReleralJob();
+      context.read<ReferalPageProvider>().fetchReleralJob();
     });
   }
 

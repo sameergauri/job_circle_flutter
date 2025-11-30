@@ -28,8 +28,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final pro = Provider.of<AppliedPageProvider>(context, listen: false);
-      pro.fetchAppliedJobs();
+     context.read<AppliedPageProvider>().fetchAppliedJobs();
     });
   }
 
