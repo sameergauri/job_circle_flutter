@@ -24,38 +24,41 @@ class ProfileSummaryEdit extends StatelessWidget {
         return Stack(
           children: [
             Scaffold(
-              bottomNavigationBar: CustomButtonForSave(
-                title:
-                    /*  provider.profile!.bio != null &&
-                        provider.profile!.bio != "" &&
-                        provider.profile!.bio != " "
-                    ? "Update"
-                    : */
-                    "Save",
-                onTap: () async {
-                  if (provider.summary.text.isEmpty) {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return CustomDialogueForAddResume(
-                          confirmationDialogue: true,
-                          error: false,
-                          onClose: () {
-                            provider.updateProfileModelForSummary();
-                            provider.clearBasicProfile();
-                            NavigationService.pop();
-                            NavigationService.pop();
-                          },
-                          subtitle: "Delete Summary ?",
-                        );
-                      },
-                    );
-                  } else {
-                    provider.updateProfileModelForSummary();
-                    provider.clearBasicProfile();
-                    NavigationService.pop();
-                  }
-                },
+              bottomNavigationBar: Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: CustomButtonForSave(
+                  title:
+                      /*  provider.profile!.bio != null &&
+                          provider.profile!.bio != "" &&
+                          provider.profile!.bio != " "
+                      ? "Update"
+                      : */
+                      "Save",
+                  onTap: () async {
+                    if (provider.summary.text.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return CustomDialogueForAddResume(
+                            confirmationDialogue: true,
+                            error: false,
+                            onClose: () {
+                              provider.updateProfileModelForSummary();
+                              provider.clearBasicProfile();
+                              NavigationService.pop();
+                              NavigationService.pop();
+                            },
+                            subtitle: "Delete Summary ?",
+                          );
+                        },
+                      );
+                    } else {
+                      provider.updateProfileModelForSummary();
+                      provider.clearBasicProfile();
+                      NavigationService.pop();
+                    }
+                  },
+                ),
               ),
               resizeToAvoidBottomInset: true, // Add this line
               backgroundColor: Colors.white,
