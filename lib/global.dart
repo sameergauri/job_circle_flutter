@@ -5,8 +5,8 @@ class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
   static const API_Host_one =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-      // "10.178.63.234:8081";
-  // "10.163.64.234:9090";
+      // "10.57.31.234:8081";
+  // "10.57.31.234:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const Image_url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/";
 
@@ -109,4 +109,10 @@ class GlobalConstants {
   static const savefavjob = "$_baseurl/favjob/v1/";
   //
   //
+  // TODO:: career preference
+  // static const careerpreferenceurl =
+  static const savejobpreference = '$_baseurl/api/v1/job-preferences/create';
+  static const updatejobpreference = '$_baseurl/api/v1/job-preferences/update';
+  static const getjobpreferencebyuserid = '$_baseurl/api/v1/job-preferences/getByUserId/';
+  static const deletejobpreferencebyid = '$_baseurl/api/v1/job-preferences/delete/';
 }

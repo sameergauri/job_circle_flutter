@@ -114,7 +114,7 @@ class JobServices {
     }
   }
 
-  Future<RecommendJobModel?> fetchRecomendJob(int userId) async {
+  Future<RecommendJobModel?> fetchRecomendJob(int userId) async { 
     var locaton = SharedPrefsHelper.getString(
       ESharedPreferences.user_selected_lcoation,
     );

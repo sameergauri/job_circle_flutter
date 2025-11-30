@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
+import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
 import 'package:job_circle/src/screen/referal_program/bank_detail_page.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
@@ -92,6 +95,7 @@ class CustomDrawer extends StatelessWidget {
               ],
             ),
           ),
+          CareerPreferenceToggle(onClose: onClose, scaffoldKey: scaffoldKey),
           ExpansionTile(
             dense: true,
             textColor: Constants.darkBlue,
@@ -360,5 +364,64 @@ class CustomDrawer extends StatelessWidget {
     const playStoreLink =
         'https://play.google.com/store/apps/details?id=com.job_circle_flutter';
     Share.share('Check out this app on Play Store: $playStoreLink');
+  }
+}
+
+class CareerPreferenceToggle extends StatelessWidget {
+  final VoidCallback onClose;
+  final GlobalKey<ScaffoldState> scaffoldKey;
+
+  const CareerPreferenceToggle({
+    required this.onClose,
+    required this.scaffoldKey,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CareerPreferenceProvider>(
+      builder: (context, provider, child) {
+        return ListTile(
+          dense: true,
+          minLeadingWidth: 0.0,
+          minVerticalPadding: 5.1,
+          leading: CustomNetworkImage(
+            imageUrl: CustomIconUrl.careerpreficon,
+            defaultIcon: Icons.work_outline,
+          ),
+          title: customText(
+            title: 'Career Preference',
+            fontSize: 12,
+            fontWeight: FontWeight.normal,
+          ),
+          trailing: Transform.scale(
+            alignment: Alignment.centerRight,
+            scale: 0.6,
+            child: Switch(
+              padding: EdgeInsets.zero,
+              value:
+                  SharedPrefsHelper.getInt(
+                        ESharedPreferences.jobpreferenceEnable,
+                      ) ==
+                      0
+                  ? false
+                  : true,
+              activeColor: Constants.darkBlue,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              onChanged: (value) async {
+                if (!value) {
+                  provider.updateJobPrefEnable(0);
+                }
+                if (value) {
+                  scaffoldKey.currentState!.closeDrawer();
+                  NavigationService.push(const CareerPreference());
+                  onClose();
+                }
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 }

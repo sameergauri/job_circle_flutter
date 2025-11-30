@@ -3,6 +3,7 @@ import 'package:job_circle/src/provider/add_resume/add_resume_provider.dart';
 import 'package:job_circle/src/provider/ats/ats_applied_job_page_provider.dart';
 import 'package:job_circle/src/provider/ats/ats_referal_job_page_provider.dart';
 import 'package:job_circle/src/provider/bank_text_field_provider.dart';
+import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_detail_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/login_signup_provider/login_provider.dart';
@@ -31,6 +32,7 @@ class ProviderScop {
         ChangeNotifierProvider(create: (_) => SignupCreateUserProvider()),
         ChangeNotifierProvider(create: (_) => SuggestionProvider()),
         ChangeNotifierProvider(create: (_) => BankSuggestionProvider()),
+        ChangeNotifierProvider(create: (_) => CareerPreferenceProvider()),
       ],
       child: child,
     );

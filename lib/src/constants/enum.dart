@@ -43,7 +43,8 @@ enum ESharedPreferences {
   user_selected_lcoation,
   email,
   orgnizationId,
-  msg
+  msg,
+  jobpreferenceEnable
 }
 
 enum EPartnerApproval {
@@ -66,12 +67,13 @@ enum EUserType {
 }
 
 enum FromWhere { homePage, appliedPage, referalPage }
+
 enum InvoiceTab { invoicesent, validation, paid, reject, incorrect }
 
-enum FromCreateAndEditProfile{Create,Edit}
+enum FromCreateAndEditProfile { Create, Edit }
 
-enum FromSignupAndProfile{signup,profile}
+enum FromSignupAndProfile { signup, profile }
 
 enum SuggestionType { jobTitle, company, resideat }
 
-enum FromEditOrAdd { edit,add }
+enum FromEditOrAdd { edit, add }

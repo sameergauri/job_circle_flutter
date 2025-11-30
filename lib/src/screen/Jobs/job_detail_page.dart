@@ -104,7 +104,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                 CustomJobHeadline(
                   jobHeadline: job.jobHeadline.toString(),
                   experience: job.requiredExperience.toString(),
-                  salary: _formatSalary(job.salaryRange),
+                  salary: formatSalary(job.salaryRange),
                   location: job.locationWithWorkType!,
                   empType: job.employmentType.toString(),
                   companyIcon: job.companyIcon.toString(),
@@ -219,42 +219,49 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
   }
 
-  String _formatSalary(String? rang) {
-    String salaryRange = rang!.replaceAll(',', '');
-    if (salaryRange.isEmpty) return '';
+  String formatSalary(String? raw) {
+    if (raw == null || raw.trim().isEmpty) return '';
 
-    String suffix = '';
-    if (salaryRange.endsWith(' 0')) {
-      suffix = ' LPA';
-      salaryRange = salaryRange.replaceFirst(RegExp(r'\s0$'), '');
-    } else if (salaryRange.endsWith(' 1')) {
-      suffix = ' per month';
-      salaryRange = salaryRange.replaceFirst(RegExp(r'\s1$'), '');
-    }
+    String input = raw.replaceAll(',', '').toLowerCase();
 
-    List<String> parts = salaryRange.split('-').map((e) => e.trim()).toList();
+    bool isPerMonth = input.contains('pm');
+    bool isLpa = input.contains('lpa');
 
-    String formatAmount(String str) {
-      final amount = int.tryParse(str);
-      if (amount == null || amount == 0) return '';
+    // Remove "pm" and "lpa"
+    input = input.replaceAll('pm', '').replaceAll('lpa', '').trim();
 
-      if (amount >= 100000) {
-        double lacs = amount / 100000;
-        return lacs.toStringAsFixed(lacs % 1 == 0 ? 0 : 1);
-      } else if (amount >= 1000) {
-        double thousands = amount / 1000;
-        return '${thousands.toStringAsFixed(thousands % 1 == 0 ? 0 : 1)}K';
-      } else {
-        return amount.toString();
+    // Split by '-'
+    List<String> parts = input.split('-').map((e) => e.trim()).toList();
+
+    String formatPart(String str) {
+      if (str.isEmpty) return '';
+
+      // If value contains decimal (like 1.8), return as it is
+      if (str.contains('.')) return str;
+
+      // If value ends with k or K
+      if (str.endsWith('k')) {
+        return str; // keep 28k, 15k, etc.
       }
+
+      // If number like 3 or 6 (LPA case)
+      return str;
     }
 
-    if (parts.length == 2) {
-      String start = formatAmount(parts[0]);
-      String end = formatAmount(parts[1]);
-      return end.isEmpty ? '$start$suffix' : '$start - $end$suffix';
+    String start = formatPart(parts[0]);
+    String end = parts.length > 1 ? formatPart(parts[1]) : '';
+
+    // Remove 0k or plain 0
+    if (end == '0' || end == '0k') end = '';
+
+    // Suffix
+    String suffix = isPerMonth ? ' per month' : (isLpa ? ' LPA' : '');
+
+    // Compose output
+    if (end.isEmpty) {
+      return '$start$suffix';
     } else {
-      return formatAmount(parts[0]) + suffix;
+      return '$start - $end$suffix';
     }
   }
 

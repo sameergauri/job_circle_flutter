@@ -102,6 +102,7 @@ class JobContent {
   final String? companyIcon;
   final String? level_of_hiring;
   final String? locationWithWorkType;
+  final bool? jobPreferenceMatch;
 
   const JobContent({
     this.jobPostType,
@@ -126,6 +127,7 @@ class JobContent {
     this.companyIcon,
     this.level_of_hiring,
     this.locationWithWorkType,
+    this.jobPreferenceMatch,
   });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
@@ -152,6 +154,7 @@ class JobContent {
       companyIcon: json['companyIcon'],
       level_of_hiring: json['level_of_hiring'],
       locationWithWorkType: json['locationWithWorkType'],
+      jobPreferenceMatch: json['jobPreferenceMatch'],
     );
   }
 
@@ -178,6 +181,7 @@ class JobContent {
     String? companyIcon,
     String? level_of_hiring,
     String? locationWithWorkType,
+    bool? jobPreferenceMatch,
   }) {
     return JobContent(
       jobPostType: jobPostType ?? this.jobPostType,
@@ -202,6 +206,7 @@ class JobContent {
       companyIcon: companyIcon ?? this.companyIcon,
       level_of_hiring: level_of_hiring ?? this.level_of_hiring,
       locationWithWorkType: locationWithWorkType ?? this.locationWithWorkType,
+      jobPreferenceMatch: jobPreferenceMatch ?? this.jobPreferenceMatch,
     );
   }
 }
