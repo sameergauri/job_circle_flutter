@@ -7,7 +7,6 @@ import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
-import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 import 'package:job_circle/src/widgets/text_field/custom_textfield_for_skills.dart';
 import 'package:provider/provider.dart';
 
@@ -46,7 +45,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: const [
                       customText(
-                        title: 'Set Your Career Preferences',
+                        title: 'Set your Career Preferences',
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -231,13 +230,48 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         if (!provider.immediateJoiner) ...[
                           const SizedBox(height: 10),
                           customText(title: 'Notice Period', fontSize: 12),
-                          CustomTextFieldforAll(
+                          Wrap(
+                            children: [
+                              CustomToggleButton(
+                                isSelect: provider.fifteenDays,
+                                title: "15 Days",
+                                onTap: () =>
+                                    provider.selectNoticePeriod("fifteenDays"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.thirtyDays,
+                                title: "30 Days",
+                                onTap: () =>
+                                    provider.selectNoticePeriod("thirtyDays"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.fortyFiveDays,
+                                title: "45 Days",
+                                onTap: () => provider.selectNoticePeriod(
+                                  "fortyFiveDays",
+                                ),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.sixtyDays,
+                                title: "60 Days",
+                                onTap: () =>
+                                    provider.selectNoticePeriod("sixtyDays"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.ninetyDays,
+                                title: "90 Days",
+                                onTap: () =>
+                                    provider.selectNoticePeriod("ninetyDays"),
+                              ),
+                            ],
+                          ),
+                          /*  CustomTextFieldforAll(
                             maxLength: 2,
                             isNumber: true,
                             keyboardType: true,
                             controller: provider.noticePeriodController,
                             hint: "Enter notice period",
-                          ),
+                          ), */
                         ],
 
                         const SizedBox(height: 40),
@@ -248,9 +282,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
                           onTap: () {
                             provider.savePreferences(context);
                           },
-                          title: provider.hasExistingData
-                              ? "Update Preferences"
-                              : "Save Preferences",
+                          title: "Save",
                         ),
                         const SizedBox(height: 20),
                       ],

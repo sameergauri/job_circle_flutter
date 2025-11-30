@@ -390,7 +390,7 @@ class CareerPreferenceToggle extends StatelessWidget {
             defaultIcon: Icons.work_outline,
           ),
           title: customText(
-            title: 'Career Preference',
+            title: 'Looking for Job',
             fontSize: 12,
             fontWeight: FontWeight.normal,
           ),

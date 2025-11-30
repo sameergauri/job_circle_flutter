@@ -34,6 +34,12 @@ class CareerPreferenceProvider extends ChangeNotifier {
   bool freelance = false;
   bool internship = false;
 
+  bool fifteenDays = false;
+  bool thirtyDays = false;
+  bool fortyFiveDays = false;
+  bool sixtyDays = false;
+  bool ninetyDays = false;
+
   bool workFromOffice = false;
   bool workFromHome = false;
   bool hybrid = false;
@@ -91,7 +97,13 @@ class CareerPreferenceProvider extends ChangeNotifier {
 
   void updateImmediateJoiner(bool value) {
     immediateJoiner = value;
-    if (value) noticePeriodController.clear();
+    if (value) {
+      fifteenDays = false;
+      thirtyDays = false;
+      fortyFiveDays = false;
+      sixtyDays = false;
+      ninetyDays = false;
+    }
     notifyListeners();
   }
 
@@ -102,6 +114,15 @@ class CareerPreferenceProvider extends ChangeNotifier {
     contractJob = type == "contract";
     freelance = type == "freelance";
     internship = type == "internship";
+    notifyListeners();
+  }
+
+  void selectNoticePeriod(String type) {
+    fifteenDays = type == "fifteenDays";
+    thirtyDays = type == "thirtyDays";
+    fortyFiveDays = type == "fortyFiveDays";
+    sixtyDays = type == "sixtyDays";
+    ninetyDays = type == "ninetyDays";
     notifyListeners();
   }
 
@@ -131,7 +152,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       _model = data;
       hasExistingData = true;
 
-      noticePeriodController.text = _model.noticePeriod ?? "";
+      // noticePeriodController.text = _model.noticePeriod ?? "";
       selectedIndustries = _model.industry ?? [];
       selectedJobRole = _model.role ?? [];
       preferredLocations = _model.location ?? [];
@@ -146,6 +167,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
 
       _applyEmploymentType(_model.empType);
       _applyWorkModes(_model.workMode);
+      _applyNoticePeriod(_model.noticePeriod);
 
       notifyListeners();
     }
@@ -167,9 +189,10 @@ class CareerPreferenceProvider extends ChangeNotifier {
       location: preferredLocations,
       startSalary: salaryRange.start.toString(),
       endSalary: salaryRange.end.toString(),
-      noticePeriod: noticePeriodController.text,
+      // noticePeriod: noticePeriodController.text,
       openToRelocate: openToRelocation,
       immediateJoiner: immediateJoiner,
+      noticePeriod: _selectedNoticePeriod(),
       empType: _selectedEmploymentType(),
       workMode: _selectedWorkModes(),
       userId: SharedPrefsHelper.getInt(ESharedPreferences.user_id),
@@ -208,6 +231,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
     }
     return false;
   }
+
   //----------------------------
   // HELPER FUNCTIONS
   //----------------------------
@@ -220,12 +244,29 @@ class CareerPreferenceProvider extends ChangeNotifier {
     return "";
   }
 
+  String _selectedNoticePeriod() {
+    if (fifteenDays) return "fifteenDays";
+    if (thirtyDays) return "thirtyDays";
+    if (fortyFiveDays) return "fortyFiveDays";
+    if (sixtyDays) return "sixtyDays";
+    if (ninetyDays) return "ninetyDays";
+    return "";
+  }
+
   void _applyEmploymentType(String? type) {
     fullTime = type == "fullTime";
     partTime = type == "partTime";
     contractJob = type == "contract";
     freelance = type == "freelance";
     internship = type == "internship";
+  }
+
+  void _applyNoticePeriod(String? period) {
+    fifteenDays = period == "fifteenDays";
+    thirtyDays = period == "thirtyDays";
+    fortyFiveDays = period == "fortyFiveDays";
+    sixtyDays = period == "sixtyDays";
+    ninetyDays = period == "ninetyDays";
   }
 
   List<String> _selectedWorkModes() {
