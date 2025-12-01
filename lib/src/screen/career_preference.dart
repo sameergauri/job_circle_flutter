@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
@@ -11,7 +12,8 @@ import 'package:job_circle/src/widgets/text_field/custom_textfield_for_skills.da
 import 'package:provider/provider.dart';
 
 class CareerPreference extends StatefulWidget {
-  const CareerPreference({super.key});
+  final bool isFromDrawer;
+  const CareerPreference({super.key, required this.isFromDrawer});
 
   @override
   State<CareerPreference> createState() => _CareerPreferenceState();
@@ -177,14 +179,14 @@ class _CareerPreferenceState extends State<CareerPreference> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    "Min: ₹${(provider.salaryRange.start / 100000).toStringAsFixed(1)}L",
+                                    "Min: ${(provider.salaryRange.start / 100000).toStringAsFixed(1)} LPA",
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Constants.darkBlue,
                                     ),
                                   ),
                                   Text(
-                                    "Max: ₹${(provider.salaryRange.end / 100000).toStringAsFixed(1)}L",
+                                    "Max: ${(provider.salaryRange.end / 100000).toStringAsFixed(1)} LPA",
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Constants.darkBlue,
@@ -221,58 +223,52 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         const SizedBox(height: 10),
 
                         // Immediate Joiner
-                        _switch(
+                        /*  _switch(
                           "Immediate Joiner",
                           provider.immediateJoiner,
                           provider.updateImmediateJoiner,
+                        ), */
+                        customText(title: 'Notice Period', fontSize: 12),
+                        Wrap(
+                          children: [
+                            CustomToggleButton(
+                              isSelect: provider.immediateJoiner,
+                              title: "Immediate Joiner",
+                              onTap: () =>
+                                  provider.selectNoticePeriod("immediate"),
+                            ),
+                            CustomToggleButton(
+                              isSelect: provider.fifteenDays,
+                              title: "15 Days",
+                              onTap: () =>
+                                  provider.selectNoticePeriod("fifteenDays"),
+                            ),
+                            CustomToggleButton(
+                              isSelect: provider.thirtyDays,
+                              title: "30 Days",
+                              onTap: () =>
+                                  provider.selectNoticePeriod("thirtyDays"),
+                            ),
+                            CustomToggleButton(
+                              isSelect: provider.fortyFiveDays,
+                              title: "45 Days",
+                              onTap: () =>
+                                  provider.selectNoticePeriod("fortyFiveDays"),
+                            ),
+                            CustomToggleButton(
+                              isSelect: provider.sixtyDays,
+                              title: "60 Days",
+                              onTap: () =>
+                                  provider.selectNoticePeriod("sixtyDays"),
+                            ),
+                            CustomToggleButton(
+                              isSelect: provider.ninetyDays,
+                              title: "90 Days",
+                              onTap: () =>
+                                  provider.selectNoticePeriod("ninetyDays"),
+                            ),
+                          ],
                         ),
-
-                        if (!provider.immediateJoiner) ...[
-                          const SizedBox(height: 10),
-                          customText(title: 'Notice Period', fontSize: 12),
-                          Wrap(
-                            children: [
-                              CustomToggleButton(
-                                isSelect: provider.fifteenDays,
-                                title: "15 Days",
-                                onTap: () =>
-                                    provider.selectNoticePeriod("fifteenDays"),
-                              ),
-                              CustomToggleButton(
-                                isSelect: provider.thirtyDays,
-                                title: "30 Days",
-                                onTap: () =>
-                                    provider.selectNoticePeriod("thirtyDays"),
-                              ),
-                              CustomToggleButton(
-                                isSelect: provider.fortyFiveDays,
-                                title: "45 Days",
-                                onTap: () => provider.selectNoticePeriod(
-                                  "fortyFiveDays",
-                                ),
-                              ),
-                              CustomToggleButton(
-                                isSelect: provider.sixtyDays,
-                                title: "60 Days",
-                                onTap: () =>
-                                    provider.selectNoticePeriod("sixtyDays"),
-                              ),
-                              CustomToggleButton(
-                                isSelect: provider.ninetyDays,
-                                title: "90 Days",
-                                onTap: () =>
-                                    provider.selectNoticePeriod("ninetyDays"),
-                              ),
-                            ],
-                          ),
-                          /*  CustomTextFieldforAll(
-                            maxLength: 2,
-                            isNumber: true,
-                            keyboardType: true,
-                            controller: provider.noticePeriodController,
-                            hint: "Enter notice period",
-                          ), */
-                        ],
 
                         const SizedBox(height: 40),
 
@@ -280,7 +276,22 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         CustomButtonForSave(
                           isPading: false,
                           onTap: () {
-                            provider.savePreferences(context);
+                            if (!provider.immediateJoiner &&
+                                !provider.fifteenDays &&
+                                !provider.thirtyDays &&
+                                !provider.fortyFiveDays &&
+                                !provider.sixtyDays &&
+                                !provider.ninetyDays) {
+                              CustomSnackbar.show(
+                                "Please select notice period",
+                                true,
+                              );
+                              return;
+                            }
+                            provider.savePreferences(
+                              context,
+                              isFromDrawer: widget.isFromDrawer,
+                            );
                           },
                           title: "Save",
                         ),

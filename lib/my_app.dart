@@ -10,6 +10,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      builder: (context, child) {
+        return SafeArea(
+          top: false, bottom: true, child: child!);
+      },
       scaffoldMessengerKey: scaffoldMessengerKey,
       navigatorKey: NavigationService.navigatorKey,
       debugShowCheckedModeBanner: false,

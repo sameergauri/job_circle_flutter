@@ -46,13 +46,13 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: Colors.white,
       body: IndexedStack(index: currentIndex, children: pages),
       bottomNavigationBar: Container(
-        decoration:  BoxDecoration(
+        decoration: BoxDecoration(
           color: Constants.borderColor,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
           ),
-           boxShadow: [
+          boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
               blurRadius: 10,
@@ -60,16 +60,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        child: SafeArea(
-          top: false,
-          bottom: true,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              navItem(CustomAssetUrl.homepageicon, "JOBS", 0),
-              navItem(CustomAssetUrl.atsicon, "ATS", 1),
-            ],
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            navItem(CustomAssetUrl.homepageicon, "JOBS", 0),
+            navItem(CustomAssetUrl.atsicon, "ATS", 1),
+          ],
         ),
       ),
     );

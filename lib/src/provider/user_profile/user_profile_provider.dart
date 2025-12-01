@@ -822,6 +822,7 @@ class ProfileProvider with ChangeNotifier {
   final List<EducationRequest> _educationModel = [];
   bool _showEducationForm = false;
   int? _editingEducationIndex;
+  int? _editingEducationId;
   bool _isRemote = false;
 
   bool get currentlyStudying => _currentlyStudying;
@@ -832,6 +833,7 @@ class ProfileProvider with ChangeNotifier {
   bool get allEducationDocsUploaded => _allEducationDocs;
   bool get isEditingEducation => _editingEducationIndex != null;
   int? get isEditEducationIndex => _editingEducationIndex;
+  int? get editingEducationId => _editingEducationId;
   bool get isRemote => _isRemote;
   bool get showEducationForm => _showEducationForm;
 
@@ -987,24 +989,18 @@ class ProfileProvider with ChangeNotifier {
     bool isEditing =
         _editingEducationIndex != null &&
         _editingEducationIndex! >= 0 &&
-        _editingEducationIndex! < _educationModel.length &&
-        // Only consider it an edit when the target item represents an
-        // existing/persisted record (has a non-null id). This prevents
-        // accidental overwrites when the index is stale or points to a
-        // placeholder entry (common when there's only one item).
-        _educationModel[_editingEducationIndex!].id != null;
+        _editingEducationIndex! < _educationModel.length;
     if (isEditing) {
+      // Always update the correct item by index
       _educationModel[_editingEducationIndex!] = education.copyWith(
         id: _educationModel[_editingEducationIndex!].id,
       );
       snackMessage = '🌟 Education details updated. Great going!';
-      debugPrint(
-        'FIX: Updating education at index $_editingEducationIndex',
-      ); // FIX: Debug
+      debugPrint('FIX: Updating education at index $_editingEducationIndex');
     } else {
       _educationModel.add(education);
       snackMessage = '✅ Nice! Your education profile just got stronger.';
-      debugPrint('FIX: Adding new education'); // FIX: Debug
+      debugPrint('FIX: Adding new education');
     }
 
     _createNewUserModel = CreateNewUserModel(
@@ -1059,7 +1055,12 @@ class ProfileProvider with ChangeNotifier {
     _currentlyStudying = edu.isCurrent == 1;
     _markSheet = edu.marksheet;
 
-    _editingEducationIndex = originalIndex; // FIX: Set to original index
+    _editingEducationIndex = originalIndex;
+    _editingEducationId = edu.id;
+    bool isEditing =
+        _editingEducationId != null &&
+        _educationModel.any((e) => e.id == _editingEducationId);
+    _editingEducationId = null;
     _educationModel[originalIndex] = EducationRequest(
       // FIX: Use originalIndex
       id: edu.id,

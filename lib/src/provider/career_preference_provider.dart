@@ -33,6 +33,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
   bool contractJob = false;
   bool freelance = false;
   bool internship = false;
+  bool flexible = false;
 
   bool fifteenDays = false;
   bool thirtyDays = false;
@@ -95,7 +96,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateImmediateJoiner(bool value) {
+  /* void updateImmediateJoiner(bool value) {
     immediateJoiner = value;
     if (value) {
       fifteenDays = false;
@@ -105,7 +106,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       ninetyDays = false;
     }
     notifyListeners();
-  }
+  } */
 
   // Select only one employment type at a time
   void selectEmploymentType(String type) {
@@ -114,10 +115,12 @@ class CareerPreferenceProvider extends ChangeNotifier {
     contractJob = type == "contract";
     freelance = type == "freelance";
     internship = type == "internship";
+    flexible = type == "flexible";
     notifyListeners();
   }
 
   void selectNoticePeriod(String type) {
+    immediateJoiner = type == "immediate";
     fifteenDays = type == "fifteenDays";
     thirtyDays = type == "thirtyDays";
     fortyFiveDays = type == "fortyFiveDays";
@@ -163,7 +166,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       );
 
       openToRelocation = _model.openToRelocate ?? false;
-      immediateJoiner = _model.immediateJoiner ?? false;
+      // immediateJoiner = _model.immediateJoiner ?? false;
 
       _applyEmploymentType(_model.empType);
       _applyWorkModes(_model.workMode);
@@ -177,7 +180,10 @@ class CareerPreferenceProvider extends ChangeNotifier {
   // ----------------------------
   // SAVE OR UPDATE DATA
   // ----------------------------
-  Future<void> savePreferences(BuildContext context) async {
+  Future<void> savePreferences(
+    BuildContext context, {
+    required bool isFromDrawer,
+  }) async {
     if (!formKey.currentState!.validate()) return;
 
     setLoading(true);
@@ -191,7 +197,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       endSalary: salaryRange.end.toString(),
       // noticePeriod: noticePeriodController.text,
       openToRelocate: openToRelocation,
-      immediateJoiner: immediateJoiner,
+      // immediateJoiner: immediateJoiner,
       noticePeriod: _selectedNoticePeriod(),
       empType: _selectedEmploymentType(),
       workMode: _selectedWorkModes(),
@@ -206,7 +212,9 @@ class CareerPreferenceProvider extends ChangeNotifier {
 
     if (success) {
       await fetchCareerPreference();
-      updateJobPrefEnable(1);
+      if (isFromDrawer) {
+        updateJobPrefEnable(1);
+      }
       Navigator.pop(context);
     }
   }
@@ -241,10 +249,12 @@ class CareerPreferenceProvider extends ChangeNotifier {
     if (contractJob) return "contract";
     if (freelance) return "freelance";
     if (internship) return "internship";
+    if (flexible) return "flexible";
     return "";
   }
 
   String _selectedNoticePeriod() {
+    if (immediateJoiner) return "immediate";
     if (fifteenDays) return "fifteenDays";
     if (thirtyDays) return "thirtyDays";
     if (fortyFiveDays) return "fortyFiveDays";
@@ -259,9 +269,11 @@ class CareerPreferenceProvider extends ChangeNotifier {
     contractJob = type == "contract";
     freelance = type == "freelance";
     internship = type == "internship";
+    flexible = type == "flexible";
   }
 
   void _applyNoticePeriod(String? period) {
+    immediateJoiner = period == "immediate";
     fifteenDays = period == "fifteenDays";
     thirtyDays = period == "thirtyDays";
     fortyFiveDays = period == "fortyFiveDays";
@@ -295,6 +307,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
     openToRelocation = false;
     immediateJoiner = false;
     fullTime = false;
+    flexible = false;
     partTime = false;
     contractJob = false;
     freelance = false;

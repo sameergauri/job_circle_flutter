@@ -112,7 +112,7 @@ class CustomDrawer extends StatelessWidget {
               title: 'Referral Program',
               fontSize: 12,
               fontWeight: FontWeight.normal,
-              color: Constants.darkBlue,
+              // color: Constants.darkBlue,
             ),
             children: [
               ListTile(
@@ -174,7 +174,6 @@ class CustomDrawer extends StatelessWidget {
                       gender: userdetail.userGender,
                     ),
                   );
-
                   onClose();
                 },
               ),
@@ -398,6 +397,13 @@ class CareerPreferenceToggle extends StatelessWidget {
             alignment: Alignment.centerRight,
             scale: 0.6,
             child: Switch(
+              thumbIcon: WidgetStateProperty.resolveWith<Icon?>((states) {
+                return const Icon(
+                  Icons.circle,
+                  size: 22, // ⭐ Increase thumb size here
+                  color: Colors.white,
+                );
+              }),
               padding: EdgeInsets.zero,
               value:
                   SharedPrefsHelper.getInt(
@@ -414,7 +420,12 @@ class CareerPreferenceToggle extends StatelessWidget {
                 }
                 if (value) {
                   scaffoldKey.currentState!.closeDrawer();
-                  NavigationService.push(const CareerPreference());
+                  if (provider.hasExistingData) {
+                    provider.updateJobPrefEnable(1);
+                  }
+                  NavigationService.push(
+                    const CareerPreference(isFromDrawer: true),
+                  );
                   onClose();
                 }
               },

@@ -100,10 +100,17 @@ class LoginProvider extends ChangeNotifier {
           ESharedPreferences.user_selected_lcoation,
           '',
         );
-        CustomSnackbar.show(
-          "OTP Verified successfully : 👋 Welcome to Job Circle",
-          false,
-        );
+        if (userData['firstName'] == null || userData['firstName'] == '') {
+          CustomSnackbar.show(
+            "Verification successful! Let's continue.",
+            false,
+          );
+        } else {
+          CustomSnackbar.show(
+            "Hi ${userData['firstName']}! Nice seeing you again.",
+            false,
+          );
+        }
         return true;
       } else {
         CustomSnackbar.show(res['errorMessage'] ?? 'Invalid OTP', true);
