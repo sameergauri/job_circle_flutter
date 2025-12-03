@@ -1,5 +1,6 @@
 // ignore_for_file: todo, non_constant_identifier_names, avoid_print
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
@@ -113,7 +114,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   FocusNode projectRoleFocusNode = FocusNode();
   FocusNode projectSkillFocusNode = FocusNode();
   FocusNode projectUrlFocusNode = FocusNode();
-  //  
+  //
 
   // Basic Profile States
   bool _male = false;
@@ -1383,8 +1384,9 @@ class SignupCreateUserProvider with ChangeNotifier {
           title: 'Error',
           subtitle:
               e.toString().contains(
-                "Mobile number in CV does not match the provided mobile number",
-              )
+                    "Mobile number in CV does not match the provided mobile number",
+                  ) ||
+                  e.toString().contains("Mobile number")
               ? "Mobile number in Resume does not match the number which you have used for login"
               : "Something went wrong try again",
           button1text: 'Ok',
