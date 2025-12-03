@@ -50,7 +50,11 @@ class AddExperience extends StatelessWidget {
                   !provider.showExperienceForm
               ? SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10,bottom: 5),
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                      bottom: 5,
+                    ),
                     child: CustomButtonForSave(
                       isPading: false,
                       onTap: () {
@@ -913,7 +917,7 @@ class AddExperience extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Builder(
                   builder: (context) {
-                     // Sort the list but keep track of original indices
+                    // Sort the list but keep track of original indices
                     final sortedExperiencesWithIndex = List.generate(
                       provider.experiencesModel.length,
                       (index) => {
@@ -921,8 +925,53 @@ class AddExperience extends StatelessWidget {
                         'originalIndex': index,
                       },
                     );
-
                     sortedExperiencesWithIndex.sort((a, b) {
+                      final expA = a['experience'] as ExperienceRequest;
+                      final expB = b['experience'] as ExperienceRequest;
+
+                      // --- 1. Priority: Currently Working ---
+                      // If A is working and B is not, A comes first
+                      if (expA.isCurrent == 1 && expB.isCurrent != 1) return -1;
+                      if (expB.isCurrent == 1 && expA.isCurrent != 1) return 1;
+
+                      // --- 2. Helper Function to Parse Dates ---
+                      // Handles String, DateTime, or null safely
+                      DateTime parseDate(dynamic date) {
+                        if (date == null) return DateTime(1900);
+                        if (date is DateTime) return date;
+                        if (date is String)
+                          return DateTime.tryParse(date) ?? DateTime(1900);
+                        return DateTime(1900);
+                      }
+
+                      // --- 3. Compare Dates ---
+
+                      // CASE A: Both are "Currently Working"
+                      // If both are current, sort by who started most recently (StartDate)
+                      if (expA.isCurrent == 1 && expB.isCurrent == 1) {
+                        DateTime aStart = parseDate(expA.joiningDate);
+                        DateTime bStart = parseDate(expB.joiningDate);
+                        return bStart.compareTo(aStart);
+                      }
+
+                      // CASE B: Both are Past Jobs
+                      // Compare by Last Working Date
+                      DateTime aEnd = parseDate(expA.lastWorkingDate);
+                      DateTime bEnd = parseDate(expB.lastWorkingDate);
+
+                      int comparison = bEnd.compareTo(aEnd); // Descending order
+
+                      // Fallback: If end dates are the same (or both invalid), sort by Start Date
+                      if (comparison == 0) {
+                        DateTime aStart = parseDate(expA.joiningDate);
+                        DateTime bStart = parseDate(expB.joiningDate);
+                        return bStart.compareTo(aStart);
+                      }
+
+                      return comparison;
+                    });
+
+                    /*  sortedExperiencesWithIndex.sort((a, b) {
                       final expA = a['experience'] as ExperienceRequest;
                       final expB = b['experience'] as ExperienceRequest;
 
@@ -942,7 +991,7 @@ class AddExperience extends StatelessWidget {
                                 : DateTime(1900))
                           : DateTime(1900);
                       return bDate.compareTo(aDate); // Descending order
-                    });
+                    }); */
                     return ListView.separated(
                       separatorBuilder: (context, index) => Padding(
                         padding: const EdgeInsets.symmetric(vertical: 5),
@@ -950,7 +999,7 @@ class AddExperience extends StatelessWidget {
                       ),
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                       itemCount: sortedExperiencesWithIndex.length,
+                      itemCount: sortedExperiencesWithIndex.length,
                       itemBuilder: (context, index) {
                         final item = sortedExperiencesWithIndex[index];
                         final exp = item['experience'] as ExperienceRequest;
@@ -1009,7 +1058,7 @@ class AddExperience extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: Constants.subtitleclr,
                                     ),
-                    
+
                                   // Present / Current
                                   if (exp.isCurrent == 1)
                                     const customText(
@@ -1017,7 +1066,7 @@ class AddExperience extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: Constants.subtitleclr,
                                     ),
-                    
+
                                   // Last Working Date
                                   if (exp.lastWorkingDate != null &&
                                       exp.lastWorkingDate
@@ -1034,7 +1083,7 @@ class AddExperience extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: Constants.subtitleclr,
                                     ),
-                    
+
                                   // Duration
                                   if (exp.joiningDate != null)
                                     customText(
@@ -1053,7 +1102,8 @@ class AddExperience extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: Constants.subtitleclr,
                                     ),
-                                  if (exp.workType != null && exp.workType != '')
+                                  if (exp.workType != null &&
+                                      exp.workType != '')
                                     customText(
                                       title: ' • ${exp.workType!}',
                                       fontWeight: FontWeight.w500,
@@ -1075,7 +1125,7 @@ class AddExperience extends StatelessWidget {
                         );
                       },
                     );
-                  }
+                  },
                 ),
               ),
             SizedBox(height: 20),
@@ -1144,7 +1194,7 @@ class AddExperience extends StatelessWidget {
                       'pdf',
                     ], "alarySlip");
                     provider.setSalarySlip(sal!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Increment Letter") {
                     final incrementLetter = await fileUploader.uploadFile(
                       context,
@@ -1160,7 +1210,7 @@ class AddExperience extends StatelessWidget {
                       "experienceLetter",
                     );
                     provider.setExperienceLetter(experienceLetter!);
-                  NavigationService.pop();
+                    NavigationService.pop();
                     /*  experienceLetter = await uploadFile(
                           allowExt: ['pdf'], isexperience: true); */
                   }

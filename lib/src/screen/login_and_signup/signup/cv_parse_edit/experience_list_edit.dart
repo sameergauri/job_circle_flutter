@@ -95,6 +95,57 @@ class ExperienceListEdit extends StatelessWidget {
         'originalIndex': index,
       },
     );
+    sortedExperiencesWithIndex.sort((a, b) {
+      final expA = a['experience'] as ExperienceRequest;
+      final expB = b['experience'] as ExperienceRequest;
+
+      // --- 1. Priority: Currently Working ---
+      // If A is working and B is not, A comes first
+      if (expA.isCurrent == 1 && expB.isCurrent != 1) return -1;
+      if (expB.isCurrent == 1 && expA.isCurrent != 1) return 1;
+
+      // --- 2. Helper Function to Parse Dates ---
+      // Handles String, DateTime, or null safely
+      DateTime parseDate(dynamic date) {
+        if (date == null) return DateTime(1900);
+        if (date is DateTime) return date;
+        if (date is String) return DateTime.tryParse(date) ?? DateTime(1900);
+        return DateTime(1900);
+      }
+
+      // --- 3. Compare Dates ---
+
+      // CASE A: Both are "Currently Working"
+      // If both are current, sort by who started most recently (StartDate)
+      if (expA.isCurrent == 1 && expB.isCurrent == 1) {
+        DateTime aStart = parseDate(expA.joiningDate);
+        DateTime bStart = parseDate(expB.joiningDate);
+        return bStart.compareTo(aStart);
+      }
+
+      // CASE B: Both are Past Jobs
+      // Compare by Last Working Date
+      DateTime aEnd = parseDate(expA.lastWorkingDate);
+      DateTime bEnd = parseDate(expB.lastWorkingDate);
+
+      int comparison = bEnd.compareTo(aEnd); // Descending order
+
+      // Fallback: If end dates are the same (or both invalid), sort by Start Date
+      if (comparison == 0) {
+        DateTime aStart = parseDate(expA.joiningDate);
+        DateTime bStart = parseDate(expB.joiningDate);
+        return bStart.compareTo(aStart);
+      }
+
+      return comparison;
+    });
+    /*  final sortedExperiencesWithIndex = List.generate(
+      provider.experiencesModel.length,
+      (index) => {
+        'experience': provider.experiencesModel[index],
+        'originalIndex': index,
+      },
+    );
 
     sortedExperiencesWithIndex.sort((a, b) {
       final expA = a['experience'] as ExperienceRequest;
@@ -116,7 +167,7 @@ class ExperienceListEdit extends StatelessWidget {
                 : DateTime(1900))
           : DateTime(1900);
       return bDate.compareTo(aDate); // Descending order
-    });
+    }); */
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),

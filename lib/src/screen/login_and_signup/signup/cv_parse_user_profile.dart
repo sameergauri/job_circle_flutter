@@ -44,7 +44,12 @@ class CvParseUserProfile extends StatelessWidget {
               ),
               bottomNavigationBar: SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  padding: const EdgeInsets.only(
+                    left: 10,
+                    right: 10,
+                    bottom: 5,
+                    top: 5,
+                  ),
                   child: CustomButtonForSave(
                     isPading: false,
                     onTap: () async {
