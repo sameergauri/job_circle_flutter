@@ -92,39 +92,43 @@ class _CareerPreferenceState extends State<CareerPreference> {
 
                         // Employment Type
                         customText(title: 'Employment Type', fontSize: 12),
-                        Wrap(
-                          children: [
-                            CustomToggleButton(
-                              isSelect: provider.fullTime,
-                              title: "Full Time",
-                              onTap: () =>
-                                  provider.selectEmploymentType("fullTime"),
-                            ),
-                            CustomToggleButton(
-                              isSelect: provider.partTime,
-                              title: "Part Time",
-                              onTap: () =>
-                                  provider.selectEmploymentType("partTime"),
-                            ),
-                            CustomToggleButton(
-                              isSelect: provider.contractJob,
-                              title: "Contract",
-                              onTap: () =>
-                                  provider.selectEmploymentType("contract"),
-                            ),
-                            CustomToggleButton(
-                              isSelect: provider.freelance,
-                              title: "Freelance",
-                              onTap: () =>
-                                  provider.selectEmploymentType("freelance"),
-                            ),
-                            CustomToggleButton(
-                              isSelect: provider.internship,
-                              title: "Internship",
-                              onTap: () =>
-                                  provider.selectEmploymentType("internship"),
-                            ),
-                          ],
+                        SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              CustomToggleButton(
+                                isSelect: provider.fullTime,
+                                title: "Full Time",
+                                onTap: () =>
+                                    provider.selectEmploymentType("fullTime"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.partTime,
+                                title: "Part Time",
+                                onTap: () =>
+                                    provider.selectEmploymentType("partTime"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.contractJob,
+                                title: "Contract",
+                                onTap: () =>
+                                    provider.selectEmploymentType("contract"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.freelance,
+                                title: "Freelance",
+                                onTap: () =>
+                                    provider.selectEmploymentType("freelance"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.internship,
+                                title: "Internship",
+                                onTap: () =>
+                                    provider.selectEmploymentType("internship"),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 10),
 

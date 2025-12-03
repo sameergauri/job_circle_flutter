@@ -33,28 +33,26 @@ class SelectExpEducation extends StatelessWidget {
               children: [OnboardingAppBarHeading(), OnboardingAppBarSubTitle()],
             ),
           ),
-          bottomNavigationBar: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
-              child: CustomButtonForSave(
-                isPading: false,
-                onTap: () {
-                  if (!provider.fresher && !provider.experience) {
-                    CustomSnackbar.show("Select WorkExperience Type", true);
-                  } else if (!provider.graduate && !provider.undergraduate) {
-                    CustomSnackbar.show("Select Highest Qualification", true);
+          bottomNavigationBar: Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
+            child: CustomButtonForSave(
+              isPading: false,
+              onTap: () {
+                if (!provider.fresher && !provider.experience) {
+                  CustomSnackbar.show("Select WorkExperience Type", true);
+                } else if (!provider.graduate && !provider.undergraduate) {
+                  CustomSnackbar.show("Select Highest Qualification", true);
+                } else {
+                  if (provider.fresher) {
+                    NavigationService.push(AddEducation());
                   } else {
-                    if (provider.fresher) {
-                      NavigationService.push(AddEducation());
-                    } else {
-                      NavigationService.push(AddExperience());
-                    }
+                    NavigationService.push(AddExperience());
                   }
-                },
-                title: "Next",
-                buttonColor: Constants.darkBlue,
-                textColor: Constants.white,
-              ),
+                }
+              },
+              title: "Next",
+              buttonColor: Constants.darkBlue,
+              textColor: Constants.white,
             ),
           ),
           body: selectEducationAndExp(provider, width),

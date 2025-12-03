@@ -7,6 +7,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_onboarding_titlle.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
@@ -46,7 +47,7 @@ class AddCertificate extends StatelessWidget {
                       !provider.showCertificateForm
                   ? SafeArea(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        padding: const EdgeInsets.only(left: 10, right: 10,bottom: 5 ),
                         child: CustomButtonForSave(
                           isPading: false,
                           onTap: () async {
@@ -365,95 +366,113 @@ class AddCertificate extends StatelessWidget {
                 !provider.showCertificateForm)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: const Divider(height: 1),
-                  ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: provider.certificateModel.length,
-                  itemBuilder: (context, index) {
-                    final sortedCertificates = [...provider.certificateModel];
+                child: Builder(
+                  builder: (context) {
+                    // Sort the list but keep track of original indices
+                    final sortedCertificatesWithIndex = List.generate(
+                      provider.certificateModel.length,
+                      (index) => {
+                        'certificate': provider.certificateModel[index],
+                        'originalIndex': index,
+                      },
+                    );
 
-                    sortedCertificates.sort((a, b) {
+                    sortedCertificatesWithIndex.sort((a, b) {
+                      final certA = a['certificate'] as CertificationRequest;
+                      final certB = b['certificate'] as CertificationRequest;
+
                       // Compare by issue year (descending order)
-                      int aYear = a.startYear ?? 0;
-                      int bYear = b.startYear ?? 0;
+                      int aYear = certA.startYear ?? 0;
+                      int bYear = certB.startYear ?? 0;
                       return bYear.compareTo(aYear);
                     });
-                    var cert = sortedCertificates[index];
-                    return CustomNewListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 6,
-                        ),
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Constants.lightdull),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const CustomNetworkImage(
-                          height: 24,
-                          imageUrl: CustomIconUrl.certificateiicon,
-                          defaultIcon: Icons.workspace_premium_outlined,
-                        ),
+                    return ListView.separated(
+                      separatorBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: const Divider(height: 1),
                       ),
-                      title: customText(
-                        title: cert.certificationName ?? '',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (cert.issuingOrganization != null &&
-                              cert.issuingOrganization != '')
-                            customText(
-                              title: cert.issuingOrganization ?? '',
-                              fontWeight: FontWeight.w500,
-                              color: Constants.subtitleclr,
-                              overflow: TextOverflow.ellipsis,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: sortedCertificatesWithIndex.length,
+                      itemBuilder: (context, index) {
+                        final item = sortedCertificatesWithIndex[index];
+                        final cert =
+                            item['certificate'] as CertificationRequest;
+                        final originalIndex = item['originalIndex'] as int;
+                        return CustomNewListTile(
+                          leading: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 6,
                             ),
-                          if (cert.credentialId != null &&
-                              cert.credentialId != '')
-                            customText(
-                              title: cert.credentialId!,
-                              fontWeight: FontWeight.w500,
-                              color: Constants.subtitleclr,
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Constants.lightdull),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          if (cert.startMonth != null && cert.startYear != null)
-                            Row(
-                              children: [
+                            child: const CustomNetworkImage(
+                              height: 24,
+                              imageUrl: CustomIconUrl.certificateiicon,
+                              defaultIcon: Icons.workspace_premium_outlined,
+                            ),
+                          ),
+                          title: customText(
+                            title: cert.certificationName ?? '',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (cert.issuingOrganization != null &&
+                                  cert.issuingOrganization != '')
                                 customText(
-                                  monst: true,
-                                  title:
-                                      "${MonthNameConverter.getShortMonthName(cert.startMonth)} - ${cert.startYear}",
-                                  fontSize: 12,
+                                  title: cert.issuingOrganization ?? '',
                                   fontWeight: FontWeight.w500,
+                                  color: Constants.subtitleclr,
                                   overflow: TextOverflow.ellipsis,
+                                ),
+                              if (cert.credentialId != null &&
+                                  cert.credentialId != '')
+                                customText(
+                                  title: cert.credentialId!,
+                                  fontWeight: FontWeight.w500,
                                   color: Constants.subtitleclr,
                                 ),
-                              ],
-                            ),
-                          if (cert.credentialUrl != null &&
-                              cert.credentialUrl != '')
-                            customText(
-                              title: cert.credentialUrl!,
-                              fontWeight: FontWeight.w500,
-                              color: Constants.subtitleclr,
-                              fontSize: 12,
-                            ),
-                        ],
-                      ),
-                      trailing: CustomIconButton(
-                        imageUrl: CustomIconUrl.editicon,
-                        onTap: () {
-                          provider.editCertificate(index);
-                        },
-                      ),
+                              if (cert.startMonth != null &&
+                                  cert.startYear != null)
+                                Row(
+                                  children: [
+                                    customText(
+                                      monst: true,
+                                      title:
+                                          "${MonthNameConverter.getShortMonthName(cert.startMonth)} - ${cert.startYear}",
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      overflow: TextOverflow.ellipsis,
+                                      color: Constants.subtitleclr,
+                                    ),
+                                  ],
+                                ),
+                              if (cert.credentialUrl != null &&
+                                  cert.credentialUrl != '')
+                                customText(
+                                  title: cert.credentialUrl!,
+                                  fontWeight: FontWeight.w500,
+                                  color: Constants.subtitleclr,
+                                  fontSize: 12,
+                                ),
+                            ],
+                          ),
+                          trailing: CustomIconButton(
+                            imageUrl: CustomIconUrl.editicon,
+                            onTap: () {
+                              provider.editCertificate(originalIndex);
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                 ),

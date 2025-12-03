@@ -175,9 +175,7 @@ class ProjectSection extends StatelessWidget {
                                 ),
                                 if (data.role != null)
                                   customText(
-                                    title: MonthRangeFormatter.formatMonthRange(
-                                      data.role ?? '',
-                                    ),
+                                    title: data.role ?? '',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
                                     color: Constants.subtitleclr,

@@ -10,6 +10,7 @@ import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_onboarding_titlle.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/screen/login_and_signup/signup/add_education.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
@@ -49,7 +50,7 @@ class AddExperience extends StatelessWidget {
                   !provider.showExperienceForm
               ? SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    padding: const EdgeInsets.only(left: 10, right: 10,bottom: 5),
                     child: CustomButtonForSave(
                       isPading: false,
                       onTap: () {
@@ -910,151 +911,171 @@ class AddExperience extends StatelessWidget {
                 !provider.showExperienceForm)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: const Divider(height: 1),
-                  ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: provider.experiencesModel.length,
-                  itemBuilder: (context, index) {
-                    final sortedExperiences = [...provider.experiencesModel];
+                child: Builder(
+                  builder: (context) {
+                     // Sort the list but keep track of original indices
+                    final sortedExperiencesWithIndex = List.generate(
+                      provider.experiencesModel.length,
+                      (index) => {
+                        'experience': provider.experiencesModel[index],
+                        'originalIndex': index,
+                      },
+                    );
 
-                    sortedExperiences.sort((a, b) {
+                    sortedExperiencesWithIndex.sort((a, b) {
+                      final expA = a['experience'] as ExperienceRequest;
+                      final expB = b['experience'] as ExperienceRequest;
+
                       // If a is currently working and b is not, a comes first
-                      if (a.isCurrent == true && b.isCurrent != true) return -1;
-                      if (b.isCurrent == true && a.isCurrent != true) return 1;
+                      if (expA.isCurrent == 1 && expB.isCurrent != 1) return -1;
+                      if (expB.isCurrent == 1 && expA.isCurrent != 1) return 1;
 
                       // If both are not currently working, compare by lastDate or startDate
-                      DateTime aDate = (a.lastWorkingDate is DateTime
-                          ? a.lastWorkingDate as DateTime
-                          : DateTime(1900));
-                      DateTime bDate = b.lastWorkingDate is DateTime
-                          ? b.lastWorkingDate as DateTime
+                      DateTime aDate = expA.lastWorkingDate != null
+                          ? (expA.lastWorkingDate is DateTime
+                                ? expA.lastWorkingDate as DateTime
+                                : DateTime(1900))
+                          : DateTime(1900);
+                      DateTime bDate = expB.lastWorkingDate != null
+                          ? (expB.lastWorkingDate is DateTime
+                                ? expB.lastWorkingDate as DateTime
+                                : DateTime(1900))
                           : DateTime(1900);
                       return bDate.compareTo(aDate); // Descending order
                     });
-                    var exp = sortedExperiences[index];
-                    return CustomNewListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 6,
-                        ),
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Constants.lightdull),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const CustomNetworkImage(
-                          height: 24,
-                          color: Constants.subtitleclr,
-                          imageUrl: CustomIconUrl.companyicon,
-                          defaultIcon: Icons.home_work_outlined,
-                        ),
+                    return ListView.separated(
+                      separatorBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: const Divider(height: 1),
                       ),
-                      title: customText(
-                        title: exp.jobTitle!,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                       itemCount: sortedExperiencesWithIndex.length,
+                      itemBuilder: (context, index) {
+                        final item = sortedExperiencesWithIndex[index];
+                        final exp = item['experience'] as ExperienceRequest;
+                        final originalIndex = item['originalIndex'] as int;
+                        return CustomNewListTile(
+                          leading: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 6,
+                            ),
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Constants.lightdull),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const CustomNetworkImage(
+                              height: 24,
+                              color: Constants.subtitleclr,
+                              imageUrl: CustomIconUrl.companyicon,
+                              defaultIcon: Icons.home_work_outlined,
+                            ),
+                          ),
+                          title: customText(
+                            title: exp.jobTitle!,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              customText(
-                                title: exp.companyName!,
-                                fontWeight: FontWeight.w500,
-                                color: Constants.subtitleclr,
-                                overflow: TextOverflow.ellipsis,
+                              Row(
+                                children: [
+                                  customText(
+                                    title: exp.companyName!,
+                                    fontWeight: FontWeight.w500,
+                                    color: Constants.subtitleclr,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  if (exp.empType != null && exp.empType != '')
+                                    customText(
+                                      title: ' • ${exp.empType!}',
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr,
+                                    ),
+                                ],
                               ),
-                              if (exp.empType != null && exp.empType != '')
-                                customText(
-                                  title: ' • ${exp.empType!}',
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
-                                ),
+                              Row(
+                                children: [
+                                  // Joining Date
+                                  if (exp.joiningDate != null &&
+                                      exp.joiningDate != '')
+                                    customText(
+                                      title:
+                                          '${CvParseExpDateFormatter.formatDate(exp.joiningDate.toString(), true)}',
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr,
+                                    ),
+                    
+                                  // Present / Current
+                                  if (exp.isCurrent == 1)
+                                    const customText(
+                                      title: " - Present",
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr,
+                                    ),
+                    
+                                  // Last Working Date
+                                  if (exp.lastWorkingDate != null &&
+                                      exp.lastWorkingDate
+                                              .toString()
+                                              .toLowerCase() !=
+                                          'present' &&
+                                      exp.lastWorkingDate
+                                              .toString()
+                                              .toLowerCase() !=
+                                          'current')
+                                    customText(
+                                      title:
+                                          " - ${CvParseExpDateFormatter.formatDate(exp.lastWorkingDate, true)}",
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr,
+                                    ),
+                    
+                                  // Duration
+                                  if (exp.joiningDate != null)
+                                    customText(
+                                      title:
+                                          ' ${CvDurationCalculator.calculateDuration(exp.joiningDate!, exp.lastWorkingDate)}',
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr,
+                                    ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  if (exp.jobLocation != null)
+                                    customText(
+                                      title: exp.jobLocation!,
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr,
+                                    ),
+                                  if (exp.workType != null && exp.workType != '')
+                                    customText(
+                                      title: ' • ${exp.workType!}',
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.subtitleclr,
+                                    ),
+                                ],
+                              ),
+                              /*  if (exp.availableDocuments != null &&
+                                  exp.availableDocuments!.isNotEmpty)
+                                buildDocumentSection(exp.availableDocuments), */
                             ],
                           ),
-                          Row(
-                            children: [
-                              // Joining Date
-                              if (exp.joiningDate != null &&
-                                  exp.joiningDate != '')
-                                customText(
-                                  title:
-                                      '${CvParseExpDateFormatter.formatDate(exp.joiningDate.toString(), true)}',
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
-                                ),
-
-                              // Present / Current
-                              if (exp.isCurrent == 1)
-                                const customText(
-                                  title: " - Present",
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
-                                ),
-
-                              // Last Working Date
-                              if (exp.lastWorkingDate != null &&
-                                  exp.lastWorkingDate
-                                          .toString()
-                                          .toLowerCase() !=
-                                      'present' &&
-                                  exp.lastWorkingDate
-                                          .toString()
-                                          .toLowerCase() !=
-                                      'current')
-                                customText(
-                                  title:
-                                      " - ${CvParseExpDateFormatter.formatDate(exp.lastWorkingDate, true)}",
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
-                                ),
-
-                              // Duration
-                              if (exp.joiningDate != null)
-                                customText(
-                                  title:
-                                      ' ${CvDurationCalculator.calculateDuration(exp.joiningDate!, exp.lastWorkingDate)}',
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
-                                ),
-                            ],
+                          trailing: CustomIconButton(
+                            imageUrl: CustomIconUrl.editicon,
+                            onTap: () {
+                              provider.editExperience(originalIndex);
+                            },
                           ),
-                          Row(
-                            children: [
-                              if (exp.jobLocation != null)
-                                customText(
-                                  title: exp.jobLocation!,
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
-                                ),
-                              if (exp.workType != null && exp.workType != '')
-                                customText(
-                                  title: ' • ${exp.workType!}',
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
-                                ),
-                            ],
-                          ),
-                          /*  if (exp.availableDocuments != null &&
-                              exp.availableDocuments!.isNotEmpty)
-                            buildDocumentSection(exp.availableDocuments), */
-                        ],
-                      ),
-                      trailing: CustomIconButton(
-                        imageUrl: CustomIconUrl.editicon,
-                        onTap: () {
-                          provider.editExperience(index);
-                        },
-                      ),
+                        );
+                      },
                     );
-                  },
+                  }
                 ),
               ),
             SizedBox(height: 20),

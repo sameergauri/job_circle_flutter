@@ -5,6 +5,7 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/custom_get_month.dart';
@@ -183,7 +184,7 @@ class ProjectList extends StatelessWidget {
                 ],
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+               padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
@@ -201,7 +202,8 @@ class ProjectList extends StatelessWidget {
                   }
                 },
                 title: /* provider.isEditingCertificate &&
-                        fromEditOrAdd == FromEditOrAdd.edit ? "Update" : */ "Save",
+                        fromEditOrAdd == FromEditOrAdd.edit ? "Update" : */
+                    "Save",
               ),
             ),
           ],
@@ -211,6 +213,13 @@ class ProjectList extends StatelessWidget {
   }
 
   Widget CustomBody(SignupCreateUserProvider provider) {
+    final sortedProjectsWithIndex = List.generate(
+      provider.projectModel.length,
+      (index) => {
+        'project': provider.projectModel[index],
+        'originalIndex': index,
+      },
+    );
     return ListView.separated(
       separatorBuilder: (context, index) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -218,11 +227,11 @@ class ProjectList extends StatelessWidget {
       ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: provider.projectModel.length,
+      itemCount: sortedProjectsWithIndex.length,
       itemBuilder: (context, index) {
-        final sortedCertificates = [...provider.projectModel];
-
-        var proj = sortedCertificates[index];
+        final item = sortedProjectsWithIndex[index];
+        final proj = item['project'] as UserProjectRequest;
+        final originalIndex = item['originalIndex'] as int;
         return Padding(
           padding: const EdgeInsets.only(left: 20, top: 10),
           child: SingleChildScrollView(
@@ -262,7 +271,7 @@ class ProjectList extends StatelessWidget {
                           color: Constants.subtitleclr,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        if (proj.duration != null && proj.duration != 'null')
+                      if (proj.duration != null && proj.duration != 'null')
                         customText(
                           title: MonthRangeFormatter.formatMonthRange(
                             proj.duration!,
@@ -277,11 +286,11 @@ class ProjectList extends StatelessWidget {
                   trailing: CustomIconButton(
                     imageUrl: CustomIconUrl.editicon,
                     onTap: () {
-                      provider.editProject(index);
+                      provider.editProject(originalIndex);
                     },
                   ),
                 ),
-               /*  if (proj.description != null && proj.description!.isNotEmpty)
+                /*  if (proj.description != null && proj.description!.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.all(4),
                     margin: EdgeInsets.only(top: 4),

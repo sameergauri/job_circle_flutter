@@ -5,8 +5,10 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_check_box_row.dart';
+import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart'
@@ -35,48 +37,54 @@ class ProfileEducationEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: Constants.white,
-          appBar: AppBar(
-            automaticallyImplyLeading: true,
-            backgroundColor: Constants.borderColor,
-            elevation: 0,
-            titleSpacing: 0.0,
-            iconTheme: const IconThemeData(color: Colors.black),
-            title: const OnboardingTitle(title: "Education", fontSize: 16),
-            actions: [
-              !provider.showEducationForm &&
-                      provider.profile!.educationDetails!.isNotEmpty
-                  ? IconButton(
-                      onPressed: () {
-                        provider.clearEducationForm();
-                        provider.setShowEducationForm(true);
-                      },
-                      icon: const Icon(Icons.add),
-                    )
-                  : (provider.profile!.educationDetails != null &&
-                        provider.profile!.educationDetails!.isNotEmpty &&
-                        fromEditOrAdd == FromEditOrAdd.edit)
-                  ? IconButton(
-                      onPressed: () {
-                        provider.cancelEducationEdit();
-                        if (provider.profile!.educationDetails != null &&
-                            provider.profile!.educationDetails!.length == 1) {
-                          NavigationService.pop();
-                        }
-                      },
-                      icon: const Icon(Icons.cancel_outlined),
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
-          body: SafeArea(
-            child:
-                provider.profile!.educationDetails!.isEmpty ||
-                    provider.showEducationForm
-                ? customForm(provider, context)
-                : CustomBody(provider),
-          ),
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: Constants.white,
+              appBar: AppBar(
+                automaticallyImplyLeading: true,
+                backgroundColor: Constants.borderColor,
+                elevation: 0,
+                titleSpacing: 0.0,
+                iconTheme: const IconThemeData(color: Colors.black),
+                title: const OnboardingTitle(title: "Education", fontSize: 16),
+                actions: [
+                  !provider.showEducationForm &&  
+                          provider.profile!.educationDetails!.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            provider.clearEducationForm();
+                            provider.setShowEducationForm(true);
+                          },
+                          icon: const Icon(Icons.add),
+                        )
+                      : (provider.profile!.educationDetails != null &&
+                            provider.profile!.educationDetails!.isNotEmpty &&
+                            fromEditOrAdd == FromEditOrAdd.edit)
+                      ? IconButton(
+                          onPressed: () {
+                            provider.cancelEducationEdit();
+                            if (provider.profile!.educationDetails != null &&
+                                provider.profile!.educationDetails!.length ==
+                                    1) {
+                              NavigationService.pop();
+                            }
+                          },
+                          icon: const Icon(Icons.cancel_outlined),
+                        )
+                      : SizedBox.shrink(),
+                ],
+              ),
+              body: SafeArea(
+                child:
+                    provider.profile!.educationDetails!.isEmpty ||
+                        provider.showEducationForm
+                    ? customForm(provider, context)
+                    : CustomBody(provider),
+              ),
+            ),
+            if (provider.isUpdating) CustomLoadingIndicator(),
+          ],
         );
       },
     );
@@ -271,7 +279,7 @@ class ProfileEducationEdit extends StatelessWidget {
                 ],
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
@@ -310,6 +318,28 @@ class ProfileEducationEdit extends StatelessWidget {
   }
 
   Widget CustomBody(ProfileProvider provider) {
+    // Sort the list but keep track of original indices
+    final sortedEducationsWithIndex = List.generate(
+      provider.profile!.educationDetails!.length,
+      (index) => {
+        'education': provider.profile!.educationDetails![index],
+        'originalIndex': index,
+      },
+    );
+
+    sortedEducationsWithIndex.sort((a, b) {
+      final eduA = a['education'] as EducationDetail;
+      final eduB = b['education'] as EducationDetail;
+
+      // Priority 1: Currently Pursuing/Studying सबसे ऊपर
+      if (eduA.isCurrent == 1 && eduB.isCurrent != 1) return -1;
+      if (eduB.isCurrent == 1 && eduA.isCurrent != 1) return 1;
+
+      // Priority 2: Year के हिसाब से (Latest Year First)
+      int aYear = eduA.passingYear ?? eduA.firstYear ?? 0;
+      int bYear = eduB.passingYear ?? eduB.firstYear ?? 0;
+      return bYear.compareTo(aYear); // Descending order
+    });
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: ListView.separated(
@@ -319,29 +349,11 @@ class ProfileEducationEdit extends StatelessWidget {
         ),
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: provider.profile!.educationDetails!.length,
-        itemBuilder: (context, displayIndex) {
-          // FIX: Renamed to displayIndex
-          // FIX: Create list of (originalIndex, edu) pairs to track original order during sort
-          final originalList = provider.profile!.educationDetails!;
-          final indexedEducations = originalList
-              .asMap()
-              .entries
-              .map((entry) => (entry.key, entry.value))
-              .toList();
-
-          // Sort by the edu (value), but keep original index (key)
-          indexedEducations.sort((a, b) {
-            final eduA = a.$2; // edu
-            final eduB = b.$2;
-            if (eduA.isCurrent == 1 && eduB.isCurrent != 1) return -1;
-            if (eduB.isCurrent == 1 && eduA.isCurrent != 1) return 1;
-            int aYear = eduA.passingYear ?? eduA.firstYear ?? 0;
-            int bYear = eduB.passingYear ?? eduB.firstYear ?? 0;
-            return bYear.compareTo(aYear); // Descending
-          });
-
-          final (originalIndex, edu) = indexedEducations[displayIndex];
+        itemCount: sortedEducationsWithIndex.length,
+        itemBuilder: (context, index) {
+          final item = sortedEducationsWithIndex[index];
+          final edu = item['education'] as EducationDetail;
+          final originalIndex = item['originalIndex'] as int;
           return CustomNewListTile(
             leading: Container(
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),

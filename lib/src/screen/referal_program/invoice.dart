@@ -46,20 +46,29 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           children: [
             Scaffold(
               bottomNavigationBar: state.selectedOrganization != null
-                  ? CustomButtonForSave(
-                      onTap: () async {
-                        await provider.submitInvoice();
-                        if (state.submissionSuccess) {
-                          CustomSnackbar.show(
-                            'Invoice submitted successfully',
-                            false,
-                          );
-                         NavigationService.pop();
-                        } else if (state.error != null) {
-                          CustomSnackbar.show(state.error!, true);
-                        }
-                      },
-                      title: 'Submit Invoice',
+                  ? Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 5,
+                        top: 10,
+                        left: 10,
+                        right: 10,
+                      ),
+                      child: CustomButtonForSave(
+                        isPading: false,
+                        onTap: () async {
+                          await provider.submitInvoice();
+                          if (state.submissionSuccess) {
+                            CustomSnackbar.show(
+                              'Invoice submitted successfully',
+                              false,
+                            );
+                            NavigationService.pop();
+                          } else if (state.error != null) {
+                            CustomSnackbar.show(state.error!, true);
+                          }
+                        },
+                        title: 'Submit Invoice',
+                      ),
                     )
                   : null,
               appBar: AppBar(
@@ -81,10 +90,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 4,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +111,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               ),
             ),
             if (state.isLoading)
-               BackdropFilter(
+              BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Center(
                   child: AbsorbPointer(
@@ -146,10 +152,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const customText(
-              title: "To,",
-              fontWeight: FontWeight.bold,
-            ),
+            const customText(title: "To,", fontWeight: FontWeight.bold),
             GestureDetector(
               onTap: () =>
                   _showOrganizationBottomSheet(context, provider, state),
@@ -422,10 +425,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            const customText(
-              title: "From,",
-              fontWeight: FontWeight.bold,
-            ),
+            const customText(title: "From,", fontWeight: FontWeight.bold),
             customText(title: joiner.accountHolderName.toString()),
           ],
         ),
@@ -549,7 +549,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   TextButton(
                     onPressed: () {
                       provider.filterByOrganization(null);
-                    NavigationService.pop();
+                      NavigationService.pop();
                     },
                     child: customText(
                       title: 'Reset',
@@ -570,7 +570,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                     return InkWell(
                       onTap: () {
                         provider.filterByOrganization(org.id);
-                      NavigationService.pop();
+                        NavigationService.pop();
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -598,8 +598,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                             if (isSelected)
                               const CustomNetworkImage(
                                 color: Constants.darkBlue,
-                                imageUrl:
-                                    CustomIconUrl.locicon,
+                                imageUrl: CustomIconUrl.locicon,
                                 defaultIcon: Icons.check,
                               ),
                           ],
@@ -616,8 +615,3 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 }
-
-
-
-
-

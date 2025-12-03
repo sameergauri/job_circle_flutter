@@ -7,6 +7,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_onboarding_titlle.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/screen/login_and_signup/signup/add_projects.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
@@ -39,7 +40,11 @@ class AddEducation extends StatelessWidget {
               provider.educationModel.isNotEmpty && !provider.showEducationForm
               ? SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 10, right: 10),
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                      bottom: 5,
+                    ),
                     child: CustomButtonForSave(
                       isPading: false,
                       onTap: () {
@@ -349,99 +354,116 @@ class AddEducation extends StatelessWidget {
                 !provider.showEducationForm)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ListView.separated(
-                  separatorBuilder: (context, index) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: const Divider(height: 1),
-                  ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: provider.educationModel.length,
-                  itemBuilder: (context, index) {
-                    final sortedEducations = [...provider.educationModel];
+                child: Builder(
+                  builder: (context) {
+                    final sortedEducationsWithIndex = List.generate(
+                      provider.educationModel.length,
+                      (index) => {
+                        'education': provider.educationModel[index],
+                        'originalIndex': index,
+                      },
+                    );
 
-                    sortedEducations.sort((a, b) {
+                    sortedEducationsWithIndex.sort((a, b) {
+                      final eduA = a['education'] as EducationRequest;
+                      final eduB = b['education'] as EducationRequest;
+
                       // If a is currently studying and b is not, a comes first
-                      if (a.isCurrent == 1 && b.isCurrent != 1) return -1;
-                      if (b.isCurrent == 1 && a.isCurrent != 1) return 1;
+                      if (eduA.isCurrent == 1 && eduB.isCurrent != 1) return -1;
+                      if (eduB.isCurrent == 1 && eduA.isCurrent != 1) return 1;
 
                       // If both are not currently studying, compare by passingYear or firstYear
-                      int aYear = a.passingYear ?? a.firstYear ?? 0;
-                      int bYear = b.passingYear ?? b.firstYear ?? 0;
+                      int aYear = eduA.passingYear ?? eduA.firstYear ?? 0;
+                      int bYear = eduB.passingYear ?? eduB.firstYear ?? 0;
                       return bYear.compareTo(aYear); // Descending order
                     });
-                    var edu = sortedEducations[index];
-                    return CustomNewListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 4,
-                          horizontal: 6,
-                        ),
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Constants.lightdull),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const CustomNetworkImage(
-                          height: 24,
-                          color: Constants.subtitleclr,
-                          imageUrl: CustomIconUrl.schoolicon,
-                          defaultIcon: Icons.school_outlined,
-                        ),
+                    return ListView.separated(
+                      separatorBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 5),
+                        child: const Divider(height: 1),
                       ),
-                      title: customText(
-                        title: edu.degreeSpc ?? '',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (edu.schoolOrCollegeName != null &&
-                              edu.schoolOrCollegeName != '')
-                            customText(
-                              title: edu.schoolOrCollegeName ?? '',
-                              fontWeight: FontWeight.w500,
-                              color: Constants.subtitleclr,
-                              overflow: TextOverflow.ellipsis,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: sortedEducationsWithIndex.length,
+                      itemBuilder: (context, index) {
+                        final item = sortedEducationsWithIndex[index];
+                        final edu = item['education'] as EducationRequest;
+                        final originalIndex = item['originalIndex'] as int;
+                        return CustomNewListTile(
+                          leading: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                              horizontal: 6,
                             ),
-                          if (edu.university != null && edu.university != '')
-                            customText(
-                              title: edu.university!,
-                              fontWeight: FontWeight.w500,
-                              color: Constants.subtitleclr,
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Constants.lightdull),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          Row(
+                            child: const CustomNetworkImage(
+                              height: 24,
+                              color: Constants.subtitleclr,
+                              imageUrl: CustomIconUrl.schoolicon,
+                              defaultIcon: Icons.school_outlined,
+                            ),
+                          ),
+                          title: customText(
+                            title: edu.degreeSpc ?? '',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              edu.endMonth != null && edu.passingYear != null
-                                  ? customText(
-                                      monst: true,
-                                      title: edu.passingYear != null
-                                          ? '${DateUtilsHelper.getMonthName(edu.endMonth)} - ${edu.passingYear.toString()}'
-                                          : '',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: Constants.subtitleclr,
-                                      overflow: TextOverflow.ellipsis,
-                                    )
-                                  : edu.isCurrent == 1
-                                  ? customText(
-                                      title: "Pursuing",
-                                      fontWeight: FontWeight.w500,
-                                      color: Constants.subtitleclr,
-                                    )
-                                  : SizedBox.shrink(),
+                              if (edu.schoolOrCollegeName != null &&
+                                  edu.schoolOrCollegeName != '')
+                                customText(
+                                  title: edu.schoolOrCollegeName ?? '',
+                                  fontWeight: FontWeight.w500,
+                                  color: Constants.subtitleclr,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              if (edu.university != null &&
+                                  edu.university != '')
+                                customText(
+                                  title: edu.university!,
+                                  fontWeight: FontWeight.w500,
+                                  color: Constants.subtitleclr,
+                                ),
+                              Row(
+                                children: [
+                                  edu.endMonth != null &&
+                                          edu.passingYear != null
+                                      ? customText(
+                                          monst: true,
+                                          title: edu.passingYear != null
+                                              ? '${DateUtilsHelper.getMonthName(edu.endMonth)} - ${edu.passingYear.toString()}'
+                                              : '',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: Constants.subtitleclr,
+                                          overflow: TextOverflow.ellipsis,
+                                        )
+                                      : edu.isCurrent == 1
+                                      ? customText(
+                                          title: "Pursuing",
+                                          fontWeight: FontWeight.w500,
+                                          color: Constants.subtitleclr,
+                                        )
+                                      : SizedBox.shrink(),
+                                ],
+                              ),
                             ],
                           ),
-                        ],
-                      ),
-                      trailing: CustomIconButton(
-                        imageUrl: CustomIconUrl.editicon,
-                        onTap: () {
-                          provider.editEducation(index);
-                        },
-                      ),
+                          trailing: CustomIconButton(
+                            imageUrl: CustomIconUrl.editicon,
+                            onTap: () {
+                              provider.editEducation(originalIndex);
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                 ),

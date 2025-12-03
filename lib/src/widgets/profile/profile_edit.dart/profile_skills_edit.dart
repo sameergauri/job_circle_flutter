@@ -5,8 +5,8 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/widgets/button/custom_button.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_add_skill.dart';
+import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -30,8 +30,9 @@ class ProfileAddSkill extends StatelessWidget {
 
     return Scaffold(
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: customButton(
+        padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
+        child: CustomButtonForSave(
+          isPading: false,
           title: "Save",
           onTap: () {
             final provider = Provider.of<ProfileProvider>(

@@ -6,6 +6,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_onboarding_titlle.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/screen/login_and_signup/signup/add_certificate.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -41,7 +42,7 @@ class AddProjects extends StatelessWidget {
                       !provider.showProjectForm
                   ? SafeArea(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10),
+                        padding: const EdgeInsets.only(left: 10, right: 10,bottom: 5 ),
                         child: CustomButtonForSave(
                           isPading: false,
                           onTap: () {
@@ -297,88 +298,101 @@ class AddProjects extends StatelessWidget {
           if (provider.projectModel.isNotEmpty && !provider.showProjectForm)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: ListView.separated(
-                separatorBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: const Divider(height: 1),
-                ),
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: provider.projectModel.length,
-                itemBuilder: (context, index) {
-                  final sortedCertificates = [...provider.projectModel];
-
-                  var proj = sortedCertificates[index];
-                  return Column(
-                    children: [
-                      CustomNewListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 6,
-                          ),
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Constants.lightdull),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const CustomNetworkImage(
-                            height: 24,
-                            imageUrl: CustomIconUrl.projectConstantIcon,
-                            defaultIcon: Icons.workspace_premium_outlined,
-                          ),
-                        ),
-                        title: customText(
-                          title: proj.projectTitle ?? '',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (proj.role != null && proj.role != '')
-                              customText(
-                                title: proj.role!,
-                                fontWeight: FontWeight.w500,
-                                color: Constants.subtitleclr,
-                                overflow: TextOverflow.ellipsis,
+              child: Builder(
+                builder: (context) {
+                  // Sort the list but keep track of original indices
+                  final sortedProjectsWithIndex = List.generate(
+                    provider.projectModel.length,
+                    (index) => {
+                      'project': provider.projectModel[index],
+                      'originalIndex': index,
+                    },
+                  );
+                  return ListView.separated(
+                    separatorBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: const Divider(height: 1),
+                    ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: sortedProjectsWithIndex.length,
+                    itemBuilder: (context, index) {
+                      final item = sortedProjectsWithIndex[index];
+                      final proj = item['project'] as UserProjectRequest;
+                      final originalIndex = item['originalIndex'] as int;
+            
+                      return Column(
+                        children: [
+                          CustomNewListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 6,
                               ),
-                            if (proj.duration != null && proj.duration != '')
-                              customText(
-                                title: proj.duration!,
-                                fontWeight: FontWeight.w500,
-                                color: Constants.subtitleclr,
-                                fontSize: 12,
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Constants.lightdull),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                          ],
-                        ),
-                        trailing: CustomIconButton(
-                          imageUrl: CustomIconUrl.editicon,
-                          onTap: () {
-                            provider.editProject(index);
-                          },
-                        ),
-                      ),
-                      if (proj.description != null &&
-                          proj.description!.isNotEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          margin: EdgeInsets.only(top: 4),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Constants.lightdull,
-                          ),
-                          child: ExpandableTextWidget(
-                            initialMaxLines: 5,
-                            text: BulletFormatter.formatWithBullets(
-                              proj.description!,
+                              child: const CustomNetworkImage(
+                                height: 24,
+                                imageUrl: CustomIconUrl.projectConstantIcon,
+                                defaultIcon: Icons.workspace_premium_outlined,
+                              ),
+                            ),
+                            title: customText(
+                              title: proj.projectTitle ?? '',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (proj.role != null && proj.role != '')
+                                  customText(
+                                    title: proj.role!,
+                                    fontWeight: FontWeight.w500,
+                                    color: Constants.subtitleclr,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                if (proj.duration != null && proj.duration != '')
+                                  customText(
+                                    title: proj.duration!,
+                                    fontWeight: FontWeight.w500,
+                                    color: Constants.subtitleclr,
+                                    fontSize: 12,
+                                  ),
+                              ],
+                            ),
+                            trailing: CustomIconButton(
+                              imageUrl: CustomIconUrl.editicon,
+                              onTap: () {
+                                provider.editProject(originalIndex);
+                              },
                             ),
                           ),
-                        ),
-                    ],
+                          if (proj.description != null &&
+                              proj.description!.isNotEmpty)
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              margin: EdgeInsets.only(top: 4),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: Constants.lightdull,
+                              ),
+                              child: ExpandableTextWidget(
+                                initialMaxLines: 5,
+                                text: BulletFormatter.formatWithBullets(
+                                  proj.description!,
+                                ),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
                   );
-                },
+                }
               ),
             ),
           const SizedBox(height: 20),

@@ -56,7 +56,7 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
         return Scaffold(
           bottomNavigationBar: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
+              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {

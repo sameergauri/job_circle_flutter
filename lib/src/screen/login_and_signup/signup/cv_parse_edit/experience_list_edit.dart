@@ -8,6 +8,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -86,6 +87,37 @@ class ExperienceListEdit extends StatelessWidget {
   }
 
   Widget CustomBody(SignupCreateUserProvider provider) {
+    // Sort the list but keep track of original indices
+    final sortedExperiencesWithIndex = List.generate(
+      provider.experiencesModel.length,
+      (index) => {
+        'experience': provider.experiencesModel[index],
+        'originalIndex': index,
+      },
+    );
+
+    sortedExperiencesWithIndex.sort((a, b) {
+      final expA = a['experience'] as ExperienceRequest;
+      final expB = b['experience'] as ExperienceRequest;
+
+      // If a is currently working and b is not, a comes first
+      if (expA.isCurrent == 1 && expB.isCurrent != 1) return -1;
+      if (expB.isCurrent == 1 && expA.isCurrent != 1) return 1;
+
+      // If both are not currently working, compare by lastDate or startDate
+      DateTime aDate = expA.lastWorkingDate != null
+          ? (expA.lastWorkingDate is DateTime
+                ? expA.lastWorkingDate as DateTime
+                : DateTime(1900))
+          : DateTime(1900);
+      DateTime bDate = expB.lastWorkingDate != null
+          ? (expB.lastWorkingDate is DateTime
+                ? expB.lastWorkingDate as DateTime
+                : DateTime(1900))
+          : DateTime(1900);
+      return bDate.compareTo(aDate); // Descending order
+    });
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: ListView.separated(
@@ -95,25 +127,11 @@ class ExperienceListEdit extends StatelessWidget {
         ),
         shrinkWrap: true,
         physics: const BouncingScrollPhysics(),
-        itemCount: provider.experiencesModel.length,
+        itemCount: sortedExperiencesWithIndex.length,
         itemBuilder: (context, index) {
-          final sortedExperiences = [...provider.experiencesModel];
-
-          sortedExperiences.sort((a, b) {
-            // If a is currently working and b is not, a comes first
-            if (a.isCurrent == true && b.isCurrent != true) return -1;
-            if (b.isCurrent == true && a.isCurrent != true) return 1;
-
-            // If both are not currently working, compare by lastDate or startDate
-            DateTime aDate = (a.lastWorkingDate is DateTime
-                ? a.lastWorkingDate as DateTime
-                : DateTime(1900));
-            DateTime bDate = b.lastWorkingDate is DateTime
-                ? b.lastWorkingDate as DateTime
-                : DateTime(1900);
-            return bDate.compareTo(aDate); // Descending order
-          });
-          var exp = sortedExperiences[index];
+          final item = sortedExperiencesWithIndex[index];
+          final exp = item['experience'] as ExperienceRequest;
+          final originalIndex = item['originalIndex'] as int;
           return CustomNewListTile(
             leading: Container(
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
@@ -160,7 +178,7 @@ class ExperienceListEdit extends StatelessWidget {
                     if (exp.joiningDate != null && exp.joiningDate != '')
                       customText(
                         title:
-                            '${CvParseExpDateFormatter.formatDate(exp.joiningDate.toString(),true)}',
+                            '${CvParseExpDateFormatter.formatDate(exp.joiningDate.toString(), true)}',
                         fontWeight: FontWeight.w500,
                         color: Constants.subtitleclr,
                       ),
@@ -181,7 +199,7 @@ class ExperienceListEdit extends StatelessWidget {
                             'current')
                       customText(
                         title:
-                            " - ${CvParseExpDateFormatter.formatDate(exp.lastWorkingDate,true)}",
+                            " - ${CvParseExpDateFormatter.formatDate(exp.lastWorkingDate, true)}",
                         fontWeight: FontWeight.w500,
                         color: Constants.subtitleclr,
                       ),
@@ -217,7 +235,7 @@ class ExperienceListEdit extends StatelessWidget {
             trailing: CustomIconButton(
               imageUrl: CustomIconUrl.editicon,
               onTap: () {
-                provider.editExperience(index);
+                provider.editExperience(originalIndex);
               },
             ),
           );
@@ -912,7 +930,7 @@ class ExperienceListEdit extends StatelessWidget {
               ),
 
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
@@ -1000,19 +1018,19 @@ class ExperienceListEdit extends StatelessWidget {
                       'pdf',
                     ], "offerLetter");
                     provider.setOfferLetter(offer!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Appointment Letter") {
                     final app = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "appointmentLetter");
                     provider.setAppointmentLetter(app!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Salary Slip") {
                     final sal = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "alarySlip");
                     provider.setSalarySlip(sal!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Increment Letter") {
                     final incrementLetter = await fileUploader.uploadFile(
                       context,
@@ -1020,7 +1038,7 @@ class ExperienceListEdit extends StatelessWidget {
                       "incrementLetter",
                     );
                     provider.setIncrementLetter(incrementLetter!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Experience / Relieving Letter") {
                     final experienceLetter = await fileUploader.uploadFile(
                       context,
@@ -1028,7 +1046,7 @@ class ExperienceListEdit extends StatelessWidget {
                       "experienceLetter",
                     );
                     provider.setExperienceLetter(experienceLetter!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                     /*  experienceLetter = await uploadFile(
                           allowExt: ['pdf'], isexperience: true); */
                   }

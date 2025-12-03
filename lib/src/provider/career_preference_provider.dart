@@ -173,6 +173,10 @@ class CareerPreferenceProvider extends ChangeNotifier {
       _applyNoticePeriod(_model.noticePeriod);
 
       notifyListeners();
+    } else {
+      hasExistingData = false;
+      _model = CareerPreferenceModel();
+      clearAll();
     }
     setLoading(false);
   }
@@ -325,6 +329,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
     preferredLocationController.dispose();
     noticePeriodController.dispose();
     industriesController.dispose();
+    hasExistingData = false;
     super.dispose();
   }
 }

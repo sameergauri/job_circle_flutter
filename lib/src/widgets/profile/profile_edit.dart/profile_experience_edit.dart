@@ -7,8 +7,10 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_check_box_row.dart';
+import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -40,54 +42,85 @@ class ProfileExperienceEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: Constants.white,
-          appBar: AppBar(
-            automaticallyImplyLeading: true,
-            backgroundColor: Constants.borderColor,
-            elevation: 0,
-            titleSpacing: 0.0,
-            iconTheme: const IconThemeData(color: Colors.black),
-            title: const OnboardingTitle(title: "Experience", fontSize: 16),
-            actions: [
-              !provider.showExperienceForm &&
-                      provider.profile!.experiences!.isNotEmpty
-                  ? IconButton(
-                      onPressed: () {
-                        provider.clearExperienceForm();
-                        provider.setShowExperienceForm(true);
-                      },
-                      icon: const Icon(Icons.add),
-                    )
-                  : (provider.profile!.experiences != null &&
-                        provider.profile!.experiences!.isNotEmpty &&
-                        fromEditOrAdd == FromEditOrAdd.edit)
-                  ? IconButton(
-                      onPressed: () {
-                        provider.cancelExperienceEdit();
-                        if (provider.profile!.experiences != null &&
-                            provider.profile!.experiences!.length == 1) {
-                          NavigationService.pop();
-                        }
-                      },
-                      icon: const Icon(Icons.cancel_outlined),
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
-          body: SafeArea(
-            child:
-                provider.profile!.experiences!.isEmpty ||
-                    provider.showExperienceForm
-                ? customForm(provider, context)
-                : CustomBody(provider),
-          ),
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: Constants.white,
+              appBar: AppBar(
+                automaticallyImplyLeading: true,
+                backgroundColor: Constants.borderColor,
+                elevation: 0,
+                titleSpacing: 0.0,
+                iconTheme: const IconThemeData(color: Colors.black),
+                title: const OnboardingTitle(title: "Experience", fontSize: 16),
+                actions: [
+                  !provider.showExperienceForm &&
+                          provider.profile!.experiences!.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            provider.clearExperienceForm();
+                            provider.setShowExperienceForm(true);
+                          },
+                          icon: const Icon(Icons.add),
+                        )
+                      : (provider.profile!.experiences != null &&
+                            provider.profile!.experiences!.isNotEmpty &&
+                            fromEditOrAdd == FromEditOrAdd.edit)
+                      ? IconButton(
+                          onPressed: () {
+                            provider.cancelExperienceEdit();
+                            if (provider.profile!.experiences != null &&
+                                provider.profile!.experiences!.length == 1) {
+                              NavigationService.pop();
+                            }
+                          },
+                          icon: const Icon(Icons.cancel_outlined),
+                        )
+                      : SizedBox.shrink(),
+                ],
+              ),
+              body: SafeArea(
+                child:
+                    provider.profile!.experiences!.isEmpty ||
+                        provider.showExperienceForm
+                    ? customForm(provider, context)
+                    : CustomBody(provider),
+              ),
+            ),
+            if (provider.isUpdating) CustomLoadingIndicator(),
+          ],
         );
       },
     );
   }
 
   Widget CustomBody(ProfileProvider provider) {
+    // Sort the list but keep track of original indices
+    final sortedExperiencesWithIndex = List.generate(
+      provider.profile!.experiences!.length,
+      (index) => {
+        'experience': provider.profile!.experiences![index],
+        'originalIndex': index,
+      },
+    );
+
+    sortedExperiencesWithIndex.sort((a, b) {
+      final expA = a['experience'] as Experience;
+      final expB = b['experience'] as Experience;
+
+      // If a is currently working and b is not, a comes first
+      if (expA.isCurrent == 1 && expB.isCurrent != 1) return -1;
+      if (expB.isCurrent == 1 && expA.isCurrent != 1) return 1;
+
+      // If both are not currently working, compare by lastDate
+      DateTime aDate = expA.lastWorkingDate is DateTime
+          ? expA.lastWorkingDate as DateTime
+          : DateTime(1900);
+      DateTime bDate = expB.lastWorkingDate is DateTime
+          ? expB.lastWorkingDate as DateTime
+          : DateTime(1900);
+      return bDate.compareTo(aDate); // Descending order
+    });
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: ListView.separated(
@@ -97,7 +130,12 @@ class ProfileExperienceEdit extends StatelessWidget {
         ),
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: provider.profile!.experiences!.length,
+        itemCount: sortedExperiencesWithIndex.length,
+        itemBuilder: (context, index) {
+          final item = sortedExperiencesWithIndex[index];
+          final exp = item['experience'] as Experience;
+          final originalIndex = item['originalIndex'] as int;
+          /*  itemCount: provider.profile!.experiences!.length,
         itemBuilder: (context, index) {
           final sortedExperiences = [...provider.profile!.experiences!];
 
@@ -115,7 +153,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                 : DateTime(1900);
             return bDate.compareTo(aDate); // Descending order
           });
-          var exp = sortedExperiences[index];
+          var exp = sortedExperiences[index]; */
           return CustomNewListTile(
             leading: Container(
               padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
@@ -204,7 +242,7 @@ class ProfileExperienceEdit extends StatelessWidget {
             trailing: CustomIconButton(
               imageUrl: CustomIconUrl.editicon,
               onTap: () {
-                provider.editExperience(index);
+                provider.editExperience(originalIndex);
               },
             ),
           );
@@ -907,7 +945,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                 ],
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
@@ -992,19 +1030,19 @@ class ProfileExperienceEdit extends StatelessWidget {
                       'pdf',
                     ], "offerLetter");
                     provider.setOfferLetter(offer!);
-                  NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Appointment Letter") {
                     final app = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "appointmentLetter");
                     provider.setAppointmentLetter(app!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Salary Slip") {
                     final sal = await fileUploader.uploadFile(context, [
                       'pdf',
                     ], "alarySlip");
                     provider.setSalarySlip(sal!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Increment Letter") {
                     final incrementLetter = await fileUploader.uploadFile(
                       context,
@@ -1012,7 +1050,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                       "incrementLetter",
                     );
                     provider.setIncrementLetter(incrementLetter!);
-                   NavigationService.pop();
+                    NavigationService.pop();
                   } else if (option == "Experience / Relieving Letter") {
                     final experienceLetter = await fileUploader.uploadFile(
                       context,
@@ -1020,7 +1058,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                       "experienceLetter",
                     );
                     provider.setExperienceLetter(experienceLetter!);
-                  NavigationService.pop();
+                    NavigationService.pop();
                     /*  experienceLetter = await uploadFile(
                           allowExt: ['pdf'], isexperience: true); */
                   }

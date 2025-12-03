@@ -128,6 +128,7 @@ class CareerProfileCard extends StatelessWidget {
             label2: "Work mode",
             value2:
                 (careerPreferenceProvider.model.workMode != null &&
+                    careerPreferenceProvider.model.workMode!.isNotEmpty &&
                     careerPreferenceProvider.model.workMode is List)
                 ? (careerPreferenceProvider.model.workMode as List)
                       .map((mode) {
@@ -137,17 +138,18 @@ class CareerProfileCard extends StatelessWidget {
                         return mode.toString();
                       })
                       .join(", ")
-                : (careerPreferenceProvider.model.workMode ?? '').toString(),
+                : "Add Work mode",
           ),
-
           _buildDivider(),
-
           _buildRow(
             label1: "Salary Range",
-
             value1:
-                "${_formatLPA(careerPreferenceProvider.model.startSalary)} LPA - ${_formatLPA(careerPreferenceProvider.model.endSalary)} LPA",
-
+                careerPreferenceProvider.model.startSalary == null ||
+                    careerPreferenceProvider.model.startSalary == "0.0" ||
+                    careerPreferenceProvider.model.endSalary == "0.0" ||
+                    careerPreferenceProvider.model.endSalary == null
+                ? "Add Salary"
+                : "${_formatLPA(careerPreferenceProvider.model.startSalary)} LPA - ${_formatLPA(careerPreferenceProvider.model.endSalary)} LPA",
             // Only one definition at the end of the class
             label2: "Notice period",
             value2: careerPreferenceProvider.model.noticePeriod == "immediate"
@@ -197,7 +199,6 @@ class CareerProfileCard extends StatelessWidget {
                 fontSize: 12,
               ),
               const SizedBox(height: 3),
-
               InkWell(
                 onTap: isAddAction1
                     ? () {
@@ -216,7 +217,6 @@ class CareerProfileCard extends StatelessWidget {
             ],
           ),
         ),
-
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,7 +227,6 @@ class CareerProfileCard extends StatelessWidget {
                 fontSize: 12,
               ),
               const SizedBox(height: 3),
-
               InkWell(
                 onTap: isAddAction2
                     ? () {
@@ -252,7 +251,6 @@ class CareerProfileCard extends StatelessWidget {
 
   Widget _buildRowSingle({required String label, required String value}) {
     bool isAddAction = value.startsWith("Add ");
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

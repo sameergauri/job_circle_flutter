@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
@@ -7,6 +7,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart'
@@ -261,7 +262,7 @@ class EducationList extends StatelessWidget {
                 ],
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+               padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
@@ -308,6 +309,27 @@ class EducationList extends StatelessWidget {
   }
 
   Widget CustomBody(SignupCreateUserProvider provider) {
+    final sortedEducationsWithIndex = List.generate(
+      provider.educationModel.length,
+      (index) => {
+        'education': provider.educationModel[index],
+        'originalIndex': index,
+      },
+    );
+
+    sortedEducationsWithIndex.sort((a, b) {
+      final eduA = a['education'] as EducationRequest;
+      final eduB = b['education'] as EducationRequest;
+
+      // If a is currently studying and b is not, a comes first
+      if (eduA.isCurrent == 1 && eduB.isCurrent != 1) return -1;
+      if (eduB.isCurrent == 1 && eduA.isCurrent != 1) return 1;
+
+      // If both are not currently studying, compare by passingYear or firstYear
+      int aYear = eduA.passingYear ?? eduA.firstYear ?? 0;
+      int bYear = eduB.passingYear ?? eduB.firstYear ?? 0;
+      return bYear.compareTo(aYear); // Descending order
+    });
     return ListView.separated(
       separatorBuilder: (context, index) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -315,21 +337,11 @@ class EducationList extends StatelessWidget {
       ),
       shrinkWrap: true,
       physics: const BouncingScrollPhysics(),
-      itemCount: provider.educationModel.length,
+      itemCount: sortedEducationsWithIndex.length,
       itemBuilder: (context, index) {
-        final sortedEducations = [...provider.educationModel];
-
-        sortedEducations.sort((a, b) {
-          // If a is currently studying and b is not, a comes first
-          if (a.isCurrent == 1 && b.isCurrent != 1) return -1;
-          if (b.isCurrent == 1 && a.isCurrent != 1) return 1;
-
-          // If both are not currently studying, compare by passingYear or firstYear
-          int aYear = a.passingYear ?? a.firstYear ?? 0;
-          int bYear = b.passingYear ?? b.firstYear ?? 0;
-          return bYear.compareTo(aYear); // Descending order
-        });
-        var edu = sortedEducations[index];
+        final item = sortedEducationsWithIndex[index];
+        final edu = item['education'] as EducationRequest;
+        final originalIndex = item['originalIndex'] as int;
         return Padding(
           padding: const EdgeInsets.only(left: 20, top: 10),
           child: CustomNewListTile(
@@ -399,7 +411,7 @@ class EducationList extends StatelessWidget {
             trailing: CustomIconButton(
               imageUrl: CustomIconUrl.editicon,
               onTap: () {
-                provider.editEducation(index);
+                provider.editEducation(originalIndex);
               },
             ),
           ),

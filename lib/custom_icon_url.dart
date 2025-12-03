@@ -228,7 +228,7 @@ class CustomIconUrl {
   static const projectConstantIcon =
       'https://cdn-icons-png.flaticon.com/128/4228/4228954.png';
   static const careerpreficon =
-      'https://cdn-icons-png.flaticon.com/128/15859/15859221.png';
+      'https://cdn-icons-png.flaticon.com/128/14227/14227542.png';
 }
 
 class CustomAssetUrl {

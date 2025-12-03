@@ -3,8 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/custom_get_month.dart';
@@ -28,50 +30,54 @@ class ProfileProjectEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: Constants.white,
-          appBar: AppBar(
-            automaticallyImplyLeading: true,
-            backgroundColor: Constants.borderColor,
-            elevation: 0,
-            titleSpacing: 0.0,
-            iconTheme: const IconThemeData(color: Colors.black),
-            title: const OnboardingTitle(title: "Projects", fontSize: 16),
-            actions: [
-              !provider.showProjectForm &&
-                      provider.profile!.projects!.isNotEmpty &&
-                      fromEditOrAdd != FromEditOrAdd.add
-                  ? IconButton(
-                      onPressed: () {
-                        provider.clearProjectForm();
-                        provider.setShowProjectForm(true);
-                      },
-                      icon: const Icon(Icons.add),
-                    )
-                  : (provider.profile!.projects != null &&
-                        provider.profile!.projects!.isNotEmpty &&
-                        fromEditOrAdd == FromEditOrAdd.edit)
-                  ? IconButton(
-                      onPressed: () {
-                        provider.cancelProjectEdit();
-                        if (provider.profile!.projects != null &&
-                            provider.profile!.projects!.length == 1) {
-                          NavigationService.pop();
-                        }
-                      },
-                      icon: const Icon(Icons.cancel_outlined),
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
-          body: SafeArea(
-            child:
-                provider.profile!.projects == null ||
-                    provider.profile!.projects!.isEmpty ||
-                    provider.showProjectForm
-                ? customForm(provider, context)
-                : CustomBody(provider),
-          ),
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: Constants.white,
+              appBar: AppBar(
+                automaticallyImplyLeading: true,
+                backgroundColor: Constants.borderColor,
+                elevation: 0,
+                titleSpacing: 0.0,
+                iconTheme: const IconThemeData(color: Colors.black),
+                title: const OnboardingTitle(title: "Projects", fontSize: 16),
+                actions: [
+                  !provider.showProjectForm &&
+                          provider.profile!.projects!.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            provider.clearProjectForm();
+                            provider.setShowProjectForm(true);
+                          },
+                          icon: const Icon(Icons.add),
+                        )
+                      : (provider.profile!.projects != null &&
+                            provider.profile!.projects!.isNotEmpty &&
+                            fromEditOrAdd == FromEditOrAdd.edit)
+                      ? IconButton(
+                          onPressed: () {
+                            provider.cancelProjectEdit();
+                            if (provider.profile!.projects != null &&
+                                provider.profile!.projects!.length == 1) {
+                              NavigationService.pop();
+                            }
+                          },
+                          icon: const Icon(Icons.cancel_outlined),
+                        )
+                      : SizedBox.shrink(),
+                ],
+              ),
+              body: SafeArea(
+                child:
+                    provider.profile!.projects == null ||
+                        provider.profile!.projects!.isEmpty ||
+                        provider.showProjectForm
+                    ? customForm(provider, context)
+                    : CustomBody(provider),
+              ),
+            ),
+            if (provider.isUpdating) CustomLoadingIndicator(),
+          ],
         );
       },
     );
@@ -190,7 +196,7 @@ class ProfileProjectEdit extends StatelessWidget {
                 ],
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
@@ -230,6 +236,15 @@ class ProfileProjectEdit extends StatelessWidget {
   }
 
   Widget CustomBody(ProfileProvider provider) {
+    // Sort the list but keep track of original indices
+    final sortedProjectsWithIndex = List.generate(
+      provider.profile!.projects!.length,
+      (index) => {
+        'project': provider.profile!.projects![index],
+        'originalIndex': index,
+      },
+    );
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: ListView.separated(
@@ -238,9 +253,11 @@ class ProfileProjectEdit extends StatelessWidget {
           child: const Divider(height: 1),
         ),
         physics: const BouncingScrollPhysics(),
-        itemCount: provider.profile!.projects!.length,
+        itemCount: sortedProjectsWithIndex.length,
         itemBuilder: (context, index) {
-          final data = provider.profile!.projects![index];
+          final item = sortedProjectsWithIndex[index];
+          final data = item['project'] as ProjectModel;
+          final originalIndex = item['originalIndex'] as int;
           return Column(
             children: [
               CustomNewListTile(
@@ -284,7 +301,7 @@ class ProfileProjectEdit extends StatelessWidget {
                     ],
                   ),
                 ),
-                subtitle:  data.duration != null && data.duration != 'null'
+                subtitle: data.duration != null && data.duration != 'null'
                     ? customText(
                         title: MonthRangeFormatter.formatMonthRange(
                           data.duration!,
@@ -297,7 +314,7 @@ class ProfileProjectEdit extends StatelessWidget {
                     : SizedBox.shrink(),
                 trailing: IconButton(
                   onPressed: () {
-                    provider.editProject(index);
+                    provider.editProject(originalIndex);
                   },
                   icon: CustomNetworkImage(
                     imageUrl: CustomIconUrl.editicon,
@@ -305,7 +322,7 @@ class ProfileProjectEdit extends StatelessWidget {
                   ),
                 ),
               ),
-             /*  if (data.description != null && data.description!.isNotEmpty)
+              /*  if (data.description != null && data.description!.isNotEmpty)
                 Container(
                   padding: const EdgeInsets.all(4),
                   margin: EdgeInsets.only(top: 4),

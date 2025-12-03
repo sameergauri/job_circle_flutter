@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -33,48 +35,56 @@ class ProfileCertificateEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
-        return Scaffold(
-          backgroundColor: Constants.white,
-          appBar: AppBar(
-            automaticallyImplyLeading: true,
-            backgroundColor: Constants.borderColor,
-            elevation: 0,
-            titleSpacing: 0.0,
-            iconTheme: const IconThemeData(color: Colors.black),
-            title: const OnboardingTitle(title: "Certificate", fontSize: 16),
-            actions: [
-              !provider.showCertificateForm &&
-                      provider.profile!.certifications!.isNotEmpty
-                  ? IconButton(
-                      onPressed: () {
-                        provider.clearCertificateForm();
-                        provider.setShowCertificateForm(true);
-                      },
-                      icon: const Icon(Icons.add),
-                    )
-                  : (provider.profile!.certifications != null &&
-                        provider.profile!.certifications!.isNotEmpty &&
-                        fromEditOrAdd == FromEditOrAdd.edit)
-                  ? IconButton(
-                      onPressed: () {
-                        provider.cancelCertificateEdit();
-                        if (provider.profile!.certifications != null &&
-                            provider.profile!.certifications!.length == 1) {
-                          NavigationService.pop();
-                        }
-                      },
-                      icon: const Icon(Icons.cancel_outlined),
-                    )
-                  : SizedBox.shrink(),
-            ],
-          ),
-          body: SafeArea(
-            child:
-                provider.profile!.certifications!.isEmpty ||
-                    provider.showCertificateForm
-                ? customForm(provider, context)
-                : CustomBody(provider),
-          ),
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: Constants.white,
+              appBar: AppBar(
+                automaticallyImplyLeading: true,
+                backgroundColor: Constants.borderColor,
+                elevation: 0,
+                titleSpacing: 0.0,
+                iconTheme: const IconThemeData(color: Colors.black),
+                title: const OnboardingTitle(
+                  title: "Certificate",
+                  fontSize: 16,
+                ),
+                actions: [
+                  !provider.showCertificateForm &&
+                          provider.profile!.certifications!.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            provider.clearCertificateForm();
+                            provider.setShowCertificateForm(true);
+                          },
+                          icon: const Icon(Icons.add),
+                        )
+                      : (provider.profile!.certifications != null &&
+                            provider.profile!.certifications!.isNotEmpty &&
+                            fromEditOrAdd == FromEditOrAdd.edit)
+                      ? IconButton(
+                          onPressed: () {
+                            provider.cancelCertificateEdit();
+                            if (provider.profile!.certifications != null &&
+                                provider.profile!.certifications!.length == 1) {
+                              NavigationService.pop();
+                            }
+                          },
+                          icon: const Icon(Icons.cancel_outlined),
+                        )
+                      : SizedBox.shrink(),
+                ],
+              ),
+              body: SafeArea(
+                child:
+                    provider.profile!.certifications!.isEmpty ||
+                        provider.showCertificateForm
+                    ? customForm(provider, context)
+                    : CustomBody(provider),
+              ),
+            ),
+            if (provider.isUpdating) CustomLoadingIndicator(),
+          ],
         );
       },
     );
@@ -241,7 +251,7 @@ class ProfileCertificateEdit extends StatelessWidget {
                 ],
               ),
             Padding(
-              padding: const EdgeInsets.only(top: 10),
+              padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
@@ -272,6 +282,24 @@ class ProfileCertificateEdit extends StatelessWidget {
   }
 
   Widget CustomBody(ProfileProvider provider) {
+    // Sort the list but keep track of original indices
+    final sortedCertificatesWithIndex = List.generate(
+      provider.profile!.certifications!.length,
+      (index) => {
+        'certificate': provider.profile!.certifications![index],
+        'originalIndex': index,
+      },
+    );
+
+    sortedCertificatesWithIndex.sort((a, b) {
+      final certA = a['certificate'] as CertificationDetailModel;
+      final certB = b['certificate'] as CertificationDetailModel;
+
+      // Sort by issue year (descending order - latest first)
+      int aYear = certA.startYear ?? 0;
+      int bYear = certB.startYear ?? 0;
+      return bYear.compareTo(aYear);
+    });
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: ListView.separated(
@@ -280,9 +308,11 @@ class ProfileCertificateEdit extends StatelessWidget {
           child: const Divider(height: 1),
         ),
         physics: const BouncingScrollPhysics(),
-        itemCount: provider.profile!.certifications!.length,
+        itemCount: sortedCertificatesWithIndex.length,
         itemBuilder: (context, index) {
-          final data = provider.profile!.certifications![index];
+          final item = sortedCertificatesWithIndex[index];
+          final data = item['certificate'] as CertificationDetailModel;
+          final originalIndex = item['originalIndex'] as int;
           return Column(
             children: [
               ListTile(
@@ -343,7 +373,7 @@ class ProfileCertificateEdit extends StatelessWidget {
                 trailing: CustomIconButton(
                   imageUrl: CustomIconUrl.editicon,
                   onTap: () {
-                    provider.editCertificate(index);
+                    provider.editCertificate(originalIndex);
                   },
                 ),
               ),

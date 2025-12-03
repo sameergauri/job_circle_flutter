@@ -1,6 +1,5 @@
 // ignore_for_file: todo, non_constant_identifier_names, avoid_print
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
@@ -1637,7 +1636,7 @@ class SignupCreateUserProvider with ChangeNotifier {
 
       if (result) {
         CustomSnackbar.show(
-          'User data Save: 🤝 Welcome to Job Circle — where talent meets opportunity.',
+          '🤝 Welcome to Job Circle — where talent meets opportunity.',
           false,
         );
         // Update user model as well

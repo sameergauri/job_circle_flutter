@@ -6,6 +6,7 @@ import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart'
@@ -233,7 +234,7 @@ class CertificateList extends StatelessWidget {
               ],
             ),
           Padding(
-            padding: const EdgeInsets.only(top: 10),
+            padding: const EdgeInsets.only(bottom: 5, top: 10),
             child: CustomButtonForSave(
               isPading: false,
               onTap: () {
@@ -271,6 +272,23 @@ class CertificateList extends StatelessWidget {
   }
 
   Widget CustomBody(SignupCreateUserProvider provider) {
+    final sortedCertificatesWithIndex = List.generate(
+      provider.certificateModel.length,
+      (index) => {
+        'certificate': provider.certificateModel[index],
+        'originalIndex': index,
+      },
+    );
+
+    sortedCertificatesWithIndex.sort((a, b) {
+      final certA = a['certificate'] as CertificationRequest;
+      final certB = b['certificate'] as CertificationRequest;
+
+      // Compare by issue year (descending order)
+      int aYear = certA.startYear ?? 0;
+      int bYear = certB.startYear ?? 0;
+      return bYear.compareTo(aYear);
+    });
     return ListView.separated(
       separatorBuilder: (context, index) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -278,17 +296,11 @@ class CertificateList extends StatelessWidget {
       ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: provider.certificateModel.length,
+      itemCount: sortedCertificatesWithIndex.length,
       itemBuilder: (context, index) {
-        final sortedCertificates = [...provider.certificateModel];
-
-        sortedCertificates.sort((a, b) {
-          // Compare by issue year (descending order)
-          int aYear = a.startYear ?? 0;
-          int bYear = b.startYear ?? 0;
-          return bYear.compareTo(aYear);
-        });
-        var cert = sortedCertificates[index];
+        final item = sortedCertificatesWithIndex[index];
+        final cert = item['certificate'] as CertificationRequest;
+        final originalIndex = item['originalIndex'] as int;
         return Padding(
           padding: const EdgeInsets.only(left: 20, top: 10),
           child: CustomNewListTile(
@@ -354,7 +366,7 @@ class CertificateList extends StatelessWidget {
             trailing: CustomIconButton(
               imageUrl: CustomIconUrl.editicon,
               onTap: () {
-                provider.editCertificate(index);
+                provider.editCertificate(originalIndex);
               },
             ),
           ),

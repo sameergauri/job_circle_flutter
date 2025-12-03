@@ -25,7 +25,7 @@ class ProfileSummaryEdit extends StatelessWidget {
           children: [
             Scaffold(
               bottomNavigationBar: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: 5, top: 10),
                 child: CustomButtonForSave(
                   title:
                       /*  provider.profile!.bio != null &&
