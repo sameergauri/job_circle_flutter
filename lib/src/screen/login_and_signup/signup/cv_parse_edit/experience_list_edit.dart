@@ -306,6 +306,7 @@ class ExperienceListEdit extends StatelessWidget {
           children: [
             const customText(title: "Job Title*", fontStyle: FontStyle.italic),
             CustomTextFieldForMasterData(
+              focusNode: provider.jobTitleFocusNode,
               contextIn: context,
               controller: provider.jobtitle,
               hintText: "Type to search",
@@ -318,6 +319,7 @@ class ExperienceListEdit extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomSuggestionTextField(
+              focusNode: provider.companyNameFocusNode,
               EnableAddOption: true,
               type: SuggestionType.company,
               onIdSelected: (p0) {
@@ -333,6 +335,7 @@ class ExperienceListEdit extends StatelessWidget {
             const SizedBox(height: 15),
             const customText(title: "Industry*", fontStyle: FontStyle.italic),
             CustomTextFieldForMasterData(
+              focusNode: provider.industryFocusNode,
               contextIn: context,
               controller: provider.industry,
               hintText: "Type to search",
@@ -345,6 +348,7 @@ class ExperienceListEdit extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomTextFieldForMasterData(
+              focusNode: provider.functionalAreaFocusNode,
               contextIn: context,
               controller: provider.functionalArea,
               hintText: "Type to search",

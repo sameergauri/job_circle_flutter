@@ -164,6 +164,7 @@ class _CustomTextFieldForMasterDataState
           setState(() {
             controller!.text = suggestion.toString();
             suggestionSelected = true;
+            widget.focusNode?.unfocus();
           });
           // ✅ TextField ka focus chhod do
           FocusScope.of(context).unfocus();

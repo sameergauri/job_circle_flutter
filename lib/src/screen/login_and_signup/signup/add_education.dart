@@ -134,6 +134,7 @@ class AddEducation extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.schoolCollegeNameFocusNode,
                       contextIn: context,
                       controller: provider.schoolCollegeName,
                       hintText: "Type to search",
@@ -157,6 +158,7 @@ class AddEducation extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.universityBoardNameFocusNode,
                       contextIn: context,
                       controller: provider.universityBoardName,
                       hintText: "Type to search",
@@ -169,6 +171,7 @@ class AddEducation extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.degreeFocusNode,
                       contextIn: context,
                       controller: provider.degree,
                       hintText: "Type to search",
@@ -181,6 +184,7 @@ class AddEducation extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.fieldOFStudyFocusNode,
                       contextIn: context,
                       controller: provider.fieldOFStudy,
                       hintText: "Type to search",

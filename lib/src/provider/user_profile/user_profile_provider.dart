@@ -362,6 +362,16 @@ class ProfileProvider with ChangeNotifier {
   TextEditingController lastWorkingDate = TextEditingController();
   TextEditingController jobtitle = TextEditingController();
 
+  FocusNode jobTitleFocusNode = FocusNode();
+  FocusNode companyNameFocusNode = FocusNode();
+  FocusNode industryFocusNode = FocusNode();
+  FocusNode functionalAreaFocusNode = FocusNode();
+  FocusNode jobRoleFocusNode = FocusNode();
+  FocusNode salaryFocusNode = FocusNode();
+  FocusNode startDateFocusNode = FocusNode();
+  FocusNode lastDateFocusNode = FocusNode();
+  //
+
   String? _empType;
   String? _workMode;
   String? _workLocation;
@@ -823,6 +833,12 @@ class ProfileProvider with ChangeNotifier {
   TextEditingController startyear = TextEditingController();
   TextEditingController endmonth = TextEditingController();
   TextEditingController endyear = TextEditingController();
+  //
+  FocusNode schoolCollegeNameFocusNode = FocusNode();
+  FocusNode universityBoardNameFocusNode = FocusNode();
+  FocusNode degreeFocusNode = FocusNode();
+  FocusNode fieldOfStudyFocusNode = FocusNode();
+  //
   String? _markSheet;
   bool _currentlyStudying = false;
   bool _degreeCertificate = false;
@@ -883,78 +899,78 @@ class ProfileProvider with ChangeNotifier {
   }
 
   /* void addOrUpdateEducation() async {
-    var snackMessage = '';
-    Map<String, int> monthMap = {
-      "January": 1,
-      "February": 2,
-      "March": 3,
-      "April": 4,
-      "May": 5,
-      "June": 6,
-      "July": 7,
-      "August": 8,
-      "September": 9,
-      "October": 10,
-      "November": 11,
-      "December": 12,
-    };
+      var snackMessage = '';
+      Map<String, int> monthMap = {
+        "January": 1,
+        "February": 2,
+        "March": 3,
+        "April": 4,
+        "May": 5,
+        "June": 6,
+        "July": 7,
+        "August": 8,
+        "September": 9,
+        "October": 10,
+        "November": 11,
+        "December": 12,
+      };
 
-    int startMonthInt = monthMap[startmonth.text.trim()] ?? 1;
-    int endMonthInt = monthMap[endmonth.text.trim()] ?? 1;
+      int startMonthInt = monthMap[startmonth.text.trim()] ?? 1;
+      int endMonthInt = monthMap[endmonth.text.trim()] ?? 1;
 
-    final education = EducationRequest(
-      userId: _userid,
-      schoolOrCollegeName: schoolCollegeName.text.isNotEmpty
-          ? schoolCollegeName.text
-          : null,
-      isRemote: _isRemote ? 1 : 0,
-      university: universityBoardName.text.isNotEmpty
-          ? universityBoardName.text
-          : null,
-      degreeSpc: degree.text.isNotEmpty ? degree.text : null,
-      fieldOfStudy: fieldOfStudy.text.isNotEmpty ? fieldOfStudy.text : null,
-      firstYear: int.tryParse(startyear.text.trim()),
-      startMonth: startMonthInt,
-      passingYear: _currentlyStudying
-          ? null
-          : int.tryParse(endyear.text.trim()),
-      endMonth: _currentlyStudying ? null : endMonthInt,
-      isCurrent: _currentlyStudying ? 1 : 0,
-      marksheet: _markSheet,
-    );
-
-    if (_editingEducationIndex != null &&
-        _editingEducationIndex! >= 0 &&
-        _editingEducationIndex! < _educationModel.length) {
-      _educationModel[_editingEducationIndex!] = education.copyWith(
-        id: _educationModel[_editingEducationIndex!].id,
+      final education = EducationRequest(
+        userId: _userid,
+        schoolOrCollegeName: schoolCollegeName.text.isNotEmpty
+            ? schoolCollegeName.text
+            : null,
+        isRemote: _isRemote ? 1 : 0,
+        university: universityBoardName.text.isNotEmpty
+            ? universityBoardName.text
+            : null,
+        degreeSpc: degree.text.isNotEmpty ? degree.text : null,
+        fieldOfStudy: fieldOfStudy.text.isNotEmpty ? fieldOfStudy.text : null,
+        firstYear: int.tryParse(startyear.text.trim()),
+        startMonth: startMonthInt,
+        passingYear: _currentlyStudying
+            ? null
+            : int.tryParse(endyear.text.trim()),
+        endMonth: _currentlyStudying ? null : endMonthInt,
+        isCurrent: _currentlyStudying ? 1 : 0,
+        marksheet: _markSheet,
       );
-      snackMessage = '🌟 Education details updated. Great going!';
-    } else {
-      _educationModel.add(education);
-      snackMessage = '✅ Nice! Your education profile just got stronger.';
-    }
 
-    _createNewUserModel = CreateNewUserModel(
-      userRequest: UserRequest(userId: _userid),
-      experienceRequest: [],
-      educationRequest: _educationModel,
-      certificationsRequest: [],
-      userProjectRequest: [],
-    );
+      if (_editingEducationIndex != null &&
+          _editingEducationIndex! >= 0 &&
+          _editingEducationIndex! < _educationModel.length) {
+        _educationModel[_editingEducationIndex!] = education.copyWith(
+          id: _educationModel[_editingEducationIndex!].id,
+        );
+        snackMessage = '🌟 Education details updated. Great going!';
+      } else {
+        _educationModel.add(education);
+        snackMessage = '✅ Nice! Your education profile just got stronger.';
+      }
 
-    clearEducationForm();
-    _editingEducationIndex = null;
-    setShowEducationForm(false);
-    bool done = await UserServices.postUserInfo(_createNewUserModel!);
-    if (done) {
-      fetchProfile();
-      CustomSnackbar.show(snackMessage, false);
-    } else {
-      CustomSnackbar.show("Getting error while saving data", true);
-    }
-    notifyListeners();
-  } */
+      _createNewUserModel = CreateNewUserModel(
+        userRequest: UserRequest(userId: _userid),
+        experienceRequest: [],
+        educationRequest: _educationModel,
+        certificationsRequest: [],
+        userProjectRequest: [],
+      );
+
+      clearEducationForm();
+      _editingEducationIndex = null;
+      setShowEducationForm(false);
+      bool done = await UserServices.postUserInfo(_createNewUserModel!);
+      if (done) {
+        fetchProfile();
+        CustomSnackbar.show(snackMessage, false);
+      } else {
+        CustomSnackbar.show("Getting error while saving data", true);
+      }
+      notifyListeners();
+    } */
 
   void addOrUpdateEducation() async {
     // 1. Prevent Double Clicks / Race Conditions
@@ -1069,92 +1085,92 @@ class ProfileProvider with ChangeNotifier {
 
   // FIX: Enhanced addOrUpdateEducation with explicit null check and debug
   /* void addOrUpdateEducation() async {  // TODO:: latest comment code
-    _isUpdating = true; // Lock UI
-    notifyListeners();
-    var snackMessage = '';
-    Map<String, int> monthMap = {
-      // FIX: Local for consistency
-      "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
-      "July": 7,
-      "August": 8,
-      "September": 9,
-      "October": 10,
-      "November": 11,
-      "December": 12,
-    };
+      _isUpdating = true; // Lock UI
+      notifyListeners();
+      var snackMessage = '';
+      Map<String, int> monthMap = {
+        // FIX: Local for consistency
+        "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
+        "July": 7,
+        "August": 8,
+        "September": 9,
+        "October": 10,
+        "November": 11,
+        "December": 12,
+      };
 
-    int startMonthInt = monthMap[startmonth.text.trim()] ?? 1;
-    int endMonthInt = monthMap[endmonth.text.trim()] ?? 1;
+      int startMonthInt = monthMap[startmonth.text.trim()] ?? 1;
+      int endMonthInt = monthMap[endmonth.text.trim()] ?? 1;
 
-    final education = EducationRequest(
-      userId: _userid,
-      schoolOrCollegeName: schoolCollegeName.text.isNotEmpty
-          ? schoolCollegeName.text
-          : null,
-      isRemote: _isRemote ? 1 : 0,
-      university: universityBoardName.text.isNotEmpty
-          ? universityBoardName.text
-          : null,
-      degreeSpc: degree.text.isNotEmpty ? degree.text : null,
-      fieldOfStudy: fieldOfStudy.text.isNotEmpty ? fieldOfStudy.text : null,
-      firstYear: int.tryParse(startyear.text.trim()),
-      startMonth: startMonthInt,
-      passingYear: _currentlyStudying
-          ? null
-          : int.tryParse(endyear.text.trim()),
-      endMonth: _currentlyStudying ? null : endMonthInt,
-      isCurrent: _currentlyStudying ? 1 : 0,
-      marksheet: _markSheet,
-    );
-
-    bool isEditing =
-        _editingEducationIndex != null &&
-        _editingEducationIndex! >= 0 &&
-        _editingEducationIndex! < _educationModel.length;
-    if (isEditing) {
-      // Always update the correct item by index
-      _educationModel[_editingEducationIndex!] = education.copyWith(
-        id: _educationModel[_editingEducationIndex!].id,
-      );
-      snackMessage = '🌟 Education details updated. Great going!';
-      debugPrint('FIX: Updating education at index $_editingEducationIndex');
-    } else {
-      _educationModel.add(education);
-      snackMessage = '✅ Nice! Your education profile just got stronger.';
-      debugPrint('FIX: Adding new education');
-    }
-
-    _createNewUserModel = CreateNewUserModel(
-      userRequest: UserRequest(
+      final education = EducationRequest(
         userId: _userid,
-        alternateNo: _profile!.alternateNo,
-      ),
-      experienceRequest: [],
-      educationRequest: _educationModel,
-      certificationsRequest: [],
-      userProjectRequest: [],
-    );
+        schoolOrCollegeName: schoolCollegeName.text.isNotEmpty
+            ? schoolCollegeName.text
+            : null,
+        isRemote: _isRemote ? 1 : 0,
+        university: universityBoardName.text.isNotEmpty
+            ? universityBoardName.text
+            : null,
+        degreeSpc: degree.text.isNotEmpty ? degree.text : null,
+        fieldOfStudy: fieldOfStudy.text.isNotEmpty ? fieldOfStudy.text : null,
+        firstYear: int.tryParse(startyear.text.trim()),
+        startMonth: startMonthInt,
+        passingYear: _currentlyStudying
+            ? null
+            : int.tryParse(endyear.text.trim()),
+        endMonth: _currentlyStudying ? null : endMonthInt,
+        isCurrent: _currentlyStudying ? 1 : 0,
+        marksheet: _markSheet,
+      );
 
-    clearEducationForm(); // FIX: Calls updated clear which resets index
-    _editingEducationIndex = null; // FIX: Double-reset for safety
-    setShowEducationForm(false);
-    try {
-      bool done = await UserServices.postUserInfo(_createNewUserModel!);
-      if (done) {
-        await fetchProfile(); // Wait for fresh data
-        CustomSnackbar.show(snackMessage, false);
+      bool isEditing =
+          _editingEducationIndex != null &&
+          _editingEducationIndex! >= 0 &&
+          _editingEducationIndex! < _educationModel.length;
+      if (isEditing) {
+        // Always update the correct item by index
+        _educationModel[_editingEducationIndex!] = education.copyWith(
+          id: _educationModel[_editingEducationIndex!].id,
+        );
+        snackMessage = '🌟 Education details updated. Great going!';
+        debugPrint('FIX: Updating education at index $_editingEducationIndex');
+      } else {
+        _educationModel.add(education);
+        snackMessage = '✅ Nice! Your education profile just got stronger.';
+        debugPrint('FIX: Adding new education');
       }
-    } finally {
-      Future.delayed(const Duration(seconds: 2), () {
-        // This flag will hide the loader after 2 sec
-        _isUpdating = false;
+
+      _createNewUserModel = CreateNewUserModel(
+        userRequest: UserRequest(
+          userId: _userid,
+          alternateNo: _profile!.alternateNo,
+        ),
+        experienceRequest: [],
+        educationRequest: _educationModel,
+        certificationsRequest: [],
+        userProjectRequest: [],
+      );
+
+      clearEducationForm(); // FIX: Calls updated clear which resets index
+      _editingEducationIndex = null; // FIX: Double-reset for safety
+      setShowEducationForm(false);
+      try {
+        bool done = await UserServices.postUserInfo(_createNewUserModel!);
+        if (done) {
+          await fetchProfile(); // Wait for fresh data
+          CustomSnackbar.show(snackMessage, false);
+        }
+      } finally {
+        Future.delayed(const Duration(seconds: 2), () {
+          // This flag will hide the loader after 2 sec
+          _isUpdating = false;
+          notifyListeners();
+        });
         notifyListeners();
-      });
+      }
       notifyListeners();
     }
-    notifyListeners();
-  }
- */
+  */
   void editEducation(int originalIndex) {
     // Safety check
     if (originalIndex < 0 ||
@@ -1208,160 +1224,160 @@ class ProfileProvider with ChangeNotifier {
   }
   // FIX: Enhanced editEducation with better bounds check and debug (remove debugPrint in prod)
   /*   void editEducation(int originalIndex) {  //TODO:: lates edit comment code
-    // FIX: Use index directly from profile list
-    if (originalIndex < 0 ||
-        originalIndex >= _profile!.educationDetails!.length) {
-      debugPrint('Invalid education index $originalIndex');
-      return;
-    }
+      // FIX: Use index directly from profile list
+      if (originalIndex < 0 ||
+          originalIndex >= _profile!.educationDetails!.length) {
+        debugPrint('Invalid education index $originalIndex');
+        return;
+      }
 
-    final edu = _profile!.educationDetails![originalIndex];
+      final edu = _profile!.educationDetails![originalIndex];
 
-    // Populate form fields
-    schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
-    _isRemote = edu.isRemote == 1;
-    universityBoardName.text = edu.university ?? '';
-    degree.text = edu.degreeSpc ?? '';
-    fieldOfStudy.text = edu.fieldOfStudy ?? '';
-    startmonth.text = _monthIntToName(edu.startMonth);
-    startyear.text = edu.firstYear?.toString() ?? '';
-    endmonth.text = _monthIntToName(edu.endMonth);
-    endyear.text = edu.passingYear?.toString() ?? '';
-    _currentlyStudying = edu.isCurrent == 1;
-    _markSheet = edu.marksheet;
+      // Populate form fields
+      schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
+      _isRemote = edu.isRemote == 1;
+      universityBoardName.text = edu.university ?? '';
+      degree.text = edu.degreeSpc ?? '';
+      fieldOfStudy.text = edu.fieldOfStudy ?? '';
+      startmonth.text = _monthIntToName(edu.startMonth);
+      startyear.text = edu.firstYear?.toString() ?? '';
+      endmonth.text = _monthIntToName(edu.endMonth);
+      endyear.text = edu.passingYear?.toString() ?? '';
+      _currentlyStudying = edu.isCurrent == 1;
+      _markSheet = edu.marksheet;
 
-    // Set editing index to originalIndex
-    _editingEducationIndex = originalIndex;
+      // Set editing index to originalIndex
+      _editingEducationIndex = originalIndex;
 
-    // Update _educationModel at originalIndex
-    _educationModel[originalIndex] = EducationRequest(
-      id: edu.id,
-      userId: _userid,
-      schoolOrCollegeName: edu.schoolOrCollegeName,
-      isRemote: edu.isRemote,
-      university: edu.university,
-      degreeSpc: edu.degreeSpc,
-      fieldOfStudy: edu.fieldOfStudy,
-      firstYear: edu.firstYear,
-      startMonth: _monthNameToInt(edu.startMonth),
-      passingYear: edu.passingYear,
-      endMonth: _monthNameToInt(edu.endMonth),
-      isCurrent: edu.isCurrent,
-      marksheet: edu.marksheet,
-    );
+      // Update _educationModel at originalIndex
+      _educationModel[originalIndex] = EducationRequest(
+        id: edu.id,
+        userId: _userid,
+        schoolOrCollegeName: edu.schoolOrCollegeName,
+        isRemote: edu.isRemote,
+        university: edu.university,
+        degreeSpc: edu.degreeSpc,
+        fieldOfStudy: edu.fieldOfStudy,
+        firstYear: edu.firstYear,
+        startMonth: _monthNameToInt(edu.startMonth),
+        passingYear: edu.passingYear,
+        endMonth: _monthNameToInt(edu.endMonth),
+        isCurrent: edu.isCurrent,
+        marksheet: edu.marksheet,
+      );
 
-    setShowEducationForm(true);
-    notifyListeners();
-  } */
+      setShowEducationForm(true);
+      notifyListeners();
+    } */
   /* void editEducation(int originalIndex) {
-    // FIX: Renamed param to clarify it's original index
-    if (originalIndex < 0 ||
-        originalIndex >= _profile!.educationDetails!.length) {
-      debugPrint(
-        'FIX: Invalid education index $originalIndex',
-      ); // FIX: Debug log
-      return;
-    }
+      // FIX: Renamed param to clarify it's original index
+      if (originalIndex < 0 ||
+          originalIndex >= _profile!.educationDetails!.length) {
+        debugPrint(
+          'FIX: Invalid education index $originalIndex',
+        ); // FIX: Debug log
+        return;
+      }
 
-    // Use class-level month converters to keep representations consistent
+      // Use class-level month converters to keep representations consistent
 
-    final edu = _profile!.educationDetails![originalIndex];
-    schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
-    _isRemote = edu.isRemote == 1;
-    universityBoardName.text = edu.university ?? '';
-    degree.text = edu.degreeSpc ?? '';
-    fieldOfStudy.text = edu.fieldOfStudy ?? '';
+      final edu = _profile!.educationDetails![originalIndex];
+      schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
+      _isRemote = edu.isRemote == 1;
+      universityBoardName.text = edu.university ?? '';
+      degree.text = edu.degreeSpc ?? '';
+      fieldOfStudy.text = edu.fieldOfStudy ?? '';
 
-    // Handle month/year consistently and safely for display
-    startmonth.text = _monthIntToName(edu.startMonth);
-    startyear.text = edu.firstYear?.toString() ?? '';
-    endmonth.text = _monthIntToName(edu.endMonth);
-    endyear.text = edu.passingYear?.toString() ?? '';
-    _currentlyStudying = edu.isCurrent == 1;
-    _markSheet = edu.marksheet;
+      // Handle month/year consistently and safely for display
+      startmonth.text = _monthIntToName(edu.startMonth);
+      startyear.text = edu.firstYear?.toString() ?? '';
+      endmonth.text = _monthIntToName(edu.endMonth);
+      endyear.text = edu.passingYear?.toString() ?? '';
+      _currentlyStudying = edu.isCurrent == 1;
+      _markSheet = edu.marksheet;
 
-    _editingEducationIndex = originalIndex;
-    _editingEducationId = edu.id;
-    bool isEditing =
-        _editingEducationId != null &&
-        _educationModel.any((e) => e.id == _editingEducationId);
-    _editingEducationId = null;
-    _educationModel[originalIndex] = EducationRequest(
-      // FIX: Use originalIndex
-      id: edu.id,
-      userId: _userid,
-      schoolOrCollegeName: edu.schoolOrCollegeName,
-      isRemote: edu.isRemote,
-      university: edu.university,
-      degreeSpc: edu.degreeSpc,
-      fieldOfStudy: edu.fieldOfStudy,
-      firstYear: edu.firstYear,
-      startMonth:
-          _monthNameToInt(edu.startMonth) ??
-          (edu.startMonth is int ? edu.startMonth as int? : null),
-      passingYear: edu.passingYear,
-      endMonth:
-          _monthNameToInt(edu.endMonth) ??
-          (edu.endMonth is int ? edu.endMonth as int? : null),
-      isCurrent: edu.isCurrent,
-      marksheet: edu.marksheet,
-    );
+      _editingEducationIndex = originalIndex;
+      _editingEducationId = edu.id;
+      bool isEditing =
+          _editingEducationId != null &&
+          _educationModel.any((e) => e.id == _editingEducationId);
+      _editingEducationId = null;
+      _educationModel[originalIndex] = EducationRequest(
+        // FIX: Use originalIndex
+        id: edu.id,
+        userId: _userid,
+        schoolOrCollegeName: edu.schoolOrCollegeName,
+        isRemote: edu.isRemote,
+        university: edu.university,
+        degreeSpc: edu.degreeSpc,
+        fieldOfStudy: edu.fieldOfStudy,
+        firstYear: edu.firstYear,
+        startMonth:
+            _monthNameToInt(edu.startMonth) ??
+            (edu.startMonth is int ? edu.startMonth as int? : null),
+        passingYear: edu.passingYear,
+        endMonth:
+            _monthNameToInt(edu.endMonth) ??
+            (edu.endMonth is int ? edu.endMonth as int? : null),
+        isCurrent: edu.isCurrent,
+        marksheet: edu.marksheet,
+      );
 
-    setShowEducationForm(true);
-    notifyListeners();
-  } */
+      setShowEducationForm(true);
+      notifyListeners();
+    } */
 
   /*  void editEducation(int index) {
-    if (index < 0 || index >= _profile!.educationDetails!.length) return;
+      if (index < 0 || index >= _profile!.educationDetails!.length) return;
 
-    Map<int, String> monthIntToString = {
-      1: "January",
-      2: "February",
-      3: "March",
-      4: "April",
-      5: "May",
-      6: "June",
-      7: "July",
-      8: "August",
-      9: "September",
-      10: "October",
-      11: "November",
-      12: "December",
-    };
+      Map<int, String> monthIntToString = {
+        1: "January",
+        2: "February",
+        3: "March",
+        4: "April",
+        5: "May",
+        6: "June",
+        7: "July",
+        8: "August",
+        9: "September",
+        10: "October",
+        11: "November",
+        12: "December",
+      };
 
-    final edu = _profile!.educationDetails![index];
-    schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
-    _isRemote = edu.isRemote == 1;
-    universityBoardName.text = edu.university ?? '';
-    degree.text = edu.degreeSpc ?? '';
-    fieldOfStudy.text = edu.fieldOfStudy ?? '';
-    startmonth.text = edu.startMonth ?? '';
-    startyear.text = edu.firstYear?.toString() ?? '';
-    endmonth.text = edu.endMonth ?? '';
-    endyear.text = edu.passingYear?.toString() ?? '';
-    _currentlyStudying = edu.isCurrent == 1;
-    _markSheet = edu.marksheet;
+      final edu = _profile!.educationDetails![index];
+      schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
+      _isRemote = edu.isRemote == 1;
+      universityBoardName.text = edu.university ?? '';
+      degree.text = edu.degreeSpc ?? '';
+      fieldOfStudy.text = edu.fieldOfStudy ?? '';
+      startmonth.text = edu.startMonth ?? '';
+      startyear.text = edu.firstYear?.toString() ?? '';
+      endmonth.text = edu.endMonth ?? '';
+      endyear.text = edu.passingYear?.toString() ?? '';
+      _currentlyStudying = edu.isCurrent == 1;
+      _markSheet = edu.marksheet;
 
-    _editingEducationIndex = index;
-    _educationModel[index] = EducationRequest(
-      id: edu.id,
-      userId: _userid,
-      schoolOrCollegeName: edu.schoolOrCollegeName,
-      isRemote: edu.isRemote,
-      university: edu.university,
-      degreeSpc: edu.degreeSpc,
-      fieldOfStudy: edu.fieldOfStudy,
-      firstYear: edu.firstYear,
-      startMonth: monthMap[edu.startMonth] ?? 1,
-      passingYear: edu.passingYear,
-      endMonth: monthMap[edu.endMonth] ?? 1,
-      isCurrent: edu.isCurrent,
-      marksheet: edu.marksheet,
-    );
+      _editingEducationIndex = index;
+      _educationModel[index] = EducationRequest(
+        id: edu.id,
+        userId: _userid,
+        schoolOrCollegeName: edu.schoolOrCollegeName,
+        isRemote: edu.isRemote,
+        university: edu.university,
+        degreeSpc: edu.degreeSpc,
+        fieldOfStudy: edu.fieldOfStudy,
+        firstYear: edu.firstYear,
+        startMonth: monthMap[edu.startMonth] ?? 1,
+        passingYear: edu.passingYear,
+        endMonth: monthMap[edu.endMonth] ?? 1,
+        isCurrent: edu.isCurrent,
+        marksheet: edu.marksheet,
+      );
 
-    setShowEducationForm(true);
-    notifyListeners();
-  } */
+      setShowEducationForm(true);
+      notifyListeners();
+    } */
 
   void removeEducation(int index) async {
     int eduId = _educationModel[index].id!;
@@ -1418,6 +1434,10 @@ class ProfileProvider with ChangeNotifier {
   TextEditingController issueyear = TextEditingController();
   TextEditingController validmonth = TextEditingController();
   TextEditingController validyear = TextEditingController();
+  //
+  FocusNode certificateNameFocusNode = FocusNode();
+  FocusNode organizationNameFocusNode = FocusNode();
+  //
   String? _certificate;
   bool _certificateNoExpiration = false;
   bool _certificateDocument = false;
@@ -1434,6 +1454,8 @@ class ProfileProvider with ChangeNotifier {
   bool get isEditingCertificate => _editingCertificateIndex != null;
   int? get isEditCertificateIndex => _editingCertificateIndex;
   bool get showCertificateForm => _showCertificateForm;
+
+  int? _editingCertificateId;
 
   void setShowCertificateForm(bool value) {
     _showCertificateForm = value;
@@ -1467,9 +1489,15 @@ class ProfileProvider with ChangeNotifier {
   }
 
   void addOrUpdateCertificate() async {
+    // 1. Prevent Double Clicks / Race Conditions
+    if (_isUpdating) return;
+
     _isUpdating = true; // Lock UI
     notifyListeners();
+
     var snackMessage = '';
+
+    // 2. Create Request Object
     final certificate = CertificationRequest(
       userId: _userid,
       certificationName: certificateName.text.isNotEmpty
@@ -1489,32 +1517,32 @@ class ProfileProvider with ChangeNotifier {
           : null,
       endYear: _certificateNoExpiration ? null : int.tryParse(validyear.text),
       certificate: _certificate,
-      /* issueDate: issuemonth.text.isNotEmpty && issueyear.text.isNotEmpty
-          ? "${issuemonth.text} ${issueyear.text}"
-          : null, */
-      /*   expirationDate: _certificateNoExpiration
-          ? null
-          : validmonth.text.isNotEmpty && validyear.text.isNotEmpty
-          ? "${validmonth.text} ${validyear.text}"
-          : null, */
     );
 
-    bool isCertEditing =
-        _editingCertificateIndex != null &&
-        _editingCertificateIndex! >= 0 &&
-        _editingCertificateIndex! < _certificateModel.length &&
-        _certificateModel[_editingCertificateIndex!].id != null;
+    // 3. Logic: Match by ID if editing, else Add new
+    bool isEditing = _editingCertificateId != null;
 
-    if (isCertEditing) {
-      _certificateModel[_editingCertificateIndex!] = certificate.copyWith(
-        id: _certificateModel[_editingCertificateIndex!].id,
+    // Attempt to find the index of the item with this ID in the model
+    int foundIndex = -1;
+    if (isEditing) {
+      foundIndex = _certificateModel.indexWhere(
+        (element) => element.id == _editingCertificateId,
+      );
+    }
+
+    if (isEditing && foundIndex != -1) {
+      // UPDATE: We found the correct item by ID. Update it safely.
+      _certificateModel[foundIndex] = certificate.copyWith(
+        id: _editingCertificateId, // Preserve the ID
       );
       snackMessage = '🌟 Certificate updated successfully.';
     } else {
+      // ADD: No ID, or ID not found. Treat as new.
       _certificateModel.add(certificate);
       snackMessage = '🎉 Certificate added successfully!';
     }
 
+    // 4. Prepare Payload
     _createNewUserModel = CreateNewUserModel(
       userRequest: UserRequest(
         userId: _userid,
@@ -1522,19 +1550,25 @@ class ProfileProvider with ChangeNotifier {
       ),
       experienceRequest: [],
       educationRequest: [],
-      certificationsRequest: _certificateModel,
+      certificationsRequest: _certificateModel, // Sending the updated list
       userProjectRequest: [],
     );
 
+    // 5. Cleanup UI immediately
     clearCertificateForm();
-    _editingCertificateIndex = null;
     setShowCertificateForm(false);
+
+    // 6. API Call
     try {
       bool done = await UserServices.postUserInfo(_createNewUserModel!);
       if (done) {
-        await fetchProfile(); // Wait for fresh data
+        await fetchProfile(); // Wait for fresh data from backend
         CustomSnackbar.show(snackMessage, false);
+      } else {
+        CustomSnackbar.show("Failed to update certificate.", true);
       }
+    } catch (e) {
+      CustomSnackbar.show("Error: $e", true);
     } finally {
       Future.delayed(const Duration(seconds: 2), () {
         // This flag will hide the loader after 2 sec
@@ -1543,11 +1577,91 @@ class ProfileProvider with ChangeNotifier {
       });
       notifyListeners();
     }
-    notifyListeners();
   }
 
+  /*  void addOrUpdateCertificate() async {
+      _isUpdating = true; // Lock UI
+      notifyListeners();
+      var snackMessage = '';
+      final certificate = CertificationRequest(
+        userId: _userid,
+        certificationName: certificateName.text.isNotEmpty
+            ? certificateName.text
+            : null,
+        issuingOrganization: organizationName.text.isNotEmpty
+            ? organizationName.text
+            : null,
+        credentialId: credentialId.text.isNotEmpty ? credentialId.text : null,
+        credentialUrl: credentialUrl.text.isNotEmpty ? credentialUrl.text : null,
+        startMonth: issuemonth.text.isNotEmpty ? issuemonth.text : null,
+        startYear: int.tryParse(issueyear.text),
+        endMonth: _certificateNoExpiration
+            ? null
+            : validmonth.text.isNotEmpty
+            ? validmonth.text
+            : null,
+        endYear: _certificateNoExpiration ? null : int.tryParse(validyear.text),
+        certificate: _certificate,
+        /* issueDate: issuemonth.text.isNotEmpty && issueyear.text.isNotEmpty
+            ? "${issuemonth.text} ${issueyear.text}"
+            : null, */
+        /*   expirationDate: _certificateNoExpiration
+            ? null
+            : validmonth.text.isNotEmpty && validyear.text.isNotEmpty
+            ? "${validmonth.text} ${validyear.text}"
+            : null, */
+      );
+
+      bool isCertEditing =
+          _editingCertificateIndex != null &&
+          _editingCertificateIndex! >= 0 &&
+          _editingCertificateIndex! < _certificateModel.length &&
+          _certificateModel[_editingCertificateIndex!].id != null;
+
+      if (isCertEditing) {
+        _certificateModel[_editingCertificateIndex!] = certificate.copyWith(
+          id: _certificateModel[_editingCertificateIndex!].id,
+        );
+        snackMessage = '🌟 Certificate updated successfully.';
+      } else {
+        _certificateModel.add(certificate);
+        snackMessage = '🎉 Certificate added successfully!';
+      }
+
+      _createNewUserModel = CreateNewUserModel(
+        userRequest: UserRequest(
+          userId: _userid,
+          alternateNo: _profile!.alternateNo,
+        ),
+        experienceRequest: [],
+        educationRequest: [],
+        certificationsRequest: _certificateModel,
+        userProjectRequest: [],
+      );
+
+      clearCertificateForm();
+      _editingCertificateIndex = null;
+      setShowCertificateForm(false);
+      try {
+        bool done = await UserServices.postUserInfo(_createNewUserModel!);
+        if (done) {
+          await fetchProfile(); // Wait for fresh data
+          CustomSnackbar.show(snackMessage, false);
+        }
+      } finally {
+        Future.delayed(const Duration(seconds: 2), () {
+          // This flag will hide the loader after 2 sec
+          _isUpdating = false;
+          notifyListeners();
+        });
+        notifyListeners();
+      }
+      notifyListeners();
+    }
+ */
+
   void editCertificate(int originalIndex) {
-    // FIX: Use index directly instead of ID
+    // Safety check: Use index directly from profile list
     if (originalIndex < 0 ||
         originalIndex >= _profile!.certifications!.length) {
       debugPrint('Invalid certificate index $originalIndex');
@@ -1568,69 +1682,118 @@ class ProfileProvider with ChangeNotifier {
     _certificate = cert.certificate;
     _certificateNoExpiration = cert.endYear == null && cert.endMonth == null;
 
-    // Set editing index to originalIndex
-    _editingCertificateIndex = originalIndex;
+    // CRITICAL FIX: Track the ID
+    _editingCertificateId = cert.id;
+    _editingCertificateIndex = originalIndex; // Keep for UI references
 
-    // Update _certificateModel at originalIndex
-    _certificateModel[originalIndex] = CertificationRequest(
-      id: cert.id,
-      userId: _userid,
-      certificationName: cert.certificationName,
-      issuingOrganization: cert.issuingOrganization,
-      credentialId: cert.credentialId,
-      credentialUrl: cert.credentialUrl,
-      startMonth: cert.startMonth,
-      startYear: cert.startYear,
-      endMonth: cert.endMonth,
-      endYear: cert.endYear,
-      certificate: cert.certificate,
-      issueDate: cert.issueDate,
-      expirationDate: cert.expirationDate,
-    );
+    // Optional: Sync the specific model item to ensure clean state before edit
+    int modelIndex = _certificateModel.indexWhere((c) => c.id == cert.id);
+    if (modelIndex != -1) {
+      _certificateModel[modelIndex] = CertificationRequest(
+        id: cert.id,
+        userId: _userid,
+        certificationName: cert.certificationName,
+        issuingOrganization: cert.issuingOrganization,
+        credentialId: cert.credentialId,
+        credentialUrl: cert.credentialUrl,
+        startMonth: cert.startMonth,
+        startYear: cert.startYear,
+        endMonth: cert.endMonth,
+        endYear: cert.endYear,
+        certificate: cert.certificate,
+        issueDate: cert.issueDate,
+        expirationDate: cert.expirationDate,
+      );
+    }
 
     setShowCertificateForm(true);
     notifyListeners();
   }
+  /*  void editCertificate(int originalIndex) {
+      // FIX: Use index directly instead of ID
+      if (originalIndex < 0 ||
+          originalIndex >= _profile!.certifications!.length) {
+        debugPrint('Invalid certificate index $originalIndex');
+        return;
+      }
 
+      final cert = _profile!.certifications![originalIndex];
+
+      // Populate form fields
+      certificateName.text = cert.certificationName ?? '';
+      organizationName.text = cert.issuingOrganization ?? '';
+      credentialId.text = cert.credentialId ?? '';
+      credentialUrl.text = cert.credentialUrl ?? '';
+      issuemonth.text = cert.startMonth ?? '';
+      issueyear.text = cert.startYear?.toString() ?? '';
+      validmonth.text = cert.endMonth ?? '';
+      validyear.text = cert.endYear?.toString() ?? '';
+      _certificate = cert.certificate;
+      _certificateNoExpiration = cert.endYear == null && cert.endMonth == null;
+
+      // Set editing index to originalIndex
+      _editingCertificateIndex = originalIndex;
+
+      // Update _certificateModel at originalIndex
+      _certificateModel[originalIndex] = CertificationRequest(
+        id: cert.id,
+        userId: _userid,
+        certificationName: cert.certificationName,
+        issuingOrganization: cert.issuingOrganization,
+        credentialId: cert.credentialId,
+        credentialUrl: cert.credentialUrl,
+        startMonth: cert.startMonth,
+        startYear: cert.startYear,
+        endMonth: cert.endMonth,
+        endYear: cert.endYear,
+        certificate: cert.certificate,
+        issueDate: cert.issueDate,
+        expirationDate: cert.expirationDate,
+      );
+
+      setShowCertificateForm(true);
+      notifyListeners();
+    }
+ */
   /* void editCertificate(int? certId) {
-    if (certId == null) return;
-    final certList = _profile?.certifications
-        ?.where((c) => c.id == certId)
-        .toList();
-    if (certList == null || certList.isEmpty) return;
-    final cert = certList.first;
-    certificateName.text = cert.certificationName ?? '';
-    organizationName.text = cert.issuingOrganization ?? '';
-    credentialId.text = cert.credentialId ?? '';
-    credentialUrl.text = cert.credentialUrl ?? '';
-    issuemonth.text = cert.startMonth ?? '';
-    issueyear.text = cert.startYear?.toString() ?? '';
-    validmonth.text = cert.endMonth ?? '';
-    validyear.text = cert.endYear?.toString() ?? '';
-    _certificate = cert.certificate;
-    _certificateNoExpiration = cert.endYear == null && cert.endMonth == null;
-    _editingCertificateIndex = _certificateModel.indexWhere(
-      (c) => c.id == certId,
-    );
-    if (_editingCertificateIndex == -1) return;
-    _certificateModel[_editingCertificateIndex!] = CertificationRequest(
-      id: cert.id,
-      userId: _userid,
-      certificationName: cert.certificationName,
-      issuingOrganization: cert.issuingOrganization,
-      credentialId: cert.credentialId,
-      credentialUrl: cert.credentialUrl,
-      startMonth: cert.startMonth,
-      startYear: cert.startYear,
-      endMonth: cert.endMonth,
-      endYear: cert.endYear,
-      certificate: cert.certificate,
-      issueDate: cert.issueDate,
-      expirationDate: cert.expirationDate,
-    );
-    setShowCertificateForm(true);
-    notifyListeners();
-  } */
+      if (certId == null) return;
+      final certList = _profile?.certifications
+          ?.where((c) => c.id == certId)
+          .toList();
+      if (certList == null || certList.isEmpty) return;
+      final cert = certList.first;
+      certificateName.text = cert.certificationName ?? '';
+      organizationName.text = cert.issuingOrganization ?? '';
+      credentialId.text = cert.credentialId ?? '';
+      credentialUrl.text = cert.credentialUrl ?? '';
+      issuemonth.text = cert.startMonth ?? '';
+      issueyear.text = cert.startYear?.toString() ?? '';
+      validmonth.text = cert.endMonth ?? '';
+      validyear.text = cert.endYear?.toString() ?? '';
+      _certificate = cert.certificate;
+      _certificateNoExpiration = cert.endYear == null && cert.endMonth == null;
+      _editingCertificateIndex = _certificateModel.indexWhere(
+        (c) => c.id == certId,
+      );
+      if (_editingCertificateIndex == -1) return;
+      _certificateModel[_editingCertificateIndex!] = CertificationRequest(
+        id: cert.id,
+        userId: _userid,
+        certificationName: cert.certificationName,
+        issuingOrganization: cert.issuingOrganization,
+        credentialId: cert.credentialId,
+        credentialUrl: cert.credentialUrl,
+        startMonth: cert.startMonth,
+        startYear: cert.startYear,
+        endMonth: cert.endMonth,
+        endYear: cert.endYear,
+        certificate: cert.certificate,
+        issueDate: cert.issueDate,
+        expirationDate: cert.expirationDate,
+      );
+      setShowCertificateForm(true);
+      notifyListeners();
+    } */
 
   void removeCertificate(int index) async {
     int certId = _certificateModel[index].id!;
@@ -1670,6 +1833,7 @@ class ProfileProvider with ChangeNotifier {
     _allCertificateDocs = false;
     _certificate = null;
     _editingCertificateIndex = null;
+    _editingCertificateId = null;
     notifyListeners();
   }
 
@@ -1858,41 +2022,41 @@ class ProfileProvider with ChangeNotifier {
   }
 
   /* void editProject(int? projId) {
-    if (projId == null) return;
-    final projList = _profile?.projects?.where((p) => p.id == projId).toList();
-    if (projList == null || projList.isEmpty) return;
-    final proj = projList.first;
-    project_title.text = proj.projectTitle.toString();
-    project_description.text = proj.description.toString();
-    project_role.text = proj.role.toString();
-    project_url.text = proj.url.toString();
-    if (proj.duration != null) {
-      parseAndAssignProjectDuration(proj.duration!);
-    }
-    _project_technology_used = proj.technologiesUsed ?? [];
-    _project_it_skills =
-        proj.itSkillsByProject != null && proj.itSkillsByProject!.isNotEmpty
-        ? proj.itSkillsByProject!
-              .split(',')
-              .map((e) => e.trim())
-              .where((e) => e.isNotEmpty)
-              .toList()
-        : [];
-    _editProjectIndex = _projectModel.indexWhere((p) => p.id == projId);
-    if (_editProjectIndex == -1) return;
-    _projectModel[_editProjectIndex!] = UserProjectRequest(
-      id: proj.id,
-      projectTitle: proj.projectTitle,
-      description: proj.description,
-      role: proj.role,
-      url: proj.url,
-      duration: proj.duration,
-      technologiesUsed: proj.technologiesUsed,
-      itSkillsByProject: proj.itSkillsByProject,
-    );
-    setShowProjectForm(true);
-    notifyListeners();
-  } */
+      if (projId == null) return;
+      final projList = _profile?.projects?.where((p) => p.id == projId).toList();
+      if (projList == null || projList.isEmpty) return;
+      final proj = projList.first;
+      project_title.text = proj.projectTitle.toString();
+      project_description.text = proj.description.toString();
+      project_role.text = proj.role.toString();
+      project_url.text = proj.url.toString();
+      if (proj.duration != null) {
+        parseAndAssignProjectDuration(proj.duration!);
+      }
+      _project_technology_used = proj.technologiesUsed ?? [];
+      _project_it_skills =
+          proj.itSkillsByProject != null && proj.itSkillsByProject!.isNotEmpty
+          ? proj.itSkillsByProject!
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList()
+          : [];
+      _editProjectIndex = _projectModel.indexWhere((p) => p.id == projId);
+      if (_editProjectIndex == -1) return;
+      _projectModel[_editProjectIndex!] = UserProjectRequest(
+        id: proj.id,
+        projectTitle: proj.projectTitle,
+        description: proj.description,
+        role: proj.role,
+        url: proj.url,
+        duration: proj.duration,
+        technologiesUsed: proj.technologiesUsed,
+        itSkillsByProject: proj.itSkillsByProject,
+      );
+      setShowProjectForm(true);
+      notifyListeners();
+    } */
 
   void parseAndAssignProjectDuration(String duration) {
     // Trim to avoid extra spaces

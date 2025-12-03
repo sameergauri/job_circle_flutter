@@ -263,6 +263,7 @@ class ProfileExperienceEdit extends StatelessWidget {
             SizedBox(height: 10),
             const customText(title: "Job Title*", fontStyle: FontStyle.italic),
             CustomTextFieldForMasterData(
+              focusNode: provider.jobRoleFocusNode,
               contextIn: context,
               controller: provider.jobtitle,
               hintText: "Type to search",
@@ -275,6 +276,7 @@ class ProfileExperienceEdit extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomSuggestionTextField(
+              focusNode: provider.companyNameFocusNode,
               EnableAddOption: true,
               type: SuggestionType.company,
               onIdSelected: (p0) {
@@ -290,6 +292,7 @@ class ProfileExperienceEdit extends StatelessWidget {
             const SizedBox(height: 15),
             const customText(title: "Industry*", fontStyle: FontStyle.italic),
             CustomTextFieldForMasterData(
+              focusNode: provider.industryFocusNode,
               contextIn: context,
               controller: provider.industry,
               hintText: "Type to search",
@@ -302,6 +305,7 @@ class ProfileExperienceEdit extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomTextFieldForMasterData(
+              focusNode: provider.functionalAreaFocusNode,
               contextIn: context,
               controller: provider.functionalArea,
               hintText: "Type to search",

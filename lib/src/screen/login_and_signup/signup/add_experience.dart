@@ -165,6 +165,7 @@ class AddExperience extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.jobTitleFocusNode,
                       contextIn: context,
                       controller: provider.jobtitle,
                       hintText: "Type to search",
@@ -177,6 +178,7 @@ class AddExperience extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomSuggestionTextField(
+                      focusNode: provider.companyNameFocusNode,
                       EnableAddOption: true,
                       type: SuggestionType.company,
                       onIdSelected: (p0) {
@@ -194,6 +196,7 @@ class AddExperience extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.industryFocusNode,
                       contextIn: context,
                       controller: provider.industry,
                       hintText: "Type to search",
@@ -206,6 +209,7 @@ class AddExperience extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.functionalAreaFocusNode,
                       contextIn: context,
                       controller: provider.functionalArea,
                       hintText: "Type to search",
@@ -620,6 +624,7 @@ class AddExperience extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForSkills(
+                      focusNode: provider.projectSkillFocusNode,
                       title: "Skills",
                       initialSkills: provider.skills,
                       onSkillsChanged: (skills) {

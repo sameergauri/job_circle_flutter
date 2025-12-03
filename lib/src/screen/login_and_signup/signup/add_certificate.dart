@@ -183,6 +183,7 @@ class AddCertificate extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.certificateNameFocusNode,
                       contextIn: context,
                       controller: provider.certificateName,
                       hintText: "Type to search",
@@ -195,6 +196,7 @@ class AddCertificate extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                     ),
                     CustomTextFieldForMasterData(
+                      focusNode: provider.organizationNameFocusNode,
                       contextIn: context,
                       controller: provider.organizationName,
                       hintText: "Type to search",

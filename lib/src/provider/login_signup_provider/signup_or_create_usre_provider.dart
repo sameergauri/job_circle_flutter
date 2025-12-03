@@ -49,6 +49,16 @@ class SignupCreateUserProvider with ChangeNotifier {
   TextEditingController startDate = TextEditingController();
   TextEditingController lastWorkingDate = TextEditingController();
   TextEditingController jobtitle = TextEditingController();
+  //
+  FocusNode jobRoleFocusNode = FocusNode();
+  FocusNode companyNameFocusNode = FocusNode();
+  FocusNode industryFocusNode = FocusNode();
+  FocusNode functionalAreaFocusNode = FocusNode();
+  FocusNode annualSalaryFocusNode = FocusNode();
+  FocusNode startDateFocusNode = FocusNode();
+  FocusNode lastWorkingDateFocusNode = FocusNode();
+  FocusNode jobTitleFocusNode = FocusNode();
+  //
 
   // Education Controllers
   TextEditingController schoolCollegeName = TextEditingController();
@@ -60,6 +70,16 @@ class SignupCreateUserProvider with ChangeNotifier {
   TextEditingController endyear = TextEditingController();
   TextEditingController endmonth = TextEditingController();
 
+  FocusNode schoolCollegeNameFocusNode = FocusNode();
+  FocusNode universityBoardNameFocusNode = FocusNode();
+  FocusNode degreeFocusNode = FocusNode();
+  FocusNode fieldOFStudyFocusNode = FocusNode();
+  FocusNode startMonthFocusNode = FocusNode();
+  FocusNode startYearFocusNode = FocusNode();
+  FocusNode endMonthFocusNode = FocusNode();
+  FocusNode endYearFocusNode = FocusNode();
+  //
+
   // Certificate Controllers
   TextEditingController certificateName = TextEditingController();
   TextEditingController organizationName = TextEditingController();
@@ -69,6 +89,12 @@ class SignupCreateUserProvider with ChangeNotifier {
   TextEditingController issueyear = TextEditingController();
   TextEditingController validmonth = TextEditingController();
   TextEditingController validyear = TextEditingController();
+
+  FocusNode certificateNameFocusNode = FocusNode();
+  FocusNode organizationNameFocusNode = FocusNode();
+  FocusNode credentialIdFocusNode = FocusNode();
+  FocusNode credentialUrlFocusNode = FocusNode();
+  //
 
   // Projects
   TextEditingController project_title = TextEditingController();
@@ -81,6 +107,13 @@ class SignupCreateUserProvider with ChangeNotifier {
   TextEditingController proj_startYear = TextEditingController();
   TextEditingController proj_endMonth = TextEditingController();
   TextEditingController proj_endYear = TextEditingController();
+
+  FocusNode projectTitleFocusNode = FocusNode();
+  FocusNode projectDescriptionFocusNode = FocusNode();
+  FocusNode projectRoleFocusNode = FocusNode();
+  FocusNode projectSkillFocusNode = FocusNode();
+  FocusNode projectUrlFocusNode = FocusNode();
+  //  
 
   // Basic Profile States
   bool _male = false;
