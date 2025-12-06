@@ -21,7 +21,7 @@ class UserServices {
       if (parsedResponse.containsKey("data")) {
         return ProfileModel.fromJson(parsedResponse["data"]);
       } else {
-        throw Exception('Failed to load user data');
+        throw Exception('Failed to lo ad user data');
       }
     } else {
       throw Exception('Failed to load data');

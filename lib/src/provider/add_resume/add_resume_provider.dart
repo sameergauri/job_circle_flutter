@@ -7,7 +7,6 @@ import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/services/referal_and_apply/add_resume_and_apply_services.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_confirmation.dart';
 
-
 class ReferResumeProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;

@@ -409,7 +409,8 @@ class _AddResumeState extends State<AddResume> {
         resume: provider.resume,
         shortListFor: widget.company_id,
         spoc: widget.spocId,
-        uid: userid,
+        // uid: userid,
+        uid: 0,
         payoutMode: provider.termandconditionone ? "DEFAULT" : "SPECIAL",
       );
       await provider.postResume(
