@@ -334,7 +334,7 @@ class CustomDrawer extends StatelessWidget {
                     bottom: kToolbarHeight / 2,
                   ),
                   child: customText(
-                    title: 'Version 1.1.4',
+                    title: 'Version 1.1.6',
                     fontSize: 10,
                     fontWeight: FontWeight.normal,
                     fontStyle: FontStyle.italic,

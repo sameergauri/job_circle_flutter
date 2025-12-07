@@ -109,7 +109,7 @@ class CertificateList extends StatelessWidget {
             contextIn: context,
             controller: provider.organizationName,
             hintText: "Type to search",
-            name: "organization",
+            name: "issue-cert",
             title: "Organization Name",
           ),
           const SizedBox(height: 15),

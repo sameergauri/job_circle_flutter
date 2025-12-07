@@ -47,7 +47,11 @@ class AddCertificate extends StatelessWidget {
                       !provider.showCertificateForm
                   ? SafeArea(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10,bottom: 5 ),
+                        padding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                          bottom: 5,
+                        ),
                         child: CustomButtonForSave(
                           isPading: false,
                           onTap: () async {
@@ -200,7 +204,7 @@ class AddCertificate extends StatelessWidget {
                       contextIn: context,
                       controller: provider.organizationName,
                       hintText: "Type to search",
-                      name: "organization",
+                      name: "issue-cert",
                       title: "Organization",
                     ),
                     const SizedBox(height: 15),
