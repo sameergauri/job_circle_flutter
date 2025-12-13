@@ -49,6 +49,8 @@ class CvDurationCalculator {
 
       final possibleFormats = [
         'dd-MM-yyyy',
+        'dd MMM yyyy',
+        'dd MM yyyy',
         'MM-dd-yyyy',
         'MM-yyyy',
         'MMM-yyyy',

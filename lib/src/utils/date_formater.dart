@@ -27,6 +27,8 @@ class CvParseExpDateFormatter {
       final possibleFormats = [
         'dd-MM-yyyy',
         'dd-MMM-yyyy',
+        'dd MMM yyyy',
+        'dd MM yyyy',
         'MM-dd-yyyy',
         'MMM-yyyy',
         'MMMM-yyyy',
@@ -85,6 +87,8 @@ class CvParseDateToApiFormat {
 
       // Common possible input formats
       final possibleFormats = [
+        'dd MMM yyyy',
+        'dd MM yyyy',
         'dd-MMM-yyyy',
         'dd-MM-yyyy',
         'MM-dd-yyyy',
