@@ -11,6 +11,8 @@ class CareerPreferenceModel {
   String? startSalary;
   int? userId;
   List<String>? workMode;
+  String? shiftTime;
+  bool? enable;
 
   CareerPreferenceModel({
     this.id,
@@ -25,6 +27,8 @@ class CareerPreferenceModel {
     this.startSalary,
     this.userId,
     this.workMode,
+    this.shiftTime,
+    this.enable,
   });
 
   // -------------------------
@@ -50,6 +54,8 @@ class CareerPreferenceModel {
       workMode: json["workMode"] != null
           ? List<String>.from(json["workMode"])
           : null,
+      shiftTime: json["shiftTime"],
+      enable: json["enable"],
     );
   }
 
@@ -70,6 +76,8 @@ class CareerPreferenceModel {
       "startSalary": startSalary,
       "userId": userId,
       "workMode": workMode,
+      "shiftTime": shiftTime,
+      "enable": enable,
     };
   }
 
@@ -90,6 +98,8 @@ class CareerPreferenceModel {
       "startSalary": startSalary,
       // ❌ userId removed here
       "workMode": workMode,
+      "shiftTime": shiftTime,
+      "enable": enable,
     };
   }
 }

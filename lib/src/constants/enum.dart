@@ -44,7 +44,6 @@ enum ESharedPreferences {
   email,
   orgnizationId,
   msg,
-  jobpreferenceEnable
 }
 
 enum EPartnerApproval {

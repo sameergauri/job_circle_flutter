@@ -1,10 +1,9 @@
-// ignore_for_file: unnecessary_null_comparison, deprecated_member_use
+// ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
@@ -398,35 +397,31 @@ class CareerPreferenceToggle extends StatelessWidget {
             scale: 0.6,
             child: Switch(
               thumbIcon: WidgetStateProperty.resolveWith<Icon?>((states) {
-                return const Icon(
+                return Icon(
                   Icons.circle,
                   size: 22, // ⭐ Increase thumb size here
                   color: Colors.white,
                 );
               }),
               padding: EdgeInsets.zero,
-              value:
-                  SharedPrefsHelper.getInt(
-                        ESharedPreferences.jobpreferenceEnable,
-                      ) ==
-                      0
-                  ? false
-                  : true,
+              value: provider.jobPrefEnable,
               activeColor: Constants.darkBlue,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              onChanged: (value) async {
+              onChanged: (value) {
                 if (!value) {
-                  provider.updateJobPrefEnable(0);
-                }
-                if (value) {
-                  scaffoldKey.currentState!.closeDrawer();
+                  provider.updateJobPrefEnable(false);
+                  provider.savePreferences(context, isFromDrawer: true);
+                } else {
                   if (provider.hasExistingData) {
-                    provider.updateJobPrefEnable(1);
+                    provider.updateJobPrefEnable(true);
+                    onClose();
+                    provider.savePreferences(context, isFromDrawer: true);
+                  } else {
+                    onClose();
+                    NavigationService.push(
+                      const CareerPreference(isFromDrawer: true),
+                    );
                   }
-                  NavigationService.push(
-                    const CareerPreference(isFromDrawer: true),
-                  );
-                  onClose();
                 }
               },
             ),

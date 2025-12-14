@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
+// ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously, curly_braces_in_flow_control_structures
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/enum.dart';
@@ -22,6 +22,8 @@ class CareerPreferenceProvider extends ChangeNotifier {
   List<String> selectedIndustries = [];
   List<String> selectedJobRole = [];
   List<String> preferredLocations = [];
+
+  bool _day = false, _night = false, _rotational = false, _flexible = false;
 
   RangeValues salaryRange = const RangeValues(0, 0);
 
@@ -47,22 +49,41 @@ class CareerPreferenceProvider extends ChangeNotifier {
 
   bool hasExistingData = false; // 👈 IMPORTANT FLAG
 
+  String? _shiftTime;
+
   //Getter
 
   bool get isLoading => _isLoading;
   CareerPreferenceModel get model => _model;
   bool get jobPrefEnable => _jobPrefEnable;
 
+  bool? get day => _day;
+  bool? get night => _night;
+  bool? get rotational => _rotational;
+  bool? get flexibleShift => _flexible;
+  String? get shiftTime => _shiftTime;
+
   //----------------------------
   // UPDATE FUNCTIONS
   //----------------------------
+  void setShiftTime(String value) {
+    _day = value == "day";
+    _night = value == "night";
+    _rotational = value == "rotational";
+    _flexible = value == "flexible";
+    if (_day)
+      _shiftTime = "day";
+    else if (_night)
+      _shiftTime = "night";
+    else if (_rotational)
+      _shiftTime = "rotational";
+    else if (_flexible)
+      _shiftTime = "flexible";
+    notifyListeners();
+  }
 
-  void updateJobPrefEnable(int value) {
-    _jobPrefEnable = value == 0 ? false : true;
-    SharedPrefsHelper.setPreference(
-      ESharedPreferences.jobpreferenceEnable,
-      value,
-    );
+  void updateJobPrefEnable(bool value) {
+    _jobPrefEnable = value;
     notifyListeners();
   }
 
@@ -144,7 +165,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
   // ----------------------------
   // FETCH DATA
   // ----------------------------
-  Future<void> fetchCareerPreference() async {
+  Future<void> fetchCareerPreference(bool isFromDrawer) async {
     setLoading(true);
 
     int userId = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
@@ -159,7 +180,9 @@ class CareerPreferenceProvider extends ChangeNotifier {
       selectedIndustries = _model.industry ?? [];
       selectedJobRole = _model.role ?? [];
       preferredLocations = _model.location ?? [];
-
+      if (isFromDrawer) {
+        _jobPrefEnable = _model.enable ?? false;
+      }
       salaryRange = RangeValues(
         double.tryParse(_model.startSalary ?? "0") ?? 0,
         double.tryParse(_model.endSalary ?? "0") ?? 0,
@@ -171,6 +194,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       _applyEmploymentType(_model.empType);
       _applyWorkModes(_model.workMode);
       _applyNoticePeriod(_model.noticePeriod);
+      _applyShitTime(_model.shiftTime);
 
       notifyListeners();
     } else {
@@ -188,11 +212,12 @@ class CareerPreferenceProvider extends ChangeNotifier {
     BuildContext context, {
     required bool isFromDrawer,
   }) async {
-    if (!formKey.currentState!.validate()) return;
+    // if (!formKey.currentState!.validate()) return;
 
     setLoading(true);
 
     CareerPreferenceModel model = CareerPreferenceModel(
+      enable: _jobPrefEnable,
       id: hasExistingData ? _model.id : null,
       industry: selectedIndustries,
       role: selectedJobRole,
@@ -205,6 +230,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       noticePeriod: _selectedNoticePeriod(),
       empType: _selectedEmploymentType(),
       workMode: _selectedWorkModes(),
+      shiftTime: _shiftTime,
       userId: SharedPrefsHelper.getInt(ESharedPreferences.user_id),
     );
 
@@ -215,9 +241,9 @@ class CareerPreferenceProvider extends ChangeNotifier {
     setLoading(false);
 
     if (success) {
-      await fetchCareerPreference();
-      if (isFromDrawer) {
-        updateJobPrefEnable(1);
+      await fetchCareerPreference(isFromDrawer);
+      if (isFromDrawer && _model.enable == true) {
+        updateJobPrefEnable(true);
       }
       Navigator.pop(context);
     }
@@ -235,7 +261,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       if (done) {
         clearAll();
         hasExistingData = false;
-        updateJobPrefEnable(0);
+        updateJobPrefEnable(false);
         _model = CareerPreferenceModel();
         notifyListeners();
         return true;
@@ -274,6 +300,21 @@ class CareerPreferenceProvider extends ChangeNotifier {
     freelance = type == "freelance";
     internship = type == "internship";
     flexible = type == "flexible";
+  }
+
+  void _applyShitTime(String? type) {
+    _day = type == "day";
+    _night = type == "night";
+    _rotational = type == "rotational";
+    _flexible = type == "flexible";
+    if (_day)
+      _shiftTime = "day";
+    else if (_night)
+      _shiftTime = "night";
+    else if (_rotational)
+      _shiftTime = "rotational";
+    else if (_flexible)
+      _shiftTime = "flexible";
   }
 
   void _applyNoticePeriod(String? period) {
@@ -320,6 +361,11 @@ class CareerPreferenceProvider extends ChangeNotifier {
     workFromHome = false;
     hybrid = false;
     hasExistingData = false;
+    _day = false;
+    _night = false;
+    _rotational = false;
+    _flexible = false;
+    _shiftTime = null;
     notifyListeners();
   }
 

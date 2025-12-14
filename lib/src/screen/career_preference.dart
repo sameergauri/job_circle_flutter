@@ -27,7 +27,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
       Provider.of<CareerPreferenceProvider>(
         context,
         listen: false,
-      ).fetchCareerPreference();
+      ).fetchCareerPreference(widget.isFromDrawer);
     });
   }
 
@@ -155,6 +155,39 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         ),
 
                         const SizedBox(height: 10),
+                        customText(title: 'Shift Time', fontSize: 12),
+                        SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              CustomToggleButton(
+                                isSelect: provider.day ?? false,
+                                title: "Day",
+                                onTap: () => provider.setShiftTime("day"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.night ?? false,
+                                title: "Night",
+                                onTap: () => provider.setShiftTime("night"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.rotational ?? false,
+                                title: "Rotational",
+                                onTap: () =>
+                                    provider.setShiftTime("rotational"),
+                              ),
+                              CustomToggleButton(
+                                isSelect: provider.flexible,
+                                title: "Flexible",
+                                onTap: () =>
+                                    provider.toggleWorkMode("flexible"),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
 
                         // Preferred Location
                         customText(title: 'Preferred Location', fontSize: 12),
@@ -279,7 +312,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         // Save Button
                         CustomButtonForSave(
                           isPading: false,
-                          onTap: () {
+                          onTap: () async {
                             if (!provider.immediateJoiner &&
                                 !provider.fifteenDays &&
                                 !provider.thirtyDays &&
@@ -292,7 +325,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
                               );
                               return;
                             }
-                            provider.savePreferences(
+                            await provider.savePreferences(
                               context,
                               isFromDrawer: widget.isFromDrawer,
                             );

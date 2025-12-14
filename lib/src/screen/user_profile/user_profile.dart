@@ -37,7 +37,7 @@ class _UserProfileState extends State<UserProfile> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProfileProvider>().fetchProfile();
-      context.read<CareerPreferenceProvider>().fetchCareerPreference();
+      context.read<CareerPreferenceProvider>().fetchCareerPreference(false);
     });
   }
 
