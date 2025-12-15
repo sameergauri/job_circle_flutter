@@ -1,4 +1,4 @@
-// ignore_for_file: todo, avoid_print, deprecated_member_use
+// ignore_for_file: todo, avoid_print, deprecated_member_use, use_build_context_synchronously
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -33,7 +33,7 @@ class CacheClearAppVersionService {
             data['resultData']['version']; //TODO::: latest version is one previous version of the currenct app ...
 
         const String currentVersion =
-            '1.1.6'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+            '1.1.7'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
         if (latestVersion.compareTo(currentVersion) > 0) {
           // Display update notificationra

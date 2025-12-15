@@ -77,7 +77,7 @@ class CareerProfileCard extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           _buildRowSingle(
-            label: "Preferred industry",
+            label: "Industry",
             value:
                 careerPreferenceProvider.model.industry == null ||
                     careerPreferenceProvider.model.industry!.isEmpty
@@ -87,7 +87,7 @@ class CareerProfileCard extends StatelessWidget {
           _buildDivider(),
 
           _buildRowSingle(
-            label: "Preferred Job Role",
+            label: "Job Role",
             value:
                 careerPreferenceProvider.model.role == null ||
                     careerPreferenceProvider.model.role!.isEmpty
@@ -97,7 +97,7 @@ class CareerProfileCard extends StatelessWidget {
 
           _buildDivider(),
           _buildRow(
-            label1: "Preferred work location",
+            label1: "Work location",
             value1:
                 careerPreferenceProvider.model.location == null ||
                     careerPreferenceProvider.model.location!.isEmpty
@@ -169,7 +169,7 @@ class CareerProfileCard extends StatelessWidget {
           ),
           _buildDivider(),
           _buildRowSingle(
-            label: "Preferred Shift Time",
+            label: "Shift Time",
             value:
                 careerPreferenceProvider.model.shiftTime == null ||
                     careerPreferenceProvider.model.shiftTime == " " ||
