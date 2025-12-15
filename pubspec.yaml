@@ -18,14 +18,14 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  google_fonts: ^6.3.1
+  google_fonts: ^6.3.3
   cupertino_icons: ^1.0.6
-  http: ^1.5.0
-  shared_preferences: ^2.5.3
+  http: ^1.6.0
+  shared_preferences: ^2.5.4
   provider: ^6.1.5+1
   flutter_typeahead: ^5.2.0
   intl: ^0.20.2
-  file_picker: ^10.3.3
+  file_picker: ^10.3.7
   url_launcher: ^6.3.2
   flutter_phone_direct_caller: ^2.2.1
   dotted_border: ^3.1.0
