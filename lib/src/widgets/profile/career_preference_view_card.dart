@@ -4,6 +4,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/utils.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
@@ -165,6 +166,18 @@ class CareerProfileCard extends StatelessWidget {
                 : careerPreferenceProvider.model.noticePeriod == "ninetyDays"
                 ? "90 Days"
                 : "Add Notice Period",
+          ),
+          _buildDivider(),
+          _buildRowSingle(
+            label: "Preferred Shift Time",
+            value:
+                careerPreferenceProvider.model.shiftTime == null ||
+                    careerPreferenceProvider.model.shiftTime == " " ||
+                    careerPreferenceProvider.model.shiftTime == ""
+                ? "Add Shift Time"
+                : careerPreferenceProvider.model.shiftTime
+                      .toString()
+                      .toTitleCase(),
           ),
         ],
       ),

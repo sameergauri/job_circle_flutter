@@ -411,6 +411,7 @@ class CareerPreferenceToggle extends StatelessWidget {
                 if (!value) {
                   provider.updateJobPrefEnable(false);
                   provider.savePreferences(context, isFromDrawer: true);
+                  onClose();
                 } else {
                   if (provider.hasExistingData) {
                     provider.updateJobPrefEnable(true);

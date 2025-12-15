@@ -6,6 +6,7 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/home_page.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
@@ -78,7 +79,12 @@ class Utils {
       if (empid == null || empid == 0) {
         NavigationService.pushAndRemoveUntil(LoginPage());
       } else {
-        provider.fetchJobs(applyCityFilter: true);
+        provider.fetchJobs(
+          applyCityFilter: true,
+        ); // fetch jobs with city filter
+        context.read<CareerPreferenceProvider>().fetchCareerPreference(
+          true,
+        ); // to check that career preference is set or not
         NavigationService.pushAndRemoveUntil(HomeScreen());
       }
     } else if (from == "otp") {
@@ -86,7 +92,12 @@ class Utils {
       if (isNew) {
         NavigationService.pushAndRemoveUntil(ResumeParsePage());
       } else {
-        provider.fetchJobs(applyCityFilter: false);
+        provider.fetchJobs(
+          applyCityFilter: false,
+        ); // fetch jobs with city filter
+        context.read<CareerPreferenceProvider>().fetchCareerPreference(
+          true,
+        ); // to check that career preference is set or not
         NavigationService.pushAndRemoveUntil(HomeScreen());
       }
     }

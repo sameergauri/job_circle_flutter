@@ -244,9 +244,7 @@ class CareerPreferenceProvider extends ChangeNotifier {
       await fetchCareerPreference(isFromDrawer);
       if (isFromDrawer && _model.enable == true) {
         updateJobPrefEnable(true);
-      }
-      Navigator.pop(context);
-    }
+      }}
   }
 
   // ----------------------------

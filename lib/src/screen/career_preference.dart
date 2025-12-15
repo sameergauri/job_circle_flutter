@@ -5,6 +5,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -329,6 +330,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
                               context,
                               isFromDrawer: widget.isFromDrawer,
                             );
+                            NavigationService.pop();
                           },
                           title: "Save",
                         ),
