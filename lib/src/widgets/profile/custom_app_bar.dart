@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/src/Resume_builder/templete_selection_screen.dart';
+import 'package:job_circle/src/Resume_builder/ui/resume_builder_screen.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ProfileModel data;
@@ -62,6 +65,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
+      actions: [
+        IconButton(
+          onPressed: () {
+            NavigationService.push(TemplateSelectionScreen(userProfile: data));
+          },
+          icon: const Icon(Icons.build),
+        ),
+      ],
     );
   }
 }
