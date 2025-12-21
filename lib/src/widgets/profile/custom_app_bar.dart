@@ -1,10 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:job_circle/src/Resume_builder/templete_selection_screen.dart';
-import 'package:job_circle/src/Resume_builder/ui/resume_builder_screen.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/model/user_profile/user_model.dart';
-import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:resume_builder_kit/resume_builder_kit.dart';
+
+import '../../model/user_profile/user_model.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final ProfileModel data;
@@ -68,7 +69,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           onPressed: () {
-            NavigationService.push(TemplateSelectionScreen(userProfile: data));
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ResumeTemplateSelectionScreen(
+                  userProfileJson: data.toJson(),
+                  geminiApiKey:
+                      'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc', // null = skip AI polishing
+                  onPdfGenerated: (Uint8List pdfBytes) {
+                    // Your custom save logic here
+                    // e.g., save to gallery, upload to server, share, etc.
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Resume saved successfully!'),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
           },
           icon: const Icon(Icons.build),
         ),
