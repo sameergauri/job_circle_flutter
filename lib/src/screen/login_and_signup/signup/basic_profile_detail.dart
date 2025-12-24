@@ -286,14 +286,12 @@ class _BasicProfileDetailState extends State<BasicProfileDetail> {
                   )
                   .toList(),
             ),
-            /*   SizedBox(height: 10),
-            const customText(title: "Profile Headline"),
-            CustomAutoSizeTextField(
-              maxLength: 120,
-              controller: provider.profileHeadline,
-              hintText: "Enter your profile headline",
-              maxline: 3,
-            ), */
+            SizedBox(height: 10),
+            const customText(title: "Linkdin URL", fontStyle: FontStyle.italic),
+            CustomTextFieldforAll(
+              controller: provider.linkedInUrl,
+              hint: "Enter your LinkedIn URL",
+            ),
             SizedBox(height: 15),
             CustomCheckboxRow(
               title: "I am Fully Vaccinated",

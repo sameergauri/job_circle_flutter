@@ -19,6 +19,7 @@ import 'package:job_circle/src/widgets/profile/custom_missing_info.dart';
 import 'package:job_circle/src/widgets/profile/custom_projects.dart';
 import 'package:job_circle/src/widgets/profile/custom_skill.dart';
 import 'package:job_circle/src/widgets/profile/custom_summary.dart';
+import 'package:job_circle/src/widgets/profile/custom_technical_skill.dart';
 import 'package:provider/provider.dart';
 
 class UserProfile extends StatefulWidget {
@@ -167,14 +168,27 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.allSkills != "" &&
                           profileData.allSkills != [])
                         SkillsSection(provider: provider),
+                      //for technical skills
+                      if (profileData.allSkills != null &&
+                          profileData.allSkills != "" &&
+                          profileData.allSkills != [])
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: const Divider(
+                            color: Constants.lightdull,
+                            thickness: 6,
+                          ),
+                        ),
+                      if (profileData.allSkills != null &&
+                          profileData.allSkills != "" &&
+                          profileData.allSkills != [])
+                        CustomTechnicalSkill(provider: provider),
+                      //
                       const Divider(color: Constants.lightdull, thickness: 6),
                       CustomLanguageKnownContainer(profileProvider: provider),
                       const SizedBox(height: 10),
                       if (careerPreferenceProvider.hasExistingData)
-                        const Divider(
-                          color: Constants.lightdull,
-                          thickness: 6,
-                        ),
+                        const Divider(color: Constants.lightdull, thickness: 6),
                       if (careerPreferenceProvider.hasExistingData)
                         CareerProfileCard(
                           // career preference card

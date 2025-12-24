@@ -39,6 +39,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   TextEditingController profileHeadline = TextEditingController();
   TextEditingController skillController = TextEditingController();
   TextEditingController bio = TextEditingController();
+  TextEditingController linkedInUrl = TextEditingController();
 
   // Experience Controllers
   TextEditingController jobrole = TextEditingController();
@@ -137,6 +138,8 @@ class SignupCreateUserProvider with ChangeNotifier {
   List<String> _apifetchSkills = [];
   List<String> _tempSelectedSkills = [];
   final List<String> _selectedSkills = [];
+  final List<String> _selectedTechnicalSkills = [];
+  final List<String> _tempSelectedTechSkill = [];
 
   // Experience States
   String? _empType;
@@ -176,6 +179,10 @@ class SignupCreateUserProvider with ChangeNotifier {
   bool _showEducationForm = false;
   int? _editingEducationIndex;
   bool _isRemote = false;
+  bool _fullimecourse = false,
+      _parttimecourse = false,
+      _distancelearning = false,
+      _correspondence = false;
 
   // Certificate States
   String? _certificate;
@@ -185,6 +192,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   final List<CertificationRequest> _certificateModel = [];
   bool _showCertificateForm = false;
   int? _editingCertificateIndex;
+  bool _dontHaveExpiry = false;
 
   // Language States
   List<String> _language = [];
@@ -233,6 +241,8 @@ class SignupCreateUserProvider with ChangeNotifier {
   List<String> get apiFetchSkills => _apifetchSkills;
   List<String> get tempSelectedSkills => _tempSelectedSkills;
   List<String> get selectedSkills => _selectedSkills;
+  List<String> get selectedTechnicalSkills => _selectedTechnicalSkills;
+  List<String> get tempSelectedTechSkill => _tempSelectedTechSkill;
 
   // Experience Getters
   String? get empType => _empType;
@@ -274,6 +284,10 @@ class SignupCreateUserProvider with ChangeNotifier {
   bool get isEditingEducation => _editingEducationIndex != null;
   int? get educationEditIndex => _editingEducationIndex;
   bool get isRemote => _isRemote;
+  bool get fullTimeCourse => _fullimecourse;
+  bool get partTimeCourse => _parttimecourse;
+  bool get distanceLearning => _distancelearning;
+  bool get correspondenceCourse => _correspondence;
 
   // Certificate Getters
   String? get certificateFile => _certificate;
@@ -285,6 +299,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   int? get certifiEditIndex => _editingCertificateIndex;
   bool get hasCertData =>
       certificateName.text.isNotEmpty || organizationName.text.isNotEmpty;
+  bool get dontHaveExpiry => _dontHaveExpiry;
 
   // Project getter.
   String? get projectDuration => _project_duration;
@@ -416,6 +431,16 @@ class SignupCreateUserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void toggleTechnicalSkill(String lang) {
+    final normalized = lang.trim();
+    if (_tempSelectedTechSkill.contains(normalized)) {
+      _tempSelectedTechSkill.remove(normalized);
+    } else {
+      _tempSelectedTechSkill.add(normalized);
+    }
+    notifyListeners();
+  }
+
   void toggleSkill(String lang) {
     final normalized = lang.trim();
     if (_tempSelectedSkills.contains(normalized)) {
@@ -451,12 +476,14 @@ class SignupCreateUserProvider with ChangeNotifier {
     locality.clear();
     pincode.clear();
     profileHeadline.clear();
+    linkedInUrl.clear();
     _male = false;
     _female = false;
     _vaccinated = false;
     _vaccinationcertificate = null;
     _selectedLanguage.clear();
     _age = null;
+    _selectedTechnicalSkills.clear();
     notifyListeners();
   }
 
@@ -800,6 +827,29 @@ class SignupCreateUserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setCourseType(String input) {
+    _fullimecourse = false;
+    _parttimecourse = false;
+    _distancelearning = false;
+    _correspondence = false;
+
+    switch (input.toLowerCase()) {
+      case 'fulltime':
+        _fullimecourse = true;
+        break;
+      case 'parttime':
+        _parttimecourse = true;
+        break;
+      case 'distance learning':
+        _distancelearning = true;
+        break;
+      case 'correspondence':
+        _correspondence = true;
+        break;
+    }
+    notifyListeners();
+  }
+
   void setDegreeCertificate(bool value) {
     _degreeCertificate = value;
     _allEducationDocs = false;
@@ -939,6 +989,10 @@ class SignupCreateUserProvider with ChangeNotifier {
     _degreeCertificate = false;
     _allEducationDocs = false;
     _isRemote = false;
+    _fullimecourse = false;
+    _parttimecourse = false;
+    _distancelearning = false;
+    _correspondence = false;
   }
 
   // Certificate Setters and Functions
@@ -1032,6 +1086,15 @@ class SignupCreateUserProvider with ChangeNotifier {
     });
   }
 
+  void SetDontHaveExpiry(bool value) {
+    _dontHaveExpiry = value;
+    if (value) {
+      validmonth.clear();
+      validyear.clear();
+    }
+    notifyListeners();
+  }
+
   void clearCertificateForm() {
     certificateName.clear();
     organizationName.clear();
@@ -1045,6 +1108,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     _certificateDocument = false;
     _allCertificateDocs = false;
     _certificate = null;
+    _dontHaveExpiry = false;
   }
 
   /*  // Skills Update (Assuming skills are part of experience or separate; here treating as list)
@@ -1769,6 +1833,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     proj_startYear.dispose();
     proj_endMonth.dispose();
     proj_endYear.dispose();
+    linkedInUrl.dispose();
     project_title.removeListener(() {});
     project_decription.removeListener(() {});
     certificateName.removeListener(() {});

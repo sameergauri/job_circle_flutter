@@ -42,7 +42,11 @@ class AddProjects extends StatelessWidget {
                       !provider.showProjectForm
                   ? SafeArea(
                       child: Padding(
-                        padding: const EdgeInsets.only(left: 10, right: 10,bottom: 5 ),
+                        padding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                          bottom: 5,
+                        ),
                         child: CustomButtonForSave(
                           isPading: false,
                           onTap: () {
@@ -220,6 +224,13 @@ class AddProjects extends StatelessWidget {
                           hint: "Select Year",
                           controller: provider.proj_startYear,
                           isFirst: true,
+                          onChanged: (value) {
+                            // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+                            provider.notifyListeners();
+
+                            // Also clear the End Year because the old value might be invalid now
+                            provider.proj_endYear.clear();
+                          },
                         ),
                       ),
                     ],
@@ -242,6 +253,7 @@ class AddProjects extends StatelessWidget {
                           hint: "Select Year",
                           controller: provider.proj_endYear,
                           isFirst: false,
+                          firstYearController: provider.proj_startYear,
                         ),
                       ),
                     ],
@@ -320,7 +332,7 @@ class AddProjects extends StatelessWidget {
                       final item = sortedProjectsWithIndex[index];
                       final proj = item['project'] as UserProjectRequest;
                       final originalIndex = item['originalIndex'] as int;
-            
+
                       return Column(
                         children: [
                           CustomNewListTile(
@@ -356,7 +368,8 @@ class AddProjects extends StatelessWidget {
                                     color: Constants.subtitleclr,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                if (proj.duration != null && proj.duration != '')
+                                if (proj.duration != null &&
+                                    proj.duration != '')
                                   customText(
                                     title: proj.duration!,
                                     fontWeight: FontWeight.w500,
@@ -392,7 +405,7 @@ class AddProjects extends StatelessWidget {
                       );
                     },
                   );
-                }
+                },
               ),
             ),
           const SizedBox(height: 20),

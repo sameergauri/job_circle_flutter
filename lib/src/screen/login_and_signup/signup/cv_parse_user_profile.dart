@@ -14,6 +14,7 @@ import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_language.d
 import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_project.dart';
 import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_skill.dart';
 import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_summary.dart';
+import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_technical_skill.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 
@@ -111,6 +112,16 @@ class CvParseUserProfile extends StatelessWidget {
                       if (profileModel.userRequest!.skills != null &&
                           profileModel.userRequest!.skills!.isNotEmpty)
                         CvParseSkills(provider: provider),
+                      //
+                      //
+                      if (profileModel.userRequest!.skills != null &&
+                          profileModel.userRequest!.skills!.isNotEmpty)
+                        Divider(color: Constants.lightdull, thickness: 6),
+                      if (profileModel.userRequest!.skills != null &&
+                          profileModel.userRequest!.skills!.isNotEmpty)
+                        CvParseTechnicalSkill(provider: provider),
+                      //
+                      //
                       if (profileModel.userRequest!.languages != null &&
                           profileModel.userRequest!.languages!.isNotEmpty)
                         Divider(color: Constants.lightdull, thickness: 6),

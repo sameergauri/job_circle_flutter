@@ -296,6 +296,12 @@ class _EditBasicInfoState extends State<EditBasicInfo> {
               hintText: "Enter your profile headline",
               maxline: 3,
             ),
+            SizedBox(height: 10),
+            const customText(title: "Linkdin URL", fontStyle: FontStyle.italic),
+            CustomTextFieldforAll(
+              controller: provider.linkedInUrl,
+              hint: "Enter your LinkedIn URL",
+            ),
             SizedBox(height: 15),
             CustomCheckboxRow(
               title: "I am Fully Vaccinated",

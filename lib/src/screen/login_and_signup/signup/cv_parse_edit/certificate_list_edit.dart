@@ -145,6 +145,13 @@ class CertificateList extends StatelessWidget {
                   hint: "Select Year",
                   controller: provider.issueyear,
                   isFirst: true,
+                  onChanged: (value) {
+                    // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+                    provider.notifyListeners();
+
+                    // Also clear the Valid Year because the old value might be invalid now
+                    provider.validyear.clear();
+                  },
                 ),
               ),
             ],
@@ -167,6 +174,7 @@ class CertificateList extends StatelessWidget {
                   hint: "Select Year",
                   controller: provider.validyear,
                   isFirst: false,
+                  firstYearController: provider.issueyear,
                 ),
               ),
             ],

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
@@ -160,31 +161,54 @@ class ProfileCertificateEdit extends StatelessWidget {
                     hint: "Select Year",
                     controller: provider.issueyear,
                     isFirst: true,
+                    onChanged: (value) {
+                      // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+                      provider.notifyListeners();
+
+                      // Also clear the Valid Year because the old value might be invalid now
+                      provider.validyear.clear();
+                    },
                   ),
                 ),
               ],
             ),
+            if (provider.certDontHaveExpiry == false)
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10),
+                  const customText(title: "Valid till"),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: MonthDropdown(
+                          controller: provider.validmonth,
+                          hint: "Select Month",
+                        ),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: DropDownYear(
+                          hint: "Select Year",
+                          controller: provider.validyear,
+                          isFirst: false,
+                          firstYearController: provider.issueyear,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             SizedBox(height: 10),
-            const customText(title: "Valid till"),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width / 2.5,
-                  child: MonthDropdown(
-                    controller: provider.validmonth,
-                    hint: "Select Month",
-                  ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width / 2.5,
-                  child: DropDownYear(
-                    hint: "Select Year",
-                    controller: provider.validyear,
-                    isFirst: false,
-                  ),
-                ),
-              ],
+            CustomCheckboxRow(
+              title: "This certificate does not expire",
+              value: provider.certDontHaveExpiry,
+              onChanged: (value) {
+                provider.setCertificateDontHaveExpiry(value!);
+              },
             ),
 
             const SizedBox(height: 15),

@@ -166,6 +166,13 @@ class EducationList extends StatelessWidget {
                     hint: 'Select Year',
                     controller: provider.startyear,
                     isFirst: true,
+                    onChanged: (value) {
+                      // ignore: invalid_use_of_visible_for_testing_member
+                      provider.notifyListeners();
+
+                      // Also clear the End Year because the old value might be invalid now
+                      provider.endyear.clear();
+                    },
                   ),
                   // child: DropDownYear("Select Year", provider.startYear, true)
                 ),
@@ -191,6 +198,7 @@ class EducationList extends StatelessWidget {
                       hint: "Select Year",
                       controller: provider.endyear,
                       isFirst: false,
+                      firstYearController: provider.startyear,
                     ),
                   ),
                 ],

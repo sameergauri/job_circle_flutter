@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, unused_local_variable
+// ignore_for_file: non_constant_identifier_names, unused_local_variable, prefer_final_fields
 
 import 'package:flutter/widgets.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
@@ -44,6 +44,7 @@ class ProfileProvider with ChangeNotifier {
   TextEditingController pincode = TextEditingController();
   TextEditingController profileHeadline = TextEditingController();
   TextEditingController skillController = TextEditingController();
+  TextEditingController linkdinUrl = TextEditingController();
   List<String> _language = [];
   final List<String> _selectedLanguage = [];
   bool _isLoadingLanguages = false,
@@ -55,9 +56,11 @@ class ProfileProvider with ChangeNotifier {
   String _vaccinationcertificate = 'null';
   String? _age;
   List<String> _tempSelectedSkill = [];
+  final List<String> _tempTechSkill = [];
   final List<String> _selectedSkills = [];
   List<String> _apifetchSkills = [];
   bool _isSummaryLoading = false, _isSummaryGenereted = false;
+  final List<String> _selectedTechnicalSkill = [];
 
   List<String> get language => _language;
   List<String> get selectedLanguages => _selectedLanguage;
@@ -75,6 +78,8 @@ class ProfileProvider with ChangeNotifier {
   List<String> get apifetchSkills => _apifetchSkills;
   bool get isSummaryLoading => _isSummaryLoading;
   bool get isSummaryGenereted => _isSummaryGenereted;
+  List<String> get selectedTechnicalSkills => _selectedTechnicalSkill;
+  List<String> get tempSelectedTechnicalSkills => _tempTechSkill;
 
   Future<void> fetchSummaryUsingAi() async {
     if (_isSummaryLoading) return;
@@ -152,6 +157,16 @@ class ProfileProvider with ChangeNotifier {
       _tempSelectedSkill.remove(normalized);
     } else {
       _tempSelectedSkill.add(normalized);
+    }
+    notifyListeners();
+  }
+
+  void toggleTechnicalSkill(String lang) {
+    final normalized = lang.trim();
+    if (_tempTechSkill.contains(normalized)) {
+      _tempTechSkill.remove(normalized);
+    } else {
+      _tempTechSkill.add(normalized);
     }
     notifyListeners();
   }
@@ -294,6 +309,7 @@ class ProfileProvider with ChangeNotifier {
     location.clear();
     locality.clear();
     pincode.clear();
+    linkdinUrl.clear();
     profileHeadline.clear();
     _male = false;
     _female = false;
@@ -304,6 +320,7 @@ class ProfileProvider with ChangeNotifier {
     _tempSelectedSkill.clear();
     _selectedSkills.clear();
     _apifetchSkills.clear();
+    _selectedSkills.clear();
     notifyListeners();
   }
 
@@ -848,6 +865,9 @@ class ProfileProvider with ChangeNotifier {
   int? _editingEducationIndex;
   int? _editingEducationId;
   bool _isRemote = false;
+  bool _fullTimeCourse = false,
+      _partTimeCourse = false,
+      _distanceLearning = false;
 
   bool get currentlyStudying => _currentlyStudying;
   String? get markSheet => _markSheet;
@@ -860,6 +880,9 @@ class ProfileProvider with ChangeNotifier {
   int? get editingEducationId => _editingEducationId;
   bool get isRemote => _isRemote;
   bool get showEducationForm => _showEducationForm;
+  bool get fullTimeCourse => _fullTimeCourse;
+  bool get partTimeCourse => _partTimeCourse;
+  bool get distanceLearning => _distanceLearning;
 
   void setShowEducationForm(bool value) {
     _showEducationForm = value;
@@ -895,6 +918,25 @@ class ProfileProvider with ChangeNotifier {
   void setIsRemote(bool value) {
     _isRemote = value;
     if (value) schoolCollegeName.clear();
+    notifyListeners();
+  }
+
+  void setCourseType(String input) {
+    _fullTimeCourse = false;
+    _partTimeCourse = false;
+    _distanceLearning = false;
+
+    switch (input.toLowerCase()) {
+      case 'fulltime':
+        _fullTimeCourse = true;
+        break;
+      case 'parttime':
+        _partTimeCourse = true;
+        break;
+      case 'distance learning':
+        _distanceLearning = true;
+        break;
+    }
     notifyListeners();
   }
 
@@ -1417,6 +1459,9 @@ class ProfileProvider with ChangeNotifier {
     _degreeCertificate = false;
     _allEducationDocs = false;
     _isRemote = false;
+    _fullTimeCourse = false;
+    _partTimeCourse = false;
+    _distanceLearning = false;
 
     // Reset editing trackers
     _editingEducationIndex = null;
@@ -1445,6 +1490,7 @@ class ProfileProvider with ChangeNotifier {
   final List<CertificationRequest> _certificateModel = [];
   bool _showCertificateForm = false;
   int? _editingCertificateIndex;
+  bool _certDontHaveExpiry = false;
 
   String? get certificateFile => _certificate;
   List<CertificationRequest> get certificateModel => _certificateModel;
@@ -1454,6 +1500,7 @@ class ProfileProvider with ChangeNotifier {
   bool get isEditingCertificate => _editingCertificateIndex != null;
   int? get isEditCertificateIndex => _editingCertificateIndex;
   bool get showCertificateForm => _showCertificateForm;
+  bool get certDontHaveExpiry => _certDontHaveExpiry;
 
   int? _editingCertificateId;
 
@@ -1462,8 +1509,8 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void setCertificateNoExpiration(bool value) {
-    _certificateNoExpiration = value;
+  void setCertificateDontHaveExpiry(bool value) {
+    _certDontHaveExpiry = value;
     if (value) {
       validmonth.clear();
       validyear.clear();
@@ -1834,6 +1881,7 @@ class ProfileProvider with ChangeNotifier {
     _certificate = null;
     _editingCertificateIndex = null;
     _editingCertificateId = null;
+    _certDontHaveExpiry = false;
     notifyListeners();
   }
 
@@ -2479,6 +2527,7 @@ class ProfileProvider with ChangeNotifier {
     credentialId.dispose();
     credentialUrl.dispose();
     issuemonth.dispose();
+    linkdinUrl.dispose();
     issueyear.dispose();
     validmonth.dispose();
     validyear.dispose();

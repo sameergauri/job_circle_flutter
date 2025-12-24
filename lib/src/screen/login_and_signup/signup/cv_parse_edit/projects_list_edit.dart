@@ -139,6 +139,13 @@ class ProjectList extends StatelessWidget {
                     hint: "Select Year",
                     controller: provider.proj_startYear,
                     isFirst: true,
+                    onChanged: (value) {
+                      // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+                      provider.notifyListeners();
+
+                      // Also clear the End Year because the old value might be invalid now
+                      provider.proj_endYear.clear();
+                    },
                   ),
                 ),
               ],
@@ -161,6 +168,7 @@ class ProjectList extends StatelessWidget {
                     hint: "Select Year",
                     controller: provider.proj_endYear,
                     isFirst: false,
+                    firstYearController: provider.proj_startYear,
                   ),
                 ),
               ],
@@ -184,7 +192,7 @@ class ProjectList extends StatelessWidget {
                 ],
               ),
             Padding(
-               padding: const EdgeInsets.only(bottom: 5, top: 10),
+              padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {

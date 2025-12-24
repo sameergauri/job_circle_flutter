@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, invalid_use_of_protected_member
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
@@ -17,6 +17,7 @@ import 'package:job_circle/src/utils/custom_get_month.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_document_upload_button.dart';
+import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/button/custom_icon_button.dart';
 import 'package:job_circle/src/widgets/container/custom_container_to_view_document.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
@@ -49,7 +50,7 @@ class ProfileEducationEdit extends StatelessWidget {
                 iconTheme: const IconThemeData(color: Colors.black),
                 title: const OnboardingTitle(title: "Education", fontSize: 16),
                 actions: [
-                  !provider.showEducationForm &&  
+                  !provider.showEducationForm &&
                           provider.profile!.educationDetails!.isNotEmpty
                       ? IconButton(
                           onPressed: () {
@@ -179,6 +180,13 @@ class ProfileEducationEdit extends StatelessWidget {
                     hint: 'Select Year',
                     controller: provider.startyear,
                     isFirst: true,
+                    onChanged: (value) {
+                      // ignore: invalid_use_of_visible_for_testing_member
+                      provider.notifyListeners();
+
+                      // Also clear the End Year because the old value might be invalid now
+                      provider.endyear.clear();
+                    },
                   ),
                   // child: DropDownYear("Select Year", provider.startYear, true)
                 ),
@@ -204,10 +212,39 @@ class ProfileEducationEdit extends StatelessWidget {
                       hint: "Select Year",
                       controller: provider.endyear,
                       isFirst: false,
+                      firstYearController: provider.startyear,
                     ),
                   ),
                 ],
               ),
+            SizedBox(height: 10),
+            const customText(title: "Course Type", fontStyle: FontStyle.italic),
+            Wrap(
+              spacing: 10,
+              children: [
+                CustomToggleButton(
+                  title: "FullTime",
+                  isSelect: provider.fullTimeCourse,
+                  onTap: () {
+                    provider.setCourseType("FullTime");
+                  },
+                ),
+                CustomToggleButton(
+                  title: "PartTime",
+                  isSelect: provider.partTimeCourse,
+                  onTap: () {
+                    provider.setCourseType("PartTime");
+                  },
+                ),
+                CustomToggleButton(
+                  title: "Distance Learning",
+                  isSelect: provider.distanceLearning,
+                  onTap: () {
+                    provider.setCourseType("Distance Learning");
+                  },
+                ),
+              ],
+            ),
             const SizedBox(height: 10),
             CustomCheckboxRow(
               title: "Currently Studying",
