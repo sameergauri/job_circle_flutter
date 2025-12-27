@@ -108,6 +108,7 @@ class ProjectList extends StatelessWidget {
             CustomTextFieldforAll(
               controller: provider.project_url,
               hint: "Enter the url of projects",
+              maxline: 2,
             ),
             SizedBox(height: 10),
             const customText(title: "Skills*", fontStyle: FontStyle.italic),

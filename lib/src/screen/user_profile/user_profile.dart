@@ -169,9 +169,9 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.allSkills != [])
                         SkillsSection(provider: provider),
                       //for technical skills
-                      if (profileData.allSkills != null &&
-                          profileData.allSkills != "" &&
-                          profileData.allSkills != [])
+                      if (profileData.technicalSkills != null &&
+                          profileData.technicalSkills != "" &&
+                          profileData.technicalSkills != [])
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: const Divider(
@@ -179,9 +179,9 @@ class _UserProfileState extends State<UserProfile> {
                             thickness: 6,
                           ),
                         ),
-                      if (profileData.allSkills != null &&
-                          profileData.allSkills != "" &&
-                          profileData.allSkills != [])
+                      if (profileData.technicalSkills != null &&
+                          profileData.technicalSkills != "" &&
+                          profileData.technicalSkills != [])
                         CustomTechnicalSkill(provider: provider),
                       //
                       const Divider(color: Constants.lightdull, thickness: 6),

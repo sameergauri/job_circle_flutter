@@ -40,6 +40,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   TextEditingController skillController = TextEditingController();
   TextEditingController bio = TextEditingController();
   TextEditingController linkedInUrl = TextEditingController();
+  TextEditingController profileRole = TextEditingController();
 
   // Experience Controllers
   TextEditingController jobrole = TextEditingController();
@@ -61,7 +62,6 @@ class SignupCreateUserProvider with ChangeNotifier {
   FocusNode lastWorkingDateFocusNode = FocusNode();
   FocusNode jobTitleFocusNode = FocusNode();
   //
-
   // Education Controllers
   TextEditingController schoolCollegeName = TextEditingController();
   TextEditingController universityBoardName = TextEditingController();
@@ -477,6 +477,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     pincode.clear();
     profileHeadline.clear();
     linkedInUrl.clear();
+    profileRole.clear();
     _male = false;
     _female = false;
     _vaccinated = false;
@@ -899,6 +900,15 @@ class SignupCreateUserProvider with ChangeNotifier {
       endMonth: endMonthInt,
       isCurrent: _currentlyStudy ? 1 : 0,
       marksheet: _markSheet,
+      courseType: _fullimecourse
+          ? "Fulltime"
+          : _parttimecourse
+          ? "Parttime"
+          : _distancelearning
+          ? "Distance Learning"
+          : _correspondence
+          ? "Correspondence"
+          : "",
     );
 
     if (_editingEducationIndex != null) {
@@ -943,7 +953,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     endyear.text = edu.passingYear?.toString() ?? '';
     _currentlyStudy = edu.isCurrent == 1;
     _markSheet = edu.marksheet;
-
+    if (edu.courseType != null) setCourseType(edu.courseType!);
     _editingEducationIndex = index;
     setShowEducationForm(true);
     notifyListeners();
@@ -1017,6 +1027,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       endYear: int.tryParse(validyear.text),
       endMonth: validmonth.text,
       certificate: _certificate,
+      isLifetime: _dontHaveExpiry ? true : false,
     );
 
     if (_editingCertificateIndex != null) {
@@ -1044,7 +1055,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     validmonth.text = cert.endMonth ?? '';
     validyear.text = cert.endYear?.toString() ?? '';
     _certificate = cert.certificate;
-
+    _dontHaveExpiry = cert.isLifetime ?? false;
     _editingCertificateIndex = index;
     setShowCertificateForm(true);
     notifyListeners();
@@ -1151,7 +1162,13 @@ class SignupCreateUserProvider with ChangeNotifier {
       projectTitle: project_title.text,
       description: project_decription.text,
       role: project_role.text,
-      url: project_url.text,
+      url: project_url.text.isNotEmpty
+          ? project_url.text
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList()
+          : [],
       duration: _project_duration,
       technologiesUsed: _project_technology_used,
       itSkillsByProject: _project_it_skills.join(','),
@@ -1173,10 +1190,12 @@ class SignupCreateUserProvider with ChangeNotifier {
     if (index < 0 || index >= _projectModel.length) return;
 
     final cert = _projectModel[index];
-    project_title.text = cert.projectTitle.toString();
-    project_decription.text = cert.description.toString();
+    project_title.text = cert.projectTitle ?? '';
+    project_decription.text = cert.description ?? '';
     project_role.text = cert.role ?? '';
-    project_url.text = cert.url != null ? cert.url.toString() : '';
+    project_url.text = (cert.url != null && cert.url!.isNotEmpty)
+        ? cert.url!.join(', ')
+        : '';
     if (cert.duration != null) {
       parseAndAssignProjectDuration(cert.duration!);
     }
@@ -1332,6 +1351,8 @@ class SignupCreateUserProvider with ChangeNotifier {
         vaccination: _vaccinated,
         vaccinationCertificate: _vaccinationcertificate,
         profileHeadline: profileHeadline.text,
+        profileRole: profileRole.text,
+          linkdlnUrl: linkedInUrl.text,
       ),
     );
   }
@@ -1431,6 +1452,8 @@ class SignupCreateUserProvider with ChangeNotifier {
           vaccination: null,
           vaccinationCertificate: null,
           profileHeadline: null,
+          profileRole: null,
+          linkdlnUrl: null,                   
         ),
         experienceRequest: mapExperiences(_cvParseModel!.experience),
         educationRequest: mapEducations(_cvParseModel!.education),
@@ -1485,6 +1508,8 @@ class SignupCreateUserProvider with ChangeNotifier {
       dateofbirth.text = userRequest.dateOfBirth ?? '';
       profileHeadline.text = userRequest.profileHeadline ?? '';
       bio.text = userRequest.bio ?? '';
+      profileRole.text = userRequest.profileRole ?? '';
+      linkedInUrl.text = userRequest.linkdlnUrl ?? '';  
       _tempSelectedSkills = List<String>.from(userRequest.skills!);
 
       // Set gender
@@ -1603,13 +1628,14 @@ class SignupCreateUserProvider with ChangeNotifier {
         projectTitle: proj.projectTitle,
         description: proj.description,
         role: proj.role,
-        url:
-            proj.url != null &&
-                proj.url != "null" &&
-                proj.url != '' &&
-                proj.url != ' '
-            ? proj.url
-            : null,
+        url: proj.url is List<String>
+            ? List<String>.from(proj.url as List)
+            : (proj.url != null &&
+                      proj.url != "null" &&
+                      proj.url != '' &&
+                      proj.url != ' '
+                  ? [proj.url.toString()]
+                  : <String>[]),
         duration: proj.duration,
         technologiesUsed: proj.technologiesUsed,
         itSkillsByProject: proj.itSkillsByProject,
@@ -1688,6 +1714,8 @@ class SignupCreateUserProvider with ChangeNotifier {
       experience: _experience ? 1 : 0,
       education: _graduate ? 1 : 0,
       skills: tempSelectedSkills,
+      profileRole: profileRole.text,
+      linkdlnUrl: linkedInUrl.text,
     );
 
     // Update profile model
@@ -1834,6 +1862,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     proj_endMonth.dispose();
     proj_endYear.dispose();
     linkedInUrl.dispose();
+    profileRole.dispose();
     project_title.removeListener(() {});
     project_decription.removeListener(() {});
     certificateName.removeListener(() {});

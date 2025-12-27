@@ -3,12 +3,14 @@ class CreateNewUserModel {
   final List<EducationRequest>? educationRequest;
   final List<ExperienceRequest>? experienceRequest;
   final List<UserProjectRequest>? userProjectRequest;
+  final List<AwardsAndAchievementsModel>? awardsAndAchievementsRequest;
   final UserRequest? userRequest;
 
   CreateNewUserModel({
     this.certificationsRequest,
     this.educationRequest,
     this.experienceRequest,
+    this.awardsAndAchievementsRequest,
     this.userRequest,
     this.userProjectRequest,
   });
@@ -18,6 +20,7 @@ class CreateNewUserModel {
     List<EducationRequest>? educationRequest,
     List<ExperienceRequest>? experienceRequest,
     List<UserProjectRequest>? userProjectRequest,
+    List<AwardsAndAchievementsModel>? awardsAndAchievementsRequest,
     UserRequest? userRequest,
   }) {
     return CreateNewUserModel(
@@ -26,6 +29,8 @@ class CreateNewUserModel {
       educationRequest: educationRequest ?? this.educationRequest,
       experienceRequest: experienceRequest ?? this.experienceRequest,
       userProjectRequest: userProjectRequest ?? this.userProjectRequest,
+      awardsAndAchievementsRequest:
+          awardsAndAchievementsRequest ?? this.awardsAndAchievementsRequest,
       userRequest: userRequest ?? this.userRequest,
     );
   }
@@ -44,6 +49,10 @@ class CreateNewUserModel {
       userProjectRequest: (json['userProjectRequest'] as List?)
           ?.map((e) => UserProjectRequest.fromJson(e))
           .toList(),
+      awardsAndAchievementsRequest:
+          (json['awardAndAchievementRequest'] as List?)
+              ?.map((e) => AwardsAndAchievementsModel.fromJson(e))
+              .toList(),
       userRequest: json['userRequest'] != null
           ? UserRequest.fromJson(json['userRequest'])
           : null,
@@ -58,8 +67,27 @@ class CreateNewUserModel {
       "educationRequest": educationRequest?.map((e) => e.toJson()).toList(),
       "experienceRequest": experienceRequest?.map((e) => e.toJson()).toList(),
       'userProjectRequest': userProjectRequest?.map((e) => e.toJson()).toList(),
+      "awardAndAchievementRequest": awardsAndAchievementsRequest
+          ?.map((e) => e.toJson())
+          .toList(),
       "userRequest": userRequest?.toJson(),
     };
+  }
+}
+
+class AwardsAndAchievementsModel {
+  final String? title;
+  final String? description;
+
+  AwardsAndAchievementsModel({this.title, this.description});
+  factory AwardsAndAchievementsModel.fromJson(Map<String, dynamic> json) {
+    return AwardsAndAchievementsModel(
+      title: json['title'],
+      description: json['description'],
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {"title": title, "description": description};
   }
 }
 
@@ -78,6 +106,7 @@ class CertificationRequest {
   final String? startMonth;
   final int? startYear;
   final int? userId;
+  final bool? isLifetime;
 
   CertificationRequest({
     this.certificate,
@@ -94,6 +123,7 @@ class CertificationRequest {
     this.startMonth,
     this.startYear,
     this.userId,
+    this.isLifetime,
   });
 
   CertificationRequest copyWith({
@@ -111,6 +141,7 @@ class CertificationRequest {
     String? startMonth,
     int? startYear,
     int? userId,
+    bool? isLifetime,
   }) {
     return CertificationRequest(
       certificate: certificate ?? this.certificate,
@@ -127,6 +158,7 @@ class CertificationRequest {
       startMonth: startMonth ?? this.startMonth,
       startYear: startYear ?? this.startYear,
       userId: userId ?? this.userId,
+      isLifetime: isLifetime ?? this.isLifetime,
     );
   }
 
@@ -146,6 +178,7 @@ class CertificationRequest {
       startMonth: json['startMonth'],
       startYear: json['startYear'],
       userId: json['userId'],
+      isLifetime: json['isLifetime'],
     );
   }
 
@@ -165,6 +198,7 @@ class CertificationRequest {
       "startMonth": startMonth,
       "startYear": startYear,
       "userId": userId,
+      "isLifetime": isLifetime,
     };
   }
 }
@@ -183,6 +217,7 @@ class EducationRequest {
   final int? startMonth;
   final String? university;
   final int? userId;
+  final String? courseType;
 
   EducationRequest({
     this.degreeSpc,
@@ -198,6 +233,7 @@ class EducationRequest {
     this.startMonth,
     this.university,
     this.userId,
+    this.courseType,
   });
 
   EducationRequest copyWith({
@@ -214,6 +250,7 @@ class EducationRequest {
     int? startMonth,
     String? university,
     int? userId,
+    String? courseType,
   }) {
     return EducationRequest(
       degreeSpc: degreeSpc ?? this.degreeSpc,
@@ -229,6 +266,7 @@ class EducationRequest {
       startMonth: startMonth ?? this.startMonth,
       university: university ?? this.university,
       userId: userId ?? this.userId,
+      courseType: courseType ?? this.courseType,
     );
   }
 
@@ -247,6 +285,7 @@ class EducationRequest {
       startMonth: json['startMonth'],
       university: json['university'],
       userId: json['userId'],
+      courseType: json['courseType'],
     );
   }
 
@@ -265,6 +304,7 @@ class EducationRequest {
       "startMonth": startMonth,
       "university": university,
       "userId": userId,
+      "courseType": courseType,
     };
   }
 }
@@ -455,6 +495,9 @@ class UserRequest {
   final String? userZone;
   final bool? vaccination;
   final String? vaccinationCertificate;
+  final String? profileRole;
+  final String? linkdlnUrl;
+  final List<String>? technicalSkills;
 
   UserRequest({
     this.alternateNo,
@@ -492,6 +535,9 @@ class UserRequest {
     this.userZone,
     this.vaccination,
     this.vaccinationCertificate,
+    this.profileRole,
+    this.linkdlnUrl,
+    this.technicalSkills,
   });
 
   UserRequest copyWith({
@@ -530,6 +576,9 @@ class UserRequest {
     String? userZone,
     bool? vaccination,
     String? vaccinationCertificate,
+    String? profileRole,
+    String? linkdlnUrl,
+    List<String>? technicalSkills,
   }) {
     return UserRequest(
       alternateNo: alternateNo ?? this.alternateNo,
@@ -568,6 +617,9 @@ class UserRequest {
       vaccination: vaccination ?? this.vaccination,
       vaccinationCertificate:
           vaccinationCertificate ?? this.vaccinationCertificate,
+      profileRole: profileRole ?? this.profileRole,
+      linkdlnUrl: linkdlnUrl ?? this.linkdlnUrl,
+      technicalSkills: technicalSkills ?? this.technicalSkills,
     );
   }
 
@@ -614,6 +666,11 @@ class UserRequest {
       userZone: json['userZone'],
       vaccination: json['vaccination'],
       vaccinationCertificate: json['vaccinationCertificate'],
+      profileRole: json['profileRole'],
+      linkdlnUrl: json['linkdlnUrl'],
+      technicalSkills: (json['technicalSkills'] as List?)
+          ?.map((e) => e.toString())
+          .toList(),
     );
   }
 
@@ -654,6 +711,9 @@ class UserRequest {
       "userZone": userZone,
       "vaccination": vaccination,
       "vaccinationCertificate": vaccinationCertificate,
+      "profileRole": profileRole,
+      "linkdlnUrl": linkdlnUrl,
+      "technicalSkills": technicalSkills,
     };
   }
 }
@@ -805,7 +865,7 @@ class UserProjectRequest {
   final String? projectTitle;
   final String? role;
   final List<String>? technologiesUsed;
-  final String? url;
+  final List<String>? url;
   final int? id;
 
   UserProjectRequest({
@@ -827,7 +887,7 @@ class UserProjectRequest {
     String? projectTitle,
     String? role,
     List<String>? technologiesUsed,
-    String? url,
+    List<String>? url,
     int? id,
   }) {
     return UserProjectRequest(
@@ -853,7 +913,7 @@ class UserProjectRequest {
       technologiesUsed: (json['TechnologiesUsed'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      url: json['URL'] as String?,
+      url: (json['URL'] as List<dynamic>?)?.map((e) => e as String).toList(),
       id: json['id'] as int?,
     );
   }

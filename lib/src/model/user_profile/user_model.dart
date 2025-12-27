@@ -24,10 +24,14 @@ class ProfileModel {
   bool? isActive;
   String? experience;
   dynamic education;
+  String? linkdlnUrl;
+  String? profileRole;
+  List<String>? technicalSkills;
   List<Experience>? experiences;
   List<EducationDetail>? educationDetails;
   List<CertificationDetailModel>? certifications;
   List<ProjectModel>? projects;
+  List<AwardsAndAchievementsModel>? awardsAndAchievements;
 
   ProfileModel({
     this.id,
@@ -53,12 +57,16 @@ class ProfileModel {
     this.vaccination,
     this.resume,
     this.isActive,
+    this.linkdlnUrl,
+    this.profileRole,
+    this.technicalSkills,
     this.experience,
     this.education,
     this.experiences,
     this.educationDetails,
     this.certifications,
     this.projects,
+    this.awardsAndAchievements,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
@@ -93,6 +101,11 @@ class ProfileModel {
     isActive: json["isActive"],
     experience: json["experience"],
     education: json["education"],
+    linkdlnUrl: json["linkdlnUrl"],
+    profileRole: json["profileRole"],
+    technicalSkills: json["technicalSkills"] == null
+        ? []
+        : List<String>.from(json["technicalSkills"].map((x) => x)),
     experiences: json["experiences"] == null
         ? []
         : List<Experience>.from(
@@ -114,6 +127,13 @@ class ProfileModel {
         ? []
         : List<ProjectModel>.from(
             json['projects'].map((e) => ProjectModel.fromJson(e)),
+          ),
+    awardsAndAchievements: json['awardsAndAchievements'] == null
+        ? []
+        : List<AwardsAndAchievementsModel>.from(
+            json['awardsAndAchievements'].map(
+              (x) => AwardsAndAchievementsModel.fromJson(x),
+            ),
           ),
   );
 
@@ -149,6 +169,11 @@ class ProfileModel {
     "isActive": isActive,
     "experience": experience,
     "education": education,
+    "linkdlnUrl": linkdlnUrl,
+    "profileRole": profileRole,
+    "technicalSkills": technicalSkills == null
+        ? []
+        : List<dynamic>.from(technicalSkills!.map((x) => x)),
     "experiences": experiences == null
         ? []
         : List<dynamic>.from(experiences!.map((x) => x.toJson())),
@@ -158,6 +183,12 @@ class ProfileModel {
     "certifications": certifications == null
         ? []
         : List<dynamic>.from(certifications!.map((x) => x.toJson())),
+    "projects": projects == null
+        ? []
+        : List<dynamic>.from(projects!.map((x) => x.toJson())),
+    "awardsAndAchievements": awardsAndAchievements == null
+        ? []
+        : List<dynamic>.from(awardsAndAchievements!.map((x) => x.toJson())),
   };
 }
 
@@ -284,6 +315,7 @@ class EducationDetail {
   String? degreeSpc;
   String? universityLogo;
   int? isRemote;
+  String? courseType;
 
   EducationDetail({
     this.id,
@@ -300,6 +332,7 @@ class EducationDetail {
     this.degreeSpc,
     this.universityLogo,
     this.isRemote,
+    this.courseType
   });
 
   factory EducationDetail.fromJson(Map<String, dynamic> json) =>
@@ -318,6 +351,7 @@ class EducationDetail {
         degreeSpc: json["degree_spc"],
         universityLogo: json["universityLogo"],
         isRemote: json["isRemote"],
+        courseType: json["courseType"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -335,6 +369,7 @@ class EducationDetail {
     "degree_spc": degreeSpc,
     "universityLogo": universityLogo,
     "isRemote": isRemote,
+    "courseType": courseType,
   };
 }
 
@@ -352,6 +387,7 @@ class CertificationDetailModel {
   int? startYear;
   int? endYear;
   String? certLogo;
+  bool? isLifetime;
 
   CertificationDetailModel({
     this.id,
@@ -367,6 +403,7 @@ class CertificationDetailModel {
     this.startYear,
     this.endYear,
     this.certLogo,
+    this.isLifetime,
   });
 
   factory CertificationDetailModel.fromJson(Map<String, dynamic> json) =>
@@ -384,6 +421,7 @@ class CertificationDetailModel {
         startYear: json["startYear"],
         endYear: json["endYear"],
         certLogo: json["certLogo"],
+        isLifetime: json["isLifetime"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -400,6 +438,7 @@ class CertificationDetailModel {
     "startYear": startYear,
     "endYear": endYear,
     "certLogo": certLogo,
+    "isLifetime": isLifetime,
   };
 }
 
@@ -410,7 +449,7 @@ class ProjectModel {
   final String? projectTitle;
   final String? role;
   final List<String>? technologiesUsed;
-  final String? url;
+  final List<String>? url;
   final int? id;
 
   ProjectModel({
@@ -434,7 +473,7 @@ class ProjectModel {
       technologiesUsed: (json['TechnologiesUsed'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      url: json['URL'] as String?,
+      url: (json['URL'] as List<dynamic>?)?.map((e) => e as String).toList(),
       id: json['id'] as int?,
     );
   }
@@ -450,5 +489,20 @@ class ProjectModel {
       'URL': url,
       'id': id,
     };
+  }
+}
+
+class AwardsAndAchievementsModel {
+  final String? title;
+  final String? description;
+  AwardsAndAchievementsModel({this.title, this.description});
+  factory AwardsAndAchievementsModel.fromJson(Map<String, dynamic> json) {
+    return AwardsAndAchievementsModel(
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {'title': title, 'description': description};
   }
 }

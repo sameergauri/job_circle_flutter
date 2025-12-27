@@ -44,7 +44,9 @@ class ProfileProvider with ChangeNotifier {
   TextEditingController pincode = TextEditingController();
   TextEditingController profileHeadline = TextEditingController();
   TextEditingController skillController = TextEditingController();
+  TextEditingController technicalSkillController = TextEditingController();
   TextEditingController linkdinUrl = TextEditingController();
+  TextEditingController profileRole = TextEditingController();
   List<String> _language = [];
   final List<String> _selectedLanguage = [];
   bool _isLoadingLanguages = false,
@@ -56,7 +58,7 @@ class ProfileProvider with ChangeNotifier {
   String _vaccinationcertificate = 'null';
   String? _age;
   List<String> _tempSelectedSkill = [];
-  final List<String> _tempTechSkill = [];
+  List<String> _tempTechSkill = [];
   final List<String> _selectedSkills = [];
   List<String> _apifetchSkills = [];
   bool _isSummaryLoading = false, _isSummaryGenereted = false;
@@ -125,8 +127,18 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearTechnicalSkill() {
+    _tempTechSkill.clear();
+    notifyListeners();
+  }
+
   void assignSkillsToSelectedSkillList(List<String> skill) {
     _tempSelectedSkill = List<String>.from(skill);
+    notifyListeners();
+  }
+
+  void assignTechnicalSkillsToSelectedSkillList(List<String> skill) {
+    _tempTechSkill = List<String>.from(skill);
     notifyListeners();
   }
 
@@ -221,6 +233,8 @@ class ProfileProvider with ChangeNotifier {
             _profile!.vaccinationCertificate != 'null'
         ? _profile!.vaccinationCertificate
         : 'null';
+    profileRole.text = _profile!.profileRole ?? '';
+    linkdinUrl.text = _profile!.linkdlnUrl ?? '';
 
     notifyListeners();
   }
@@ -254,6 +268,8 @@ class ProfileProvider with ChangeNotifier {
           ? profileHeadline.text
           : 'null',
       skills: _profile?.allSkills,
+      linkdlnUrl: linkdinUrl.text.isNotEmpty ? linkdinUrl.text : null,
+      profileRole: profileRole.text.isNotEmpty ? profileRole.text : null,
     );
     _createNewUserModel = CreateNewUserModel(
       userRequest: updatedUserRequest,
@@ -298,6 +314,38 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateAndSaveTechSkills() async {
+    if (_profile == null) return;
+
+    final updatedUserRequest = UserRequest(
+      userId: _userid,
+      technicalSkills: _tempTechSkill,
+      alternateNo: _profile!.alternateNo,
+    );
+    _createNewUserModel = CreateNewUserModel(
+      userRequest: updatedUserRequest,
+      experienceRequest: [],
+      educationRequest: [],
+      certificationsRequest: [],
+      userProjectRequest: [],
+    );
+    bool done = await UserServices.postUserInfo(_createNewUserModel!);
+    if (done) {
+      fetchProfile();
+      clearBasicProfile();
+      CustomSnackbar.show(
+        "⚡ Technical Skill details updated. Great work!",
+        false,
+      );
+    } else {
+      CustomSnackbar.show(
+        "Getting error while updating technical skills",
+        true,
+      );
+    }
+    notifyListeners();
+  }
+
   void clearBasicProfile() {
     firstname.clear();
     middlename.clear();
@@ -310,6 +358,7 @@ class ProfileProvider with ChangeNotifier {
     locality.clear();
     pincode.clear();
     linkdinUrl.clear();
+    profileRole.clear();
     profileHeadline.clear();
     _male = false;
     _female = false;
@@ -1062,6 +1111,13 @@ class ProfileProvider with ChangeNotifier {
       endMonth: _currentlyStudying ? null : endMonthInt,
       isCurrent: _currentlyStudying ? 1 : 0,
       marksheet: _markSheet,
+      courseType: _fullTimeCourse
+          ? "Fulltime"
+          : _partTimeCourse
+          ? "Parttime"
+          : _distanceLearning
+          ? "Distance Learning"
+          : null,
     );
 
     // 3. Logic: Match by ID if editing, else Add new
@@ -1234,7 +1290,9 @@ class ProfileProvider with ChangeNotifier {
     endyear.text = edu.passingYear?.toString() ?? '';
     _currentlyStudying = edu.isCurrent == 1;
     _markSheet = edu.marksheet;
-
+    _fullTimeCourse = edu.courseType == "Fulltime";
+    _partTimeCourse = edu.courseType == "Parttime";
+    _distanceLearning = edu.courseType == "Distance Learning";
     // CRITICAL FIX: Track the ID, not just the index
     _editingEducationId = edu.id;
     _editingEducationIndex =
@@ -1258,6 +1316,7 @@ class ProfileProvider with ChangeNotifier {
         endMonth: _monthNameToInt(edu.endMonth),
         isCurrent: edu.isCurrent,
         marksheet: edu.marksheet,
+        courseType: edu.courseType,
       );
     }
 
@@ -1462,7 +1521,6 @@ class ProfileProvider with ChangeNotifier {
     _fullTimeCourse = false;
     _partTimeCourse = false;
     _distanceLearning = false;
-
     // Reset editing trackers
     _editingEducationIndex = null;
     _editingEducationId = null; // Important!
@@ -1564,6 +1622,7 @@ class ProfileProvider with ChangeNotifier {
           : null,
       endYear: _certificateNoExpiration ? null : int.tryParse(validyear.text),
       certificate: _certificate,
+      isLifetime: _certDontHaveExpiry ? true : false,
     );
 
     // 3. Logic: Match by ID if editing, else Add new
@@ -1728,7 +1787,7 @@ class ProfileProvider with ChangeNotifier {
     validyear.text = cert.endYear?.toString() ?? '';
     _certificate = cert.certificate;
     _certificateNoExpiration = cert.endYear == null && cert.endMonth == null;
-
+    _certDontHaveExpiry = cert.isLifetime ?? false;
     // CRITICAL FIX: Track the ID
     _editingCertificateId = cert.id;
     _editingCertificateIndex = originalIndex; // Keep for UI references
@@ -1748,6 +1807,7 @@ class ProfileProvider with ChangeNotifier {
         endMonth: cert.endMonth,
         endYear: cert.endYear,
         certificate: cert.certificate,
+        isLifetime: cert.isLifetime ?? false,
         issueDate: cert.issueDate,
         expirationDate: cert.expirationDate,
       );
@@ -1889,7 +1949,7 @@ class ProfileProvider with ChangeNotifier {
   //
   //
   //
-  // Certificate
+  // Projects
   TextEditingController project_title = TextEditingController();
   TextEditingController project_description = TextEditingController();
   TextEditingController project_role = TextEditingController();
@@ -1968,7 +2028,13 @@ class ProfileProvider with ChangeNotifier {
       projectTitle: project_title.text,
       description: project_description.text,
       role: project_role.text,
-      url: project_url.text,
+      url: project_url.text.isNotEmpty
+          ? project_url.text
+                .split(',')
+                .map((e) => e.trim())
+                .where((e) => e.isNotEmpty)
+                .toList()
+          : [],
       duration: _project_duration,
       technologiesUsed: _project_technology_used,
       itSkillsByProject: _project_it_skills.join(','),
@@ -2034,7 +2100,9 @@ class ProfileProvider with ChangeNotifier {
     project_title.text = proj.projectTitle ?? '';
     project_description.text = proj.description ?? '';
     project_role.text = proj.role ?? '';
-    project_url.text = proj.url ?? '';
+    project_url.text = (proj.url != null && proj.url!.isNotEmpty)
+        ? proj.url!.join(', ')
+        : '';
 
     if (proj.duration != null) {
       parseAndAssignProjectDuration(proj.duration!);
@@ -2059,7 +2127,14 @@ class ProfileProvider with ChangeNotifier {
       projectTitle: proj.projectTitle,
       description: proj.description,
       role: proj.role,
-      url: proj.url,
+      url: proj.url is List<String>
+          ? List<String>.from(proj.url as List)
+          : (proj.url != null &&
+                    proj.url != "null" &&
+                    proj.url != '' &&
+                    proj.url != ' '
+                ? [proj.url.toString()]
+                : <String>[]),
       duration: proj.duration,
       technologiesUsed: proj.technologiesUsed,
       itSkillsByProject: proj.itSkillsByProject,
@@ -2487,7 +2562,7 @@ class ProfileProvider with ChangeNotifier {
     _showCertificateForm = false;
     _profile = null;
     _createNewUserModel = null;
-
+    technicalSkillController.clear();
     notifyListeners();
   }
 
@@ -2528,6 +2603,7 @@ class ProfileProvider with ChangeNotifier {
     credentialUrl.dispose();
     issuemonth.dispose();
     linkdinUrl.dispose();
+    profileRole.dispose();
     issueyear.dispose();
     validmonth.dispose();
     validyear.dispose();
@@ -2542,6 +2618,8 @@ class ProfileProvider with ChangeNotifier {
     proj_endYear.dispose();
     project_title.removeListener(() {});
     project_description.removeListener(() {});
+    skillController.dispose();
+    technicalSkillController.dispose();
     super.dispose();
   }
 

@@ -4,7 +4,6 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
-import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_skills_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_technical_skills_edit.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
@@ -47,10 +46,10 @@ class CustomTechnicalSkill extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     /// Add Button → SkillsMulti
-                    if (provider.profile!.allSkills!.isEmpty)
+                    if (provider.profile!.technicalSkills!.isEmpty)
                       InkWell(
                         onTap: () {
-                          NavigationService.push(ProfileAddSkill());
+                          NavigationService.push(ProfileAddTechnicalSkill());
                         },
                         child: const Icon(
                           Icons.add,
@@ -60,7 +59,7 @@ class CustomTechnicalSkill extends StatelessWidget {
                       ),
 
                     /// Edit Button → SkillsMulti
-                    if (provider.profile!.allSkills!.isNotEmpty)
+                    if (provider.profile!.technicalSkills!.isNotEmpty)
                       InkWell(
                         onTap: () {
                           NavigationService.push(ProfileAddTechnicalSkill());
@@ -77,7 +76,7 @@ class CustomTechnicalSkill extends StatelessWidget {
           ),
 
           /// 🔹 Empty State
-          provider.profile!.allSkills!.isEmpty
+          provider.profile!.technicalSkills!.isEmpty
               ? Padding(
                   padding: const EdgeInsets.only(left: 6, top: 10),
                   child: const customText(
@@ -93,7 +92,7 @@ class CustomTechnicalSkill extends StatelessWidget {
               : Wrap(
                   spacing: 3,
                   runSpacing: 0.0,
-                  children: provider.profile!.allSkills!.map((skill) {
+                  children: provider.profile!.technicalSkills!.map((skill) {
                     return Container(
                       margin: const EdgeInsets.only(top: 10, right: 4, left: 5),
                       padding: const EdgeInsets.symmetric(

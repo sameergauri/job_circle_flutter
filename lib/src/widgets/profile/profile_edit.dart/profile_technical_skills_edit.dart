@@ -21,10 +21,10 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<ProfileProvider>(context, listen: false);
       provider.fetchSkills();
-      provider.skillController.clear();
-      provider.clearskill();
-      provider.assignSkillsToSelectedSkillList(
-        provider.profile?.allSkills ?? [],
+      provider.technicalSkillController.clear();
+      provider.clearTechnicalSkill();
+      provider.assignTechnicalSkillsToSelectedSkillList(
+        provider.profile?.technicalSkills ?? [],
       );
     });
 
@@ -39,11 +39,11 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
               context,
               listen: false,
             );
-            if (provider.tempSelectedSkills.isEmpty) {
+            if (provider.tempSelectedTechnicalSkills.isEmpty) {
               CustomSnackbar.show("Please select at least one skill.", true);
               return;
             }
-            provider.updateAndSaveSkills();
+            provider.updateAndSaveTechSkills();
             NavigationService.pop();
           },
         ),
@@ -71,7 +71,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
               children: [
                 CustomTextFieldforAll(
                   maxLength: 20,
-                  controller: provider.skillController,
+                  controller: provider.technicalSkillController,
                   hint: "Type to search technical skills",
                   onChanged: (value) {
                     provider.fetchSkills();
@@ -83,7 +83,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                     provider.apifetchSkills
                         .where((element) {
                           return element.contains(
-                            provider.skillController.text,
+                            provider.technicalSkillController.text,
                           );
                         })
                         .toList()
@@ -101,12 +101,13 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                         CustomAddButton(
                           title: "Add New Technical Skill",
                           onTab: () {
-                            final newSkill = provider.skillController.text
+                            final newSkill = provider.technicalSkillController
+                                .text
                                 .trim();
                             if (newSkill.isNotEmpty) {
                               if (!provider.apifetchSkills.contains(newSkill)) {
                                 provider.toggleTechnicalSkill(newSkill);
-                                provider.skillController.clear();
+                                provider.technicalSkillController.clear();
                                 provider.fetchSkills();
                               } else {
                                 CustomSnackbar.show(
@@ -120,7 +121,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                       ],
                     ),
                   ),
-                if (provider.skillController.text.isNotEmpty &&
+                if (provider.technicalSkillController.text.isNotEmpty &&
                     provider.apifetchSkills.isNotEmpty)
                   Container(
                     margin: const EdgeInsets.only(top: 10),
@@ -142,7 +143,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                       itemCount: provider.apifetchSkills
                           .where((element) {
                             return element.contains(
-                              provider.skillController.text,
+                              provider.technicalSkillController.text,
                             );
                           })
                           .toList()
@@ -156,7 +157,8 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                           element,
                         ) {
                           return element.toLowerCase().contains(
-                            provider.skillController.text.toLowerCase(),
+                            provider.technicalSkillController.text
+                                .toLowerCase(),
                           );
                         }).toList()[index];
                         return Container(
@@ -168,7 +170,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                             dense: true,
                             title: customText(title: suggestion, fontSize: 14),
                             onTap: () {
-                              if (provider.tempSelectedSkills.contains(
+                              if (provider.tempSelectedTechnicalSkills.contains(
                                 suggestion,
                               )) {
                                 CustomSnackbar.show(
@@ -177,7 +179,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                                 );
                               } else {
                                 provider.toggleTechnicalSkill(suggestion);
-                                provider.skillController.clear();
+                                provider.technicalSkillController.clear();
                                 provider.fetchSkills();
                               }
                             },
@@ -186,7 +188,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                       },
                     ),
                   ),
-                if (provider.tempSelectedSkills.isNotEmpty)
+                if (provider.tempSelectedTechnicalSkills.isNotEmpty)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -200,7 +202,9 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: provider.tempSelectedSkills.map((skill) {
+                        children: provider.tempSelectedTechnicalSkills.map((
+                          skill,
+                        ) {
                           return CustomToggleButton(
                             isSelect: true,
                             title: skill,

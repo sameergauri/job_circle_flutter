@@ -310,6 +310,15 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               hint: "Enter Linkdin URL",
             ),
             SizedBox(height: 15),
+            const customText(
+              title: "Profile Role",
+              fontStyle: FontStyle.italic,
+            ),
+            CustomTextFieldforAll(
+              controller: provider.profileRole,
+              hint: "Enter Profile Role",
+            ),
+            SizedBox(height: 15),
             CustomCheckboxRow(
               title: "I am Fully Vaccinated",
               value: provider.vaccinated,
