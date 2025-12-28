@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, unnecessary_null_comparison
 
 import 'dart:convert';
 
@@ -114,7 +114,7 @@ class JobServices {
     }
   }
 
-  Future<RecommendJobModel?> fetchRecomendJob(int userId) async { 
+  /* Future<RecommendJobModel?> fetchRecomendJob(int userId,) async { 
     var locaton = SharedPrefsHelper.getString(
       ESharedPreferences.user_selected_lcoation,
     );
@@ -130,6 +130,71 @@ class JobServices {
         return RecommendJobModel.fromJson(jsonData);
       } else {
         print("❌ Failed to load data. Status code: ${response.statusCode}");
+        return null;
+      }
+    } catch (e) {
+      print("⚠️ Error fetching job recommendations: $e");
+      return null;
+    }
+  } */
+ Future<RecommendJobModel?> fetchRecomendJob({
+    required int userId,
+    List<String>? locations, // e.g., ["Thane", "Mumbai"]
+    List<String>? industries, // e.g., ["Insurance", "BPO"]
+    List<String>? workTypes, // e.g., ["Hybrid", "Remote"]
+    String? salaryMin, // e.g., "100000"
+    String? salaryMax, // e.g., "200000"
+  }) async {
+    // 1. Base URL creation
+    // Result: .../api/v1/recommendations/users/1885/jobs
+    String baseUrl = "${GlobalConstants.recomendedJobUrl}$userId/jobs";
+
+    // 2. Prepare Query Parameters map
+    Map<String, String> queryParams = {};
+
+    // Add Locations (Join with ", " if list is not empty)
+    if (locations != null && locations.isNotEmpty) {
+      queryParams['locations'] = locations.join(', ');
+    } else {
+      // Fallback: Use SharedPrefs if no specific location passed
+      var defaultLocation = SharedPrefsHelper.getString(
+        ESharedPreferences.user_selected_lcoation,
+      );
+      if (defaultLocation != null && defaultLocation.isNotEmpty) {
+        queryParams['locations'] = defaultLocation;
+      }
+    }
+
+    // Add Industries
+    if (industries != null && industries.isNotEmpty) {
+      queryParams['industries'] = industries.join(', ');
+    }
+
+    // Add Work Types
+    if (workTypes != null && workTypes.isNotEmpty) {
+      queryParams['workType'] = workTypes.join(', ');
+    }
+
+    // Add Salary Range (Format: "min - max")
+    if (salaryMin != null && salaryMax != null) {
+      queryParams['salaryRange'] = "$salaryMin - $salaryMax";
+    }
+
+    // 3. Create the Final URI
+    // Uri.parse handles the encoding (turning spaces into %20, commas into %2C)
+    final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
+
+    print("🚀 Calling API: $uri"); // Debug print to verify the URL
+
+    try {
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonData = json.decode(response.body);
+        return RecommendJobModel.fromJson(jsonData);
+      } else {
+        print("❌ Failed to load data. Status code: ${response.statusCode}");
+        print("Response: ${response.body}");
         return null;
       }
     } catch (e) {

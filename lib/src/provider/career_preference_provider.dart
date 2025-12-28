@@ -19,6 +19,11 @@ class CareerPreferenceProvider extends ChangeNotifier {
   final TextEditingController noticePeriodController = TextEditingController();
   final TextEditingController industriesController = TextEditingController();
 
+  FocusNode jobRoleFocusNode = FocusNode();
+  FocusNode preferredLocationFocusNode = FocusNode();
+  FocusNode noticePeriodFocusNode = FocusNode();
+  FocusNode industriesFocusNode = FocusNode();
+
   List<String> selectedIndustries = [];
   List<String> selectedJobRole = [];
   List<String> preferredLocations = [];
@@ -62,6 +67,11 @@ class CareerPreferenceProvider extends ChangeNotifier {
   bool? get rotational => _rotational;
   bool? get flexibleShift => _flexible;
   String? get shiftTime => _shiftTime;
+
+  FocusNode get getJobRoleFocusNode => jobRoleFocusNode;
+  FocusNode get getPreferredLocationFocusNode => preferredLocationFocusNode;
+  FocusNode get getNoticePeriodFocusNode => noticePeriodFocusNode;
+  FocusNode get getIndustriesFocusNode => industriesFocusNode;
 
   //----------------------------
   // UPDATE FUNCTIONS
@@ -373,7 +383,12 @@ class CareerPreferenceProvider extends ChangeNotifier {
     preferredLocationController.dispose();
     noticePeriodController.dispose();
     industriesController.dispose();
+    jobRoleFocusNode.dispose();
+    preferredLocationFocusNode.dispose();
+    noticePeriodFocusNode.dispose();
+    industriesFocusNode.dispose();
     hasExistingData = false;
+
     super.dispose();
   }
 }

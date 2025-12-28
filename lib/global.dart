@@ -117,4 +117,15 @@ class GlobalConstants {
       '$_baseurl/api/v1/job-preferences/getByUserId/';
   static const deletejobpreferencebyid =
       '$_baseurl/api/v1/job-preferences/delete/';
+  // fetch data for textfield...
+  static const getIndustry =
+      '$_baseurl/api/v1/recommendations/getIndustryDropdown';
+  static const getJobrole =
+      '$_baseurl/api/v1/recommendations/getJobRolesDropdown';
+  static const getWorkMode =
+      '$_baseurl/api/v1/recommendations/getWorkTypeDropdown';
+  static const getShiftTime =
+      '$_baseurl/api/v1/recommendations/getShiftTypeDropdown';
+  static const getLocation =
+      '$_baseurl/api/v1/recommendations/getLocationDropdown';
 }

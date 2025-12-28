@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
-import 'package:job_circle/src/widgets/text_field/custom_textfield_for_skills.dart';
+import 'package:job_circle/src/widgets/text_field/custom_text_field_for_career_pref.dart';
 import 'package:provider/provider.dart';
 
 class CareerPreference extends StatefulWidget {
@@ -69,25 +70,27 @@ class _CareerPreferenceState extends State<CareerPreference> {
                       children: [
                         // Preferred Industry
                         customText(title: 'Preferred Industry', fontSize: 12),
-                        CustomTextFieldForSkills(
+                        CustomTextFieldForCareerPreference(
                           title: "Industries",
-                          initialSkills: provider.selectedIndustries,
-                          onSkillsChanged: provider.updateIndustry,
+                          initialList: provider.selectedIndustries,
+                          onListChnaged: provider.updateIndustry,
                           controller: provider.industriesController,
-                          name: "industry",
+                          name: PrefTextFieldType.Industry,
                           hintText: "Enter your industry",
+                          focusNode: provider.industriesFocusNode,
                         ),
                         const SizedBox(height: 10),
 
                         // Preferred Job Role
                         customText(title: 'Preferred Job Role', fontSize: 12),
-                        CustomTextFieldForSkills(
+                        CustomTextFieldForCareerPreference(
                           title: "Job Role",
-                          initialSkills: provider.selectedJobRole,
-                          onSkillsChanged: provider.updateJobRole,
+                          initialList: provider.selectedJobRole,
+                          onListChnaged: provider.updateJobRole,
                           controller: provider.jobRoleController,
-                          name: "role",
+                          name: PrefTextFieldType.JobRole,
                           hintText: "Enter your role",
+                          focusNode: provider.jobRoleFocusNode,
                         ),
                         const SizedBox(height: 10),
 
@@ -192,13 +195,14 @@ class _CareerPreferenceState extends State<CareerPreference> {
 
                         // Preferred Location
                         customText(title: 'Preferred Location', fontSize: 12),
-                        CustomTextFieldForSkills(
+                        CustomTextFieldForCareerPreference(
                           title: "Preferred Locations",
-                          initialSkills: provider.preferredLocations,
-                          onSkillsChanged: provider.updatePreferredLocation,
+                          initialList: provider.preferredLocations,
+                          onListChnaged: provider.updatePreferredLocation,
                           controller: provider.preferredLocationController,
-                          name: "city",
+                          name: PrefTextFieldType.Location,
                           hintText: "Enter preferred locations",
+                          focusNode: provider.preferredLocationFocusNode,
                         ),
                         const SizedBox(height: 10),
 

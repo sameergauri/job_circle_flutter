@@ -5,10 +5,12 @@ import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/model/job_model/recommend_job_model.dart';
+import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/services/job/job_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class JobProvider extends ChangeNotifier {
+  CareerPreferenceProvider? _careerPreferenceProvider;
   final JobServices _jobServices = JobServices();
   List<JobContent> _jobs = [];
   List<JobContent> _allJobs = [];
@@ -75,11 +77,37 @@ class JobProvider extends ChangeNotifier {
   Future<void> fetchRecomendJob() async {
     _recommendLoading = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _careerPreferenceProvider?.fetchCareerPreference(false);
       notifyListeners();
     });
     try {
       _recommendedJob = await _jobServices.fetchRecomendJob(
-        SharedPrefsHelper.getInt(ESharedPreferences.user_id),
+        userId: SharedPrefsHelper.getInt(ESharedPreferences.user_id),
+        locations:
+            _careerPreferenceProvider!.model.location != null &&
+                _careerPreferenceProvider!.model.location!.isNotEmpty == true
+            ? _careerPreferenceProvider?.preferredLocations
+            : null,
+        industries:
+            _careerPreferenceProvider!.model.industry != null &&
+                _careerPreferenceProvider!.model.industry!.isNotEmpty == true
+            ? _careerPreferenceProvider?.model.industry
+            : null,
+        workTypes:
+            _careerPreferenceProvider?.model.workMode != null &&
+                _careerPreferenceProvider!.model.workMode!.isNotEmpty == true
+            ? _careerPreferenceProvider?.model.workMode
+            : null,
+        salaryMin:
+            _careerPreferenceProvider?.model.startSalary != null &&
+                _careerPreferenceProvider!.model.startSalary!.isNotEmpty == true
+            ? _careerPreferenceProvider?.model.startSalary
+            : null,
+        salaryMax:
+            _careerPreferenceProvider?.model.endSalary != null &&
+                _careerPreferenceProvider!.model.endSalary!.isNotEmpty == true
+            ? _careerPreferenceProvider?.model.endSalary
+            : null,
       );
     } catch (e, stackTrace) {
       print('Error fetching recommended job: $e');

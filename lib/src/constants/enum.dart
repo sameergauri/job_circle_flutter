@@ -76,3 +76,5 @@ enum FromSignupAndProfile { signup, profile }
 enum SuggestionType { jobTitle, company, resideat }
 
 enum FromEditOrAdd { edit, add }
+
+enum PrefTextFieldType { Industry, JobRole, WorkMode, ShiftTime, Location }

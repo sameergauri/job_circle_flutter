@@ -10,7 +10,6 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
-import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
