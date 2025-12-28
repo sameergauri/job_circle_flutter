@@ -1,8 +1,12 @@
-// ignore_for_file: unused_field
+// ignore_for_file: unused_field, use_build_context_synchronously
+// ignore_for_file: todo
+
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -11,6 +15,7 @@ import 'package:job_circle/src/widgets/custom_row.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_skills_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_summary_edit.dart';
 import 'package:provider/provider.dart';
+import 'package:resume_builder_kit/resume_builder_kit.dart';
 
 class CustomMissingInfoContainer extends StatelessWidget {
   final ProfileProvider provider;
@@ -33,7 +38,53 @@ class CustomMissingInfoContainer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             /// ---------------- Resume ----------------
+            ///
             if (profileData!.resume == null ||
+                profileData.resume == " " ||
+                profileData.resume == "null")
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: CustomFieldBlock(
+                  isAssets: false,
+                  height: MediaQuery.of(context).size.height / 8,
+                  iconColor: const Color.fromRGBO(37, 150, 190, 0),
+                  imageUrl: CustomIconUrl.atsicon,
+                  description: "Never skip adding your resume.",
+                  buttonText: "+ Build Resume",
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ResumeTemplateSelectionScreen(
+                          userProfileJson: profileData.toJson(),
+                          geminiApiKey:
+                              'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc', // null = skip AI polishing
+                          onPdfGenerated: (Uint8List pdfBytes) async {
+                            //TODO:: save the selected resume file path to user profile
+                            String? uploadedFileName = await fileUploader
+                                .uploadGeneratedPdf(context, pdfBytes);
+                            if (uploadedFileName != null) {
+                              await provider.updateResume(
+                                profileData,
+                                uploadedFileName,
+                              );
+                              CustomSnackbar.show(
+                                "Resume Uploaded Successfully",
+                                false,
+                              );
+                              NavigationService.pop(); // Close the loader
+                              NavigationService.pop();
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+            /// ---------------- Resume ----------------
+            if (profileData.resume == null ||
                 profileData.resume == " " ||
                 profileData.resume == "null")
               Padding(

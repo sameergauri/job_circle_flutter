@@ -1,9 +1,7 @@
-import 'dart:typed_data';
-
+//ignore_for_file: todo
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:resume_builder_kit/resume_builder_kit.dart';
 
 import '../../model/user_profile/user_model.dart';
 
@@ -66,7 +64,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-      actions: [
+      /* actions: [  // TODO:: Resume Builder Integration
         IconButton(
           onPressed: () {
             Navigator.push(
@@ -91,7 +89,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           },
           icon: const Icon(Icons.build),
         ),
-      ],
+      ], */
     );
   }
 }
