@@ -17,6 +17,111 @@ import 'package:job_circle/src/utils/date_formater.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class ProfileProvider with ChangeNotifier {
+  // Awards & Achievements
+  TextEditingController awardTitleController = TextEditingController();
+  TextEditingController awardDescriptionController = TextEditingController();
+  final List<AwardsAndAchievementsModel> _awardsAchievementsModel = [];
+  int? _editingAwardIndex;
+  bool _showAwardForm = false;
+
+  List<AwardsAndAchievementsModel> get awardsAchievementsModel =>
+      _awardsAchievementsModel;
+  bool get showAwardForm => _showAwardForm;
+  int? get editingAwardIndex => _editingAwardIndex;
+  bool get isEditingAward => _editingAwardIndex != null;
+
+  void setShowAwardForm(bool value) {
+    _showAwardForm = value;
+    notifyListeners();
+  }
+
+  void clearAwardForm() {
+    awardTitleController.clear();
+    awardDescriptionController.clear();
+    _editingAwardIndex = null;
+    notifyListeners();
+  }
+
+  void addOrUpdateAward() async {
+    final award = AwardsAndAchievementsModel(
+      title: awardTitleController.text,
+      description: awardDescriptionController.text,
+    );
+    if (_editingAwardIndex != null &&
+        _editingAwardIndex! >= 0 &&
+        _editingAwardIndex! < _awardsAchievementsModel.length) {
+      _awardsAchievementsModel[_editingAwardIndex!] = award;
+    } else {
+      _awardsAchievementsModel.add(award);
+    }
+    _createNewUserModel = CreateNewUserModel(
+      userRequest: UserRequest(
+        userId: _userid,
+        skills: _profile!.allSkills,
+        alternateNo: _profile!.alternateNo,
+      ),
+      experienceRequest: [],
+      educationRequest: [],
+      certificationsRequest: [],
+      userProjectRequest: [],
+      awardsAndAchievementsRequest: _awardsAchievementsModel,
+    );
+    clearAwardForm();
+    setShowAwardForm(false);
+    _editingAwardIndex = null;
+    notifyListeners();
+    try {
+      // ... your logic ...
+      bool done = await UserServices.postUserInfo(_createNewUserModel!);
+      if (done) {
+        await fetchProfile(); // Wait for fresh data
+        CustomSnackbar.show("Updated!", false);
+      }
+    } finally {
+      Future.delayed(const Duration(seconds: 2), () {
+        // This flag will hide the loader after 2 sec
+        _isUpdating = false;
+        notifyListeners();
+      });
+      notifyListeners();
+    }
+  }
+
+  void editAward(int index) {
+    if (index < 0 || index >= _awardsAchievementsModel.length) return;
+    final award = _awardsAchievementsModel[index];
+    awardTitleController.text = award.title ?? '';
+    awardDescriptionController.text = award.description ?? '';
+    _editingAwardIndex = index;
+    setShowAwardForm(true);
+    notifyListeners();
+  }
+
+  void removeAward(int index) {
+    if (index < 0 || index >= _awardsAchievementsModel.length) return;
+    _awardsAchievementsModel.removeAt(index);
+    if (_editingAwardIndex == index) {
+      clearAwardForm();
+      _editingAwardIndex = null;
+    } else if (_editingAwardIndex != null && _editingAwardIndex! > index) {
+      _editingAwardIndex = _editingAwardIndex! - 1;
+    }
+    if (_awardsAchievementsModel.isEmpty) {
+      setShowAwardForm(true);
+    }
+    notifyListeners();
+  }
+
+  void cancelAwardEdit() {
+    clearAwardForm();
+    _editingAwardIndex = null;
+    if (_awardsAchievementsModel.isNotEmpty) {
+      setShowAwardForm(false);
+    }
+    notifyListeners();
+  }
+
+  // Add to clearAllProfileData and dispose
   final _userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
   ProfileModel? _profile;
   CreateNewUserModel? _createNewUserModel;
@@ -989,80 +1094,6 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /* void addOrUpdateEducation() async {
-      var snackMessage = '';
-      Map<String, int> monthMap = {
-        "January": 1,
-        "February": 2,
-        "March": 3,
-        "April": 4,
-        "May": 5,
-        "June": 6,
-        "July": 7,
-        "August": 8,
-        "September": 9,
-        "October": 10,
-        "November": 11,
-        "December": 12,
-      };
-
-      int startMonthInt = monthMap[startmonth.text.trim()] ?? 1;
-      int endMonthInt = monthMap[endmonth.text.trim()] ?? 1;
-
-      final education = EducationRequest(
-        userId: _userid,
-        schoolOrCollegeName: schoolCollegeName.text.isNotEmpty
-            ? schoolCollegeName.text
-            : null,
-        isRemote: _isRemote ? 1 : 0,
-        university: universityBoardName.text.isNotEmpty
-            ? universityBoardName.text
-            : null,
-        degreeSpc: degree.text.isNotEmpty ? degree.text : null,
-        fieldOfStudy: fieldOfStudy.text.isNotEmpty ? fieldOfStudy.text : null,
-        firstYear: int.tryParse(startyear.text.trim()),
-        startMonth: startMonthInt,
-        passingYear: _currentlyStudying
-            ? null
-            : int.tryParse(endyear.text.trim()),
-        endMonth: _currentlyStudying ? null : endMonthInt,
-        isCurrent: _currentlyStudying ? 1 : 0,
-        marksheet: _markSheet,
-      );
-
-      if (_editingEducationIndex != null &&
-          _editingEducationIndex! >= 0 &&
-          _editingEducationIndex! < _educationModel.length) {
-        _educationModel[_editingEducationIndex!] = education.copyWith(
-          id: _educationModel[_editingEducationIndex!].id,
-        );
-        snackMessage = '🌟 Education details updated. Great going!';
-      } else {
-        _educationModel.add(education);
-        snackMessage = '✅ Nice! Your education profile just got stronger.';
-      }
-
-      _createNewUserModel = CreateNewUserModel(
-        userRequest: UserRequest(userId: _userid),
-        experienceRequest: [],
-        educationRequest: _educationModel,
-        certificationsRequest: [],
-        userProjectRequest: [],
-      );
-
-      clearEducationForm();
-      _editingEducationIndex = null;
-      setShowEducationForm(false);
-      bool done = await UserServices.postUserInfo(_createNewUserModel!);
-      if (done) {
-        fetchProfile();
-        CustomSnackbar.show(snackMessage, false);
-      } else {
-        CustomSnackbar.show("Getting error while saving data", true);
-      }
-      notifyListeners();
-    } */
-
   void addOrUpdateEducation() async {
     // 1. Prevent Double Clicks / Race Conditions
     if (_isUpdating) return;
@@ -1181,94 +1212,6 @@ class ProfileProvider with ChangeNotifier {
     }
   }
 
-  // FIX: Enhanced addOrUpdateEducation with explicit null check and debug
-  /* void addOrUpdateEducation() async {  // TODO:: latest comment code
-      _isUpdating = true; // Lock UI
-      notifyListeners();
-      var snackMessage = '';
-      Map<String, int> monthMap = {
-        // FIX: Local for consistency
-        "January": 1, "February": 2, "March": 3, "April": 4, "May": 5, "June": 6,
-        "July": 7,
-        "August": 8,
-        "September": 9,
-        "October": 10,
-        "November": 11,
-        "December": 12,
-      };
-
-      int startMonthInt = monthMap[startmonth.text.trim()] ?? 1;
-      int endMonthInt = monthMap[endmonth.text.trim()] ?? 1;
-
-      final education = EducationRequest(
-        userId: _userid,
-        schoolOrCollegeName: schoolCollegeName.text.isNotEmpty
-            ? schoolCollegeName.text
-            : null,
-        isRemote: _isRemote ? 1 : 0,
-        university: universityBoardName.text.isNotEmpty
-            ? universityBoardName.text
-            : null,
-        degreeSpc: degree.text.isNotEmpty ? degree.text : null,
-        fieldOfStudy: fieldOfStudy.text.isNotEmpty ? fieldOfStudy.text : null,
-        firstYear: int.tryParse(startyear.text.trim()),
-        startMonth: startMonthInt,
-        passingYear: _currentlyStudying
-            ? null
-            : int.tryParse(endyear.text.trim()),
-        endMonth: _currentlyStudying ? null : endMonthInt,
-        isCurrent: _currentlyStudying ? 1 : 0,
-        marksheet: _markSheet,
-      );
-
-      bool isEditing =
-          _editingEducationIndex != null &&
-          _editingEducationIndex! >= 0 &&
-          _editingEducationIndex! < _educationModel.length;
-      if (isEditing) {
-        // Always update the correct item by index
-        _educationModel[_editingEducationIndex!] = education.copyWith(
-          id: _educationModel[_editingEducationIndex!].id,
-        );
-        snackMessage = '🌟 Education details updated. Great going!';
-        debugPrint('FIX: Updating education at index $_editingEducationIndex');
-      } else {
-        _educationModel.add(education);
-        snackMessage = '✅ Nice! Your education profile just got stronger.';
-        debugPrint('FIX: Adding new education');
-      }
-
-      _createNewUserModel = CreateNewUserModel(
-        userRequest: UserRequest(
-          userId: _userid,
-          alternateNo: _profile!.alternateNo,
-        ),
-        experienceRequest: [],
-        educationRequest: _educationModel,
-        certificationsRequest: [],
-        userProjectRequest: [],
-      );
-
-      clearEducationForm(); // FIX: Calls updated clear which resets index
-      _editingEducationIndex = null; // FIX: Double-reset for safety
-      setShowEducationForm(false);
-      try {
-        bool done = await UserServices.postUserInfo(_createNewUserModel!);
-        if (done) {
-          await fetchProfile(); // Wait for fresh data
-          CustomSnackbar.show(snackMessage, false);
-        }
-      } finally {
-        Future.delayed(const Duration(seconds: 2), () {
-          // This flag will hide the loader after 2 sec
-          _isUpdating = false;
-          notifyListeners();
-        });
-        notifyListeners();
-      }
-      notifyListeners();
-    }
-  */
   void editEducation(int originalIndex) {
     // Safety check
     if (originalIndex < 0 ||
@@ -1323,162 +1266,6 @@ class ProfileProvider with ChangeNotifier {
     setShowEducationForm(true);
     notifyListeners();
   }
-  // FIX: Enhanced editEducation with better bounds check and debug (remove debugPrint in prod)
-  /*   void editEducation(int originalIndex) {  //TODO:: lates edit comment code
-      // FIX: Use index directly from profile list
-      if (originalIndex < 0 ||
-          originalIndex >= _profile!.educationDetails!.length) {
-        debugPrint('Invalid education index $originalIndex');
-        return;
-      }
-
-      final edu = _profile!.educationDetails![originalIndex];
-
-      // Populate form fields
-      schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
-      _isRemote = edu.isRemote == 1;
-      universityBoardName.text = edu.university ?? '';
-      degree.text = edu.degreeSpc ?? '';
-      fieldOfStudy.text = edu.fieldOfStudy ?? '';
-      startmonth.text = _monthIntToName(edu.startMonth);
-      startyear.text = edu.firstYear?.toString() ?? '';
-      endmonth.text = _monthIntToName(edu.endMonth);
-      endyear.text = edu.passingYear?.toString() ?? '';
-      _currentlyStudying = edu.isCurrent == 1;
-      _markSheet = edu.marksheet;
-
-      // Set editing index to originalIndex
-      _editingEducationIndex = originalIndex;
-
-      // Update _educationModel at originalIndex
-      _educationModel[originalIndex] = EducationRequest(
-        id: edu.id,
-        userId: _userid,
-        schoolOrCollegeName: edu.schoolOrCollegeName,
-        isRemote: edu.isRemote,
-        university: edu.university,
-        degreeSpc: edu.degreeSpc,
-        fieldOfStudy: edu.fieldOfStudy,
-        firstYear: edu.firstYear,
-        startMonth: _monthNameToInt(edu.startMonth),
-        passingYear: edu.passingYear,
-        endMonth: _monthNameToInt(edu.endMonth),
-        isCurrent: edu.isCurrent,
-        marksheet: edu.marksheet,
-      );
-
-      setShowEducationForm(true);
-      notifyListeners();
-    } */
-  /* void editEducation(int originalIndex) {
-      // FIX: Renamed param to clarify it's original index
-      if (originalIndex < 0 ||
-          originalIndex >= _profile!.educationDetails!.length) {
-        debugPrint(
-          'FIX: Invalid education index $originalIndex',
-        ); // FIX: Debug log
-        return;
-      }
-
-      // Use class-level month converters to keep representations consistent
-
-      final edu = _profile!.educationDetails![originalIndex];
-      schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
-      _isRemote = edu.isRemote == 1;
-      universityBoardName.text = edu.university ?? '';
-      degree.text = edu.degreeSpc ?? '';
-      fieldOfStudy.text = edu.fieldOfStudy ?? '';
-
-      // Handle month/year consistently and safely for display
-      startmonth.text = _monthIntToName(edu.startMonth);
-      startyear.text = edu.firstYear?.toString() ?? '';
-      endmonth.text = _monthIntToName(edu.endMonth);
-      endyear.text = edu.passingYear?.toString() ?? '';
-      _currentlyStudying = edu.isCurrent == 1;
-      _markSheet = edu.marksheet;
-
-      _editingEducationIndex = originalIndex;
-      _editingEducationId = edu.id;
-      bool isEditing =
-          _editingEducationId != null &&
-          _educationModel.any((e) => e.id == _editingEducationId);
-      _editingEducationId = null;
-      _educationModel[originalIndex] = EducationRequest(
-        // FIX: Use originalIndex
-        id: edu.id,
-        userId: _userid,
-        schoolOrCollegeName: edu.schoolOrCollegeName,
-        isRemote: edu.isRemote,
-        university: edu.university,
-        degreeSpc: edu.degreeSpc,
-        fieldOfStudy: edu.fieldOfStudy,
-        firstYear: edu.firstYear,
-        startMonth:
-            _monthNameToInt(edu.startMonth) ??
-            (edu.startMonth is int ? edu.startMonth as int? : null),
-        passingYear: edu.passingYear,
-        endMonth:
-            _monthNameToInt(edu.endMonth) ??
-            (edu.endMonth is int ? edu.endMonth as int? : null),
-        isCurrent: edu.isCurrent,
-        marksheet: edu.marksheet,
-      );
-
-      setShowEducationForm(true);
-      notifyListeners();
-    } */
-
-  /*  void editEducation(int index) {
-      if (index < 0 || index >= _profile!.educationDetails!.length) return;
-
-      Map<int, String> monthIntToString = {
-        1: "January",
-        2: "February",
-        3: "March",
-        4: "April",
-        5: "May",
-        6: "June",
-        7: "July",
-        8: "August",
-        9: "September",
-        10: "October",
-        11: "November",
-        12: "December",
-      };
-
-      final edu = _profile!.educationDetails![index];
-      schoolCollegeName.text = edu.schoolOrCollegeName ?? '';
-      _isRemote = edu.isRemote == 1;
-      universityBoardName.text = edu.university ?? '';
-      degree.text = edu.degreeSpc ?? '';
-      fieldOfStudy.text = edu.fieldOfStudy ?? '';
-      startmonth.text = edu.startMonth ?? '';
-      startyear.text = edu.firstYear?.toString() ?? '';
-      endmonth.text = edu.endMonth ?? '';
-      endyear.text = edu.passingYear?.toString() ?? '';
-      _currentlyStudying = edu.isCurrent == 1;
-      _markSheet = edu.marksheet;
-
-      _editingEducationIndex = index;
-      _educationModel[index] = EducationRequest(
-        id: edu.id,
-        userId: _userid,
-        schoolOrCollegeName: edu.schoolOrCollegeName,
-        isRemote: edu.isRemote,
-        university: edu.university,
-        degreeSpc: edu.degreeSpc,
-        fieldOfStudy: edu.fieldOfStudy,
-        firstYear: edu.firstYear,
-        startMonth: monthMap[edu.startMonth] ?? 1,
-        passingYear: edu.passingYear,
-        endMonth: monthMap[edu.endMonth] ?? 1,
-        isCurrent: edu.isCurrent,
-        marksheet: edu.marksheet,
-      );
-
-      setShowEducationForm(true);
-      notifyListeners();
-    } */
 
   void removeEducation(int index) async {
     int eduId = _educationModel[index].id!;
@@ -1685,87 +1472,6 @@ class ProfileProvider with ChangeNotifier {
     }
   }
 
-  /*  void addOrUpdateCertificate() async {
-      _isUpdating = true; // Lock UI
-      notifyListeners();
-      var snackMessage = '';
-      final certificate = CertificationRequest(
-        userId: _userid,
-        certificationName: certificateName.text.isNotEmpty
-            ? certificateName.text
-            : null,
-        issuingOrganization: organizationName.text.isNotEmpty
-            ? organizationName.text
-            : null,
-        credentialId: credentialId.text.isNotEmpty ? credentialId.text : null,
-        credentialUrl: credentialUrl.text.isNotEmpty ? credentialUrl.text : null,
-        startMonth: issuemonth.text.isNotEmpty ? issuemonth.text : null,
-        startYear: int.tryParse(issueyear.text),
-        endMonth: _certificateNoExpiration
-            ? null
-            : validmonth.text.isNotEmpty
-            ? validmonth.text
-            : null,
-        endYear: _certificateNoExpiration ? null : int.tryParse(validyear.text),
-        certificate: _certificate,
-        /* issueDate: issuemonth.text.isNotEmpty && issueyear.text.isNotEmpty
-            ? "${issuemonth.text} ${issueyear.text}"
-            : null, */
-        /*   expirationDate: _certificateNoExpiration
-            ? null
-            : validmonth.text.isNotEmpty && validyear.text.isNotEmpty
-            ? "${validmonth.text} ${validyear.text}"
-            : null, */
-      );
-
-      bool isCertEditing =
-          _editingCertificateIndex != null &&
-          _editingCertificateIndex! >= 0 &&
-          _editingCertificateIndex! < _certificateModel.length &&
-          _certificateModel[_editingCertificateIndex!].id != null;
-
-      if (isCertEditing) {
-        _certificateModel[_editingCertificateIndex!] = certificate.copyWith(
-          id: _certificateModel[_editingCertificateIndex!].id,
-        );
-        snackMessage = '🌟 Certificate updated successfully.';
-      } else {
-        _certificateModel.add(certificate);
-        snackMessage = '🎉 Certificate added successfully!';
-      }
-
-      _createNewUserModel = CreateNewUserModel(
-        userRequest: UserRequest(
-          userId: _userid,
-          alternateNo: _profile!.alternateNo,
-        ),
-        experienceRequest: [],
-        educationRequest: [],
-        certificationsRequest: _certificateModel,
-        userProjectRequest: [],
-      );
-
-      clearCertificateForm();
-      _editingCertificateIndex = null;
-      setShowCertificateForm(false);
-      try {
-        bool done = await UserServices.postUserInfo(_createNewUserModel!);
-        if (done) {
-          await fetchProfile(); // Wait for fresh data
-          CustomSnackbar.show(snackMessage, false);
-        }
-      } finally {
-        Future.delayed(const Duration(seconds: 2), () {
-          // This flag will hide the loader after 2 sec
-          _isUpdating = false;
-          notifyListeners();
-        });
-        notifyListeners();
-      }
-      notifyListeners();
-    }
- */
-
   void editCertificate(int originalIndex) {
     // Safety check: Use index directly from profile list
     if (originalIndex < 0 ||
@@ -1816,91 +1522,6 @@ class ProfileProvider with ChangeNotifier {
     setShowCertificateForm(true);
     notifyListeners();
   }
-  /*  void editCertificate(int originalIndex) {
-      // FIX: Use index directly instead of ID
-      if (originalIndex < 0 ||
-          originalIndex >= _profile!.certifications!.length) {
-        debugPrint('Invalid certificate index $originalIndex');
-        return;
-      }
-
-      final cert = _profile!.certifications![originalIndex];
-
-      // Populate form fields
-      certificateName.text = cert.certificationName ?? '';
-      organizationName.text = cert.issuingOrganization ?? '';
-      credentialId.text = cert.credentialId ?? '';
-      credentialUrl.text = cert.credentialUrl ?? '';
-      issuemonth.text = cert.startMonth ?? '';
-      issueyear.text = cert.startYear?.toString() ?? '';
-      validmonth.text = cert.endMonth ?? '';
-      validyear.text = cert.endYear?.toString() ?? '';
-      _certificate = cert.certificate;
-      _certificateNoExpiration = cert.endYear == null && cert.endMonth == null;
-
-      // Set editing index to originalIndex
-      _editingCertificateIndex = originalIndex;
-
-      // Update _certificateModel at originalIndex
-      _certificateModel[originalIndex] = CertificationRequest(
-        id: cert.id,
-        userId: _userid,
-        certificationName: cert.certificationName,
-        issuingOrganization: cert.issuingOrganization,
-        credentialId: cert.credentialId,
-        credentialUrl: cert.credentialUrl,
-        startMonth: cert.startMonth,
-        startYear: cert.startYear,
-        endMonth: cert.endMonth,
-        endYear: cert.endYear,
-        certificate: cert.certificate,
-        issueDate: cert.issueDate,
-        expirationDate: cert.expirationDate,
-      );
-
-      setShowCertificateForm(true);
-      notifyListeners();
-    }
- */
-  /* void editCertificate(int? certId) {
-      if (certId == null) return;
-      final certList = _profile?.certifications
-          ?.where((c) => c.id == certId)
-          .toList();
-      if (certList == null || certList.isEmpty) return;
-      final cert = certList.first;
-      certificateName.text = cert.certificationName ?? '';
-      organizationName.text = cert.issuingOrganization ?? '';
-      credentialId.text = cert.credentialId ?? '';
-      credentialUrl.text = cert.credentialUrl ?? '';
-      issuemonth.text = cert.startMonth ?? '';
-      issueyear.text = cert.startYear?.toString() ?? '';
-      validmonth.text = cert.endMonth ?? '';
-      validyear.text = cert.endYear?.toString() ?? '';
-      _certificate = cert.certificate;
-      _certificateNoExpiration = cert.endYear == null && cert.endMonth == null;
-      _editingCertificateIndex = _certificateModel.indexWhere(
-        (c) => c.id == certId,
-      );
-      if (_editingCertificateIndex == -1) return;
-      _certificateModel[_editingCertificateIndex!] = CertificationRequest(
-        id: cert.id,
-        userId: _userid,
-        certificationName: cert.certificationName,
-        issuingOrganization: cert.issuingOrganization,
-        credentialId: cert.credentialId,
-        credentialUrl: cert.credentialUrl,
-        startMonth: cert.startMonth,
-        startYear: cert.startYear,
-        endMonth: cert.endMonth,
-        endYear: cert.endYear,
-        certificate: cert.certificate,
-        issueDate: cert.issueDate,
-        expirationDate: cert.expirationDate,
-      );
-      setShowCertificateForm(true);
-      notifyListeners();
-    } */
 
   void removeCertificate(int index) async {
     int certId = _certificateModel[index].id!;
@@ -2143,43 +1764,6 @@ class ProfileProvider with ChangeNotifier {
     setShowProjectForm(true);
     notifyListeners();
   }
-
-  /* void editProject(int? projId) {
-      if (projId == null) return;
-      final projList = _profile?.projects?.where((p) => p.id == projId).toList();
-      if (projList == null || projList.isEmpty) return;
-      final proj = projList.first;
-      project_title.text = proj.projectTitle.toString();
-      project_description.text = proj.description.toString();
-      project_role.text = proj.role.toString();
-      project_url.text = proj.url.toString();
-      if (proj.duration != null) {
-        parseAndAssignProjectDuration(proj.duration!);
-      }
-      _project_technology_used = proj.technologiesUsed ?? [];
-      _project_it_skills =
-          proj.itSkillsByProject != null && proj.itSkillsByProject!.isNotEmpty
-          ? proj.itSkillsByProject!
-                .split(',')
-                .map((e) => e.trim())
-                .where((e) => e.isNotEmpty)
-                .toList()
-          : [];
-      _editProjectIndex = _projectModel.indexWhere((p) => p.id == projId);
-      if (_editProjectIndex == -1) return;
-      _projectModel[_editProjectIndex!] = UserProjectRequest(
-        id: proj.id,
-        projectTitle: proj.projectTitle,
-        description: proj.description,
-        role: proj.role,
-        url: proj.url,
-        duration: proj.duration,
-        technologiesUsed: proj.technologiesUsed,
-        itSkillsByProject: proj.itSkillsByProject,
-      );
-      setShowProjectForm(true);
-      notifyListeners();
-    } */
 
   void parseAndAssignProjectDuration(String duration) {
     // Trim to avoid extra spaces
@@ -2563,6 +2147,10 @@ class ProfileProvider with ChangeNotifier {
     _profile = null;
     _createNewUserModel = null;
     technicalSkillController.clear();
+    clearAwardForm();
+    _awardsAchievementsModel.clear();
+    _editingAwardIndex = null;
+    _showAwardForm = false;
     notifyListeners();
   }
 
@@ -2620,6 +2208,8 @@ class ProfileProvider with ChangeNotifier {
     project_description.removeListener(() {});
     skillController.dispose();
     technicalSkillController.dispose();
+    awardTitleController.dispose();
+    awardDescriptionController.dispose();
     super.dispose();
   }
 

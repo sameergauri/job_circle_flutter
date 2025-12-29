@@ -9,6 +9,7 @@ import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart'
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/profile/career_preference_view_card.dart';
 import 'package:job_circle/src/widgets/profile/custom_app_bar.dart';
+import 'package:job_circle/src/widgets/profile/custom_award_achivmnt.dart';
 import 'package:job_circle/src/widgets/profile/custom_basic_info.dart';
 import 'package:job_circle/src/widgets/profile/custom_certificate.dart';
 import 'package:job_circle/src/widgets/profile/custom_education.dart';
@@ -154,6 +155,14 @@ class _UserProfileState extends State<UserProfile> {
                         ),
                       ),
                       ProjectSection(provider: provider),
+                        Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: const Divider(
+                          color: Constants.lightdull,
+                          thickness: 6,
+                        ),
+                      ),
+                      CustomAwardAchievment(provider: provider),
                       if (profileData.allSkills != null &&
                           profileData.allSkills != "" &&
                           profileData.allSkills != [])

@@ -291,6 +291,7 @@ class _BasicProfileDetailState extends State<BasicProfileDetail> {
             CustomTextFieldforAll(
               controller: provider.linkedInUrl,
               hint: "Enter your LinkedIn URL",
+              isGmail: true,
             ),
             SizedBox(height: 15),
             CustomCheckboxRow(

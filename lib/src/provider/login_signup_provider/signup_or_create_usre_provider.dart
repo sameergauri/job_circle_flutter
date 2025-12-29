@@ -8,6 +8,7 @@ import 'package:job_circle/src/model/job_responsibility_model.dart';
 import 'package:job_circle/src/model/location_model.dart';
 import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/model/user_profile/onboarding_cv_parse_model.dart';
+import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/screen/login_and_signup/signup/cv_parse_user_profile.dart';
 import 'package:job_circle/src/services/login_and_signup_services/resume_service.dart';
 import 'package:job_circle/src/services/login_and_signup_services/signup_service.dart';
@@ -1330,6 +1331,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       certificationsRequest: _certificateModel,
       userProjectRequest: _projectModel,
       userRequest: UserRequest(
+        cvLink: _resume,
         experience: _experience ? 1 : 0,
         education: _graduate ? 1 : 0,
         firstName: firstname.text,
@@ -1352,9 +1354,19 @@ class SignupCreateUserProvider with ChangeNotifier {
         vaccinationCertificate: _vaccinationcertificate,
         profileHeadline: profileHeadline.text,
         profileRole: profileRole.text,
-          linkdlnUrl: linkedInUrl.text,
+        linkdlnUrl: linkedInUrl.text,
       ),
     );
+  }
+
+  Future<bool> setDataToModel() {
+    try {
+      _userModel = buildModel();
+      return Future.value(true);
+    } catch (e) {
+      CustomSnackbar.show('Failed to set data to model: $e', true);
+      return Future.value(false);
+    }
   }
 
   // Save and Update Functions
@@ -1453,7 +1465,7 @@ class SignupCreateUserProvider with ChangeNotifier {
           vaccinationCertificate: null,
           profileHeadline: null,
           profileRole: null,
-          linkdlnUrl: null,                   
+          linkdlnUrl: null,
         ),
         experienceRequest: mapExperiences(_cvParseModel!.experience),
         educationRequest: mapEducations(_cvParseModel!.education),
@@ -1509,7 +1521,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       profileHeadline.text = userRequest.profileHeadline ?? '';
       bio.text = userRequest.bio ?? '';
       profileRole.text = userRequest.profileRole ?? '';
-      linkedInUrl.text = userRequest.linkdlnUrl ?? '';  
+      linkedInUrl.text = userRequest.linkdlnUrl ?? '';
       _tempSelectedSkills = List<String>.from(userRequest.skills!);
 
       // Set gender
@@ -1868,5 +1880,92 @@ class SignupCreateUserProvider with ChangeNotifier {
     certificateName.removeListener(() {});
     organizationName.removeListener(() {});
     super.dispose();
+  }
+
+  // TODO:: specially for resume builder......
+
+  ProfileModel buildProfileModelFromProvider(
+    SignupCreateUserProvider provider,
+  ) {
+    return ProfileModel(
+      firstName: provider.firstname.text,
+      middleName: provider.middlename.text,
+      lastName: provider.lastname.text,
+      gmail: provider.emailid.text,
+      mobile: int.tryParse(provider.contactno.text),
+      alternateNo: int.tryParse(provider.alternnateno.text),
+      dob: provider.dateofbirth.text,
+      bio: provider.bio.text,
+      userLocation: provider.location.text,
+      userLocality: provider.locality.text,
+      pinCode: provider.pincode.text,
+      linkdlnUrl: provider.linkedInUrl.text,
+      profileHeadline: provider.profileHeadline.text,
+      profileRole: provider.profileRole.text,
+      userFullLocation:
+          '${provider.locality.text}, ${provider.location.text}, ${provider.pincode.text}',
+      gender: provider._male
+          ? 'Male'
+          : provider._female
+          ? 'Female'
+          : null,
+      certifications: provider.certificateModel
+          .map(
+            (cert) => CertificationDetailModel(
+              certificationName: cert.certificationName,
+              issuingOrganization: cert.issuingOrganization,
+              credentialId: cert.credentialId,
+              credentialUrl: cert.credentialUrl,
+              startYear: cert.startYear,
+              startMonth: cert.startMonth,
+              endYear: cert.endYear,
+              endMonth: cert.endMonth,
+              isLifetime: cert.isLifetime,
+            ),
+          )
+          .toList(),
+      experiences: provider.experiencesModel
+          .map(
+            (exp) => Experience(
+              empType: exp.empType,
+              companyName: exp.companyName,
+              jobTitle: exp.jobTitle,
+              joiningDate: exp.joiningDate,
+              isCurrent: exp.isCurrent,
+              lastWorkingDate: exp.lastWorkingDate,
+              jobRole: exp.jobRole,
+              skillsExp: exp.skillsExp,
+            ),
+          )
+          .toList(),
+      educationDetails: provider.educationModel
+          .map(
+            (edu) => EducationDetail(
+              degreeSpc: edu.degreeSpc,
+              university: edu.university,
+              passingYear: edu.passingYear,
+              fieldOfStudy: edu.fieldOfStudy,
+              startMonth: edu.startMonth.toString(),
+              endMonth: edu.endMonth.toString(),
+              firstYear: edu.firstYear,
+              isCurrent: edu.isCurrent,
+              courseType: edu.courseType,
+            ),
+          )
+          .toList(),
+      projects: provider.projectModel
+          .map(
+            (proj) => ProjectModel(
+              projectTitle: proj.projectTitle,
+              description: proj.description,
+              role: proj.role,
+              url: proj.url,
+              duration: proj.duration,
+              technologiesUsed: proj.technologiesUsed,
+              itSkillsByProject: proj.itSkillsByProject,
+            ),
+          )
+          .toList(),
+    );
   }
 }

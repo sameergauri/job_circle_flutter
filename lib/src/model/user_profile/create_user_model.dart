@@ -1,3 +1,5 @@
+import 'package:job_circle/src/model/user_profile/user_model.dart';
+
 class CreateNewUserModel {
   final List<CertificationRequest>? certificationsRequest;
   final List<EducationRequest>? educationRequest;
@@ -72,22 +74,6 @@ class CreateNewUserModel {
           .toList(),
       "userRequest": userRequest?.toJson(),
     };
-  }
-}
-
-class AwardsAndAchievementsModel {
-  final String? title;
-  final String? description;
-
-  AwardsAndAchievementsModel({this.title, this.description});
-  factory AwardsAndAchievementsModel.fromJson(Map<String, dynamic> json) {
-    return AwardsAndAchievementsModel(
-      title: json['title'],
-      description: json['description'],
-    );
-  }
-  Map<String, dynamic> toJson() {
-    return {"title": title, "description": description};
   }
 }
 
@@ -932,3 +918,5 @@ class UserProjectRequest {
     };
   }
 }
+
+

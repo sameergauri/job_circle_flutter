@@ -308,6 +308,7 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
             CustomTextFieldforAll(
               controller: provider.linkdinUrl,
               hint: "Enter Linkdin URL",
+              isGmail: true,
             ),
             SizedBox(height: 15),
             const customText(

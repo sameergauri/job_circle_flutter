@@ -16,6 +16,7 @@ import 'package:job_circle/src/utils/custom_get_month.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_document_upload_button.dart';
+import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/button/custom_icon_button.dart';
 import 'package:job_circle/src/widgets/container/custom_container_to_view_document.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
@@ -91,7 +92,7 @@ class EducationList extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomTextFieldForMasterData(
-                      focusNode: provider.schoolCollegeNameFocusNode,
+              focusNode: provider.schoolCollegeNameFocusNode,
               contextIn: context,
               controller: provider.schoolCollegeName,
               hintText: "Type to search",
@@ -115,7 +116,7 @@ class EducationList extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomTextFieldForMasterData(
-                      focusNode: provider.universityBoardNameFocusNode,
+              focusNode: provider.universityBoardNameFocusNode,
               contextIn: context,
               controller: provider.universityBoardName,
               hintText: "Type to search",
@@ -128,7 +129,7 @@ class EducationList extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomTextFieldForMasterData(
-                      focusNode: provider.degreeFocusNode,
+              focusNode: provider.degreeFocusNode,
               contextIn: context,
               controller: provider.degree,
               hintText: "Type to search",
@@ -141,12 +142,40 @@ class EducationList extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
             CustomTextFieldForMasterData(
-                      focusNode: provider.fieldOFStudyFocusNode,
+              focusNode: provider.fieldOFStudyFocusNode,
               contextIn: context,
               controller: provider.fieldOFStudy,
               hintText: "Type to search",
               name: "field_of_study",
               title: "Field of study",
+            ),
+            SizedBox(height: 10),
+            const customText(title: "Course Type", fontStyle: FontStyle.italic),
+            Wrap(
+              spacing: 10,
+              children: [
+                CustomToggleButton(
+                  title: "FullTime",
+                  isSelect: provider.fullTimeCourse,
+                  onTap: () {
+                    provider.setCourseType("FullTime");
+                  },
+                ),
+                CustomToggleButton(
+                  title: "PartTime",
+                  isSelect: provider.partTimeCourse,
+                  onTap: () {
+                    provider.setCourseType("PartTime");
+                  },
+                ),
+                CustomToggleButton(
+                  title: "Distance Learning",
+                  isSelect: provider.distanceLearning,
+                  onTap: () {
+                    provider.setCourseType("Distance Learning");
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 15),
             customText(title: "Start Year*"),
@@ -274,7 +303,7 @@ class EducationList extends StatelessWidget {
                 ],
               ),
             Padding(
-               padding: const EdgeInsets.only(bottom: 5, top: 10),
+              padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {

@@ -332,7 +332,7 @@ class EducationDetail {
     this.degreeSpc,
     this.universityLogo,
     this.isRemote,
-    this.courseType
+    this.courseType,
   });
 
   factory EducationDetail.fromJson(Map<String, dynamic> json) =>

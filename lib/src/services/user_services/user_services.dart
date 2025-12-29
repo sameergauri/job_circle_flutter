@@ -31,6 +31,7 @@ class UserServices {
   static Future<bool> postUserInfo(CreateNewUserModel jsonData) async {
     var userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     final updateJson = CreateNewUserModel(
+      awardsAndAchievementsRequest: jsonData.awardsAndAchievementsRequest,
       certificationsRequest: jsonData.certificationsRequest,
       experienceRequest: jsonData.experienceRequest,
       educationRequest: jsonData.educationRequest,
@@ -49,7 +50,6 @@ class UserServices {
         },
         body: json.encode(updateJson), // <-- important
       );
-
       if (response.statusCode == 200) {
         print("Data posted successfully ✅");
         print(response.body);

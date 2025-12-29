@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/user_profile/create_user_model.dart';
@@ -178,6 +179,15 @@ class CertificateList extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+
+          SizedBox(height: 10),
+          CustomCheckboxRow(
+            title: "this Certificate dont have expiry",
+            value: provider.dontHaveExpiry,
+            onChanged: (value) {
+              provider.SetDontHaveExpiry(value!);
+            },
           ),
 
           const SizedBox(height: 15),

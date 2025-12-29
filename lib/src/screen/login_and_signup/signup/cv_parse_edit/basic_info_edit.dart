@@ -301,6 +301,7 @@ class _EditBasicInfoState extends State<EditBasicInfo> {
             CustomTextFieldforAll(
               controller: provider.linkedInUrl,
               hint: "Enter your LinkedIn URL",
+              isGmail: true,
             ),
              SizedBox(height: 10),
             const customText(title: "Profile Role", fontStyle: FontStyle.italic),

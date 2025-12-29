@@ -192,6 +192,37 @@ class AddEducation extends StatelessWidget {
                       name: "field_of_study",
                       title: "Field of study",
                     ),
+                    SizedBox(height: 10),
+                    const customText(
+                      title: "Course Type",
+                      fontStyle: FontStyle.italic,
+                    ),
+                    Wrap(
+                      spacing: 10,
+                      children: [
+                        CustomToggleButton(
+                          title: "FullTime",
+                          isSelect: provider.fullTimeCourse,
+                          onTap: () {
+                            provider.setCourseType("FullTime");
+                          },
+                        ),
+                        CustomToggleButton(
+                          title: "PartTime",
+                          isSelect: provider.partTimeCourse,
+                          onTap: () {
+                            provider.setCourseType("PartTime");
+                          },
+                        ),
+                        CustomToggleButton(
+                          title: "Distance Learning",
+                          isSelect: provider.distanceLearning,
+                          onTap: () {
+                            provider.setCourseType("Distance Learning");
+                          },
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 15),
                     customText(title: "Start Year*"),
                     Row(
@@ -247,37 +278,6 @@ class AddEducation extends StatelessWidget {
                           ),
                         ],
                       ),
-                    SizedBox(height: 10),
-                    const customText(
-                      title: "Course Type",
-                      fontStyle: FontStyle.italic,
-                    ),
-                    Wrap(
-                      spacing: 10,
-                      children: [
-                        CustomToggleButton(
-                          title: "FullTime",
-                          isSelect: provider.fullTimeCourse,
-                          onTap: () {
-                            provider.setCourseType("FullTime");
-                          },
-                        ),
-                        CustomToggleButton(
-                          title: "PartTime",
-                          isSelect: provider.partTimeCourse,
-                          onTap: () {
-                            provider.setCourseType("PartTime");
-                          },
-                        ),
-                        CustomToggleButton(
-                          title: "Distance Learning",
-                          isSelect: provider.distanceLearning,
-                          onTap: () {
-                            provider.setCourseType("Distance Learning");
-                          },
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 10),
                     CustomCheckboxRow(
                       title: "Currently Studying",
