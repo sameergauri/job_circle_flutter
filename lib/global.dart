@@ -18,7 +18,7 @@ class GlobalConstants {
   // TODO:: Generate responsibility & Summary using ai
   //
   static const generateResponsibilityUsingAiUrl =
-      '$_baseurl/jobs/v/generateJobResponsibilityUsingGPT';
+      '$_baseurl/jobs/v1/generateJobResponsibilityUsingGPT';
   static const genereteSummaryUsingAI =
       '$_baseurl/api/v1/users/generateProfileSummery?userId=';
   //

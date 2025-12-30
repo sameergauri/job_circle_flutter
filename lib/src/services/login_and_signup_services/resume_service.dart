@@ -88,6 +88,7 @@ class ResumeService {
   }
 
   static Future<ResponsibilityAiModel?> generateResponsibilitiesUsingAI({
+    required String functionalArea,
     required String industry,
     required String jobTitle,
     required String levelOfHiring,
@@ -99,6 +100,7 @@ class ResumeService {
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
+          'functionalArea': functionalArea,
           "industry": industry,
           "jobTitle": jobTitle,
           "levelOfHiring": levelOfHiring,
@@ -126,9 +128,7 @@ class ResumeService {
     final url = Uri.parse('${GlobalConstants.genereteSummaryUsingAI}$userid');
 
     try {
-      final response = await http.post(
-        url,
-      );
+      final response = await http.post(url);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

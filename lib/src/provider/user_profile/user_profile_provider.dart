@@ -610,7 +610,8 @@ class ProfileProvider with ChangeNotifier {
     try {
       _responsibilityAiModel =
           await ResumeService.generateResponsibilitiesUsingAI(
-            industry: '',
+            functionalArea: functionalArea.text,
+            industry: industry.text,
             jobTitle: jobtitle.text,
             levelOfHiring: '',
           ) ??
