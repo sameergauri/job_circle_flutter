@@ -29,10 +29,9 @@ class CustomTechnicalSkill extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(right: 6),
-                child: Image.asset(
-                  CustomAssetUrl.skillicon,
-                  height: 20,
-                  width: 20,
+                child: CustomNetworkImage(
+                  imageUrl: CustomIconUrl.techSkillIcon,
+                  defaultIcon: Icons.celebration_outlined,
                 ),
               ),
               SizedBox(width: 5),

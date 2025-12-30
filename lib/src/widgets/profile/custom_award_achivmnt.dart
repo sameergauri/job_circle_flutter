@@ -36,7 +36,7 @@ class CustomAwardAchievment extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
                   child: CustomNetworkImage(
-                    imageUrl: CustomIconUrl.projecticon,
+                    imageUrl: CustomIconUrl.awatdsIcon,
                     defaultIcon: Icons.celebration_outlined,
                   ),
                 ),
@@ -56,9 +56,7 @@ class CustomAwardAchievment extends StatelessWidget {
                           provider.clearAwardForm();
                           provider.setShowAwardForm(true);
                           NavigationService.push(
-                            ProfileAwardEdit(
-                              fromEditOrAdd: FromEditOrAdd.add,
-                            ),
+                            ProfileAwardEdit(fromEditOrAdd: FromEditOrAdd.add),
                           );
                         },
                         child: const Icon(
@@ -77,7 +75,11 @@ class CustomAwardAchievment extends StatelessWidget {
                           provider.profile!.awardsAndAchievements!.isNotEmpty)
                         InkWell(
                           onTap: () {
-                            if (provider.profile!.awardsAndAchievements!.length != 1) {
+                            if (provider
+                                    .profile!
+                                    .awardsAndAchievements!
+                                    .length !=
+                                1) {
                               provider.setShowAwardForm(false);
                               NavigationService.push(
                                 ProfileAwardEdit(
@@ -156,9 +158,8 @@ class CustomAwardAchievment extends StatelessWidget {
                             width: 50,
                             height: 50,
                             child: CustomNetworkImage(
-                              imageUrl: CustomIconUrl.projectConstantIcon,
+                              imageUrl: CustomIconUrl.awardConstantIcon,
                               defaultIcon: Icons.cast_for_education,
-                              color: Constants.subtitleclr,
                             ),
                           ),
                           title: Padding(

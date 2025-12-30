@@ -229,6 +229,12 @@ class CustomIconUrl {
       'https://cdn-icons-png.flaticon.com/128/4228/4228954.png';
   static const careerpreficon =
       'https://cdn-icons-png.flaticon.com/128/14227/14227542.png';
+  static const awatdsIcon =
+      'https://cdn-icons-png.flaticon.com/128/9239/9239362.png';
+  static const awardConstantIcon =
+      'https://cdn-icons-png.flaticon.com/128/3176/3176294.png';
+  static const techSkillIcon =
+      'https://cdn-icons-png.flaticon.com/128/780/780477.png';
 }
 
 class CustomAssetUrl {
