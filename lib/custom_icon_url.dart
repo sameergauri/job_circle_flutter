@@ -235,6 +235,8 @@ class CustomIconUrl {
       'https://cdn-icons-png.flaticon.com/128/3176/3176294.png';
   static const techSkillIcon =
       'https://cdn-icons-png.flaticon.com/128/780/780477.png';
+  static const buildresumeicon =
+      "https://cdn-icons-png.flaticon.com/128/15236/15236260.png";
 }
 
 class CustomAssetUrl {

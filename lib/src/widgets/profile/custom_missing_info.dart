@@ -48,7 +48,7 @@ class CustomMissingInfoContainer extends StatelessWidget {
                   isAssets: false,
                   height: MediaQuery.of(context).size.height / 8,
                   iconColor: const Color.fromRGBO(37, 150, 190, 0),
-                  imageUrl: CustomIconUrl.atsicon,
+                  imageUrl: CustomIconUrl.buildresumeicon,
                   description: "Never skip adding your resume.",
                   buttonText: "+ Build Resume",
                   onPressed: () async {
@@ -82,7 +82,6 @@ class CustomMissingInfoContainer extends StatelessWidget {
                   },
                 ),
               ),
-
             /// ---------------- Resume ----------------
             if (profileData.resume == null ||
                 profileData.resume == " " ||
