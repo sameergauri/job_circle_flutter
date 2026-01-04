@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, unused_local_variable, unrelated_type_equality_checks
+// ignore_for_file: must_be_immutable, unused_local_variable, unrelated_type_equality_checks, unused_element
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
@@ -87,18 +87,14 @@ class _UserProfileState extends State<UserProfile> {
                   child: Column(
                     children: [
                       CustomBasicInfoContainer(profileProvider: provider),
-                      if ((profileData.resume == null ||
-                              profileData.resume == " " ||
-                              profileData.resume == 'null') ||
-                          profileData.allSkills!.isEmpty ||
-                          (profileData.bio == null ||
-                              profileData.bio == " " ||
-                              profileData.bio == "" ||
-                              profileData.bio == "null") ||
-                          (profileData.profilePic == " " ||
-                              profileData.profilePic == null ||
-                              profileData.profilePic == "null"))
-                        CustomMissingInfoContainer(provider: provider),
+                      if (_hasMissingInfo(
+                        profileData,
+                        careerPreferenceProvider,
+                      ))
+                        CustomMissingInfoContainer(
+                          provider: provider,
+                          careerPreferenceProvider: careerPreferenceProvider,
+                        ),
                       if ((profileData.bio != null &&
                               profileData.bio != " " &&
                               profileData.bio != "null") &&
@@ -155,7 +151,7 @@ class _UserProfileState extends State<UserProfile> {
                         ),
                       ),
                       ProjectSection(provider: provider),
-                        Padding(
+                      Padding(
                         padding: const EdgeInsets.only(top: 5),
                         child: const Divider(
                           color: Constants.lightdull,
@@ -226,5 +222,80 @@ class _UserProfileState extends State<UserProfile> {
         );
       },
     );
+  }
+
+  bool _hasMissingInfo(
+    ProfileModel profileData,
+    CareerPreferenceProvider careerPreferenceProvider,
+  ) {
+    return ((profileData.resume == null ||
+            profileData.resume == " " ||
+            profileData.resume == 'null') ||
+        profileData.allSkills!.isEmpty ||
+        (profileData.bio == null ||
+            profileData.bio == " " ||
+            profileData.bio == "" ||
+            profileData.bio == "null") ||
+        (profileData.profilePic == " " ||
+            profileData.profilePic == null ||
+            profileData.profilePic == "null") ||
+        (profileData.projects == " " ||
+            profileData.projects == null ||
+            profileData.projects!.isEmpty) ||
+        (profileData.certifications == " " ||
+            profileData.certifications == null ||
+            profileData.certifications == "null" ||
+            profileData.certifications!.isEmpty) ||
+        (profileData.awardsAndAchievements == " " ||
+            profileData.awardsAndAchievements == null ||
+            profileData.awardsAndAchievements == "null" ||
+            profileData.awardsAndAchievements!.isEmpty) ||
+        (!careerPreferenceProvider.hasExistingData) ||
+        (careerPreferenceProvider.hasExistingData &&
+            (careerPreferenceProvider.model.industry == null ||
+                careerPreferenceProvider.model.industry == " " ||
+                careerPreferenceProvider.model.industry == "" ||
+                careerPreferenceProvider.model.industry == "null" ||
+                (careerPreferenceProvider.model.industry is List<String> &&
+                    (careerPreferenceProvider.model.industry as List)
+                        .isEmpty) ||
+                careerPreferenceProvider.model.role == null ||
+                careerPreferenceProvider.model.role == " " ||
+                careerPreferenceProvider.model.role == "" ||
+                careerPreferenceProvider.model.role == "null" ||
+                (careerPreferenceProvider.model.role is List<String> &&
+                    (careerPreferenceProvider.model.role as List).isEmpty) ||
+                careerPreferenceProvider.model.location == null ||
+                careerPreferenceProvider.model.location == " " ||
+                careerPreferenceProvider.model.location == "" ||
+                careerPreferenceProvider.model.location == "null" ||
+                (careerPreferenceProvider.model.location is List<String> &&
+                    (careerPreferenceProvider.model.location as List)
+                        .isEmpty) ||
+                careerPreferenceProvider.model.startSalary == null ||
+                careerPreferenceProvider.model.startSalary == " " ||
+                careerPreferenceProvider.model.startSalary == "" ||
+                careerPreferenceProvider.model.startSalary == "null" ||
+                careerPreferenceProvider.model.endSalary == null ||
+                careerPreferenceProvider.model.endSalary == " " ||
+                careerPreferenceProvider.model.endSalary == "" ||
+                careerPreferenceProvider.model.endSalary == "null" ||
+                careerPreferenceProvider.model.noticePeriod == null ||
+                careerPreferenceProvider.model.noticePeriod == " " ||
+                careerPreferenceProvider.model.noticePeriod == "" ||
+                careerPreferenceProvider.model.noticePeriod == "null" ||
+                careerPreferenceProvider.model.empType == null ||
+                careerPreferenceProvider.model.empType == " " ||
+                careerPreferenceProvider.model.empType == "" ||
+                careerPreferenceProvider.model.empType == "null" ||
+                (careerPreferenceProvider.model.empType is List<String> &&
+                    (careerPreferenceProvider.model.empType as List).isEmpty) ||
+                careerPreferenceProvider.model.shiftTime == null ||
+                careerPreferenceProvider.model.shiftTime == " " ||
+                careerPreferenceProvider.model.shiftTime == "" ||
+                careerPreferenceProvider.model.shiftTime == "null" ||
+                (careerPreferenceProvider.model.shiftTime is List<String> &&
+                    (careerPreferenceProvider.model.shiftTime as List)
+                        .isEmpty))));
   }
 }

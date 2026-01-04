@@ -103,6 +103,7 @@ class JobContent {
   final String? level_of_hiring;
   final String? locationWithWorkType;
   final bool? jobPreferenceMatch;
+  final int? activePayouts;
 
   const JobContent({
     this.jobPostType,
@@ -128,6 +129,7 @@ class JobContent {
     this.level_of_hiring,
     this.locationWithWorkType,
     this.jobPreferenceMatch,
+    this.activePayouts,
   });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
@@ -155,6 +157,7 @@ class JobContent {
       level_of_hiring: json['level_of_hiring'],
       locationWithWorkType: json['locationWithWorkType'],
       jobPreferenceMatch: json['jobPreferenceMatch'],
+      activePayouts: json['activePayouts'],
     );
   }
 
@@ -182,6 +185,7 @@ class JobContent {
     String? level_of_hiring,
     String? locationWithWorkType,
     bool? jobPreferenceMatch,
+    int? activePayouts,
   }) {
     return JobContent(
       jobPostType: jobPostType ?? this.jobPostType,
@@ -207,6 +211,7 @@ class JobContent {
       level_of_hiring: level_of_hiring ?? this.level_of_hiring,
       locationWithWorkType: locationWithWorkType ?? this.locationWithWorkType,
       jobPreferenceMatch: jobPreferenceMatch ?? this.jobPreferenceMatch,
+      activePayouts: activePayouts ?? this.activePayouts,
     );
   }
 }

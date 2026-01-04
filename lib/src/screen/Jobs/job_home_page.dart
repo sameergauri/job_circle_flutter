@@ -87,6 +87,13 @@ class _JobHomePageState extends State<JobHomePage> {
     if (selectedTab.isEmpty) return jobs;
 
     switch (selectedTab) {
+      case 'TRP':
+        return jobs
+            .where(
+              (job) => (job.activePayouts != null && job.activePayouts == 1),
+            )
+            .toSet()
+            .toList();
       case 'Fresher':
         return jobs
             .where(
@@ -120,6 +127,11 @@ class _JobHomePageState extends State<JobHomePage> {
 
   List<String> getAvailableTabs(List<JobContent> jobs) {
     final tabs = <String>[];
+    if (jobs.any(
+      (job) => (job.activePayouts != null && job.activePayouts == 1),
+    )) {
+      tabs.add('TRP');
+    }
     if (jobs.any(
       (job) =>
           job.experienceRequired?.toLowerCase().contains('fresher') ?? false,

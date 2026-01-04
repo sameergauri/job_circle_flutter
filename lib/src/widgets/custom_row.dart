@@ -2,36 +2,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
 class CustomFieldBlock extends StatelessWidget {
-  final String imageUrl;
   final String description;
   final String buttonText;
-  final Color? iconColor; // Added an optional parameter for icon color
   final VoidCallback? onPressed;
-  final double height;
-  final bool isAssets;
-
   const CustomFieldBlock({
     super.key,
-    required this.imageUrl,
     required this.description,
     required this.buttonText,
-    required this.height,
-    required this.isAssets,
-    this.iconColor, // Made the iconColor optional
     this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-      padding: const EdgeInsets.only(right: 5, top: 5, left: 5, bottom: 5),
-      width: 180,
-      // height: MediaQuery.of(context).size.height / 7,
+      margin: const EdgeInsets.only(left: 8, top: 8, bottom: 8, right: 8),
+      padding: const EdgeInsets.only(right: 10, top: 5, left: 10, bottom: 5),
       decoration: BoxDecoration(
         boxShadow: const [
           BoxShadow(
@@ -44,19 +32,10 @@ class CustomFieldBlock extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          isAssets
-              ? Image.asset(imageUrl, height: 50, fit: BoxFit.cover)
-              : CustomNetworkImage(
-                  height: 50,
-                  width: 50,
-                  imageUrl: imageUrl,
-                  defaultIcon: Icons.error,
-                ),
-          const SizedBox(height: 10),
           customText(
             monst: true,
             textAlign: TextAlign.center,
@@ -67,7 +46,6 @@ class CustomFieldBlock extends StatelessWidget {
             color: Colors.black,
           ),
           // const Spacer(),
-          const SizedBox(height: 10),
           ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
