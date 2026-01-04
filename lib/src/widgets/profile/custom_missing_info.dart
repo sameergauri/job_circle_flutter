@@ -62,7 +62,7 @@ class _CustomMissingInfoContainerState
   }
 
   void _startAutoScroll() {
-    _timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) {
+    _timer = Timer.periodic(const Duration(seconds: 6), (Timer timer) {
       if (_cards.isEmpty) return;
 
       if (_currentIndex < _cards.length - 1) {
