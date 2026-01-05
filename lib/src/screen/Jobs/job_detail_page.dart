@@ -187,6 +187,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                     location: job.postedByLocation ?? " ",
                     contactNumber: job.postedByContactNo!,
                     profilepic: job.postedByProfilePic ?? " ",
+                    jobTitle: job.roleName.toString(),
                   ),
                 if (job.payoutDetails != null)
                   InkWell(
@@ -218,6 +219,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
       ],
     );
   }
+
+  
 
   String formatSalary(String? raw) {
     if (raw == null || raw.trim().isEmpty) return '';

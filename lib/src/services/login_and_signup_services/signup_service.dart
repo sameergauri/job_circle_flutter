@@ -11,6 +11,8 @@ import 'package:job_circle/src/screen/home_page.dart';
 import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
+import 'package:job_circle/stream_config.dart';
+import 'package:stream_chat/stream_chat.dart';
 
 class SignupService {
   static Future<bool> saveUserData(
@@ -64,6 +66,39 @@ class SignupService {
           userData['usertype'] ?? 0,
         ); */
         await CacheClearAppVersionService.clearCache();
+        // Connect Stream Chat User
+        // ---------------------------------------------------------
+        // ✅ 2. INTEGRATE STREAM CHAT (SAFE MODE)
+        // ---------------------------------------------------------
+        try {
+          final client = StreamConfig.client;
+
+          String userId = userData['mobile'].toString();
+          String userName = userData['firstName'] ?? "User";
+
+          // Generate a cool default avatar using their name
+          String userImage =
+              "https://ui-avatars.com/api/?name=$userName&background=random";
+
+          // Disconnect if any stale connection exists
+          if (client.wsConnectionStatus == ConnectionStatus.connected) {
+            await client.disconnectUser();
+          }
+          await client.connectUser(
+            User(
+              id: userId,
+              name: userName,
+              image: userImage, // 🔥 Setup default image immediately
+            ),
+            client.devToken(userId).rawValue,
+          );
+        } catch (chatError) {
+          // ⚠️ IMPORTANT: Catch chat errors silently.
+          // Agar chat fail bhi hui, toh bhi Signup SUCCESS maana jayega.
+          print("⚠️ Chat Connection Failed during Signup: $chatError");
+        }
+        // ---------------------------------------------------------
+        // Navigate to Home Screen
         NavigationService.pushAndRemoveUntil(HomeScreen());
         return true; // ✅ success
       } else {

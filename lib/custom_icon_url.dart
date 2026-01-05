@@ -276,4 +276,5 @@ class CustomAssetUrl {
   static const jclogoicon = "$_baseurl/jclogo.png";
   static const indiaicon = "$_baseurl/india.png";
   static const hearticon = "$_baseurl/heart.png";
+  static const chaticon = '$_baseurl/chat.png';
 }

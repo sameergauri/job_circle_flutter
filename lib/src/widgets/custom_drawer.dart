@@ -19,6 +19,7 @@ import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -225,6 +226,10 @@ class CustomDrawer extends StatelessWidget {
               fontWeight: FontWeight.normal,
             ),
             onTap: () async {
+              // Clear Shared Preferences and navigate to Login Page
+              final client = StreamChat.of(context).client;
+              // 1. Disconnect Stream
+              await client.disconnectUser();
               SharedPrefsHelper.clearAllPreferences();
               await CacheClearAppVersionService.clearCache();
               NavigationService.pushAndRemoveUntil(const LoginPage());

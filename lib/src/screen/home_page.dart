@@ -6,9 +6,11 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/screen/Jobs/job_home_page.dart';
 import 'package:job_circle/src/screen/ats/ats_home_page.dart';
+import 'package:job_circle/src/screen/chat/chat_list_screen.dart';
 import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/widgets/custom_drawer.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -32,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<Widget> pages = [
     JobHomePage(scaffoldKey: _scaffoldKey), // new job page as per new api
     const ATSHomePage(),
+    ChatListScreen(),
     //  ELearingHomePage()
   ];
 
@@ -65,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             navItem(CustomAssetUrl.homepageicon, "JOBS", 0),
             navItem(CustomAssetUrl.atsicon, "ATS", 1),
+            navItem(CustomAssetUrl.chaticon, "Chat", 2),
           ],
         ),
       ),
@@ -92,10 +96,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         child: Row(
           children: [
-            Image.asset(
-              img,
-              height: isSelected ? 20 : 24,
-              color: isSelected ? Constants.white : Constants.subtitleclr,
+            Stack(
+              children: [
+                Image.asset(
+                  img,
+                  height: isSelected ? 20 : 24,
+                  color: isSelected ? Constants.white : Constants.subtitleclr,
+                ),
+                if (index == 2)
+                  Positioned(
+                    right: -2, // Adjust these to move the badge corner
+                    top: -2,
+                    child: StreamUnreadIndicator(),
+                  ),
+              ],
             ),
             /* Icon(icon,
                 color: isSelected ? Colors.white : Constants.subtitleclr), */

@@ -37,7 +37,6 @@ class CacheClearAppVersionService {
 
         if (latestVersion.compareTo(currentVersion) > 0) {
           // Display update notificationra
-
           showDialog(
             context: context,
             barrierDismissible: false,

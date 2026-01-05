@@ -36,6 +36,12 @@ dependencies:
   share_plus: ^12.0.1
   pdfx: ^2.9.2
   path_provider: ^2.1.2
+  # For chat feature
+  stream_chat_flutter: ^9.22.0
+  stream_chat_persistence: ^9.22.0
+  stream_chat_flutter_core: ^9.22.0
+  stream_chat: ^9.22.0
+  stream_chat_localizations: ^9.22.0
   # For resume builder kit
   resume_builder_kit:
     path: D:/JobCircle/packages/resume_builder_kit

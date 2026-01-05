@@ -6,13 +6,17 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/home_page.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
 import 'package:job_circle/src/screen/login_and_signup/signup/signup_resume_parse_page.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
+import 'package:job_circle/stream_config.dart';
 import 'package:provider/provider.dart';
+import 'package:stream_chat/stream_chat.dart';
 
 class Utils {
   static final dynamic mimTypes = jsonDecode(
@@ -70,9 +74,35 @@ class Utils {
     required String msg,
     required String from,
     required BuildContext context, // 👈 identify caller (splash / otp)
-  }) {
+  }) async {
     final provider = Provider.of<JobProvider>(context, listen: false);
+    var usercontact = SharedPrefsHelper.getInt(ESharedPreferences.user_mobile);
     bool isNew = msg.toLowerCase().contains("new user");
+
+    // --- HELPER FUNCTION TO CONNECT CHAT SAFELY ---
+    Future<void> connectChatSafely() async {
+      try {
+        final client = StreamConfig.client;
+
+        // Check if already connected to avoid errors
+        if (client.wsConnectionStatus == ConnectionStatus.connected) {
+          // Already connected, do nothing
+          return;
+        }
+
+        // Agar user id valid hai tabhi connect karo
+        if (usercontact != 0) {
+          await client.connectUser(
+            User(id: usercontact.toString(), name: firstname),
+            client.devToken(usercontact.toString()).rawValue,
+          );
+        }
+      } catch (e) {
+        print("⚠️ Chat Connection Failed: $e");
+        // Error ignore kar rahe hain taaki App na ruke
+      }
+    }
+    // ---------------------------------------------
 
     if (from == "splash") {
       // ✅ Splash screen logic
@@ -85,6 +115,9 @@ class Utils {
         context.read<CareerPreferenceProvider>().fetchCareerPreference(
           true,
         ); // to check that career preference is set or not
+        // 🔴 Safe Connection Call for chat
+        await connectChatSafely();
+        // Navigate to Home Screen
         NavigationService.pushAndRemoveUntil(HomeScreen());
       }
     } else if (from == "otp") {
@@ -98,6 +131,9 @@ class Utils {
         context.read<CareerPreferenceProvider>().fetchCareerPreference(
           true,
         ); // to check that career preference is set or not
+        // 🔴 Safe Connection Call for chat
+        await connectChatSafely();
+        // Navigate to Home Screen
         NavigationService.pushAndRemoveUntil(HomeScreen());
       }
     }

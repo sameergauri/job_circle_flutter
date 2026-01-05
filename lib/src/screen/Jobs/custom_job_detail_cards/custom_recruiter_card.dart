@@ -3,6 +3,7 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/utils/chat_utils.dart';
 import 'package:job_circle/src/widgets/button/custom_call_sms_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,6 +16,7 @@ class RecruiterDetailsCard extends StatelessWidget {
   final String email;
   final String profilepic;
   final int contactNumber;
+  final String jobTitle;
 
   const RecruiterDetailsCard({
     super.key,
@@ -25,6 +27,7 @@ class RecruiterDetailsCard extends StatelessWidget {
     required this.contactNumber,
     required this.email,
     required this.profilepic,
+    required this.jobTitle,
   });
 
   @override
@@ -128,12 +131,20 @@ class RecruiterDetailsCard extends StatelessWidget {
                     CustomcallsmsButton(
                       color: Constants.darkgreen,
                       imageUrl:
-                          "https://cdn-icons-png.flaticon.com/128/6422/6422213.png",
-                      label: "Whatsapp",
+                          "https://cdn-icons-png.flaticon.com/128/9821/9821763.png",
+                      label: "Chat",
                       onTap: () async {
-                        final whatsappUrl =
+                        /*  final whatsappUrl =
                             "whatsapp://send?phone=91$contactNumber";
-                        await launchUrl(Uri.parse(whatsappUrl));
+                        await launchUrl(Uri.parse(whatsappUrl)); */
+                        ChatUtils.startChatWithRecruiter(
+                          context: context,
+                          recruiterId: contactNumber
+                              .toString()
+                              .toString(), // Ensure String
+                          recruiterName: recruiterName,
+                          jobTitle: jobTitle, // Optional
+                        );
                       },
                     ),
                   ],
