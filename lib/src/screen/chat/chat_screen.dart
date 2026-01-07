@@ -16,6 +16,9 @@ class ChatScreen extends StatelessWidget {
             child: StreamMessageListView(
               messageBuilder: (context, details, messages, defaultMessage) {
                 return defaultMessage.copyWith(
+                  onAttachmentTap: (message, attachment) {
+                    print("Attachment tapped");
+                  },
                   // showUserAvatar: false, // 👈 avatar hide
                   showUsername: false, // 👈 username hide
                   showUserAvatar: DisplayWidget.gone,
