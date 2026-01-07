@@ -52,8 +52,8 @@ class _AddResumeState extends State<AddResume> {
   @override
   void initState() {
     super.initState();
-    final provider = Provider.of<ReferResumeProvider>(context, listen: false);
-    provider.clear();
+    /* final provider = Provider.of<ReferResumeProvider>(context, listen: false);
+    provider.clear(); */
   }
 
   @override
@@ -62,6 +62,7 @@ class _AddResumeState extends State<AddResume> {
     var width = MediaQuery.of(context).size.width;
     return Consumer<ReferResumeProvider>(
       builder: (context, provider, child) {
+        print("UI Provider First Name: ${provider.firstname.text}");
         return Stack(
           children: [
             Scaffold(

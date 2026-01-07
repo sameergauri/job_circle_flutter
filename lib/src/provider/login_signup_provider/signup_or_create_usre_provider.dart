@@ -1430,7 +1430,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _cvParseModel = await ResumeService.onboardingCvParse(pdfFile);
+      _cvParseModel = await ResumeService.onboardingCvParse(pdfFile:  pdfFile);
       setResume(cvLink);
       _profileModel = CreateNewUserModel(
         userRequest: UserRequest(

@@ -1,4 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, deprecated_member_use, use_build_context_synchronously
+// idnore_for_file: todo
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
@@ -416,9 +417,14 @@ class CareerPreferenceToggle extends StatelessWidget {
                 if (!value) {
                   provider.updateJobPrefEnable(false);
                   provider.savePreferences(context, isFromDrawer: true);
-                  onClose();
                 } else {
-                  if (provider.hasExistingData) {
+                  provider.updateJobPrefEnable(true);
+                  onClose();
+                  provider.savePreferences(context, isFromDrawer: true);
+                  NavigationService.push(
+                    const CareerPreference(isFromDrawer: true),
+                  );
+                  /* if (provider.hasExistingData) { //TODO:: Phle aisa tha and thn change hua as above
                     provider.updateJobPrefEnable(true);
                     onClose();
                     provider.savePreferences(context, isFromDrawer: true);
@@ -427,7 +433,7 @@ class CareerPreferenceToggle extends StatelessWidget {
                     NavigationService.push(
                       const CareerPreference(isFromDrawer: true),
                     );
-                  }
+                  } */
                 }
               },
             ),

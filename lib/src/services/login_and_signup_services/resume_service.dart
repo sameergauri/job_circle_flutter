@@ -35,10 +35,13 @@ class ResumeService {
     }
   }
 
-  static Future<OnBoardCvParseModel> onboardingCvParse(File pdfFile) async {
-    final contact = SharedPrefsHelper.getInt(
-      ESharedPreferences.user_mobile,
-    ).toString();
+  static Future<OnBoardCvParseModel> onboardingCvParse({
+    required File pdfFile,
+    String? contactno,
+  }) async {
+    String contact =
+        contactno ??
+        SharedPrefsHelper.getInt(ESharedPreferences.user_mobile).toString();
     final url = Uri.parse(GlobalConstants.onboardingparsecvurl);
 
     var request = http.MultipartRequest("POST", url);

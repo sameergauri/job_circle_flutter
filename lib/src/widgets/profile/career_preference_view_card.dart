@@ -146,7 +146,6 @@ class CareerProfileCard extends StatelessWidget {
             label1: "Salary Range",
             value1:
                 careerPreferenceProvider.model.startSalary == null ||
-                    careerPreferenceProvider.model.startSalary == "0.0" ||
                     careerPreferenceProvider.model.endSalary == "0.0" ||
                     careerPreferenceProvider.model.endSalary == null
                 ? "Add Salary"

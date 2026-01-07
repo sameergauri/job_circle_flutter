@@ -127,41 +127,74 @@ class _UserProfileState extends State<UserProfile> {
                           ),
                         ),
                       CustomExperienceContainer(profileProvider: provider),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: const Divider(
-                          color: Constants.lightdull,
-                          thickness: 6,
+                      if (profileData.educationDetails != null &&
+                          profileData.educationDetails != "" &&
+                          profileData.educationDetails != [] &&
+                          profileData.educationDetails!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: const Divider(
+                            color: Constants.lightdull,
+                            thickness: 6,
+                          ),
                         ),
-                      ),
-                      CustomEducationContainer(provider: provider),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: const Divider(
-                          color: Constants.lightdull,
-                          thickness: 6,
+                      if (profileData.educationDetails != null &&
+                          profileData.educationDetails != "" &&
+                          profileData.educationDetails != [] &&
+                          profileData.educationDetails!.isNotEmpty)
+                        CustomEducationContainer(provider: provider),
+                      if (profileData.certifications != null &&
+                          profileData.certifications != "" &&
+                          profileData.certifications != [] &&
+                          profileData.certifications!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: const Divider(
+                            color: Constants.lightdull,
+                            thickness: 6,
+                          ),
                         ),
-                      ),
-                      CertificationSection(provider: provider),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: const Divider(
-                          color: Constants.lightdull,
-                          thickness: 6,
+                      if (profileData.certifications != null &&
+                          profileData.certifications != "" &&
+                          profileData.certifications != [] &&
+                          profileData.certifications!.isNotEmpty)
+                        CertificationSection(provider: provider),
+                      if (profileData.projects != null &&
+                          profileData.projects != "" &&
+                          profileData.projects != [] &&
+                          profileData.projects!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: const Divider(
+                            color: Constants.lightdull,
+                            thickness: 6,
+                          ),
                         ),
-                      ),
-                      ProjectSection(provider: provider),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: const Divider(
-                          color: Constants.lightdull,
-                          thickness: 6,
+                      if (profileData.projects != null &&
+                          profileData.projects != "" &&
+                          profileData.projects != [] &&
+                          profileData.projects!.isNotEmpty)
+                        ProjectSection(provider: provider),
+                      if (profileData.awardsAndAchievements != null &&
+                          profileData.awardsAndAchievements != "" &&
+                          profileData.awardsAndAchievements != [] &&
+                          profileData.awardsAndAchievements!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: const Divider(
+                            color: Constants.lightdull,
+                            thickness: 6,
+                          ),
                         ),
-                      ),
-                      CustomAwardAchievment(provider: provider),
+                      if (profileData.awardsAndAchievements != null &&
+                          profileData.awardsAndAchievements != "" &&
+                          profileData.awardsAndAchievements != [] &&
+                          profileData.awardsAndAchievements!.isNotEmpty)
+                        CustomAwardAchievment(provider: provider),
                       if (profileData.allSkills != null &&
                           profileData.allSkills != "" &&
-                          profileData.allSkills != [])
+                          profileData.allSkills != [] &&
+                          profileData.allSkills!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: const Divider(
@@ -171,12 +204,14 @@ class _UserProfileState extends State<UserProfile> {
                         ),
                       if (profileData.allSkills != null &&
                           profileData.allSkills != "" &&
-                          profileData.allSkills != [])
+                          profileData.allSkills != [] &&
+                          profileData.allSkills!.isNotEmpty)
                         SkillsSection(provider: provider),
                       //for technical skills
                       if (profileData.technicalSkills != null &&
                           profileData.technicalSkills != "" &&
-                          profileData.technicalSkills != [])
+                          profileData.technicalSkills != [] &&
+                          profileData.technicalSkills!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: const Divider(
@@ -186,7 +221,8 @@ class _UserProfileState extends State<UserProfile> {
                         ),
                       if (profileData.technicalSkills != null &&
                           profileData.technicalSkills != "" &&
-                          profileData.technicalSkills != [])
+                          profileData.technicalSkills != [] &&
+                          profileData.technicalSkills!.isNotEmpty)
                         CustomTechnicalSkill(provider: provider),
                       //
                       const Divider(color: Constants.lightdull, thickness: 6),
@@ -239,6 +275,10 @@ class _UserProfileState extends State<UserProfile> {
         (profileData.profilePic == " " ||
             profileData.profilePic == null ||
             profileData.profilePic == "null") ||
+        (profileData.educationDetails == null ||
+            profileData.educationDetails == "" ||
+            profileData.educationDetails == [] ||
+            profileData.educationDetails!.isEmpty) ||
         (profileData.projects == " " ||
             profileData.projects == null ||
             profileData.projects!.isEmpty) ||

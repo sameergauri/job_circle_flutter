@@ -19,12 +19,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
     // 1. Controller Initialize: Yeh decide karta hai kaunsi chats dikhani hai
     _listController = StreamChannelListController(
       client: StreamChat.of(context).client,
-
-      // Filter: Sirf wo chats dikhao jisme CURRENT USER member hai
+      // Filter to fetch channels where current user is a member
       filter: Filter.in_('members', [StreamChat.of(context).currentUser!.id]),
-
-      // Sort: Naya message sabse upar
-      //sort: const [SortOption('last_message_at')],
+      // sort channels by last message time descending
+      channelStateSort: const [SortOption.desc('last_message_at')],
       limit: 20, // Ek baar me 20 chats load karo
     );
   }

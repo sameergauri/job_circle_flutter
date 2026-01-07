@@ -7,6 +7,6 @@ class StreamConfig {
   // Client ka instance
   static final StreamChatClient client = StreamChatClient(
     apiKey,
-    logLevel: Level.INFO,
+    logLevel: Level.SEVERE,
   );
 }

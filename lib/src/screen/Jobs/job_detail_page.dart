@@ -1,9 +1,14 @@
 // screens/new_jobs/job_detail/job_detail_page.dart
 
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/provider/add_resume/add_resume_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_detail_provider.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_container_for_job_benefits.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_container_for_job_elegibility.dart';
@@ -12,9 +17,9 @@ import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_job_ov
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_recruiter_card.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_referal_program_card.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/view_container_for_skills.dart';
-import 'package:job_circle/src/screen/referal/add_resume.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
+import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -191,8 +196,42 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   ),
                 if (job.payoutDetails != null)
                   InkWell(
-                    onTap: () {
-                      NavigationService.push(
+                    onTap: () async {
+                      provider.setLoading(true);
+                      // provider.setShowExperienceForm(false);
+                      FileUploader fileUploader = FileUploader();
+                      var data = await fileUploader.pickFileAndUpload(
+                        //TODO:: this function is use to return file path and uploaded file name ....
+                        needToUpload: true,
+                        context,
+                        allowedExt: ['pdf', 'doc', 'docx'],
+                        folder: "resume",
+                      );
+                      if (data == null) {
+                        provider.setLoading(false);
+                        return;
+                      }
+                      await context.read<ReferResumeProvider>().fetchParseData(
+                        File(data.file.path),
+                        data.uploadedFileName!,
+                        context,
+                        job.companyName.toString(),
+                        job.roleName.toString(),
+                        job.process.toString(),
+                        job.functionalArea.toString(),
+                        job.companyid!,
+                        job.id!,
+                        job.spocid!,
+                        SharedPrefsHelper.getInt(
+                          ESharedPreferences.user_mobile,
+                        ),
+                        job.payoutDetails!,
+                        "8446062685",
+                      );
+                      Future.delayed(const Duration(milliseconds: 500), () {
+                        provider.setLoading(false);
+                      });
+                      /*  NavigationService.push(
                         AddResume(
                           company_name: job.companyName.toString(),
                           role: job.roleName.toString(),
@@ -201,10 +240,12 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           company_id: job.companyid!,
                           jobId: job.id!,
                           spocId: job.spocid!,
-                          userNumber: 8446062685,
+                          userNumber: SharedPrefsHelper.getInt(
+                            ESharedPreferences.user_mobile,
+                          ),
                           payoutDetails: provider.jobDetail!.payoutDetails!,
                         ),
-                      );
+                      ); */
                     },
                     child: ReferralProgramCard(
                       payoutDetails: job.payoutDetails!,
@@ -219,8 +260,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
       ],
     );
   }
-
-  
 
   String formatSalary(String? raw) {
     if (raw == null || raw.trim().isEmpty) return '';

@@ -106,6 +106,11 @@ class JobDetailProvider extends ChangeNotifier {
     }
   }
 
+  void setLoading(bool value) {
+    _applyLoading = value;
+    notifyListeners();
+  }
+
   void clearJobDetails() {
     jobDetail = null;
     notifyListeners();

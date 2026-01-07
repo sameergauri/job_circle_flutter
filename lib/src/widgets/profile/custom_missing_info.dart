@@ -17,6 +17,7 @@ import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/custom_row.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_award_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_certificate_edit.dart';
+import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_education_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_project_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_skills_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_summary_edit.dart';
@@ -215,6 +216,23 @@ class _CustomMissingInfoContainerState
           onPressed: () {
             widget.provider.assignSummaryToController();
             NavigationService.push(ProfileSummaryEdit());
+          },
+        ),
+      );
+    }
+
+    /// ---------------- Education ----------------
+    if (profileData.educationDetails!.isEmpty) {
+      cards.add(
+        CustomFieldBlock(
+          description: "Showcase your education",
+          buttonText: "+ Add Education",
+          onPressed: () {
+            widget.provider.clearEducationForm();
+            widget.provider.setShowEducationForm(true);
+            NavigationService.push(
+              ProfileEducationEdit(fromEditOrAdd: FromEditOrAdd.add),
+            );
           },
         ),
       );
