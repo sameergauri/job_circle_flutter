@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/utils/add_bullet_point.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_list_tile.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_award_edit.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
-import 'package:job_circle/src/widgets/text/expandable_text_widget.dart';
 
 class CustomAwardAchievment extends StatelessWidget {
   final ProfileProvider provider;
@@ -131,7 +130,7 @@ class CustomAwardAchievment extends StatelessWidget {
                   separatorBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 2, top: 2),
-                      child: const Divider(thickness: 1.0),
+                      child: SizedBox(),
                     );
                   },
                   shrinkWrap: true,
@@ -146,7 +145,7 @@ class CustomAwardAchievment extends StatelessWidget {
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 4,
                           ),
-                          leading: Container(
+                          /* leading: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 4,
                               horizontal: 6,
@@ -161,23 +160,62 @@ class CustomAwardAchievment extends StatelessWidget {
                               imageUrl: CustomIconUrl.awardConstantIcon,
                               defaultIcon: Icons.cast_for_education,
                             ),
-                          ),
+                          ), */
                           title: Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                customText(
-                                  title: data.title ?? '',
-                                  overflow: TextOverflow.ellipsis,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment
+                                      .start, // Bullet ko top par rakhne ke liye
+                                  children: [
+                                    // 1. Bullet Point (Alag Widget)
+                                    Text(
+                                      "• ", // Thoda space extra diya taki chipak na jaye
+                                      style: GoogleFonts.merriweather(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+
+                                    // 2. Main Content (Expanded me wrap kiya taki width restricted rahe)
+                                    Expanded(
+                                      child: Text.rich(
+                                        TextSpan(
+                                          children: [
+                                            // Part 1: Title (Bold & 14)
+                                            TextSpan(
+                                              text: "${data.title} : ",
+                                              style: GoogleFonts.merriweather(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            // Part 2: Description (Normal & 12)
+                                            TextSpan(
+                                              text: data.description,
+                                              style: GoogleFonts.merriweather(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.normal,
+                                                color: Constants.subtitleclr,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 4, // Text limit
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        if (data.description != null &&
+                        /* if (data.description != null &&
                             data.description!.isNotEmpty)
                           Container(
                             padding: const EdgeInsets.all(4),
@@ -193,7 +231,7 @@ class CustomAwardAchievment extends StatelessWidget {
                                     data.description!,
                                   ),
                             ),
-                          ),
+                          ), */
                       ],
                     );
                   },

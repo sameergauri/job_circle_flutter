@@ -1,5 +1,5 @@
 // screens/new_jobs/job_detail/job_detail_page.dart
-
+// ignore_for_file: todo, prefer_const_constructors, unused_import, avoid_unnecessary_containers, sized_box_for_whitespace, prefer_const_literals_to_create_immutables, non_constant_identifier_names, unnecessary_null_comparison, must_be_immutable, unused_local_variable, unnecessary_string_interpolations, unnecessary_this, duplicate_ignore
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
@@ -109,7 +109,13 @@ class _JobDetailPageState extends State<JobDetailPage> {
                 CustomJobHeadline(
                   jobHeadline: job.jobHeadline.toString(),
                   experience: job.requiredExperience.toString(),
-                  salary: formatSalary(job.salaryRange),
+                  salary: formatSalaryText(
+                    min: job.minCtc,
+                    max: job.maxCtc,
+                    perMonth: job.salaryRange!.toUpperCase().contains("PM")
+                        ? "1"
+                        : "0",
+                  ),
                   location: job.locationWithWorkType!,
                   empType: job.employmentType.toString(),
                   companyIcon: job.companyIcon.toString(),
@@ -226,7 +232,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           ESharedPreferences.user_mobile,
                         ),
                         job.payoutDetails!,
-                        "8446062685",
                       );
                       Future.delayed(const Duration(milliseconds: 500), () {
                         provider.setLoading(false);
@@ -261,7 +266,66 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
   }
 
-  String formatSalary(String? raw) {
+  String formatSalaryText({
+    required dynamic min,
+    required dynamic max,
+    required String perMonth, // "1" for Monthly, "0" for Yearly
+  }) {
+    double minVal = double.tryParse(min.toString()) ?? 0;
+    double maxVal = double.tryParse(max.toString()) ?? 0;
+    bool isMonthly = perMonth == "1";
+
+    // Number format karne ka logic
+    String formatNumber(double value) {
+      if (value == 0) return "0";
+
+      double result;
+      bool addK = false;
+
+      if (isMonthly) {
+        if (value >= 1000) {
+          result = value / 1000; // 1500 => 1.5
+          addK = true; // Monthly me 'k' lagana hai
+        } else {
+          return value
+              .toInt()
+              .toString(); // Agar 1000 se kam hai to direct return
+        }
+      } else {
+        // Yearly ke liye 1 Lakh se divide
+        result = value / 100000; // 300000 => 3.0
+      }
+
+      // MAIN LOGIC: Point hatane wala
+      String finalString;
+
+      // Check karein ki result poora number hai kya (Jaise 3.0, 5.0)
+      if (result % 1 == 0) {
+        finalString = result.toInt().toString(); // 3.0 => "3"
+      } else {
+        // Agar decimal hai (Jaise 1.5, 2.53)
+        // toStringAsFixed(2) "1.50" dega, regex us extra 0 ko hata dega
+        finalString = result
+            .toStringAsFixed(2)
+            .replaceAll(RegExp(r"([.]*0)(?!.*\d)"), "");
+      }
+
+      return addK ? "${finalString}k" : finalString;
+    }
+
+    String minStr = formatNumber(minVal);
+    String suffix = isMonthly ? "Per Month" : "LPA";
+
+    // Agar Max Salary 0 hai ya Min aur Max same hai
+    if (maxVal == 0 || maxVal == minVal) {
+      return "$minStr $suffix";
+    }
+
+    String maxStr = formatNumber(maxVal);
+    return "$minStr - $maxStr $suffix";
+  }
+
+  /*  String formatSalary(String? raw) {
     if (raw == null || raw.trim().isEmpty) return '';
 
     String input = raw.replaceAll(',', '').toLowerCase();
@@ -305,7 +369,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
     } else {
       return '$start - $end$suffix';
     }
-  }
+  } */
 
   Future<void> handleApplyNow(
     BuildContext context,

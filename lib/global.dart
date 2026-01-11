@@ -5,7 +5,7 @@ class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
   static const API_Host_one =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-  // "10.89.188.234:8081";
+      // "10.70.206.234:8081";
   // "10.57.31.234:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const Image_url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/";
@@ -28,6 +28,7 @@ class GlobalConstants {
   static const parsecvurl = '$_baseurl/api/v1/cv/gpt4o-mini/parse';
   static const onboardingparsecvurl =
       '$_baseurl/api/v1/cv/gpt4o-mini/parse/user/onboard';
+  static const referAndAddResumeParseUrl = '$_baseurl/api/v1/cv/parseForLeads';
   //
   //
   //TODO:: OTP

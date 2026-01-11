@@ -2,6 +2,7 @@
 // ignore_for_file: todo
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -152,14 +153,37 @@ class _CustomMissingInfoContainerState
           description: "Never skip adding your resume.",
           buttonText: "+ Add Resume",
           onPressed: () async {
-            String? resumePath = await fileUploader.uploadFile(context, [
+            widget.provider.setLoading(true);
+            // provider.setShowExperienceForm(false);
+            FileUploader fileUploader = FileUploader();
+            var data = await fileUploader.pickFileAndUpload(
+              //TODO:: this function is use to return file path and uploaded file name ....
+              needToUpload: true,
+              context,
+              allowedExt: ['pdf', 'doc', 'docx'],
+              folder: "resume",
+            );
+            if (data == null) {
+              widget.provider.setLoading(false);
+              return;
+            }
+            widget.provider.fetchParseData(
+              File(data.file.path),
+              data.uploadedFileName!,
+              context,
+              profileData,
+            );
+            Future.delayed(const Duration(milliseconds: 500), () {
+              widget.provider.setLoading(false);
+            });
+            /*  String? resumePath = await fileUploader.uploadFile(context, [
               'pdf',
               'doc',
               'docx',
             ], "resume");
             if (resumePath != null) {
               widget.provider.updateResume(profileData, resumePath);
-            }
+            } */
           },
         ),
       );

@@ -10,6 +10,7 @@ import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_responsibility_model.dart';
 import 'package:job_circle/src/model/user_profile/cv_parse_model.dart';
 import 'package:job_circle/src/model/user_profile/onboarding_cv_parse_model.dart';
+import 'package:job_circle/src/model/user_profile/refer_cv_parse_model.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class ResumeService {
@@ -78,6 +79,54 @@ class ResumeService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(respStr);
         return OnBoardCvParseModel.fromJson(data);
+      } else {
+        // Extract readable message
+        final errorMessage =
+            decoded?['message'] ?? 'Something went wrong, please try again.';
+
+        throw Exception(errorMessage); // 👈 throw the actual message
+      }
+    } catch (e, stack) {
+      throw Exception("❌ Exception while calling API: $e\nStack: $stack");
+    }
+  }
+
+    static Future<ReferResumeParseModel> referAddResumeCVParsing({
+    required File pdfFile,
+  }) async {
+    final url = Uri.parse(GlobalConstants.referAndAddResumeParseUrl);
+
+    var request = http.MultipartRequest("POST", url);
+
+   /*  // ✅ Add async field
+    request.fields['async'] = 'false'; // or 'true' depending on your need */
+
+    // ✅ Add PDF file (field name must match what API expects, here it's "file")
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        "file", // must be exactly "file" (confirm with API docs if needed)
+        pdfFile.path,
+        contentType: MediaType(
+          'application',
+          'pdf',
+        ), // <-- important for some APIs
+      ),
+    );
+
+    try {
+      final response = await request.send();
+      final respStr = await response.stream.bytesToString();
+
+      dynamic decoded;
+      try {
+        decoded = jsonDecode(respStr);
+      } catch (_) {
+        decoded = null;
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = jsonDecode(respStr);
+        return ReferResumeParseModel.fromJson(data);
       } else {
         // Extract readable message
         final errorMessage =

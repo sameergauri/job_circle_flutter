@@ -227,7 +227,9 @@ class _CustomTextFieldForCareerPreferenceState
               if (suggestion != null && suggestion!.isEmpty) {
                 return InkWell(
                   onTap: () {
-                    addItem(widget.controller.text);
+                    widget.controller.clear();
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    //addItem(widget.controller.text);
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -237,7 +239,7 @@ class _CustomTextFieldForCareerPreferenceState
                     child: ListTile(
                       title: customText(
                         fontSize: 12,
-                        title: "Add ${widget.controller.text}",
+                        title: "No matches found",
                         fontWeight: FontWeight.w600,
                       ),
                     ),

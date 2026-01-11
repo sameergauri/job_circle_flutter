@@ -3,6 +3,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
@@ -12,6 +14,8 @@ import 'package:job_circle/src/model/referal_model/add_resume_model.dart';
 import 'package:job_circle/src/provider/add_resume/add_resume_provider.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/age_calculater.dart';
+import 'package:job_circle/src/utils/date_picker/custom_date_picker.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
@@ -230,6 +234,8 @@ class _AddResumeState extends State<AddResume> {
                             const SizedBox(height: 10),
                             const customText(title: "Contact Number*"),
                             CustomTextFieldforAll(
+                              isPrimaryNumber: true,
+                              isDisabled: false,
                               maxLength: 10,
                               isNumber: true,
                               controller: provider.contactnumber,
@@ -243,7 +249,136 @@ class _AddResumeState extends State<AddResume> {
                               isNumber: true,
                               hint: "Enter Alternate Number",
                             ),
+
                             const SizedBox(height: 10),
+                            customText(title: "Email ID"),
+                            CustomTextFieldforAll(
+                              isGmail: true,
+                              controller: provider.email,
+                              hint: "Enter Email ID",
+                            ),
+                            const SizedBox(height: 10),
+                            const customText(title: "Gender"),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                CustomGenderButton(
+                                  isSelect: provider.male,
+                                  title: "Male",
+                                  width:
+                                      MediaQuery.of(context).size.width / 2.33,
+                                  height: 40,
+                                  onTap: () {
+                                    provider.setGender('male');
+                                  },
+                                ),
+                                CustomGenderButton(
+                                  width:
+                                      MediaQuery.of(context).size.width / 2.33,
+                                  height: 40,
+                                  onTap: () {
+                                    provider.setGender('female');
+                                  },
+                                  isSelect: provider.female,
+                                  title: "Female",
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            const customText(title: "Date of Birth"),
+                            CustomTextFieldforAll(
+                              sufix: provider.age,
+                              prefixicon: CustomIconUrl.dojicon,
+                              controller: provider.dateofbirth,
+                              hint: "Select DOB",
+                              readonly:
+                                  true, // Make field read-only to prevent manual input
+                              onTab: () async {
+                                DateTime today = DateTime.now();
+                                DateTime fifteenYearsAgo = DateTime(
+                                  today.year - 18,
+                                  today.month,
+                                  today.day,
+                                );
+
+                                // Parse previously selected date if exists
+                                DateTime? initialDate;
+                                if (provider.dateofbirth.text.isNotEmpty) {
+                                  try {
+                                    initialDate = DateFormat(
+                                      'dd MMM yyyy',
+                                    ).parse(provider.dateofbirth.text);
+                                  } catch (e) {
+                                    initialDate = fifteenYearsAgo;
+                                  }
+                                } else {
+                                  initialDate = fifteenYearsAgo;
+                                }
+
+                                // Open date picker
+                                DateTime? selectedDate =
+                                    await CustomDateOfBirth.selectDate(
+                                      initialDate: initialDate,
+                                      context: context,
+                                      minDate: DateTime(1970),
+                                      maxDate: fifteenYearsAgo,
+                                      title: "Select Date of Birth",
+                                    );
+
+                                if (selectedDate != null) {
+                                  String formattedDate = DateFormat(
+                                    'dd MMM yyyy',
+                                  ).format(selectedDate);
+                                  provider.dateofbirth.text = formattedDate;
+                                  provider.setAge(
+                                    AgeCalculator.calculateAge(
+                                      provider.dateofbirth.text,
+                                    )!,
+                                  );
+                                }
+                              },
+                            ),
+                            /*  GestureDetector(
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime.now(),
+                                );
+                                if (pickedDate != null) {
+                                  provider.setDob(pickedDate);
+                                }
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                height: 50,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Constants.borderColor,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  provider.dob != null
+                                      ? DateFormat(
+                                          'dd MMM y',
+                                        ).format(provider.dob!)
+                                      : "Select Date of Birth",
+                                  style: TextStyle(
+                                    color: provider.dob != null
+                                        ? Constants.black
+                                        : Constants.subtitleclr,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ), */
+                            SizedBox(height: 10),
                             const customText(title: "Level of Education*"),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -337,11 +472,13 @@ class _AddResumeState extends State<AddResume> {
                                           "${GlobalConstants.Image_url}${provider.resume}",
                                       isFromAts: false,
                                       onDelete: () async {
+                                        provider.setLoading(true);
                                         await FileUploadService()
                                             .deleteSingleFile(
                                               provider.resume.toString(),
                                             );
                                         provider.setResume(null);
+                                        NavigationService.pop();
                                       },
                                     ),
                                   );
@@ -410,6 +547,13 @@ class _AddResumeState extends State<AddResume> {
         resume: provider.resume,
         shortListFor: widget.company_id,
         spoc: widget.spocId,
+        email: provider.email.text,
+        gender: provider.male
+            ? "Male"
+            : provider.female
+            ? "Female"
+            : null,
+        dob: provider.dob,
         // uid: userid,
         uid: 0,
         payoutMode: provider.termandconditionone ? "DEFAULT" : "SPECIAL",

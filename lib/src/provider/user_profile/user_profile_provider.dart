@@ -1,20 +1,25 @@
-// ignore_for_file: non_constant_identifier_names, unused_local_variable, prefer_final_fields
+// ignore_for_file: non_constant_identifier_names, unused_local_variable, prefer_final_fields, use_build_context_synchronously
 
-import 'package:flutter/widgets.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_responsibility_model.dart';
 import 'package:job_circle/src/model/location_model.dart';
 import 'package:job_circle/src/model/user_profile/create_user_model.dart';
+import 'package:job_circle/src/model/user_profile/refer_cv_parse_model.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/login_and_signup_services/resume_service.dart';
 import 'package:job_circle/src/services/master_data/master_data_service.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/services/user_services/user_services.dart';
 import 'package:job_circle/src/utils/add_bullet_point.dart';
 import 'package:job_circle/src/utils/age_calculater.dart';
 import 'package:job_circle/src/utils/date_formater.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
+import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_confirmation.dart';
 
 class ProfileProvider with ChangeNotifier {
   // Awards & Achievements
@@ -29,6 +34,79 @@ class ProfileProvider with ChangeNotifier {
   bool get showAwardForm => _showAwardForm;
   int? get editingAwardIndex => _editingAwardIndex;
   bool get isEditingAward => _editingAwardIndex != null;
+
+  ReferResumeParseModel? _cvParseModel;
+  String? _error;
+
+  ReferResumeParseModel? get cvParseModel => _cvParseModel;
+  String? get error => _error;
+
+  void setLoading(bool value) {
+    _isUpdating = value;
+    notifyListeners();
+  }
+
+  Future<void> fetchParseData(
+    File pdfFile,
+    String cvLink,
+    BuildContext context,
+    ProfileModel currentProfile,
+  ) async {
+    _isLoading = true;
+    _error = null;
+    _cvParseModel = null;
+    notifyListeners();
+    try {
+      _cvParseModel = await ResumeService.referAddResumeCVParsing(
+        pdfFile: pdfFile,
+      );
+      if ((_cvParseModel != null &&
+              _cvParseModel!.contactNumber != null &&
+              _cvParseModel!.contactNumber != "" &&
+              _cvParseModel!.contactNumber != "null" &&
+              _cvParseModel!.contactNumber != " ") &&
+          (_cvParseModel!.contactNumber == currentProfile.mobile.toString())) {
+        updateResume(currentProfile, cvLink);
+      } else {
+        await showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (_) => CustomDialogForConfirmation(
+            title: 'Error',
+            subtitle: "Upload a valid resume with correct mobile number.",
+            button1text: 'Ok',
+            onlysinglebutton: true,
+            onYes: () {
+              NavigationService.pop();
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (_) => CustomDialogForConfirmation(
+          title: 'Error',
+          subtitle:
+              e.toString().contains(
+                    "Mobile number in CV does not match the provided mobile number",
+                  ) ||
+                  e.toString().contains("Mobile number")
+              ? "Mobile number in Resume does not match the number you entered."
+              : "Something went wrong try again",
+          button1text: 'Ok',
+          onlysinglebutton: true,
+          onYes: () {
+            NavigationService.pop();
+          },
+        ),
+      );
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   void setShowAwardForm(bool value) {
     _showAwardForm = value;
@@ -75,7 +153,7 @@ class ProfileProvider with ChangeNotifier {
       bool done = await UserServices.postUserInfo(_createNewUserModel!);
       if (done) {
         await fetchProfile(); // Wait for fresh data
-        CustomSnackbar.show("Updated!", false);
+        CustomSnackbar.show("Updated!", false); 
       }
     } finally {
       Future.delayed(const Duration(seconds: 2), () {

@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
@@ -9,7 +10,6 @@ import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/utils/custom_get_month.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
@@ -112,7 +112,7 @@ class ProfileAwardEdit extends StatelessWidget {
               controller: provider.awardDescriptionController,
               hintText: "Enter award description",
               maxline: 4,
-              maxLength: 1200,
+              maxLength: 500,
             ),
 
             const SizedBox(height: 15),
@@ -184,7 +184,7 @@ class ProfileAwardEdit extends StatelessWidget {
               CustomNewListTile(
                 onTap: () {},
                 contentPadding: const EdgeInsets.only(top: 0, bottom: 0),
-                leading: Container(
+                /*  leading: Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 4,
                     horizontal: 6,
@@ -200,22 +200,61 @@ class ProfileAwardEdit extends StatelessWidget {
                     defaultIcon: Icons.cast_for_education,
                     color: Constants.subtitleclr,
                   ),
-                ),
+                ), */
                 title: Padding(
                   padding: const EdgeInsets.only(right: 10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      customText(
-                        title: data.title.toString(),
-                        overflow: TextOverflow.ellipsis,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment
+                            .start, // Bullet ko top par rakhne ke liye
+                        children: [
+                          // 1. Bullet Point (Alag Widget)
+                          Text(
+                            "•  ", // Thoda space extra diya taki chipak na jaye
+                            style: GoogleFonts.merriweather(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                          ),
+
+                          // 2. Main Content (Expanded me wrap kiya taki width restricted rahe)
+                          Expanded(
+                            child: Text.rich(
+                              TextSpan(
+                                children: [
+                                  // Part 1: Title (Bold & 14)
+                                  TextSpan(
+                                    text: "${data.title} : ",
+                                    style: GoogleFonts.merriweather(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  // Part 2: Description (Normal & 12)
+                                  TextSpan(
+                                    text: data.description,
+                                    style: GoogleFonts.merriweather(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.normal,
+                                      color: Constants.subtitleclr,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 4, // Text limit
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                subtitle: data.description != null && data.description != 'null'
+                /* subtitle: data.description != null && data.description != 'null'
                     ? customText(
                         title: MonthRangeFormatter.formatMonthRange(
                           data.description!,
@@ -225,7 +264,7 @@ class ProfileAwardEdit extends StatelessWidget {
                         color: Constants.subtitleclr,
                         overflow: TextOverflow.ellipsis,
                       )
-                    : SizedBox.shrink(),
+                    : SizedBox.shrink(), */
                 trailing: IconButton(
                   onPressed: () {
                     provider.editAward(originalIndex);

@@ -59,7 +59,7 @@ class JobProvider extends ChangeNotifier {
 
     final result = await _jobServices.fetchJobs(
       applyCityFilter: applyCityFilter,
-      selectedCity: _selectedCity,
+     // selectedCity: _selectedCity,
       userId: SharedPrefsHelper.getInt(ESharedPreferences.user_id).toString(),
     );
 

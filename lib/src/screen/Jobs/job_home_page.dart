@@ -12,6 +12,7 @@ import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
+import 'package:job_circle/src/screen/chat/chat_list_screen.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
@@ -21,6 +22,7 @@ import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_dynamic_text_field.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 import 'package:provider/provider.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class JobHomePage extends StatefulWidget {
   final GlobalKey<ScaffoldState>
@@ -222,6 +224,27 @@ class _JobHomePageState extends State<JobHomePage> {
                   hint: 'Search Jobs by Designation, Process, or Company',
                 ),
                 actions: [
+                  IconButton(
+                    onPressed: () {
+                      NavigationService.push(ChatListScreen());
+                    },
+                    icon: Stack(
+                      children: [
+                        Image.asset(
+                          CustomAssetUrl.chaticon,
+                          height: 24,
+                          color: Constants.subtitleclr,
+                        ),
+                        Positioned(
+                          right: -2, // Adjust these to move the badge corner
+                          top: -2,
+                          child: StreamUnreadIndicator(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                /*  actions: [   //TODO:: Hide city selector
                   InkWell(
                     onTap: () {
                       _showCityBottomSheet();
@@ -245,10 +268,10 @@ class _JobHomePageState extends State<JobHomePage> {
                       ),
                     ),
                   ),
-                ],
+                ], */
               ),
               body:
-                  selectedCityFromProvider == null ||
+                  /*  selectedCityFromProvider == null ||  //TODO:: Hide city selector
                       selectedCityFromProvider == '' ||
                       selectedCityFromProvider == ' '
                   ? Column(
@@ -280,64 +303,60 @@ class _JobHomePageState extends State<JobHomePage> {
                         ),
                       ],
                     )
-                  : Column(
-                      children: [
-                        if (availableTabs.isNotEmpty)
-                          SizedBox(
-                            height: 40,
-                            child: ListView(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                              ),
-                              children: availableTabs
-                                  .map(
-                                    (tab) => Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 4,
-                                      ),
-                                      child: CustomToggleButton(
-                                        isSelect: selectedTab == tab,
-                                        title: tab,
-                                        onTap: () {
-                                          toggleTab(tab);
-                                        },
-                                      ),
+                  : */
+                  Column(
+                    children: [
+                      if (availableTabs.isNotEmpty)
+                        SizedBox(
+                          height: 40,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            children: availableTabs
+                                .map(
+                                  (tab) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
                                     ),
-                                  )
-                                  .toList(),
-                            ),
-                          ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: RefreshIndicator(
-                            onRefresh: () async {
-                              if (selectedTab == "Recommended Jobs") {
-                                await jobProvider.fetchRecomendJob();
-                              } else {
-                                await jobProvider.fetchJobs(
-                                  isRefresh: true,
-                                  applyCityFilter: true,
-                                );
-                              }
-                            },
-                            color: Constants.darkBlue,
-                            backgroundColor: Constants.white,
-                            child: selectedTab == "Recommended Jobs"
-                                ? _buildRecommendedJobsList(
-                                    jobProvider,
-                                    userData,
-                                  )
-                                : _buildRegularJobsList(
-                                    filteredJobs,
-                                    // filterJobs(jobs),
-                                    isLoading,
-                                    userData,
+                                    child: CustomToggleButton(
+                                      isSelect: selectedTab == tab,
+                                      title: tab,
+                                      onTap: () {
+                                        toggleTab(tab);
+                                      },
+                                    ),
                                   ),
+                                )
+                                .toList(),
                           ),
                         ),
-                      ],
-                    ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: () async {
+                            if (selectedTab == "Recommended Jobs") {
+                              await jobProvider.fetchRecomendJob();
+                            } else {
+                              await jobProvider.fetchJobs(
+                                isRefresh: true,
+                                applyCityFilter: true,
+                              );
+                            }
+                          },
+                          color: Constants.darkBlue,
+                          backgroundColor: Constants.white,
+                          child: selectedTab == "Recommended Jobs"
+                              ? _buildRecommendedJobsList(jobProvider, userData)
+                              : _buildRegularJobsList(
+                                  filteredJobs,
+                                  // filterJobs(jobs),
+                                  isLoading,
+                                  userData,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
             ),
             if (isLoading)
               const Center(

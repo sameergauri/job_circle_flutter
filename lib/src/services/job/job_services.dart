@@ -13,7 +13,7 @@ import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 class JobServices {
   Future<Map<String, dynamic>> fetchJobs({
     required bool applyCityFilter,
-    String? selectedCity,
+    // String? selectedCity,
     required String userId,
   }) async {
     final userid = userId;
@@ -24,9 +24,9 @@ class JobServices {
       'userId': userid.toString(),
     };
 
-    if (applyCityFilter && selectedCity != null && selectedCity.isNotEmpty) {
+    /*   if (applyCityFilter && selectedCity != null && selectedCity.isNotEmpty) {  // selectedCity passed from outside
       queryParams['cities'] = selectedCity;
-    }
+    } */
 
     final url = Uri.parse(
       GlobalConstants.getAllJobsUrl,
@@ -137,7 +137,7 @@ class JobServices {
       return null;
     }
   } */
- Future<RecommendJobModel?> fetchRecomendJob({
+  Future<RecommendJobModel?> fetchRecomendJob({
     required int userId,
     List<String>? locations, // e.g., ["Thane", "Mumbai"]
     List<String>? industries, // e.g., ["Insurance", "BPO"]

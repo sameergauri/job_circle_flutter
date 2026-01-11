@@ -22,12 +22,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       leadingWidth: 25,
-      titleSpacing: 10,
+      titleSpacing: 0,
       iconTheme: const IconThemeData(color: Colors.black),
       backgroundColor: Colors.white,
       elevation: 0,
       title: Padding(
-        padding: const EdgeInsets.only(right: 4, left: 6),
+        padding: const EdgeInsets.only(right: 0, left: 16),
         child: SizedBox(
           height: MediaQuery.of(context).size.height / 24,
           child: TextField(
@@ -64,6 +64,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
+      actions: [
+        IconButton(
+          padding: EdgeInsets.zero,
+          onPressed: () {},
+          icon: const Icon(Icons.settings, color: Colors.black),
+        ),
+      ],
       /* actions: [  // TODO:: Resume Builder Integration
         IconButton(
           onPressed: () {

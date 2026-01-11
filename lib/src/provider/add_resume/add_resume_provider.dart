@@ -1,12 +1,13 @@
-// ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison
+// ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison, avoid_print
 
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
 import 'package:job_circle/src/model/referal_model/add_resume_model.dart';
-import 'package:job_circle/src/model/user_profile/onboarding_cv_parse_model.dart';
+import 'package:job_circle/src/model/user_profile/refer_cv_parse_model.dart';
 import 'package:job_circle/src/screen/referal/add_resume.dart';
 import 'package:job_circle/src/services/login_and_signup_services/resume_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -20,6 +21,7 @@ class ReferResumeProvider with ChangeNotifier {
   TextEditingController lastname = TextEditingController();
   TextEditingController contactnumber = TextEditingController();
   TextEditingController alternatenumber = TextEditingController();
+  TextEditingController dateofbirth = TextEditingController();
   bool _graduate = false,
       _underGraduate = false,
       _experience = false,
@@ -28,12 +30,17 @@ class ReferResumeProvider with ChangeNotifier {
       _tomorrow = false,
       _other = false,
       _termandconditionone = false,
-      _termandconditiontwo = false;
+      _termandconditiontwo = false,
+      _male = false,
+      _female = false;
+  TextEditingController email = TextEditingController();
+  DateTime? _dob;
   String? _resume;
   DateTime? _selectedDate;
-  OnBoardCvParseModel? _cvParseModel;
+  ReferResumeParseModel? _cvParseModel;
   ReferAddResumeModel? _referAddResumeModel;
   String? _error;
+  String? _age;
 
   bool get graduate => _graduate;
   bool get undergraduate => _underGraduate;
@@ -46,11 +53,37 @@ class ReferResumeProvider with ChangeNotifier {
   bool get termandconditiontwo => _termandconditiontwo;
   String? get resume => _resume;
   DateTime? get selectedDate => _selectedDate;
-  OnBoardCvParseModel? get cvParseModel => _cvParseModel;
+  ReferResumeParseModel? get cvParseModel => _cvParseModel;
   ReferAddResumeModel? get referAddResumeModel => _referAddResumeModel;
   String? get error => _error;
+  bool get male => _male;
+  bool get female => _female;
+  DateTime? get dob => _dob;
+  String? get age => _age;
 
-  void _setLoading(bool value) {
+  void setGender(String gender) {
+    if (gender == "male") {
+      _male = true;
+      _female = false;
+    } else if (gender == "female") {
+      _female = true;
+      _male = false;
+    }
+    notifyListeners();
+  }
+
+  void setDob(DateTime date) {
+    // _selectedDate = date;
+    _dob = date;
+    notifyListeners();
+  }
+
+  void setAge(String age) {
+    _age = age;
+    notifyListeners();
+  }
+
+  void setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
@@ -61,7 +94,7 @@ class ReferResumeProvider with ChangeNotifier {
     required bool fromDialog,
     required int refId,
   }) async {
-    _setLoading(true);
+    setLoading(true);
 
     try {
       final response = await AddResumeAndApplyService.referAndAddResume(
@@ -69,7 +102,7 @@ class ReferResumeProvider with ChangeNotifier {
         refId: refId,
       );
 
-      _setLoading(false);
+      setLoading(false);
 
       if (response == "200") {
         CustomSnackbar.show("Resume Submited Successfully", false);
@@ -90,7 +123,7 @@ class ReferResumeProvider with ChangeNotifier {
         );
       }
     } catch (e) {
-      _setLoading(false);
+      setLoading(false);
 
       showDialog(
         barrierDismissible: false,
@@ -125,7 +158,6 @@ class ReferResumeProvider with ChangeNotifier {
     spocId,
     int userNumber,
     PayoutDetails payoutDetails,
-    String contact,
   ) async {
     _isLoading = true;
     _error = null;
@@ -134,23 +166,57 @@ class ReferResumeProvider with ChangeNotifier {
     clear();
     notifyListeners();
     try {
-      _cvParseModel = await ResumeService.onboardingCvParse(
+      _cvParseModel = await ResumeService.referAddResumeCVParsing(
         pdfFile: pdfFile,
-        contactno: contact,
       );
-      if (_cvParseModel != null && _cvParseModel!.mobileNumber != null) {
+      if (_cvParseModel != null &&
+          _cvParseModel!.contactNumber != null &&
+          _cvParseModel!.contactNumber != "" &&
+          _cvParseModel!.contactNumber != "null" &&
+          _cvParseModel!.contactNumber != " ") {
         setResume(cvLink);
         firstname.text = _cvParseModel!.firstName ?? '';
         lastname.text = _cvParseModel!.lastName ?? '';
-        contactnumber.text = _cvParseModel!.mobileNumber ?? '';
+        contactnumber.text = _cvParseModel!.contactNumber ?? '';
         alternatenumber.text = _cvParseModel!.alternateNumber ?? '';
         // Set education level
         if (_cvParseModel!.educationLevel != null) {
           setEducation(_cvParseModel!.educationLevel!);
         }
+        if (_cvParseModel!.dateOfBirth != null &&
+            _cvParseModel!.dateOfBirth != "") {
+          try {
+            // 1. Define the format that matches "24-OCT-1996"
+            String cleanDate = fixDateCasing(_cvParseModel!.dateOfBirth!);
+            // 'dd' = 24, 'MMM' = OCT, 'yyyy' = 1996
+            DateFormat formatter = DateFormat('dd-MMM-yyyy');
+
+            // 2. Parse the string into DateTime
+            DateTime dobDate = formatter.parse(cleanDate);
+            setDob(dobDate);
+            String formattedDate = DateFormat('dd MMM yyyy').format(dobDate);
+            dateofbirth.text = formattedDate;
+            // Check output
+            print("Parsed Date: $dobDate");
+          } catch (e) {
+            print("Invalid Date Format: $e");
+          }
+        }
+        if (_cvParseModel!.email != null && _cvParseModel!.email != "") {
+          email.text = _cvParseModel!.email!;
+        }
+        if (_cvParseModel!.gender != null && _cvParseModel!.gender != "") {
+          if (_cvParseModel!.gender!.toLowerCase() == "m" ||
+              _cvParseModel!.gender!.toLowerCase() == "male") {
+            setGender("male");
+          } else if (_cvParseModel!.gender!.toLowerCase() == "f" ||
+              _cvParseModel!.gender!.toLowerCase() == "female") {
+            setGender("female");
+          }
+        }
         // Set experience level
-        if (_cvParseModel!.experience != null &&
-            _cvParseModel!.experience!.isNotEmpty) {
+        if (_cvParseModel!.experienceLevel != null &&
+            _cvParseModel!.experienceLevel!.isNotEmpty) {
           setExperience('fresher');
         } else {
           setExperience('experience');
@@ -213,10 +279,13 @@ class ReferResumeProvider with ChangeNotifier {
   // cv parse fetch function end
 
   void setEducation(String level) {
-    if (level == "under") {
+    if (level == "under" ||
+        level == "undergraduate" ||
+        level == "Undergraduate" ||
+        level == "UnderGraduate") {
       _underGraduate = true;
       _graduate = false;
-    } else if (level == "graduate") {
+    } else if (level == "graduate" || level == "Graduate") {
       _graduate = true;
       _underGraduate = false;
     }
@@ -260,6 +329,7 @@ class ReferResumeProvider with ChangeNotifier {
     lastname.clear();
     contactnumber.clear();
     alternatenumber.clear();
+    email.clear();
     _underGraduate = false;
     _graduate = false;
     _fresher = false;
@@ -271,6 +341,11 @@ class ReferResumeProvider with ChangeNotifier {
     _resume = null;
     _termandconditionone = false;
     _termandconditiontwo = false;
+    _male = false;
+    _female = false;
+    _dob = null;
+    _age = null;
+    notifyListeners();
   }
 
   @override
@@ -280,5 +355,23 @@ class ReferResumeProvider with ChangeNotifier {
     lastname.dispose();
     contactnumber.dispose();
     alternatenumber.dispose();
+    dateofbirth.dispose();
+    email.dispose();
+  }
+
+  String fixDateCasing(String dateStr) {
+    //TODO:: new function to fix date casing
+    try {
+      var parts = dateStr.split('-'); // ["26", "JUN", "1993"]
+      if (parts.length == 3) {
+        String month = parts[1];
+        // Convert "JUN" to "Jun"
+        parts[1] = month[0].toUpperCase() + month.substring(1).toLowerCase();
+        return parts.join('-'); // Returns "26-Jun-1993"
+      }
+      return dateStr;
+    } catch (e) {
+      return dateStr;
+    }
   }
 }

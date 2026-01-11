@@ -18,6 +18,9 @@ class ReferAddResumeModel {
   final int? spoc;
   final int? uid;
   final String? payoutMode;
+  final String? email;
+  final String? gender;
+  final DateTime? dob;
 
   ReferAddResumeModel({
     this.alternateNo,
@@ -37,6 +40,9 @@ class ReferAddResumeModel {
     this.spoc,
     this.uid,
     this.payoutMode,
+    this.email,
+    this.gender,
+    this.dob
   });
 
   factory ReferAddResumeModel.fromJson(Map<String, dynamic> json) {
@@ -58,6 +64,9 @@ class ReferAddResumeModel {
       spoc: json['spoc'],
       uid: json['uid'],
       payoutMode: json['payoutMode'],
+      email: json['email'],
+      gender: json['gender'],
+      dob: json['dob'] != null ? DateTime.parse(json['dob']) : null,
     );
   }
 
@@ -80,6 +89,9 @@ class ReferAddResumeModel {
       'spoc': spoc,
       'uid': uid,
       'payoutMode': payoutMode,
+      'email': email,
+      'gender': gender,
+      'dob': dob?.toIso8601String(),  
     };
   }
 }

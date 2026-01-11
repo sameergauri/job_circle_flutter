@@ -182,10 +182,9 @@ class _CareerPreferenceState extends State<CareerPreference> {
                                     provider.setShiftTime("rotational"),
                               ),
                               CustomToggleButton(
-                                isSelect: provider.flexible,
+                                isSelect: provider.flexibleShift ?? false,
                                 title: "Flexible",
-                                onTap: () =>
-                                    provider.toggleWorkMode("flexible"),
+                                onTap: () => provider.setShiftTime("flexible"),
                               ),
                             ],
                           ),
