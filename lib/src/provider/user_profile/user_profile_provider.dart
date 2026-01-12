@@ -153,7 +153,7 @@ class ProfileProvider with ChangeNotifier {
       bool done = await UserServices.postUserInfo(_createNewUserModel!);
       if (done) {
         await fetchProfile(); // Wait for fresh data
-        CustomSnackbar.show("Updated!", false); 
+        CustomSnackbar.show("Updated!", false);
       }
     } finally {
       Future.delayed(const Duration(seconds: 2), () {
@@ -175,7 +175,22 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeAward(int index) {
+  void removeAward(int index) async {
+    int awardId = _awardsAchievementsModel[index].id!;
+    bool done = await UserServices.DeleteExpEduCertProj(awardId, 'award');
+    if (done) {
+      fetchProfile();
+      CustomSnackbar.show("Data Updated Successfully", false);
+    } else {
+      CustomSnackbar.show("Getting error while saving data", true);
+    }
+    if (_awardsAchievementsModel.isEmpty) {
+      setShowAwardForm(true);
+    }
+    notifyListeners();
+  }
+
+  /* void removeAward(int index) {
     if (index < 0 || index >= _awardsAchievementsModel.length) return;
     _awardsAchievementsModel.removeAt(index);
     if (_editingAwardIndex == index) {
@@ -188,7 +203,7 @@ class ProfileProvider with ChangeNotifier {
       setShowAwardForm(true);
     }
     notifyListeners();
-  }
+  } */
 
   void cancelAwardEdit() {
     clearAwardForm();

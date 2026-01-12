@@ -493,16 +493,18 @@ class ProjectModel {
 }
 
 class AwardsAndAchievementsModel {
+  final int? id;
   final String? title;
   final String? description;
-  AwardsAndAchievementsModel({this.title, this.description});
+  AwardsAndAchievementsModel({this.id, this.title, this.description});
   factory AwardsAndAchievementsModel.fromJson(Map<String, dynamic> json) {
     return AwardsAndAchievementsModel(
+      id: json['id'] as int?,
       title: json['title'] as String?,
       description: json['description'] as String?,
     );
   }
   Map<String, dynamic> toJson() {
-    return {'title': title, 'description': description};
+    return {'id': id, 'title': title, 'description': description};
   }
 }

@@ -3,9 +3,10 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/main.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
-
 class CustomSnackbar {
   static void show(String title, bool error) {
+    scaffoldMessengerKey.currentState
+        ?.hideCurrentSnackBar(); // Hide any existing snackbar
     scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
         elevation: 1.0,
@@ -24,7 +25,7 @@ class CustomSnackbar {
                     size: 15,
                   )
                 : Image.asset(
-                   CustomAssetUrl.doublecheckicon,
+                    CustomAssetUrl.doublecheckicon,
                     color: Colors.green,
                     height: 15,
                   ),

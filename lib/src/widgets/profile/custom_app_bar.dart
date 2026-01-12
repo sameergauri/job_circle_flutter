@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 
 import '../../model/user_profile/user_model.dart';
 
@@ -67,7 +68,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           padding: EdgeInsets.zero,
-          onPressed: () {},
+          onPressed: () {
+            CustomSnackbar.show(
+              "The functionality is not implemented yet",
+              true,
+            );
+          },
           icon: const Icon(Icons.settings, color: Colors.black),
         ),
       ],
