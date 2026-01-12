@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
@@ -87,7 +88,7 @@ class _CustomMissingInfoContainerState
   List<Widget> _buildCardList(
     BuildContext context,
     FileUploader fileUploader,
-    dynamic profileData,
+    ProfileModel profileData,
   ) {
     final jobProvider = Provider.of<JobProvider>(context, listen: false);
     List<Widget> cards = [];
@@ -106,7 +107,7 @@ class _CustomMissingInfoContainerState
     }
 
     /// ---------------- Resume (Build) ----------------
-    if (profileData!.resume == null ||
+    if (profileData.resume == null ||
         profileData.resume == " " ||
         profileData.resume == "null") {
       cards.add(
@@ -429,7 +430,7 @@ class _CustomMissingInfoContainerState
     final profileData = widget.provider.profile;
 
     // Generate the list of available cards
-    _cards = _buildCardList(context, fileUploader, profileData);
+    _cards = _buildCardList(context, fileUploader, profileData!);
 
     // If no missing info, hide the container
     if (_cards.isEmpty) return const SizedBox.shrink();
