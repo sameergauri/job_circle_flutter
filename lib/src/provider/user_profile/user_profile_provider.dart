@@ -2100,6 +2100,18 @@ class ProfileProvider with ChangeNotifier {
             ),
           );
         }
+        _awardsAchievementsModel.clear();
+        if (_profile!.awardsAndAchievements != null) {
+          _awardsAchievementsModel.addAll(
+            _profile!.awardsAndAchievements!.map(
+              (award) => AwardsAndAchievementsModel(
+                id: award.id,
+                title: award.title,
+                description: award.description,
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       debugPrint('Error fetching profile: $e');
