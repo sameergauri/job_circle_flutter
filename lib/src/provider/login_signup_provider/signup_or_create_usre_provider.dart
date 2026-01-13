@@ -118,6 +118,14 @@ class SignupCreateUserProvider with ChangeNotifier {
   FocusNode projectUrlFocusNode = FocusNode();
   //
 
+  // rewards and achievment.
+  TextEditingController awards_title = TextEditingController();
+  TextEditingController awards_description = TextEditingController();
+
+  FocusNode awardsTitleFocusNode = FocusNode();
+  FocusNode awardsDescriptionFocusNode = FocusNode();
+  //
+
   // Basic Profile States
   bool _male = false;
   bool _female = false;
@@ -207,6 +215,11 @@ class SignupCreateUserProvider with ChangeNotifier {
   bool _showProjectForm = false;
   int? _editProjectIndex;
   final List<UserProjectRequest> _projectModel = [];
+
+  // awards and achievment states
+  bool _showAwardsForm = false;
+  int? _editAwardIndex;
+  final List<AwardsAndAchievementsModel> _awardsModel = [];
 
   // Errors
   String? _error;
@@ -312,6 +325,14 @@ class SignupCreateUserProvider with ChangeNotifier {
   List<UserProjectRequest> get projectModel => _projectModel;
   bool get hasProjectData =>
       project_title.text.isNotEmpty || project_decription.text.isNotEmpty;
+
+  // Awards and Achievment getter
+  bool get showAwardsForm => _showAwardsForm;
+  bool get isEditingAward => _editAwardIndex != null;
+  int? get editAwardIndex => _editAwardIndex;
+  List<AwardsAndAchievementsModel> get awardsModel => _awardsModel;
+  bool get hasAwardsData =>
+      awards_title.text.isNotEmpty || awards_description.text.isNotEmpty;
 
   // Basic Profile Setters
   void setFresher(bool value) {
@@ -1318,6 +1339,133 @@ class SignupCreateUserProvider with ChangeNotifier {
   //
   //
 
+  void steUpAwardListner() {
+    awards_title.addListener(() {
+      notifyListeners();
+    });
+
+    awards_description.addListener(() {
+      notifyListeners();
+    });
+  }
+
+  void setShowAwardsForm(bool value) {
+    _showAwardsForm = value;
+    notifyListeners();
+  }
+
+  void addOrUpdateAwards() {
+    final project = AwardsAndAchievementsModel(
+      title: awards_title.text,
+      description: awards_description.text,
+    );
+
+    if (_editAwardIndex != null) {
+      _awardsModel[_editAwardIndex!] = project;
+    } else {
+      _awardsModel.add(project);
+    }
+
+    clearAwardsForm();
+    _editAwardIndex = null;
+    setShowAwardsForm(false);
+    notifyListeners();
+  }
+
+  void editAwards(int index) {
+    if (index < 0 || index >= _awardsModel.length) return;
+    final cert = _awardsModel[index];
+    awards_title.text = cert.title ?? '';
+    awards_description.text = cert.description ?? '';
+    _editAwardIndex = index;
+    setShowAwardsForm(true);
+    notifyListeners();
+  }
+
+  void removeAwards(int index) {
+    if (index < 0 || index >= _awardsModel.length) return;
+    _awardsModel.removeAt(index);
+    if (_editAwardIndex == index) {
+      clearAwardsForm();
+      _editAwardIndex = null;
+    } else if (_editAwardIndex != null && _editAwardIndex! > index) {
+      _editAwardIndex = _editAwardIndex! - 1;
+    }
+    if (_awardsModel.isEmpty) {
+      setShowAwardsForm(true);
+    }
+    notifyListeners();
+  }
+
+  void cancelAwardsEdit() {
+    clearAwardsForm();
+    _editAwardIndex = null;
+    if (_awardsModel.isNotEmpty) {
+      setShowAwardsForm(false);
+    }
+    notifyListeners();
+  }
+
+  void clearAwardsForm() {
+    awards_title.clear();
+    awards_description.clear();
+    notifyListeners();
+  }
+
+  //
+  //
+  //
+  //
+  //
+  //
+
+  // profile Summary...
+
+  bool _isSummaryLoading = false;
+  bool get isSummaryLoading => _isSummaryLoading;
+  ProfileSummaryModel? _profileSummaryModel;
+  ProfileSummaryModel? get profileSummaryModel => _profileSummaryModel;
+  bool _isSummaryGenereted = false;
+  bool get isSummaryGenereted => _isSummaryGenereted;
+
+  void clearProfileSummary() {
+    bio.clear();
+    notifyListeners();
+  }
+
+  /*  void updateProfileModelForSummary() {
+    final updatedUserRequest = profileModel!.userRequest!.copyWith(
+      bio: bio.text,
+    );
+
+    _profileModel = profileModel!.copyWith(userRequest: updatedUserRequest);
+    notifyListeners();
+  } */
+
+  Future<void> fetchSummaryUsingAi() async {
+    if (_isSummaryLoading) return;
+    _isSummaryLoading = true;
+    notifyListeners();
+    try {
+      _profileSummaryModel =
+          await ResumeService.generateSummaryUsingAi() ?? ProfileSummaryModel();
+      if (_profileSummaryModel!.profileResponse != null) {
+        bio.text = _profileSummaryModel!.profileResponse!;
+        _isSummaryGenereted = true;
+      }
+      notifyListeners();
+      CustomSnackbar.show("Profile Summary added with AI magic 🪄", false);
+    } catch (e) {
+      // Show error Snackbar
+      CustomSnackbar.show("Error while generating Summary: $e", true);
+      rethrow; // Rethrow the error to handle it in the UI
+    } finally {
+      _isSummaryLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //
   // Build Model
   CreateNewUserModel buildModel() {
     final updatedExperiences = _experiencesModel.map((exp) {
@@ -1331,6 +1479,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       experienceRequest: updatedExperiences,
       certificationsRequest: _certificateModel,
       userProjectRequest: _projectModel,
+      awardsAndAchievementsRequest: _awardsModel,
       userRequest: UserRequest(
         cvLink: _resume,
         experience: _experience ? 1 : 0,
@@ -1344,6 +1493,7 @@ class SignupCreateUserProvider with ChangeNotifier {
         userLocality: locality.text,
         pinCode: pincode.text,
         email: emailid.text,
+        bio: bio.text,
         gender: _male
             ? 'Male'
             : _female
@@ -1375,7 +1525,6 @@ class SignupCreateUserProvider with ChangeNotifier {
     final token = SharedPrefsHelper.getString(ESharedPreferences.user_token);
     _isLoading = true;
     notifyListeners();
-
     try {
       final model = buildModel();
       final result = await SignupService.saveUserData(model, token);
@@ -1430,7 +1579,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      _cvParseModel = await ResumeService.onboardingCvParse(pdfFile:  pdfFile);
+      _cvParseModel = await ResumeService.onboardingCvParse(pdfFile: pdfFile);
       setResume(cvLink);
       _profileModel = CreateNewUserModel(
         userRequest: UserRequest(
@@ -1802,6 +1951,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     clearCertificateForm();
     clearProjectFoorm();
     clearbasicDetail();
+    clearAwardsForm();
     _empType = null;
     _workLocation = null;
     _workMode = null;
@@ -1880,6 +2030,8 @@ class SignupCreateUserProvider with ChangeNotifier {
     project_decription.removeListener(() {});
     certificateName.removeListener(() {});
     organizationName.removeListener(() {});
+    awards_title.dispose();
+    awards_description.dispose();
     super.dispose();
   }
 
@@ -1964,6 +2116,14 @@ class SignupCreateUserProvider with ChangeNotifier {
               duration: proj.duration,
               technologiesUsed: proj.technologiesUsed,
               itSkillsByProject: proj.itSkillsByProject,
+            ),
+          )
+          .toList(),
+      awardsAndAchievements: provider.awardsModel
+          .map(
+            (award) => AwardsAndAchievementsModel(
+              title: award.title,
+              description: award.description,
             ),
           )
           .toList(),

@@ -472,7 +472,6 @@ class AddExperience extends StatelessWidget {
                                         minDate = null;
                                       }
                                     }
-
                                     DateTime? selectedDate =
                                         await CustomDatePickerForWorkSpace.selectDate(
                                           context: context,

@@ -201,14 +201,14 @@ class AddEducation extends StatelessWidget {
                       spacing: 10,
                       children: [
                         CustomToggleButton(
-                          title: "FullTime",
+                          title: "Full Time",
                           isSelect: provider.fullTimeCourse,
                           onTap: () {
                             provider.setCourseType("FullTime");
                           },
                         ),
                         CustomToggleButton(
-                          title: "PartTime",
+                          title: "Part Time",
                           isSelect: provider.partTimeCourse,
                           onTap: () {
                             provider.setCourseType("PartTime");

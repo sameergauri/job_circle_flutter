@@ -1,7 +1,5 @@
 // ignore_for_file: null_check_always_fails, invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member, unused_local_variable, use_build_context_synchronously
 // ignore_for_file: todo
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
@@ -13,6 +11,7 @@ import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
+import 'package:job_circle/src/screen/login_and_signup/signup/add_awards_and_achievment.dart';
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/custom_get_month.dart';
@@ -32,7 +31,6 @@ import 'package:job_circle/src/widgets/text/custom_text_with_underline.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_field_for_master_data.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 import 'package:provider/provider.dart';
-import 'package:resume_builder_kit/resume_builder_kit.dart';
 
 class AddCertificate extends StatelessWidget {
   const AddCertificate({super.key});
@@ -70,13 +68,16 @@ class AddCertificate extends StatelessWidget {
                                   return CustomDialogForConfirmation(
                                     title: "Are Sure? wannt to skip",
                                     onYes: () async {
-                                      final done = await provider
+                                      NavigationService.push(
+                                        AddAwardsAndAchievment(),
+                                      );
+                                      /*  final done = await provider
                                           .saveUserData();
                                       if (done) {
                                         await jobprovider.fetchJobs(
                                           applyCityFilter: false,
                                         );
-                                      }
+                                      } */
                                     },
                                     subtitle:
                                         "You enter a skip button without saving the certificate data",
@@ -86,46 +87,7 @@ class AddCertificate extends StatelessWidget {
                                 },
                               );
                             } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => ResumeTemplateSelectionScreen(
-                                    userProfileJson: provider
-                                        .buildProfileModelFromProvider(
-                                          provider,
-                                        ).toJson(),
-                                    geminiApiKey:
-                                        'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc', // null = skip AI polishing
-                                    onPdfGenerated: (Uint8List pdfBytes) async {
-                                      FileUploader fileUploader =
-                                          FileUploader();
-                                      //TODO:: save the selected resume file path to user profile
-                                      String? uploadedFileName =
-                                          await fileUploader.uploadGeneratedPdf(
-                                            context,
-                                            pdfBytes,
-                                          );
-                                      if (uploadedFileName != null) {
-                                        provider.setResume(uploadedFileName);
-                                        if (provider.resume != null &&
-                                            provider.resume != '') {
-                                          final done = await provider
-                                              .saveUserData();
-                                          if (done) {
-                                            await jobprovider.fetchJobs(
-                                              applyCityFilter: false,
-                                            );
-                                          }
-                                        }
-                                        CustomSnackbar.show(
-                                          "Resume Uploaded Successfully",
-                                          false,
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ),
-                              );
+                              NavigationService.push(AddAwardsAndAchievment());
                             }
                             // NavigationService.push(AddCertificate());
                           },
