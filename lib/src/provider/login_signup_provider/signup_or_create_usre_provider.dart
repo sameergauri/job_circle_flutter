@@ -1530,6 +1530,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       final result = await SignupService.saveUserData(model, token);
       if (result) {
         _userModel = model;
+        clearAll();
         CustomSnackbar.show(
           '🤝 Welcome to Job Circle — where talent meets opportunity.',
           false,
@@ -1971,7 +1972,8 @@ class SignupCreateUserProvider with ChangeNotifier {
     _experiencesModel.clear();
     _educationModel.clear();
     _certificateModel.clear();
-
+    _awardsModel.clear();
+    _projectModel.clear();
     _resume = null;
     _profilePic = null;
   }

@@ -207,6 +207,44 @@ class _FilteredChannelListState extends State<FilteredChannelList> {
   }
 
   void _initController() {
+    List<Filter> baseFilters = [
+      Filter.in_('members', [StreamChat.of(context).currentUser!.id]),
+    ];
+
+    // --- FIX IS HERE ---
+    // Sirf field ka naam pass karna hai.
+    if (widget.searchQuery.isEmpty) {
+      baseFilters.add(Filter.exists('last_message_at'));
+    }
+
+    Filter filter = Filter.and(baseFilters);
+
+    if (widget.filterType == ChannelFilterType.unread) {
+      filter = Filter.and([filter, Filter.greater('unread_count', 0)]);
+    }
+
+    if (widget.searchQuery.isNotEmpty) {
+      List<Filter> searchOptions = [];
+      searchOptions.add(Filter.autoComplete('name', widget.searchQuery));
+      searchOptions.add(Filter.equal('id', widget.searchQuery));
+
+      if (widget.foundUserIds != null && widget.foundUserIds!.isNotEmpty) {
+        searchOptions.add(Filter.in_('members', widget.foundUserIds!));
+      }
+
+      filter = Filter.and([filter, Filter.or(searchOptions)]);
+    }
+
+    _listController = StreamChannelListController(
+      client: StreamChat.of(context).client,
+      filter: filter,
+      presence: true,
+      channelStateSort: const [SortOption.desc('last_message_at')],
+      limit: 20,
+    );
+  }
+
+  /*  void _initController() {
     // 1. Base Filter: User must be a member
     Filter filter = Filter.in_('members', [
       StreamChat.of(context).currentUser!.id,
@@ -239,7 +277,7 @@ class _FilteredChannelListState extends State<FilteredChannelList> {
       channelStateSort: const [SortOption.desc('last_message_at')],
       limit: 20,
     );
-  }
+  } */
 
   @override
   void dispose() {
