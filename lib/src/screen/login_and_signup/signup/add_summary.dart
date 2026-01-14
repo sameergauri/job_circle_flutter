@@ -44,6 +44,7 @@ class AddSummary extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => ResumeTemplateSelectionScreen(
+                          buttonTitle: "Save & Continue",
                           userProfileJson: provider
                               .buildProfileModelFromProvider(provider)
                               .toJson(),

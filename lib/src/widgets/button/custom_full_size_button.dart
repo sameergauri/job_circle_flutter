@@ -57,12 +57,14 @@ class CustomToggleButton extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
   final bool isSelect;
+  final bool isForTab;
 
   const CustomToggleButton({
     super.key,
     required this.title,
     required this.onTap,
     this.isSelect = false, // Default value for isSelect
+    this.isForTab = false,
   });
 
   @override
@@ -87,6 +89,8 @@ class CustomToggleButton extends StatelessWidget {
               fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
               color: Constants.black,
               fontSize: 12,
+              softwrap: isForTab ? false : null,
+              overflow: isForTab ? TextOverflow.visible : null,
             ),
           ),
         ),

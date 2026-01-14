@@ -166,7 +166,7 @@ class _JobHomePageState extends State<JobHomePage> {
         final jobs = jobProvider.jobs;
         final filteredJobs = filterJobs(jobs);
         final isLoading = jobProvider.isLoading;
-        final selectedCityFromProvider = jobProvider.selectedCity;
+        // final selectedCityFromProvider = jobProvider.selectedCity;
         final userData = jobProvider.userData;
         final availableTabs =
             jobProvider.recommendedJob != null &&
@@ -305,29 +305,31 @@ class _JobHomePageState extends State<JobHomePage> {
                     )
                   : */
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (availableTabs.isNotEmpty)
                         SizedBox(
                           height: 40,
-                          child: ListView(
+                          child: SingleChildScrollView(
+                            // 1. ListView hataya, SingleChild lagaya
                             scrollDirection: Axis.horizontal,
+                            physics:
+                                const BouncingScrollPhysics(), // Smooth scrolling ke liye
                             padding: const EdgeInsets.symmetric(horizontal: 8),
-                            children: availableTabs
-                                .map(
-                                  (tab) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 4,
-                                    ),
-                                    child: CustomToggleButton(
-                                      isSelect: selectedTab == tab,
-                                      title: tab,
-                                      onTap: () {
-                                        toggleTab(tab);
-                                      },
-                                    ),
-                                  ),
-                                )
-                                .toList(),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              // 2. Row use kiya taaki items natural width le sakein
+                              children: availableTabs.map((tab) {
+                                return CustomToggleButton(
+                                  isForTab: true,
+                                  isSelect: selectedTab == tab,
+                                  title: tab,
+                                  onTap: () {
+                                    toggleTab(tab);
+                                  },
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
                       const SizedBox(height: 8),

@@ -119,6 +119,7 @@ class _CustomMissingInfoContainerState
               context,
               MaterialPageRoute(
                 builder: (_) => ResumeTemplateSelectionScreen(
+                  buttonTitle: "Add To Profile",
                   userProfileJson: profileData.toJson(),
                   geminiApiKey: 'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc',
                   onPdfGenerated: (Uint8List pdfBytes) async {
