@@ -102,6 +102,9 @@ class CvParseDateToApiFormat {
         'dd MMM yyyy',
         'MMM yyyy',
         'MMMM yyyy',
+        'yyyy-MMM-dd',
+        'yyyy-MM-dd',
+        'yyyy-MMMM-dd',
         'yyyy',
       ];
 

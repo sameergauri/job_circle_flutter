@@ -114,11 +114,11 @@ class CvParseUserProfile extends StatelessWidget {
                         CvParseSkills(provider: provider),
                       //
                       //
-                      if (profileModel.userRequest!.skills != null &&
-                          profileModel.userRequest!.skills!.isNotEmpty)
+                      if (profileModel.userRequest!.technicalSkills != null &&
+                          profileModel.userRequest!.technicalSkills!.isNotEmpty)
                         Divider(color: Constants.lightdull, thickness: 6),
-                      if (profileModel.userRequest!.skills != null &&
-                          profileModel.userRequest!.skills!.isNotEmpty)
+                      if (profileModel.userRequest!.technicalSkills != null &&
+                          profileModel.userRequest!.technicalSkills!.isNotEmpty)
                         CvParseTechnicalSkill(provider: provider),
                       //
                       //

@@ -565,6 +565,7 @@ class ProfileProvider with ChangeNotifier {
     _vaccinationcertificate = 'null';
     _age = null;
     _tempSelectedSkill.clear();
+    _selectedTechnicalSkill.clear();
     _selectedSkills.clear();
     _apifetchSkills.clear();
     _selectedSkills.clear();

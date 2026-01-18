@@ -25,13 +25,13 @@ class CvParseEditTechnicalSkill extends StatelessWidget {
       );
       provider.fetchSkills();
       provider.skillController.clear();
-      provider.clearskill();
+      provider.clearTechnicalSkills();
       if (provider.profileModel != null &&
           provider.profileModel!.userRequest != null &&
-          provider.profileModel!.userRequest!.skills! != null &&
-          provider.profileModel!.userRequest!.skills!.isNotEmpty) {
-        provider.assignSkillsToSelectedSkillList(
-          provider.profileModel!.userRequest!.skills ?? [],
+          provider.profileModel!.userRequest!.technicalSkills != null &&
+          provider.profileModel!.userRequest!.technicalSkills!.isNotEmpty) {
+        provider.assignTechnicalSkillsToSelectedSkillList(
+          provider.profileModel!.userRequest!.technicalSkills ?? [],
         );
       }
     });
@@ -47,11 +47,11 @@ class CvParseEditTechnicalSkill extends StatelessWidget {
               context,
               listen: false,
             );
-            if (provider.tempSelectedSkills.isEmpty) {
+            if (provider.tempSelectedTechSkill.isEmpty) {
               CustomSnackbar.show("Please select at least one skill.", true);
               return;
             }
-            provider.updateAndSaveSkills();
+            provider.updateAndSaveTechnicalSkills();
             NavigationService.pop();
           },
         ),
@@ -176,7 +176,7 @@ class CvParseEditTechnicalSkill extends StatelessWidget {
                             dense: true,
                             title: customText(title: suggestion, fontSize: 14),
                             onTap: () {
-                              if (provider.tempSelectedSkills.contains(
+                              if (provider.tempSelectedTechSkill.contains(
                                 suggestion,
                               )) {
                                 CustomSnackbar.show(
@@ -194,7 +194,7 @@ class CvParseEditTechnicalSkill extends StatelessWidget {
                       },
                     ),
                   ),
-                if (provider.tempSelectedSkills.isNotEmpty)
+                if (provider.tempSelectedTechSkill.isNotEmpty)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -208,7 +208,7 @@ class CvParseEditTechnicalSkill extends StatelessWidget {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: provider.tempSelectedSkills.map((skill) {
+                        children: provider.tempSelectedTechSkill.map((skill) {
                           return CustomToggleButton(
                             isSelect: true,
                             title: skill,

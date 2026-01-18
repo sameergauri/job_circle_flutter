@@ -18,7 +18,6 @@ class AddResumeAndApplyService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(jsonData.toJson()),
       );
-
       if (response.statusCode == 200) {
         return '200';
       } else {
@@ -30,8 +29,6 @@ class AddResumeAndApplyService {
       rethrow;
     }
   }
-
-
   static Future<String> postJobApply({
     required int jobId,
     required int userId,

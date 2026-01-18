@@ -1,4 +1,4 @@
-// ignore_for_file: todo, non_constant_identifier_names, avoid_print
+// ignore_for_file: todo, non_constant_identifier_names, avoid_print, prefer_final_fields
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -148,7 +148,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   List<String> _tempSelectedSkills = [];
   final List<String> _selectedSkills = [];
   final List<String> _selectedTechnicalSkills = [];
-  final List<String> _tempSelectedTechSkill = [];
+  List<String> _tempSelectedTechSkill = [];
 
   // Experience States
   String? _empType;
@@ -443,23 +443,10 @@ class SignupCreateUserProvider with ChangeNotifier {
     }
   }
 
+  // TODO:: skills...
+
   void clearskill() {
     _tempSelectedSkills.clear();
-    notifyListeners();
-  }
-
-  void assignSkillsToSelectedSkillList(List<String> skill) {
-    _tempSelectedSkills = List<String>.from(skill);
-    notifyListeners();
-  }
-
-  void toggleTechnicalSkill(String lang) {
-    final normalized = lang.trim();
-    if (_tempSelectedTechSkill.contains(normalized)) {
-      _tempSelectedTechSkill.remove(normalized);
-    } else {
-      _tempSelectedTechSkill.add(normalized);
-    }
     notifyListeners();
   }
 
@@ -479,6 +466,45 @@ class SignupCreateUserProvider with ChangeNotifier {
     // Update user request from controllers
     final updatedUserRequest = _profileModel!.userRequest!.copyWith(
       skills: List<String>.from(_tempSelectedSkills),
+    );
+
+    _profileModel = _profileModel!.copyWith(userRequest: updatedUserRequest);
+    notifyListeners();
+  }
+
+  // TODO:: technical Skills...
+
+  void assignSkillsToSelectedSkillList(List<String> skill) {
+    _tempSelectedSkills = List<String>.from(skill);
+    notifyListeners();
+  }
+
+  void clearTechnicalSkills() {
+    _tempSelectedTechSkill.clear();
+    notifyListeners();
+  }
+
+  void assignTechnicalSkillsToSelectedSkillList(List<String> skill) {
+    _tempSelectedTechSkill = List<String>.from(skill);
+    notifyListeners();
+  }
+
+  void toggleTechnicalSkill(String lang) {
+    final normalized = lang.trim();
+    if (_tempSelectedTechSkill.contains(normalized)) {
+      _tempSelectedTechSkill.remove(normalized);
+    } else {
+      _tempSelectedTechSkill.add(normalized);
+    }
+    notifyListeners();
+  }
+
+  void updateAndSaveTechnicalSkills() {
+    if (_profileModel == null) return;
+
+    // Update user request from controllers
+    final updatedUserRequest = _profileModel!.userRequest!.copyWith(
+      technicalSkills: List<String>.from(_tempSelectedTechSkill),
     );
 
     _profileModel = _profileModel!.copyWith(userRequest: updatedUserRequest);
@@ -1584,12 +1610,14 @@ class SignupCreateUserProvider with ChangeNotifier {
       setResume(cvLink);
       _profileModel = CreateNewUserModel(
         userRequest: UserRequest(
-          skills: _cvParseModel!.skills != null
-              ? List<String>.from((_cvParseModel!.skills!.softSkills ?? [])) +
+          technicalSkills: _cvParseModel!.skills != null
+              ? List<String>.from((_cvParseModel!.skills!.itSkill ?? [])) +
                     List<String>.from(
                       (_cvParseModel!.skills!.toolsKnowledgeSkills ?? []),
-                    ) +
-                    List<String>.from((_cvParseModel!.skills!.itSkill ?? []))
+                    )
+              : [],
+          skills: _cvParseModel!.skills != null
+              ? List<String>.from((_cvParseModel!.skills!.softSkills ?? []))
               : [],
           education: _cvParseModel!.educationLevel != "Graduate" ? 0 : 1,
           firstName: _cvParseModel?.firstName,
@@ -1674,7 +1702,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       profileRole.text = userRequest.profileRole ?? '';
       linkedInUrl.text = userRequest.linkdlnUrl ?? '';
       _tempSelectedSkills = List<String>.from(userRequest.skills!);
-
+      _tempSelectedTechSkill = List<String>.from(userRequest.technicalSkills!);
       // Set gender
       if (userRequest.gender != null) {
         setGender(userRequest.gender!);
@@ -1877,6 +1905,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       experience: _experience ? 1 : 0,
       education: _graduate ? 1 : 0,
       skills: tempSelectedSkills,
+      technicalSkills: tempSelectedTechSkill,
       profileRole: profileRole.text,
       linkdlnUrl: linkedInUrl.text,
     );
@@ -1931,6 +1960,8 @@ class SignupCreateUserProvider with ChangeNotifier {
         );
         // Update user model as well
         _userModel = _profileModel;
+        clearskill();
+        clearTechnicalSkills();
       } else {
         CustomSnackbar.show('Failed to save profile', true);
       }

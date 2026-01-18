@@ -76,7 +76,7 @@ class ResumeService {
         decoded = null;
       }
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response. statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(respStr);
         return OnBoardCvParseModel.fromJson(data);
       } else {

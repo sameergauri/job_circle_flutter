@@ -39,7 +39,7 @@ class CvParseTechnicalSkill extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     /// Add Button → SkillsMulti
-                    if (provider.profileModel!.userRequest!.skills!.isEmpty)
+                    if (provider.profileModel!.userRequest!.technicalSkills!.isEmpty)
                       InkWell(
                         onTap: () {
                           NavigationService.push(CvParseEditTechnicalSkill());
@@ -52,7 +52,7 @@ class CvParseTechnicalSkill extends StatelessWidget {
                       ),
 
                     /// Edit Button → SkillsMulti
-                    if (provider.profileModel!.userRequest!.skills!.isNotEmpty)
+                    if (provider.profileModel!.userRequest!.technicalSkills!.isNotEmpty)
                       InkWell(
                         onTap: () {
                           NavigationService.push(CvParseEditTechnicalSkill());
@@ -69,8 +69,8 @@ class CvParseTechnicalSkill extends StatelessWidget {
           ),
 
           /// 🔹 Empty State
-          provider.profileModel!.userRequest!.skills == null ||
-                  provider.profileModel!.userRequest!.skills!.isEmpty
+          provider.profileModel!.userRequest!.technicalSkills == null ||
+                  provider.profileModel!.userRequest!.technicalSkills!.isEmpty
               ? Padding(
                   padding: const EdgeInsets.only(left: 6, top: 10),
                   child: const customText(
@@ -85,7 +85,7 @@ class CvParseTechnicalSkill extends StatelessWidget {
               : Wrap(
                   spacing: 3,
                   runSpacing: 0.0,
-                  children: provider.profileModel!.userRequest!.skills!.map((
+                  children: provider.profileModel!.userRequest!.technicalSkills!.map((
                     skill,
                   ) {
                     return Container(
