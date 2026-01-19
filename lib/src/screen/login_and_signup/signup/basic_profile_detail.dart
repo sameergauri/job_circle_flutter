@@ -103,6 +103,16 @@ class _BasicProfileDetailState extends State<BasicProfileDetail> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [OnboardingAppBarHeading(), OnboardingAppBarSubTitle()],
             ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: customText(
+                  title: provider.formattedTime,
+                  fontSize: 12,
+                  color: Constants.red,
+                ),
+              ),
+            ],
           ),
           backgroundColor: Constants.white,
           body: _customBody(provider),
@@ -254,7 +264,7 @@ class _BasicProfileDetailState extends State<BasicProfileDetail> {
               title: "Location",
             ),
             const SizedBox(height: 15),
-            const customText(title: "city*", fontStyle: FontStyle.italic),
+            const customText(title: "City*", fontStyle: FontStyle.italic),
             CustomTextFieldForMasterData(
               contextIn: context,
               controller: provider.location,

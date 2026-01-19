@@ -32,6 +32,16 @@ class SelectExpEducation extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [OnboardingAppBarHeading(), OnboardingAppBarSubTitle()],
             ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: customText(
+                  title: provider.formattedTime,
+                  fontSize: 12,
+                  color: Constants.red,
+                ),
+              ),
+            ],
           ),
           bottomNavigationBar: Padding(
             padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),

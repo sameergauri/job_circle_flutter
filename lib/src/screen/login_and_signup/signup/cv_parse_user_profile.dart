@@ -42,6 +42,17 @@ class CvParseUserProfile extends StatelessWidget {
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: customText(
+                      title: "Timer : ${provider.formattedTime}",
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Constants.red,
+                    ),
+                  ),
+                ],
               ),
               bottomNavigationBar: SafeArea(
                 child: Padding(

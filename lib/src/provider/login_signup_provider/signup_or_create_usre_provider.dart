@@ -1,4 +1,5 @@
 // ignore_for_file: todo, non_constant_identifier_names, avoid_print, prefer_final_fields
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:job_circle/src/model/location_model.dart';
 import 'package:job_circle/src/model/user_profile/create_user_model.dart';
 import 'package:job_circle/src/model/user_profile/onboarding_cv_parse_model.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
+import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
 import 'package:job_circle/src/screen/login_and_signup/signup/cv_parse_user_profile.dart';
 import 'package:job_circle/src/services/login_and_signup_services/resume_service.dart';
 import 'package:job_circle/src/services/login_and_signup_services/signup_service.dart';
@@ -20,6 +22,57 @@ import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_confirmation.dart';
 
 class SignupCreateUserProvider with ChangeNotifier {
+  //
+  //
+  //
+  //
+  // Timer for OTP and Session Expiry
+  //
+  Timer? _timer;
+  int _remainingSeconds = 300; // 5 Minutes (5 * 60)
+
+  int get remainingSeconds => _remainingSeconds;
+
+  // Helper to format time as 04:59
+  String get formattedTime {
+    int minutes = _remainingSeconds ~/ 60;
+    int seconds = _remainingSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  void startTimer(BuildContext context) {
+    // Prevent multiple timers
+    _timer?.cancel();
+    _remainingSeconds = 300; // Reset to 5 mins
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds > 0) {
+        _remainingSeconds--;
+        notifyListeners(); // Update the UI
+      } else {
+        // Time is up!
+        stopTimer();
+        _handleTokenExpiry(context);
+      }
+    });
+  }
+
+  void stopTimer() {
+    _timer?.cancel();
+  }
+
+  void _handleTokenExpiry(BuildContext context) {
+    // Show a snackbar or dialog (Optional)
+    CustomSnackbar.show("Session expired. Please login again.", true);
+    // Redirect to Login and remove all previous routes
+    NavigationService.pushAndRemoveUntil(LoginPage());
+  }
+
+  //
+  //
+  //
+  //
+  //
   // Models
   CreateNewUserModel? _userModel;
   CreateNewUserModel? _profileModel; // For CV parsed profile

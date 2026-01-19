@@ -15,8 +15,20 @@ import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 
-class ResumeParsePage extends StatelessWidget {
+class ResumeParsePage extends StatefulWidget {
   const ResumeParsePage({super.key});
+
+  @override
+  State<ResumeParsePage> createState() => _ResumeParsePageState();
+}
+
+class _ResumeParsePageState extends State<ResumeParsePage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<SignupCreateUserProvider>().startTimer(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +37,22 @@ class ResumeParsePage extends StatelessWidget {
         return Stack(
           children: [
             Scaffold(
+              appBar: AppBar(
+                leadingWidth: 25,
+                iconTheme: const IconThemeData(color: Colors.black),
+                backgroundColor: Constants.white,
+                elevation: 0,
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: customText(
+                      title: "Timer : ${provider.formattedTime}",
+                      fontSize: 12,
+                      color: Constants.red,
+                    ),
+                  ),
+                ],
+              ),
               backgroundColor: Constants.white,
               body: Padding(
                 padding: const EdgeInsets.only(

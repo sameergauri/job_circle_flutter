@@ -75,7 +75,14 @@ class AddEducation extends StatelessWidget {
                       },
                       icon: const Icon(Icons.cancel_outlined),
                     )
-                  : const SizedBox.shrink(),
+                  :  Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: customText(
+                  title: provider.formattedTime,
+                   fontSize: 12,
+                        color: Constants.red,
+                ),
+              ),
             ],
           ),
           backgroundColor: Constants.white,
