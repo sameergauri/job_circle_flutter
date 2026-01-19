@@ -1757,7 +1757,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       if (exp.startDate != null) {
         // Normalize dashes (–, — → -)
         start = CvParseExpDateFormatter.formatDate(
-          exp.startDate!.trim(),
+          exp.startDate!.trim().replaceAll('Sept', 'Sep'),
           false,
         );
       }
@@ -1765,7 +1765,10 @@ class SignupCreateUserProvider with ChangeNotifier {
         if (exp.endDate == "Present") {
           current = true;
         } else {
-          end = CvParseExpDateFormatter.formatDate(exp.endDate!.trim(), false);
+          end = CvParseExpDateFormatter.formatDate(
+            exp.endDate!.trim().replaceAll('Sept', 'Sep'),
+            false,
+          );
         }
       }
 

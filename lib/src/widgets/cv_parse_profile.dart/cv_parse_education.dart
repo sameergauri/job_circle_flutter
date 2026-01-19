@@ -172,8 +172,16 @@ class CvParseEducation extends StatelessWidget {
                             ],
                           ),
                         ),
-                        subtitle:
-                            data.endMonth != null && data.passingYear != null
+                        subtitle: data.isCurrent == 1
+                            ? Padding(
+                                padding: const EdgeInsets.only(left: 10),
+                                child: customText(
+                                  title: "Pursuing",
+                                  fontWeight: FontWeight.w500,
+                                  color: Constants.subtitleclr,
+                                ),
+                              )
+                            : data.passingYear != null
                             ? Padding(
                                 padding: const EdgeInsets.only(left: 10),
                                 child: customText(
@@ -187,15 +195,6 @@ class CvParseEducation extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: Constants.subtitleclr,
                                   overflow: TextOverflow.ellipsis,
-                                ),
-                              )
-                            : data.isCurrent == 1
-                            ? Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: customText(
-                                  title: "Pursuing",
-                                  fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
                                 ),
                               )
                             : SizedBox.shrink(),

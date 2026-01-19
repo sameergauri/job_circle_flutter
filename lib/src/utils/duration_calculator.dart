@@ -31,7 +31,7 @@ class CvDurationCalculator {
     } else if (years == 0 && months == 0) {
       return "($days days)";
     } else if (years == 0) {
-      return "$months mos";
+      return "($months mos)";
     } else if (months == 0) {
       return "($years yrs)";
     } else {

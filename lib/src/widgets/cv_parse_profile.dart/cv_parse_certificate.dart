@@ -176,14 +176,34 @@ class CvParseCertificate extends StatelessWidget {
                             ],
                           ),
                         ),
-                        subtitle: customText(
-                          monst: true,
-                          title: "${MonthNameConverter.getShortMonthName(data.startMonth)} - ${data.startYear}",
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          overflow: TextOverflow.ellipsis,
-                          color: Constants.subtitleclr,
-                        ),
+                        subtitle:
+                            data.startMonth != null &&
+                                data.startMonth != '' &&
+                                data.startMonth != 'null' &&
+                                data.startYear != null &&
+                                data.startYear != '' &&
+                                data.startYear != 'null'
+                            ? customText(
+                                monst: true,
+                                title:
+                                    "${MonthNameConverter.getShortMonthName(data.startMonth)} - ${data.startYear}",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                overflow: TextOverflow.ellipsis,
+                                color: Constants.subtitleclr,
+                              )
+                            : data.startYear != null &&
+                                  data.startYear != '' &&
+                                  data.startYear != 'null'
+                            ? customText(
+                                monst: true,
+                                title: "${data.startYear}",
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                overflow: TextOverflow.ellipsis,
+                                color: Constants.subtitleclr,
+                              )
+                            : SizedBox.shrink(),
                       ),
                     );
                   },
