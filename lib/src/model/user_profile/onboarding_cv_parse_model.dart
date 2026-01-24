@@ -194,7 +194,7 @@ class OnBoardCvParseProject {
   List<String>? technologiesUsed;
   String? duration;
   String? role;
-  String? url;
+  List<String>? url;
   String? itSkillsByProject;
 
   OnBoardCvParseProject({
@@ -216,7 +216,7 @@ class OnBoardCvParseProject {
           .toList(),
       duration: json['Duration'],
       role: json['Role'],
-      url: json['URL'],
+      url: (json['URL'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
       itSkillsByProject: json['ITSkillsByProject'],
     );
   }

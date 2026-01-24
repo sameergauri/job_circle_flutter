@@ -64,6 +64,7 @@ class AddSummary extends StatelessWidget {
                                   await jobprovider.fetchJobs(
                                     applyCityFilter: false,
                                   );
+                                  
                                 }
                               }
                               CustomSnackbar.show(

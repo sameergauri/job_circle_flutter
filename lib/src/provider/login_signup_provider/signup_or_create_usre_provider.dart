@@ -1610,6 +1610,7 @@ class SignupCreateUserProvider with ChangeNotifier {
       if (result) {
         _userModel = model;
         clearAll();
+        stopTimer();
         CustomSnackbar.show(
           '🤝 Welcome to Job Circle — where talent meets opportunity.',
           false,
@@ -2018,6 +2019,7 @@ class SignupCreateUserProvider with ChangeNotifier {
         _userModel = _profileModel;
         clearskill();
         clearTechnicalSkills();
+        stopTimer();
       } else {
         CustomSnackbar.show('Failed to save profile', true);
       }
