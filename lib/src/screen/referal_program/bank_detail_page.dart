@@ -323,6 +323,7 @@ class _BankingDetailsState extends State<BankingDetails> {
                 onTap: () {
                   NavigationService.push(
                     CustomPDFViewerDialog(
+                      enableDelete: false,
                       pdfUrl:
                           '${GlobalConstants.Image_url}${data.cancleCheque}',
                       isFromAts: false,
@@ -378,7 +379,7 @@ class _BankingDetailsState extends State<BankingDetails> {
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     color: data.isVerify == null
-                        ? Constants.yellow
+                        ? Constants.orange
                         : data.isVerify == 0
                         ? Constants.red
                         : Constants.darkBlue,

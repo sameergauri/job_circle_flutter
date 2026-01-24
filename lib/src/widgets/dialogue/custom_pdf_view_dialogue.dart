@@ -5,7 +5,8 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/widgets/button/custom_call_sms_new_button.dart' show CustomcallsmsButton;
+import 'package:job_circle/src/widgets/button/custom_call_sms_new_button.dart'
+    show CustomcallsmsButton;
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/pdf_doc_view/docs_webview.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -17,6 +18,7 @@ class CustomPDFViewerDialog extends StatelessWidget {
   final Function? onDelete;
   final String? contact_no, alternate_no;
   final String title;
+  final bool? enableDelete;
 
   CustomPDFViewerDialog({
     super.key,
@@ -26,6 +28,7 @@ class CustomPDFViewerDialog extends StatelessWidget {
     this.contact_no,
     this.alternate_no,
     this.title = "Resume Viewer",
+    this.enableDelete = true,
   });
   bool _isPdfFile() {
     final lowerUrl = pdfUrl.toLowerCase();
@@ -43,7 +46,9 @@ class CustomPDFViewerDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Constants.white,
-      floatingActionButton: _buildFloatingActionButton(),
+      floatingActionButton: enableDelete != null && enableDelete == true
+          ? _buildFloatingActionButton()
+          : null,
       appBar: AppBar(
         title: customText(
           title: title,
