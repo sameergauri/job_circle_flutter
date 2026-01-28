@@ -233,7 +233,7 @@ class CustomDrawer extends StatelessWidget {
               await client.disconnectUser();
               SharedPrefsHelper.clearAllPreferences();
               await CacheClearAppVersionService.clearCache();
-              NavigationService.pushAndRemoveUntil(const LoginPage());
+              NavigationService.pushAndRemoveUntil( LoginPage());
               onClose();
             },
           ),

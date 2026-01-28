@@ -6,7 +6,12 @@
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" /> -->
-
+    
+    <!-- Added for number and sms  -->
+    <!-- Phone & SIM permissions -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <!-- Added for number and sms  -->
 
     <!--  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"
     tools:node="remove" />-->
@@ -20,8 +25,6 @@
         android:allowBackup="false"
         android:fullBackupOnly="false"
     >
-
-
         <activity android:name=".MainActivity" android:exported="true"
             android:launchMode="singleTop" android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
@@ -42,7 +45,7 @@
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data android:name="flutterEmbedding" android:value="2" />
-       <!--  <provider android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"  // no need downloader..
+        <!--  <provider android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"  // no need downloader..
             android:authorities="${applicationId}.flutter_downloader.provider"
             android:exported="false" android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS"

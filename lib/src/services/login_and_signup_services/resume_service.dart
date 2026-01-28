@@ -43,7 +43,7 @@ class ResumeService {
     String contact =
         contactno ??
         SharedPrefsHelper.getInt(ESharedPreferences.user_mobile).toString();
-    final url = Uri.parse(GlobalConstants.onboardingparsecvurl);
+    final url = Uri.parse(GlobalConstants.onboardingparsecvProurl);
 
     var request = http.MultipartRequest("POST", url);
 
@@ -76,7 +76,7 @@ class ResumeService {
         decoded = null;
       }
 
-      if (response. statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(respStr);
         return OnBoardCvParseModel.fromJson(data);
       } else {
@@ -91,14 +91,14 @@ class ResumeService {
     }
   }
 
-    static Future<ReferResumeParseModel> referAddResumeCVParsing({
+  static Future<ReferResumeParseModel> referAddResumeCVParsing({
     required File pdfFile,
   }) async {
     final url = Uri.parse(GlobalConstants.referAndAddResumeParseUrl);
 
     var request = http.MultipartRequest("POST", url);
 
-   /*  // ✅ Add async field
+    /*  // ✅ Add async field
     request.fields['async'] = 'false'; // or 'true' depending on your need */
 
     // ✅ Add PDF file (field name must match what API expects, here it's "file")

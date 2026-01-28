@@ -1,4 +1,264 @@
 class OnBoardCvParseModel {
+  String? firstName;
+  String? middleName;
+  String? lastName;
+  String? email;
+  String? mobileNumber;
+  String? alternateNumber;
+  String? gender;
+  String? dateOfBirth;
+  String? locationLocality;
+  String? locationCity;
+  String? pinCode;
+  String? linkedinProfileUrl;
+  String? educationLevel;
+  String? summary;
+  List<OnBoardCvParseEducation>? education;
+  List<OnBoardCvParseExperience>? experience;
+  List<OnBoardCvParseProject>? projects;
+  OnBoardCvParseSkills? skills;
+  List<OnBoardCvParseCertification>? certifications;
+  OnBoardCvParseLanguages? languages;
+
+  OnBoardCvParseModel({
+    this.summary,
+    this.firstName,
+    this.middleName,
+    this.lastName,
+    this.email,
+    this.mobileNumber,
+    this.alternateNumber,
+    this.gender,
+    this.dateOfBirth,
+    this.locationLocality,
+    this.locationCity,
+    this.pinCode,
+    this.linkedinProfileUrl,
+    this.educationLevel,
+    this.education,
+    this.experience,
+    this.projects,
+    this.skills,
+    this.certifications,
+    this.languages,
+  });
+
+  factory OnBoardCvParseModel.fromJson(Map<String, dynamic> json) {
+    return OnBoardCvParseModel(
+      firstName: json['firstName'],
+      middleName: json['middleName'],
+      lastName: json['lastName'],
+      email: json['email'],
+      mobileNumber: json['mobileNumber'],
+      alternateNumber: json['alternateNumber'],
+      gender: json['gender'],
+      dateOfBirth: json['dateOfBirth'],
+      locationLocality: json['locationLocality'],
+      locationCity: json['locationCity'],
+      pinCode: json['pinCode'],
+      educationLevel: json['educationLevel'],
+      linkedinProfileUrl: json['linkedinProfileUrl'],
+      summary: json['summary'],
+      education: (json['qualification'] as List<dynamic>?)
+          ?.map((e) => OnBoardCvParseEducation.fromJson(e))
+          .toList(),
+      experience: (json['experience'] as List<dynamic>?)
+          ?.map((e) => OnBoardCvParseExperience.fromJson(e))
+          .toList(),
+      projects: (json['projects'] as List<dynamic>?)
+          ?.map((e) => OnBoardCvParseProject.fromJson(e))
+          .toList(),
+      skills: json['skills'] != null
+          ? OnBoardCvParseSkills.fromJson(json['skills'])
+          : null,
+      certifications: (json['certifications'] as List<dynamic>?)
+          ?.map((e) => OnBoardCvParseCertification.fromJson(e))
+          .toList(),
+      languages: json['languages'] != null
+          ? OnBoardCvParseLanguages.fromJson(json['languages'])
+          : null,
+    );
+  }
+}
+
+class OnBoardCvParseEducation {
+  String? courseName;
+  String? specialization;
+  String? universityInstitute;
+  String? passingYear;
+  String? universityIcon;
+
+  OnBoardCvParseEducation({
+    this.courseName,
+    this.specialization,
+    this.universityInstitute,
+    this.passingYear,
+    this.universityIcon,
+  });
+
+  factory OnBoardCvParseEducation.fromJson(Map<String, dynamic> json) {
+    return OnBoardCvParseEducation(
+      courseName: json['courseName'],
+      specialization: json['specialization'],
+      universityInstitute: json['universityInstitute'],
+      passingYear: json['passingYear'],
+      universityIcon: json['universityIcon'],
+    );
+  }
+}
+
+class OnBoardCvParseExperience {
+  String? jobTitle;
+  String? companyName;
+  String? empType;
+  String? startDate;
+  String? endDate;
+  List<String>? responsibilities;
+  List<String>? skills;
+  String? workMode;
+  String? companyIcon;
+
+  OnBoardCvParseExperience({
+    this.jobTitle,
+    this.companyName,
+    this.empType,
+    this.startDate,
+    this.endDate,
+    this.responsibilities,
+    this.skills,
+    this.workMode,
+    this.companyIcon,
+  });
+
+  factory OnBoardCvParseExperience.fromJson(Map<String, dynamic> json) {
+    return OnBoardCvParseExperience(
+      jobTitle: json['jobTitle'],
+      companyName: json['companyName'],
+      empType: json['empType'],
+      startDate: json['startDate'],
+      endDate: json['endDate'],
+      responsibilities: (json['responsibilities'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      skills: List<String>.from(json['domainFunctionalSkills'] ?? []),
+      workMode: json['workMode'],
+      companyIcon: json['companyIcon'],
+    );
+  }
+}
+
+class OnBoardCvParseProject {
+  String? projectTitle;
+  String? role;
+  String? description;
+  String? startDate;
+  String? endDate;
+  String? url;
+  //
+  List<String>? technologiesUsed;
+  String? duration;
+  String? itSkillsByProject;
+
+  OnBoardCvParseProject({
+    this.projectTitle,
+    this.description,
+    this.technologiesUsed,
+    this.duration,
+    this.role,
+    this.url,
+    this.itSkillsByProject,
+    this.startDate,
+    this.endDate,
+  });
+
+  factory OnBoardCvParseProject.fromJson(Map<String, dynamic> json) {
+    return OnBoardCvParseProject(
+      projectTitle: json['projectTitle'],
+      role: json['role'],
+      description: json['projectSummary'],
+      startDate: json['startDate'],
+      endDate: json['endDate'],
+      url: json['URL'],
+      //
+      technologiesUsed: (json['TechnologiesUsed'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      duration: json['Duration'],
+      // url: (json['URL'] as List<dynamic>?)?.map((e) => e.toString()).toList(),
+      itSkillsByProject: json['ITSkillsByProject'],
+    );
+  }
+}
+
+class OnBoardCvParseSkills {
+  List<String>? technicalSkills;
+  List<String>? toolsPlatforms;
+  List<String>? softSkills;
+
+  OnBoardCvParseSkills({
+    this.technicalSkills,
+    this.toolsPlatforms,
+    this.softSkills,
+  });
+
+  factory OnBoardCvParseSkills.fromJson(Map<String, dynamic> json) {
+    return OnBoardCvParseSkills(
+      technicalSkills: (json['technicalSkills'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      toolsPlatforms: (json['toolsPlatforms'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      softSkills: (json['SoftSkills'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+    );
+  }
+}
+
+class OnBoardCvParseCertification {
+  String? certificateName;
+  String? organization;
+  String? issueDate; // month-year
+  String? validTill; // month-year
+
+  OnBoardCvParseCertification({
+    this.certificateName,
+    this.organization,
+    this.issueDate,
+    this.validTill,
+  });
+
+  factory OnBoardCvParseCertification.fromJson(Map<String, dynamic> json) {
+    return OnBoardCvParseCertification(
+      certificateName: json['certificate_name'],
+      organization: json['organization'],
+      issueDate: json['issuedate'],
+      validTill: json['valid_till'],
+    );
+  }
+}
+
+class OnBoardCvParseLanguages {
+  List<String>? professionalLanguages;
+  List<String>? regionalLanguages;
+
+  OnBoardCvParseLanguages({this.professionalLanguages, this.regionalLanguages});
+
+  factory OnBoardCvParseLanguages.fromJson(Map<String, dynamic> json) {
+    return OnBoardCvParseLanguages(
+      professionalLanguages: (json['professionalLanguages'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+      regionalLanguages: (json['regionalLanguages'] as List<dynamic>?)
+          ?.map((e) => e.toString())
+          .toList(),
+    );
+  }
+}
+
+
+/* class OnBoardCvParseModel {
   String? summary;
   String? firstName;
   String? middleName;
@@ -324,3 +584,4 @@ class OnBoardCvParseLanguages {
     };
   }
 }
+ */

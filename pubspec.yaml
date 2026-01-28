@@ -41,9 +41,14 @@ dependencies:
   stream_chat_flutter_core: ^9.22.0
   stream_chat: ^9.22.0
   stream_chat_localizations: ^9.22.0
+  # Sim detector
+  permission_handler: ^12.0.1
+  sms_autofill: ^2.4.1
+  sim_reader: ^1.0.4
   # For resume builder kit
   resume_builder_kit:
     path: D:/JobCircle/packages/resume_builder_kit
+ 
   
 
 

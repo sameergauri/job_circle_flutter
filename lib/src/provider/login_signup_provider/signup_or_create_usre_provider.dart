@@ -1665,15 +1665,24 @@ class SignupCreateUserProvider with ChangeNotifier {
       _profileModel = CreateNewUserModel(
         userRequest: UserRequest(
           technicalSkills: _cvParseModel!.skills != null
-              ? List<String>.from((_cvParseModel!.skills!.itSkill ?? [])) +
+              ? List<String>.from(
+                      (_cvParseModel!.skills!.technicalSkills ?? []),
+                    ) +
                     List<String>.from(
-                      (_cvParseModel!.skills!.toolsKnowledgeSkills ?? []),
+                      (_cvParseModel!.skills!.toolsPlatforms ?? []),
                     )
               : [],
           skills: _cvParseModel!.skills != null
               ? List<String>.from((_cvParseModel!.skills!.softSkills ?? []))
               : [],
-          education: _cvParseModel!.educationLevel != "Graduate" ? 0 : 1,
+          education:
+              _cvParseModel!.educationLevel == "Undergraduate" ||
+                  _cvParseModel!.educationLevel == "UnderGraduate" ||
+                  _cvParseModel!.educationLevel == "Under - Graduate" ||
+                  _cvParseModel!.educationLevel == "Under-Graduate" ||
+                  _cvParseModel!.educationLevel == "under-Graduate"
+              ? 0
+              : 1,
           firstName: _cvParseModel?.firstName,
           middleName: _cvParseModel?.middleName,
           lastName: _cvParseModel?.lastName,
@@ -1693,12 +1702,19 @@ class SignupCreateUserProvider with ChangeNotifier {
             false,
           ),
           bio: _cvParseModel!.summary,
-          languages: _cvParseModel!.languages!.regionalLanguages ?? [],
+          languages: _cvParseModel!.languages != null
+              ? _cvParseModel!.languages!.regionalLanguages ?? []
+              : [],
+          linkdlnUrl: _cvParseModel!.linkedinProfileUrl,
+          experience:
+              _cvParseModel!.experience != null &&
+                  _cvParseModel!.experience!.isNotEmpty
+              ? 1
+              : 0,
           vaccination: null,
           vaccinationCertificate: null,
           profileHeadline: null,
           profileRole: null,
-          linkdlnUrl: null,
         ),
         experienceRequest: mapExperiences(_cvParseModel!.experience),
         educationRequest: mapEducations(_cvParseModel!.education),
@@ -1835,6 +1851,7 @@ class SignupCreateUserProvider with ChangeNotifier {
         lastWorkingDate: end,
         jobRole: exp.responsibilities?.join(' • '),
         skillsExp: exp.skills,
+        workType: exp.workMode,
       );
     }).toList();
   }
@@ -1860,10 +1877,12 @@ class SignupCreateUserProvider with ChangeNotifier {
 
     return oldList.map((cert) {
       String? passingYearStr = cert.validTill;
+      String? issueYearStr = cert.issueDate;
       return CertificationRequest(
         certificationName: cert.certificateName,
         issuingOrganization: cert.organization,
         endYear: int.tryParse(passingYearStr ?? ''),
+        startYear: int.tryParse(issueYearStr ?? ''),
       );
     }).toList();
   }
@@ -1872,6 +1891,18 @@ class SignupCreateUserProvider with ChangeNotifier {
     if (oldList == null) return [];
 
     return oldList.map((proj) {
+      String start = (proj.startDate != null && proj.startDate!.isNotEmpty)
+          ? proj.startDate!
+                .trim()
+                .split(' ')
+                .last // Space se split karke last part (Year) lega
+          : '';
+      String end = (proj.endDate != null && proj.endDate!.isNotEmpty)
+          ? proj.endDate!
+                .trim()
+                .split(' ')
+                .last // Space se split karke last part (Year) lega
+          : '';
       return UserProjectRequest(
         projectTitle: proj.projectTitle,
         description: proj.description,
@@ -1884,7 +1915,13 @@ class SignupCreateUserProvider with ChangeNotifier {
                       proj.url != ' '
                   ? [proj.url.toString()]
                   : <String>[]),
-        duration: proj.duration,
+        duration: start.isNotEmpty
+            ? start
+            : end.isNotEmpty
+            ? end
+            : start.isNotEmpty && end.isNotEmpty
+            ? '$start - $end'
+            : null,
         technologiesUsed: proj.technologiesUsed,
         itSkillsByProject: proj.itSkillsByProject,
       );
@@ -1978,9 +2015,9 @@ class SignupCreateUserProvider with ChangeNotifier {
     _profileModel = _profileModel!.copyWith(
       userRequest: updatedUserRequest,
       experienceRequest: updatedExperiences,
-      educationRequest: _profileModel!.educationRequest ?? [],
-      certificationsRequest: _profileModel!.certificationsRequest ?? [],
-      userProjectRequest: _profileModel!.userProjectRequest ?? [],
+      educationRequest: _educationModel,
+      certificationsRequest: _certificateModel,
+      userProjectRequest: _projectModel,
     );
     notifyListeners();
   }
@@ -2153,6 +2190,10 @@ class SignupCreateUserProvider with ChangeNotifier {
           : provider._female
           ? 'Female'
           : null,
+      allSkills: [
+        ...provider.tempSelectedSkills,
+        ...provider.tempSelectedTechSkill,
+      ],
       certifications: provider.certificateModel
           .map(
             (cert) => CertificationDetailModel(

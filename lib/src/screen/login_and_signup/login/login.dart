@@ -1,4 +1,370 @@
+// ignore_for_file: prefer_final_fields, use_build_context_synchronously, unused_element, use_full_hex_values_for_flutter_colors, deprecated_member_use
 // ignore_for_file: prefer_final_fields, use_build_context_synchronously, unused_element, use_full_hex_values_for_flutter_colors
+import 'package:flutter/material.dart';
+import 'package:job_circle/custom_icon_url.dart';
+import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/provider/login_signup_provider/login_provider.dart';
+import 'package:job_circle/src/screen/login_and_signup/login/otp.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/widgets/text/custom_text.dart';
+import 'package:provider/provider.dart';
+
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  @override
+  void initState() {
+    super.initState();
+    // ✅ Automatically detect phone numbers on page load
+    Future.delayed(Duration.zero, () {
+      final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+      loginProvider.getPhoneNumbers();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loginProvider = Provider.of<LoginProvider>(context);
+
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
+            children: [
+              /// JC Logo
+              Container(
+                margin: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height / 8,
+                ),
+                width: MediaQuery.of(context).size.width / 1.8,
+                child: Image.asset(
+                  CustomAssetUrl.jclogoicon,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              const SizedBox(height: 40),
+
+              /// Title
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: customText(
+                  title: "Select Your Mobile Number",
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: customText(
+                  title: "We will send you a 4 digit verification code",
+                  fontSize: 14,
+                  color: Colors.grey,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              /// ✅ SIM Cards - Direct Display (No Bottom Sheet!)
+              Expanded(
+                child: loginProvider.isLoadingNumbers
+                    ? const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            customText(title: 'Detecting SIM cards...'),
+                          ],
+                        ),
+                      )
+                    : loginProvider.phoneNumbers.isEmpty
+                    ? _buildNoPhoneView(loginProvider)
+                    : _buildSimCardsView(loginProvider),
+              ),
+
+              /// Footer
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const customText(
+                        title: "Made in",
+                        fontWeight: FontWeight.bold,
+                      ),
+                      const SizedBox(width: 6),
+                      Image.asset(CustomAssetUrl.indiaicon, height: 22),
+                      const SizedBox(width: 6),
+                      const customText(
+                        title: "with",
+                        fontWeight: FontWeight.bold,
+                      ),
+                      const SizedBox(width: 6),
+                      Image.asset(CustomAssetUrl.hearticon, height: 22),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const customText(
+                    title: "@ All rights reserved - 2025-26",
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        if (loginProvider.isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.3),
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+      ],
+    );
+  }
+
+  /// ✅ SIM Cards Display - Automatic Cards
+  Widget _buildSimCardsView(LoginProvider provider) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      itemCount: provider.phoneNumbers.length,
+      itemBuilder: (context, index) {
+        final simData = provider.phoneNumbers[index];
+        final phoneNumber = simData['number'] ?? '';
+        final carrier = simData['carrier'] ?? 'Unknown';
+        final slot = index == 0 ? "Slot 1" : "Slot 2";
+
+        final isSelected = provider.selectedPhoneNumber == phoneNumber;
+
+        return GestureDetector(
+          onTap: () => _selectAndSendOTP(provider, phoneNumber),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: isSelected
+                  ? LinearGradient(
+                      colors: [
+                        Constants.darkBlue.withOpacity(0.1),
+                        Constants.darkBlue.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              color: isSelected ? null : Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected ? Constants.darkBlue : Colors.grey.shade300,
+                width: isSelected ? 2.5 : 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isSelected
+                      ? Constants.darkBlue.withOpacity(0.2)
+                      : Colors.grey.withOpacity(0.1),
+                  blurRadius: isSelected ? 12 : 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // SIM Icon with Animation
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    gradient: isSelected
+                        ? LinearGradient(
+                            colors: [
+                              Constants.darkBlue,
+                              Constants.darkBlue.withOpacity(0.8),
+                            ],
+                          )
+                        : null,
+                    color: isSelected ? null : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.sim_card_rounded,
+                    color: isSelected ? Colors.white : Colors.grey.shade600,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(width: 18),
+
+                // Phone Number & Carrier Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      customText(
+                        monst: true,
+                        title: phoneNumber,
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected ? Constants.darkBlue : Colors.black87,
+                        letterspacing: 0.5,
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Constants.darkBlue.withOpacity(0.15)
+                                  : Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: customText(
+                              title: slot,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isSelected
+                                  ? Constants.darkBlue
+                                  : Colors.grey.shade700,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          customText(
+                            title: carrier,
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Check Icon
+                AnimatedScale(
+                  scale: isSelected ? 1.0 : 0.8,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    isSelected ? Icons.check_circle : Icons.circle_outlined,
+                    color: isSelected
+                        ? Constants.darkBlue
+                        : Colors.grey.shade400,
+                    size: 30,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  /// No Phone Detected View
+  Widget _buildNoPhoneView(LoginProvider provider) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.sim_card_alert_rounded,
+              size: 100,
+              color: Colors.orange.shade400,
+            ),
+            const SizedBox(height: 24),
+            const customText(
+              title: 'No SIM Card Detected',
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            customText(
+              title:
+                  'Please check the SIM card in your phone\nor allow permissions',
+              fontSize: 14,
+              color: Colors.grey.shade600,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => provider.getPhoneNumbers(),
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              label: const customText(
+                title: 'Retry',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Constants.darkBlue,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 3,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Select Phone and Send OTP
+  Future<void> _selectAndSendOTP(
+    LoginProvider provider,
+    String phoneNumber,
+  ) async {
+    // Set selected phone number
+    provider.setSelectedPhoneNumber(phoneNumber);
+
+    // Extract only digits for backend
+    String cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+
+    // Take last 10 digits
+    if (cleanNumber.length > 10) {
+      cleanNumber = cleanNumber.substring(cleanNumber.length - 10);
+    }
+
+    // Set in mobileController
+    provider.mobileController.text = cleanNumber;
+
+    // Send OTP
+    final success = await provider.generateOTP(context);
+
+    if (success) {
+      // Navigate to OTP screen
+      NavigationService.pushReplacement(const OTPScreen());
+    } else {
+      CustomSnackbar.show("Failed to send OTP", true);
+    }
+  }
+}
+
+/* // ignore_for_file: prefer_final_fields, use_build_context_synchronously, unused_element, use_full_hex_values_for_flutter_colors
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/bottom_dialogue.dart';
@@ -168,3 +534,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+ */

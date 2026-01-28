@@ -1,11 +1,14 @@
 // ignore_for_file: unused_local_variable, must_be_immutable
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
-import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
+import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_basic_info.dart';
 import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_certificate.dart';
 import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_education.dart';
@@ -17,6 +20,7 @@ import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_summary.da
 import 'package:job_circle/src/widgets/cv_parse_profile.dart/cv_parse_technical_skill.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
+import 'package:resume_builder_kit/resume_builder_kit.dart';
 
 class CvParseUserProfile extends StatelessWidget {
   const CvParseUserProfile({super.key});
@@ -55,24 +59,97 @@ class CvParseUserProfile extends StatelessWidget {
                 ],
               ),
               bottomNavigationBar: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 10,
-                    right: 10,
-                    bottom: 5,
-                    top: 5,
-                  ),
-                  child: CustomButtonForSave(
-                    isPading: false,
-                    onTap: () async {
-                      final done = await provider.saveCvParseProfile();
-                      if (done) {
-                        await jobprovider.fetchJobs(applyCityFilter: false);
-                      }
-                    },
-                    title: "Submit",
-                    buttonColor: Constants.darkBlue,
-                    textColor: Constants.white,
+                child: SizedBox(
+                  height: kToolbarHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 10,
+                      right: 10,
+                      bottom: 5,
+                      top: 5,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Constants.darkBlue,
+                            ),
+                          ),
+                          onPressed: () async {
+                            final done = await provider.saveCvParseProfile();
+                            if (done) {
+                              await jobprovider.fetchJobs(
+                                applyCityFilter: false,
+                              );
+                            }
+                          },
+                          child: customText(title: "Submit"),
+                        ),
+                        ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.all(
+                              Constants.darkBlue,
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ResumeTemplateSelectionScreen(
+                                  buttonTitle: "Save & Continue",
+                                  userProfileJson: provider
+                                      .buildProfileModelFromProvider(provider)
+                                      .toJson(),
+                                  geminiApiKey:
+                                      'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc', // null = skip AI polishing
+                                  onPdfGenerated: (Uint8List pdfBytes) async {
+                                    FileUploader fileUploader = FileUploader();
+                                    //TODO:: save the selected resume file path to user profile
+                                    String? uploadedFileName =
+                                        await fileUploader.uploadGeneratedPdf(
+                                          context,
+                                          pdfBytes,
+                                        );
+                                    if (uploadedFileName != null) {
+                                      provider.setResume(uploadedFileName);
+                                      if (provider.resume != null &&
+                                          provider.resume != '') {
+                                        final done = await provider
+                                            .saveCvParseProfile();
+                                        if (done) {
+                                          await jobprovider.fetchJobs(
+                                            applyCityFilter: false,
+                                          );
+                                        }
+                                      }
+                                      CustomSnackbar.show(
+                                        "Resume Uploaded Successfully",
+                                        false,
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                          child: customText(title: "Select Templete"),
+                        ),
+                        /*  CustomButtonForSave(
+                          isPading: false,
+                          onTap: () async {
+                            final done = await provider.saveCvParseProfile();
+                            if (done) {
+                              await jobprovider.fetchJobs(applyCityFilter: false);
+                            }
+                          },
+                          title: "Submit",
+                          buttonColor: Constants.darkBlue,
+                          textColor: Constants.white,
+                        ), */
+                      ],
+                    ),
                   ),
                 ),
               ),

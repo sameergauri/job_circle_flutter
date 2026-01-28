@@ -10,6 +10,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   gal
   media_kit_video
   pdfx
+  permission_handler_windows
   printing
   record_windows
   share_plus

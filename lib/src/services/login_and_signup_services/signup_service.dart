@@ -34,6 +34,7 @@ class SignupService {
         headers: headers,
         body: jsonEncode(requestBody),
       );
+      print("Request Body: ${jsonEncode(requestBody)}");
 
       // Handle the response
       if (response.statusCode == 200 || response.statusCode == 201) {
