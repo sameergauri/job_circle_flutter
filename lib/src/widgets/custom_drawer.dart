@@ -237,7 +237,6 @@ class CustomDrawer extends StatelessWidget {
               onClose();
             },
           ),
-
           const Spacer(),
           Padding(
             padding: EdgeInsets.only(bottom: 10),

@@ -1,12 +1,16 @@
-// ignore_for_file: todo, avoid_print
+// ignore_for_file: todo, avoid_print, use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
+import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/services/login_and_signup_services/login_service.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sim_reader/sim_reader.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class LoginProvider extends ChangeNotifier {
   final TextEditingController mobileController = TextEditingController();
@@ -222,7 +226,6 @@ class LoginProvider extends ChangeNotifier {
         return true;
       } else {
         CustomSnackbar.show(res['errorMessage'] ?? 'Invalid OTP', true);
-
         return false;
       }
     } catch (e) {
@@ -241,6 +244,60 @@ class LoginProvider extends ChangeNotifier {
         backgroundColor: success ? Colors.green : Colors.red,
       ),
     );
+  }
+
+  /// ✅ Check if the logged-in number is still present in the device SIM slots
+  Future<void> verifySimCardConsistency(BuildContext context) async {
+    print("🔍 SIM Check Started..."); // Add this to debug
+    try {
+      // 1. Get the logged-in number from SharedPrefs
+      final loggedInNumber = SharedPrefsHelper.getInt(
+        ESharedPreferences.user_mobile,
+      );
+
+      if (loggedInNumber == 0 || loggedInNumber.toString().isEmpty) return;
+
+      // 2. Fetch current SIM cards
+      List<SimInfo>? simCards = await SimReader.getAllSimInfo();
+
+      bool isNumberPresent = false;
+      String formattedLoggedIn = loggedInNumber.toString().replaceAll(
+        RegExp(r'\D'),
+        '',
+      );
+
+      // Ensure we compare the last 10 digits to avoid country code mismatches
+      if (formattedLoggedIn.length > 10) {
+        formattedLoggedIn = formattedLoggedIn.substring(
+          formattedLoggedIn.length - 10,
+        );
+      }
+
+      for (var sim in simCards) {
+        if (sim.phoneNumber != null) {
+          String currentSim = sim.phoneNumber!.replaceAll(RegExp(r'\D'), '');
+          if (currentSim.endsWith(formattedLoggedIn)) {
+            isNumberPresent = true;
+            break;
+          }
+        }
+      }
+      // 3. If number not found in any SIM slot, force logout
+      if (!isNumberPresent) {
+        print(
+          "🚨 Security Alert: Registered SIM removed or changed. Logging out.",
+        );
+        final client = StreamChat.of(context).client;
+        // 1. Disconnect Stream
+        await client.disconnectUser();
+        SharedPrefsHelper.clearAllPreferences();
+        await CacheClearAppVersionService.clearCache();
+        NavigationService.pushAndRemoveUntil(LoginPage());
+        // _forceLogout(context);
+      }
+    } catch (e) {
+      print("❌ SIM Verification Error: $e");
+    }
   }
 
   @override

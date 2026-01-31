@@ -35,6 +35,7 @@ class JobDetailPageModel {
   final List<String>? eligibility;
   final List<String>? eligibility2;
   final List<String>? skills;
+  final List<String>? certifications;
   final List<String>? jobResponsibilities;
   final List<String>? locations;
   final List<String>? language;
@@ -71,6 +72,7 @@ class JobDetailPageModel {
     this.eligibility,
     this.eligibility2,
     this.skills,
+    this.certifications,
     this.jobResponsibilities,
     this.locations,
     this.language,
@@ -116,6 +118,7 @@ class JobDetailPageModel {
       jobBenefits: List<String>.from(json['jobBenifits'] ?? []),
       eligibility: List<String>.from(json['eligibility'] ?? []),
       eligibility2: List<String>.from(json['eligibility2'] ?? []),
+      certifications: List<String>.from(json['certifications'] ?? []),
       skills: List<String>.from(json['skills'] ?? []),
       jobResponsibilities: List<String>.from(json['jobResponsibility'] ?? []),
       locations: List<String>.from(json['location'] ?? []),

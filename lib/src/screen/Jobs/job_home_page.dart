@@ -11,6 +11,7 @@ import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
+import 'package:job_circle/src/provider/login_signup_provider/login_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
 import 'package:job_circle/src/screen/chat/chat_list_screen.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -184,6 +185,10 @@ class _JobHomePageState extends State<JobHomePage> {
                 leading: IconButton(
                   onPressed: () {
                     widget.scaffoldKey.currentState?.openDrawer();
+                    // check the sim card is in the phone or not
+                    context.read<LoginProvider>().verifySimCardConsistency(
+                      context,
+                    );
                   },
                   icon: /* jobProvider.isLoading
                       ? CircularProgressIndicator(

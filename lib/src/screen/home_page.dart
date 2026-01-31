@@ -4,11 +4,13 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/provider/login_signup_provider/login_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_home_page.dart';
 import 'package:job_circle/src/screen/ats/ats_home_page.dart';
 import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/widgets/custom_drawer.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({super.key});
@@ -24,6 +26,9 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     CacheClearAppVersionService.checkAppVersion(context);
+   WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LoginProvider>().verifySimCardConsistency(context);
+    });
   }
 
   final PageController pageController = PageController();
@@ -77,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
       splashColor: Constants.borderColor,
       onTap: () {
         CacheClearAppVersionService.checkAppVersion(context);
+        context.read<LoginProvider>().verifySimCardConsistency(context);
         setState(() => currentIndex = index);
       },
       child: AnimatedContainer(

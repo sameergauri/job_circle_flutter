@@ -133,6 +133,11 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   stringList: job.jobBenefits!,
                   title: "Job Benefits",
                 ),
+                if (job.certifications != null && job.certifications!.isNotEmpty)
+                  ViewContainerForCerAndBenefits(
+                    stringList: job.certifications!,
+                    title: "Certificate",
+                  ),
                 if (job.jobResponsibilities != null &&
                     job.jobResponsibilities!.isNotEmpty)
                   CustomContainerForEligibility(
