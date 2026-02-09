@@ -8,7 +8,6 @@ import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart'
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
-import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_auto_size_text_field.dart';
@@ -19,11 +18,13 @@ class ProfileSummaryEdit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
         return Stack(
           children: [
             Scaffold(
+              
               bottomNavigationBar: Padding(
                 padding: const EdgeInsets.only(bottom: 5, top: 10),
                 child: CustomButtonForSave(
@@ -61,17 +62,24 @@ class ProfileSummaryEdit extends StatelessWidget {
                 ),
               ),
               resizeToAvoidBottomInset: true, // Add this line
-              backgroundColor: Colors.white,
+              backgroundColor: colors.bgColor,
               extendBodyBehindAppBar: true,
               appBar: AppBar(
                 titleSpacing: 0.0,
                 automaticallyImplyLeading: true,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: IconThemeData(color: colors.headingColor),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [OnboardingTitle(title: "Summary", fontSize: 16)],
+                  children: [
+                    customText(
+                      title: "Summary",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: colors.headingColor,
+                    ),
+                  ],
                 ),
               ),
               body: SafeArea(

@@ -15,9 +15,10 @@ class CustomFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return FloatingActionButton(
       shape: const CircleBorder(),
-      backgroundColor: Constants.white,
+      backgroundColor: colors.bottomsheetbgColor,
       onPressed: () {
         NavigationService.push(
           CustomPDFViewerDialog(

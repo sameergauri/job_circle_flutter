@@ -15,19 +15,22 @@ class CustomContainerFoeSkill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       margin: const EdgeInsets.only(bottom: 5, right: 5),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Constants.lightdull,
+        color: colors.tabColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          isicon ? Icon(icon, size: 16) : const SizedBox(),
+          isicon
+              ? Icon(icon, size: 16, color: colors.headingColor)
+              : const SizedBox(),
           const SizedBox(width: 6),
-          customText(title: title),
+          customText(title: title, color: colors.headingColor),
         ],
       ),
     );

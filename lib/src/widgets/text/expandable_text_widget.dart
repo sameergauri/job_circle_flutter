@@ -73,6 +73,7 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final textPainter = TextPainter(
       text: TextSpan(
         text: widget.text,
@@ -92,7 +93,7 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
           maxlines: widget.initialMaxLines,
           overflow: TextOverflow.ellipsis,
           fontSize: widget.isSummary ? 13 : 12,
-          color: Colors.black,
+          color: colors.headingColor,
           fontWeight: FontWeight.normal,
           //letterSpacing: 0.8,s
         ),

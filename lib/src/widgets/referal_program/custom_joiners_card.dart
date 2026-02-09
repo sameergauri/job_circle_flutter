@@ -10,7 +10,6 @@ import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/referal_program/custom_title_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
-
 class CustomJoinerCard extends StatelessWidget {
   final JoinerData joiner;
   final BuildContext context;
@@ -23,6 +22,7 @@ class CustomJoinerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Column(
       children: [
         Padding(
@@ -31,7 +31,7 @@ class CustomJoinerCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             children: [
               CircleAvatar(
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.circlebgColor,
                 child: customText(
                   title: joiner.candidateName!.substring(0, 1),
                   color: Constants.subtitleclr,
@@ -53,6 +53,7 @@ class CustomJoinerCard extends StatelessWidget {
                             '',
                           ),
                           fontWeight: FontWeight.bold,
+                          color: colors.headingColor,
                           fontSize: 13,
                         ),
                         if (joiner.partnerPayoutMode == "Special" ||
@@ -62,8 +63,7 @@ class CustomJoinerCard extends StatelessWidget {
                             child: CustomNetworkImage(
                               height: 15,
                               color: Constants.green,
-                              imageUrl:
-                                  CustomIconUrl.lighticon,
+                              imageUrl: CustomIconUrl.lighticon,
                               defaultIcon: Icons.electric_bolt_rounded,
                             ),
                           ),
@@ -72,7 +72,7 @@ class CustomJoinerCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     customText(
                       title: "${joiner.process} || ${joiner.designation}",
-                      color: Constants.subtitleclr,
+                      color: colors.subTitleColor,
                     ),
                   ],
                 ),
@@ -80,7 +80,7 @@ class CustomJoinerCard extends StatelessWidget {
             ],
           ),
         ),
-        
+
         Container(
           padding: const EdgeInsets.only(top: 6, bottom: 6, right: 8, left: 8),
           child: Row(
@@ -112,10 +112,13 @@ class CustomJoinerCard extends StatelessWidget {
           ),
         ),
         if (joiner.attrStatus == "Not Payable")
-          CustomRemarkConatiner(
-            subtitle: joiner.companyName.toString(),
-            valueColor: Constants.subtitleclr,
-            title: "Remark",
+          Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            child: CustomRemarkConatiner(
+              subtitle: joiner.remark.toString(),
+              valueColor: colors.subTitleColor!,
+              title: "Remark",
+            ),
           ),
       ],
     );

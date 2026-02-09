@@ -20,10 +20,11 @@ class CustomRemarkConatiner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(5),
-        color: Constants.lightdull,
+        color: colors.unSelectedTabBorderColor,
       ),
       padding: const EdgeInsets.only(top: 6, bottom: 6, left: 6, right: 6),
       child: Row(
@@ -38,7 +39,7 @@ class CustomRemarkConatiner extends StatelessWidget {
                     style: GoogleFonts.merriweather(
                       fontWeight: FontWeight.w700,
                       fontSize: fontsize ?? 12,
-                      color: titleColor ?? Colors.black,
+                      color: titleColor ?? colors.headingColor,
                     ),
                   ),
                   TextSpan(

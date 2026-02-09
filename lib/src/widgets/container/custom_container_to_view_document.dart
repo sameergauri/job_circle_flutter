@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:job_circle/custom_icon_url.dart';
+import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
 class CustomContainerSelectToViewDoc extends StatelessWidget {
@@ -23,12 +24,18 @@ class CustomContainerSelectToViewDoc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       margin: const EdgeInsets.only(top: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (heading != "") customText(title: heading, fontSize: 12),
+          if (heading != "")
+            customText(
+              title: heading,
+              fontSize: 12,
+              color: colors.headingColor,
+            ),
           const SizedBox(height: 5),
           Container(
             width: MediaQuery.of(context).size.width,
@@ -37,13 +44,13 @@ class CustomContainerSelectToViewDoc extends StatelessWidget {
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.shade300,
+                  color: colors.bottomsheerCard1Color!,
                   blurRadius: 2.1,
                   spreadRadius: 2.1,
                   offset: const Offset(1.0, 2.0),
                 ),
               ],
-              color: Colors.white,
+              color: colors.bottomsheerCard2Color,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
@@ -70,6 +77,7 @@ class CustomContainerSelectToViewDoc extends StatelessWidget {
                     : "Resume.pdf",
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
+                color: colors.headingColor,
               ),
               subtitle: date != null
                   ? customText(

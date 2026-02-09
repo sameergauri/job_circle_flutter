@@ -25,6 +25,10 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+    // Logic to check if we are in dark mode
+    // This works regardless of whether the user chose "System" or "Dark"
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Constants.white, // Status bar color same as Scaffold
@@ -32,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Brightness.dark, // Icons black (for light backgrounds)
       ),
       child: Scaffold(
-        backgroundColor: Constants.white,
+        backgroundColor: colors.bgColor,
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -41,8 +45,14 @@ class _SplashScreenState extends State<SplashScreen> {
                 top: MediaQuery.of(context).size.height / 6,
               ),
               width: MediaQuery.of(context).size.width / 1.8,
-              color: Colors.white,
-              child: Image.asset(CustomAssetUrl.jclogoicon, fit: BoxFit.cover),
+              color: colors.bgColor,
+              child: Image.asset(
+                isDarkMode
+                    ? CustomAssetUrl
+                          .jcLogoForDark // Image for Dark Theme
+                    : CustomAssetUrl.jclogoicon, // Image for Light Theme
+                fit: BoxFit.cover,
+              ),
             ),
             const Expanded(
               child: Padding(
@@ -107,7 +117,7 @@ class _SplashScreenState extends State<SplashScreen> {
       String msg = SharedPrefsHelper.getString(ESharedPreferences.msg);
 
       if (_isConnected) {
-         await CacheClearAppVersionService.clearCache();
+        await CacheClearAppVersionService.clearCache();
         Timer(const Duration(seconds: 2), () {
           Utils.gotoScreen(
             context: context,

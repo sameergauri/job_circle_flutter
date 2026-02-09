@@ -8,6 +8,7 @@ class CustomFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Align(
       alignment: FractionalOffset.bottomCenter,
       child: Column(
@@ -16,31 +17,31 @@ class CustomFooter extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const customText(
+              customText(
                 title: 'Made in',
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: Colors.black87,
+                color: colors.headingColor,
               ),
               const SizedBox(width: 7),
               Image.asset(CustomAssetUrl.indiaicon, height: 22),
               const SizedBox(width: 7),
-              const customText(
+              customText(
                 title: 'with',
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
-                color: Colors.black87,
+                color: colors.headingColor,
               ),
               const SizedBox(width: 7),
               Image.asset(CustomAssetUrl.hearticon, height: 22),
             ],
           ),
           const SizedBox(height: 20),
-          const customText(
+          customText(
             title: '@ All rights reserved 2025-26',
             fontWeight: FontWeight.bold,
             fontSize: 12,
-            color: Constants.black,
+            color: colors.headingColor,
           ),
         ],
       ),

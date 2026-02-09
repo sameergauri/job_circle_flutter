@@ -1,10 +1,10 @@
 // ignore_for_file: use_super_parameters, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/screen/ats/ats_applied_page.dart';
 import 'package:job_circle/src/screen/ats/ats_referal_page.dart';
+import 'package:job_circle/src/widgets/text/custom_text.dart';
 
 class ATSHomePage extends StatefulWidget {
   const ATSHomePage({Key? key}) : super(key: key);
@@ -19,10 +19,21 @@ class _ATSHomePageState extends State<ATSHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Constants.white,
-        body: Container(
+    final colors = context.appColors;
+    return Scaffold(
+      /*  floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          CustomBottomSheet.showCustomBottomSheetForAppTheme(context: context);
+        },
+        backgroundColor: Constants.darkBlue,
+        child: Icon(Icons.color_lens),
+      ), */
+      backgroundColor: colors.appbarColor,
+      body: MediaQuery.removePadding(
+        removeTop: true,
+        context: context,
+        child: Container(
+          margin: const EdgeInsets.only(top: kTextTabBarHeight),
           //   decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
           //   margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
           child: Column(
@@ -133,10 +144,11 @@ class CustomTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       height: 36,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.appbarColor,
         /*  boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.2),
@@ -151,7 +163,7 @@ class CustomTabBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(
               tabs.length,
-              (index) => _buildTabItem(index, context),
+              (index) => _buildTabItem(index, context, colors),
             ),
           ),
           Positioned(
@@ -168,7 +180,7 @@ class CustomTabBar extends StatelessWidget {
                 0,
               ),
               decoration: BoxDecoration(
-                color: Constants.darkBlue,
+                color: colors.atsTabTextColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -178,7 +190,7 @@ class CustomTabBar extends StatelessWidget {
     );
   }
 
-  Widget _buildTabItem(int index, BuildContext context) {
+  Widget _buildTabItem(int index, BuildContext context, AppColors colors) {
     final isSelected = index == selectedIndex;
     return GestureDetector(
       onTap: () => onTabChanged(index),
@@ -186,13 +198,11 @@ class CustomTabBar extends StatelessWidget {
         height: 50,
         width: MediaQuery.of(context).size.width / tabs.length,
         child: Center(
-          child: Text(
-            tabs[index],
-            style: GoogleFonts.merriweather(
-              fontSize: 14,
-              color: isSelected ? Constants.darkBlue : Colors.grey.shade400,
-              fontWeight: FontWeight.normal,
-            ),
+          child: customText(
+            title: tabs[index],
+            fontSize: 14,
+            color: isSelected ? colors.atsTabTextColor : Colors.grey.shade400,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),

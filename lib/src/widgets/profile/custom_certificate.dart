@@ -19,6 +19,7 @@ class CertificationSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     Map<String, int> monthMap = {
       "January": 1,
       "February": 2,
@@ -50,7 +51,7 @@ class CertificationSection extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 5),
       margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -66,13 +67,15 @@ class CertificationSection extends StatelessWidget {
                   child: CustomNetworkImage(
                     imageUrl: CustomIconUrl.certificateicon,
                     defaultIcon: Icons.celebration_outlined,
+                    color: colors.subTitleColor,
                   ),
                 ),
                 SizedBox(width: 5),
-                const customText(
+                customText(
                   title: "Certifications",
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
+                  color: colors.headingColor,
                 ),
                 Expanded(
                   child: Row(
@@ -89,9 +92,9 @@ class CertificationSection extends StatelessWidget {
                             ),
                           );
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
-                          color: Constants.subtitleclr,
+                          color: colors.subTitleColor,
                           size: 20,
                         ),
                       ),
@@ -172,6 +175,7 @@ class CertificationSection extends StatelessWidget {
                               horizontal: 6,
                             ),
                             decoration: BoxDecoration(
+                              color: Constants.lightdull,
                               border: Border.all(color: Constants.lightdull),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -201,6 +205,7 @@ class CertificationSection extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
+                                  color: colors.headingColor,
                                 ),
                                 customText(
                                   title: data[index].issuingOrganization
@@ -208,6 +213,7 @@ class CertificationSection extends StatelessWidget {
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   overflow: TextOverflow.ellipsis,
+                                  color: colors.headingColor,
                                 ),
                               ],
                             ),
@@ -219,7 +225,7 @@ class CertificationSection extends StatelessWidget {
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             overflow: TextOverflow.ellipsis,
-                            color: Constants.subtitleclr,
+                            color: colors.subTitleColor,
                           ),
                         ),
                       ],

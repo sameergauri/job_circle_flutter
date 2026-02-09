@@ -28,6 +28,7 @@ class CustomAutoSizeTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -42,14 +43,14 @@ class CustomAutoSizeTextField extends StatelessWidget {
           maxLines: maxline,
           textAlign: TextAlign.start,
           style: GoogleFonts.montserrat(
-            color: Colors.black,
+            color: colors.headingColor,
             fontWeight: FontWeight.w500,
             fontSize: maxFontSize,
           ),
           cursorColor: Constants.themeBgColor,
           decoration: InputDecoration(
             counterStyle: GoogleFonts.montserrat(
-              color: Colors.grey,
+              color: colors.subTitleColor,
               fontSize: 12,
             ),
             fillColor: Colors.transparent,
@@ -62,26 +63,26 @@ class CustomAutoSizeTextField extends StatelessWidget {
             counterText: '',
             border: maxLength < 1500
                 ? OutlineInputBorder(
-                    borderSide: const BorderSide(color: Constants.subtitleclr),
+                    borderSide: BorderSide(color: colors.subTitleColor!),
                     borderRadius: BorderRadius.circular(8),
                   )
                 : UnderlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Color(0x0ff0eceb)),
+                    borderSide: BorderSide(color: colors.subTitleColor!),
                   ),
-            focusColor: const Color(0x0ff0eceb),
+            focusColor: colors.headingColor,
             focusedBorder: maxLength < 1500
                 ? OutlineInputBorder(
-                    borderSide: const BorderSide(color: Constants.black),
+                    borderSide: BorderSide(color: colors.headingColor!),
                     borderRadius: BorderRadius.circular(8),
                   )
                 : UnderlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.black),
+                    borderSide: BorderSide(color: colors.headingColor!),
                   ),
             hintText: hintText,
             hintStyle: GoogleFonts.merriweather(
-              color: Colors.grey,
+              color: colors.subTitleColor,
               fontSize: 14,
             ),
           ),
@@ -95,19 +96,19 @@ class CustomAutoSizeTextField extends StatelessWidget {
                 return customText(
                   monst: true,
                   title: "${value.text.length}/$maxLength",
-                  color: Constants.subtitleclr,
+                  color: colors.subTitleColor,
                   fontSize: 12,
                 );
               },
             ),
-            if (controller.text.isNotEmpty&&needClearAll)
+            if (controller.text.isNotEmpty && needClearAll)
               InkWell(
                 onTap: () {
                   controller.clear();
                 },
-                child: const customText(
+                child: customText(
                   title: "Clear All",
-                  color: Constants.orange,
+                  color: colors.orangeLine,
                   fontSize: 12,
                 ),
               ),

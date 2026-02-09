@@ -18,10 +18,11 @@ class ReferralProgramCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const customText(
+          customText(
             title: "Talent Referral Program",
             fontSize: 14,
             fontWeight: FontWeight.w700,
+            color: Constants.darkBlue,
           ),
           const SizedBox(height: 4),
           Container(

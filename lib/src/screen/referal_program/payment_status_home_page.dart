@@ -13,6 +13,7 @@ import 'package:job_circle/src/screen/referal_program/invoice_detail_page.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/referal_program/custom_invoice_card.dart';
+import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 import 'package:provider/provider.dart';
 
@@ -55,7 +56,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
     super.dispose();
   }
 
-  void _showDateFilterBottomSheet(BuildContext context) {
+  void _showDateFilterBottomSheet(BuildContext context, AppColors colors) {
     final provider = Provider.of<PaymentStatusProvider>(context, listen: false);
     final state = provider.state;
     final selectedDate = state.selectedDate;
@@ -106,7 +107,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(color: Colors.white),
+          decoration: BoxDecoration(color: colors.bottomsheetbgColor),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -158,8 +159,8 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                       child: Container(
                         decoration: BoxDecoration(
                           color: index % 2 == 0
-                              ? Constants.lightdull
-                              : Colors.white,
+                              ? colors.bottomsheerCard1Color
+                              : colors.bottomsheerCard2Color,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         padding: const EdgeInsets.only(
@@ -176,6 +177,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                               style: GoogleFonts.merriweather(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
+                                color: colors.headingColor,
                               ),
                             ),
                             if (selectedDate != null &&
@@ -202,6 +204,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final screenWidth = MediaQuery.of(context).size.width;
     final tabFontSize = (screenWidth * 0.03).clamp(10.0, 14.0);
 
@@ -210,7 +213,8 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
         final state = provider.state;
 
         if (state.isLoading) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: colors.bgColor,
             body: Center(
               child: CircularProgressIndicator(color: Constants.darkBlue),
             ),
@@ -218,21 +222,29 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
         }
 
         if (state.error != null) {
-          return Scaffold(body: Center(child: Text('Error: ${state.error}')));
+          return Scaffold(
+            backgroundColor: colors.bgColor,
+            body: Center(
+              child: customText(
+                title: 'Error: ${state.error}',
+                color: colors.headingColor,
+              ),
+            ),
+          );
         }
 
         if (state.paymentStatus == null ||
             (state.paymentStatus!.resultData.invoiceSent.isEmpty &&
                 state.paymentStatus!.resultData.paidData.isEmpty &&
                 state.paymentStatus!.resultData.validation.isEmpty)) {
-          return const Scaffold(
-            backgroundColor: Constants.white,
+          return Scaffold(
+            backgroundColor: colors.bgColor,
             body: Center(
               child: customTextForWeather(
                 title: "No data available",
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Constants.darkBlue,
+                color: colors.headingColor!,
               ),
             ),
           );
@@ -251,11 +263,12 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
         _tabController ??= TabController(length: tabData.length, vsync: this);
 
         return Scaffold(
-          backgroundColor: Colors.white,
+         
+          backgroundColor: colors.bgColor,
           appBar: AppBar(
             elevation: 0,
-            iconTheme: const IconThemeData(color: Constants.black),
-            backgroundColor: Constants.borderColor,
+            iconTheme: IconThemeData(color: colors.subtitleTextColor),
+            backgroundColor: colors.appbarColor,
             titleSpacing: 0,
             title: Padding(
               padding: const EdgeInsets.only(right: 10),
@@ -271,12 +284,12 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                 padding: const EdgeInsets.only(right: 10),
                 child: TextButton(
                   onPressed: () {
-                    _showDateFilterBottomSheet(context);
+                    _showDateFilterBottomSheet(context, colors);
                   },
                   child: customTextForWeather(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Constants.black,
+                   color: colors.subtitleTextColor!,
                     title: state.selectedDate != null
                         ? "${DateFormat('MMM').format(DateFormat('MM').parse(state.selectedDate!['month']!))} ${state.selectedDate!['year']}"
                         : "Month",
@@ -286,10 +299,11 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
             ],
           ),
           body: tabData.isEmpty
-              ? const Center(
+              ? Center(
                   child: customTextForWeather(
                     title: "No data found",
                     fontSize: 16,
+                    color: colors.headingColor!,
                   ),
                 )
               : Column(
@@ -308,16 +322,18 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                           )
                           .toList(),
                       overlayColor: WidgetStateProperty.all(Colors.transparent),
-                      labelColor: Constants.black,
+                      labelColor: colors.atsTabTextColor,
                       unselectedLabelColor: Constants.subtitleclr,
-                      indicatorColor: Constants.orange,
+                      indicatorColor: colors.orangeLine,
                       labelStyle: GoogleFonts.merriweather(
                         fontSize: tabFontSize,
                         fontWeight: FontWeight.w700,
+                        color: colors.subtabTitleColor,
                       ),
                       unselectedLabelStyle: GoogleFonts.merriweather(
                         fontSize: tabFontSize,
                         fontWeight: FontWeight.normal,
+                        color: colors.subtitleTextColor,
                       ),
                       indicatorSize: TabBarIndicatorSize.label,
                       labelPadding: EdgeInsets.symmetric(
@@ -331,7 +347,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                           final data = tab['data'] as List<dynamic>;
                           final tabName = tab['name'] as String;
 
-                          return _buildInvoiceList(data, tabName);
+                          return _buildInvoiceList(data, tabName, colors);
                         }).toList(),
                       ),
                     ),
@@ -342,7 +358,11 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
     );
   }
 
-  Widget _buildInvoiceList(List<dynamic> items, String tabName) {
+  Widget _buildInvoiceList(
+    List<dynamic> items,
+    String tabName,
+    AppColors colors,
+  ) {
     return RefreshIndicator(
       color: Constants.darkBlue,
       onRefresh: () async {

@@ -36,6 +36,7 @@ class CustomSuggestionTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final suggestionProvider = Provider.of<SuggestionProvider>(context);
 
     return Container(
@@ -96,7 +97,7 @@ class CustomSuggestionTextField extends StatelessWidget {
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Constants.white,
+              color: colors.bottomsheetbgColor,
             ),
             child: child,
           );
@@ -118,8 +119,8 @@ class CustomSuggestionTextField extends StatelessWidget {
             decoration: BoxDecoration(
               color:
                   (suggestionProvider.suggestions.indexOf(suggestion) % 2 == 0)
-                  ? Constants.lightdull
-                  : Colors.white,
+                  ? colors.bottomsheerCard1Color
+                  : colors.bottomsheerCard2Color,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
@@ -129,6 +130,7 @@ class CustomSuggestionTextField extends StatelessWidget {
                     : (suggestion.value ?? ''),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
+                color: colors.headingColor,
               ),
             ),
           );
@@ -165,7 +167,7 @@ class CustomSuggestionTextField extends StatelessWidget {
             },
             child: Container(
               decoration: BoxDecoration(
-                color: Constants.lightdull,
+                color: colors.bottomsheetbgColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: ListTile(
@@ -174,6 +176,7 @@ class CustomSuggestionTextField extends StatelessWidget {
                   fontSize: 12,
                   title: EnableAddOption ? "Add $title" : "No result found.",
                   fontWeight: FontWeight.w600,
+                  color: colors.headingColor,
                 ),
               ),
             ),

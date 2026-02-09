@@ -18,6 +18,7 @@ class CustomExperienceContainer extends StatelessWidget {
   const CustomExperienceContainer({super.key, required this.profileProvider});
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final profileData = profileProvider.profile;
 
     /// Sorting logic for experiences
@@ -46,7 +47,7 @@ class CustomExperienceContainer extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -63,13 +64,15 @@ class CustomExperienceContainer extends StatelessWidget {
                     CustomAssetUrl.jobicon,
                     height: 20,
                     width: 20,
+                    color: colors.subTitleColor,
                   ),
                 ),
                 SizedBox(width: 5),
-                const customText(
+                customText(
                   title: "Experience",
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
+                  color: colors.headingColor,
                 ),
                 Expanded(
                   child: Row(
@@ -86,9 +89,9 @@ class CustomExperienceContainer extends StatelessWidget {
                             ),
                           );
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
-                          color: Constants.subtitleclr,
+                          color: colors.subTitleColor,
                           size: 20,
                         ),
                       ),
@@ -133,6 +136,7 @@ class CustomExperienceContainer extends StatelessWidget {
           /// Body
           (profileData.experiences == null || profileData.experiences!.isEmpty)
               ? Container(
+                  color: colors.bgColor,
                   padding: const EdgeInsets.only(left: 6, bottom: 10),
                   child: const Column(
                     children: [
@@ -160,139 +164,147 @@ class CustomExperienceContainer extends StatelessWidget {
                   itemCount: profileData.experiences!.length,
                   itemBuilder: (context, index) {
                     final data = profileData.experiences![index];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// Experience Tile
-                        CustomNewListTile(
-                          dense: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 0,
-                          ),
-                          leading: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 6,
+                    return Container(
+                      color: colors.bgColor,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /// Experience Tile
+                          CustomNewListTile(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 0,
                             ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Constants.lightdull),
-                              borderRadius: BorderRadius.circular(8),
+                            leading: Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Constants.lightdull,
+                                border: Border.all(color: Constants.lightdull),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              width: 50,
+                              height: 50,
+                              child:
+                                  (data.companyLogo != null &&
+                                      data.companyLogo!.isNotEmpty)
+                                  ? CustomNetworkImage(
+                                      imageUrl:
+                                          "${GlobalConstants.Image_url}${data.companyLogo}",
+                                      defaultIcon: Icons.home,
+                                    )
+                                  : CustomNetworkImage(
+                                      imageUrl: CustomIconUrl.companyicon,
+                                      defaultIcon: Icons.business,
+                                      color: Constants.subtitleclr,
+                                    ),
                             ),
-                            width: 50,
-                            height: 50,
-                            child:
-                                (data.companyLogo != null &&
-                                    data.companyLogo!.isNotEmpty)
-                                ? CustomNetworkImage(
-                                    imageUrl:
-                                        "${GlobalConstants.Image_url}${data.companyLogo}",
-                                    defaultIcon: Icons.home,
-                                  )
-                                : CustomNetworkImage(
-                                    imageUrl: CustomIconUrl.companyicon,
-                                    defaultIcon: Icons.business,
-                                    color: Constants.subtitleclr,
-                                  ),
-                          ),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              customText(
-                                title: data.jobTitle ?? "",
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              customText(
-                                title:
-                                    "${data.companyName ?? ""} - ${data.empType ?? ""}",
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              customText(
-                                title:
-                                    data.workingPeriod
-                                        ?.split(',')
-                                        .map((part) => part.trim())
-                                        .toList()
-                                        .asMap()
-                                        .map(
-                                          (i, part) => i == 1
-                                              ? MapEntry(i, '($part)')
-                                              : MapEntry(i, part),
-                                        )
-                                        .values
-                                        .join(' ')
-                                        .replaceAll('months', 'mos') ??
-                                    "",
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: Constants.subtitleclr,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (data.jobLocation != null &&
-                                  data.jobLocation!.isNotEmpty &&
-                                  data.jobLocation != "")
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                customText(
+                                  title: data.jobTitle ?? "",
+                                  overflow: TextOverflow.ellipsis,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.headingColor,
+                                ),
                                 customText(
                                   title:
-                                      '${data.jobLocation ?? ""} • ${data.workType!}',
+                                      "${data.companyName ?? ""} - ${data.empType ?? ""}",
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
+                                  overflow: TextOverflow.ellipsis,
+                                  color: colors.headingColor,
+                                ),
+                              ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                customText(
+                                  title:
+                                      data.workingPeriod
+                                          ?.split(',')
+                                          .map((part) => part.trim())
+                                          .toList()
+                                          .asMap()
+                                          .map(
+                                            (i, part) => i == 1
+                                                ? MapEntry(i, '($part)')
+                                                : MapEntry(i, part),
+                                          )
+                                          .values
+                                          .join(' ')
+                                          .replaceAll('months', 'mos') ??
+                                      "",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: colors.subTitleColor,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                              if (data.jobLocation == null ||
-                                  data.jobLocation!.isEmpty ||
-                                  data.jobLocation == "null" ||
-                                  data.jobLocation == "")
-                                InkWell(
-                                  onTap: () {
-                                    profileProvider.editExperience(index);
-                                    profileProvider.setShowExperienceForm(true);
-                                    NavigationService.push(
-                                      ProfileExperienceEdit(
-                                        fromEditOrAdd: FromEditOrAdd.edit,
-                                      ),
-                                    );
-                                  },
-                                  child: customText(
-                                    title: "Add Work Mode",
+                                if (data.jobLocation != null &&
+                                    data.jobLocation!.isNotEmpty &&
+                                    data.jobLocation != "")
+                                  customText(
+                                    title:
+                                        '${data.jobLocation ?? ""} • ${data.workType!}',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Constants.darkBlue,
+                                    color: colors.subTitleColor,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                            ],
-                          ),
-                        ),
-
-                        /// Job Role (Expandable)
-                        if (data.jobRole != null &&
-                            data.jobRole!.isNotEmpty &&
-                            data.jobRole != "")
-                          Container(
-                            margin: EdgeInsets.only(top: 4),
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Constants.lightdull,
+                                if (data.jobLocation == null ||
+                                    data.jobLocation!.isEmpty ||
+                                    data.jobLocation == "null" ||
+                                    data.jobLocation == "")
+                                  InkWell(
+                                    onTap: () {
+                                      profileProvider.editExperience(index);
+                                      profileProvider.setShowExperienceForm(
+                                        true,
+                                      );
+                                      NavigationService.push(
+                                        ProfileExperienceEdit(
+                                          fromEditOrAdd: FromEditOrAdd.edit,
+                                        ),
+                                      );
+                                    },
+                                    child: customText(
+                                      title: "Add Work Mode",
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Constants.darkBlue,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                              ],
                             ),
-                            child: ExpandableTextWidget(
-                              initialMaxLines: 5,
-                              text: BulletFormatter.formatWithBullets(
-                                data.jobRole!,
+                          ),
+
+                          /// Job Role (Expandable)
+                          if (data.jobRole != null &&
+                              data.jobRole!.isNotEmpty &&
+                              data.jobRole != "")
+                            Container(
+                              margin: EdgeInsets.only(top: 4),
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: colors.bottomsheerCard1Color,
+                              ),
+                              child: ExpandableTextWidget(
+                                initialMaxLines: 5,
+                                text: BulletFormatter.formatWithBullets(
+                                  data.jobRole!,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                        ],
+                      ),
                     );
                   },
                 ),

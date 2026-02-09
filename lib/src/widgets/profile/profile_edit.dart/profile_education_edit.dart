@@ -36,18 +36,19 @@ class ProfileEducationEdit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Constants.white,
+              backgroundColor: colors.bgColor,
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
                 titleSpacing: 0.0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: IconThemeData(color: colors.headingColor),
                 title: const OnboardingTitle(title: "Education", fontSize: 16),
                 actions: [
                   !provider.showEducationForm &&
@@ -80,8 +81,8 @@ class ProfileEducationEdit extends StatelessWidget {
                 child:
                     provider.profile!.educationDetails!.isEmpty ||
                         provider.showEducationForm
-                    ? customForm(provider, context)
-                    : CustomBody(provider),
+                    ? customForm(provider, context, colors)
+                    : CustomBody(provider, colors),
               ),
             ),
             if (provider.isUpdating) CustomLoadingIndicator(),
@@ -91,7 +92,11 @@ class ProfileEducationEdit extends StatelessWidget {
     );
   }
 
-  Widget customForm(ProfileProvider provider, BuildContext context) {
+  Widget customForm(
+    ProfileProvider provider,
+    BuildContext context,
+    AppColors colors,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -100,9 +105,10 @@ class ProfileEducationEdit extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 10),
-            const customText(
+            customText(
               title: "School / College Name",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldForMasterData(
               focusNode: provider.schoolCollegeNameFocusNode,
@@ -124,9 +130,10 @@ class ProfileEducationEdit extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "University / Board Name*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldForMasterData(
               focusNode: provider.universityBoardNameFocusNode,
@@ -137,9 +144,10 @@ class ProfileEducationEdit extends StatelessWidget {
               title: "University / Board Name",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Course / Degree*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldForMasterData(
               focusNode: provider.degreeFocusNode,
@@ -150,9 +158,10 @@ class ProfileEducationEdit extends StatelessWidget {
               title: "Course / Degree",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Field of Study",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldForMasterData(
               focusNode: provider.fieldOfStudyFocusNode,
@@ -163,7 +172,11 @@ class ProfileEducationEdit extends StatelessWidget {
               title: "Field of study",
             ),
             SizedBox(height: 10),
-            const customText(title: "Course Type", fontStyle: FontStyle.italic),
+            customText(
+              title: "Course Type",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             Wrap(
               spacing: 10,
               children: [
@@ -191,7 +204,7 @@ class ProfileEducationEdit extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 15),
-            customText(title: "Start Year*"),
+            customText(title: "Start Year*", color: colors.headingColor),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -222,7 +235,7 @@ class ProfileEducationEdit extends StatelessWidget {
             ),
             if (!provider.currentlyStudying) const SizedBox(height: 15),
             if (!provider.currentlyStudying)
-              const customText(title: "End Year*"),
+              customText(title: "End Year*", color: colors.headingColor),
             if (!provider.currentlyStudying)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -316,7 +329,10 @@ class ProfileEducationEdit extends StatelessWidget {
                       provider.clearEducationForm();
                       provider.setShowEducationForm(false);
                     },
-                    child: customText(title: "Delete Education"),
+                    child: customText(
+                      title: "Delete Education",
+                      color: colors.headingColor,
+                    ),
                   ),
                 ],
               ),
@@ -359,7 +375,7 @@ class ProfileEducationEdit extends StatelessWidget {
     );
   }
 
-  Widget CustomBody(ProfileProvider provider) {
+  Widget CustomBody(ProfileProvider provider, AppColors colors) {
     // Sort the list but keep track of original indices
     final sortedEducationsWithIndex = List.generate(
       provider.profile!.educationDetails!.length,
@@ -402,6 +418,7 @@ class ProfileEducationEdit extends StatelessWidget {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
+                color: Constants.lightdull,
                 border: Border.all(color: Constants.lightdull),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -423,6 +440,7 @@ class ProfileEducationEdit extends StatelessWidget {
               title: edu.degreeSpc ?? '',
               fontWeight: FontWeight.bold,
               fontSize: 14,
+              color: colors.headingColor,
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,7 +450,7 @@ class ProfileEducationEdit extends StatelessWidget {
                   customText(
                     title: edu.schoolOrCollegeName ?? '',
                     fontWeight: FontWeight.w500,
-                    color: Constants.subtitleclr,
+                    color: colors.headingColor,
                     overflow: TextOverflow.ellipsis,
                   ),
                 if (edu.university != null && edu.university != '')

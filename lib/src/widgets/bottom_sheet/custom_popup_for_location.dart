@@ -53,7 +53,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
   String? SelectedValue;
 
   Future<void> GetLocation() async {
-    final response = await http.post( 
+    final response = await http.post(
       Uri.parse(
         '${GlobalConstants.fetchmasterdatasuggestionurl}${widget.name}&pageNumber=1&pageSize=10000',
       ),
@@ -143,16 +143,17 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return CustomToggleButton(
       title: widget.title,
       onTap: () {
-        _showBottomSheet();
+        _showBottomSheet(colors);
       },
       isSelect: widget.isSelect,
     );
   }
 
-  void _showBottomSheet() {
+  void _showBottomSheet(AppColors colors) {
     selectedItems = List.from(widget.initiallySelectedItems);
     controller.clear();
     filteredItems = List.from(items);
@@ -160,7 +161,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
     showModalBottomSheet(
       elevation: 0,
       barrierColor: Colors.black.withOpacity(0.3),
-      backgroundColor: Constants.white,
+      backgroundColor: colors.bottomsheetbgColor,
       isScrollControlled: true,
       isDismissible: true,
       shape: const RoundedRectangleBorder(
@@ -224,12 +225,12 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
 
                       // **Filtered Items**
                       filteredItems.isEmpty
-                          ? const Center(
+                          ? Center(
                               child: customText(
                                 title: "No items found",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: Constants.subtitleclr,
+                                color: colors.subTitleColor,
                               ),
                             )
                           : Expanded(
@@ -241,8 +242,8 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                                     (element) => element.id == item.id,
                                   );
                                   final backgroundColor = index % 2 == 0
-                                      ? Constants.lightdull
-                                      : Colors.white;
+                                      ? colors.bottomsheerCard1Color
+                                      : colors.bottomsheerCard2Color;
 
                                   return GestureDetector(
                                     onTap: () =>
@@ -256,6 +257,7 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                                         title: customText(
                                           title: item.formateData!,
                                           fontSize: 12,
+                                          color: colors.headingColor,
                                         ),
                                         trailing: isSelected
                                             ? Image.asset(

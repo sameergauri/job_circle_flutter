@@ -24,11 +24,12 @@ class CareerProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(bottom: 5, top: 5),
       margin: const EdgeInsets.only(left: 10, right: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -41,13 +42,15 @@ class CareerProfileCard extends StatelessWidget {
                 child: CustomNetworkImage(
                   imageUrl: CustomIconUrl.careerpreficon,
                   defaultIcon: Icons.language,
+                  color: colors.subTitleColor,
                 ),
               ),
               SizedBox(width: 5),
-              const customText(
+              customText(
                 title: "Career Preference",
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
+                color: colors.headingColor,
               ),
               Expanded(
                 child: Row(
@@ -77,6 +80,7 @@ class CareerProfileCard extends StatelessWidget {
           ),
           const SizedBox(height: 15),
           _buildRowSingle(
+            colors: colors,
             label: "Industry",
             value:
                 careerPreferenceProvider.model.industry == null ||
@@ -87,6 +91,7 @@ class CareerProfileCard extends StatelessWidget {
           _buildDivider(),
 
           _buildRowSingle(
+            colors: colors,
             label: "Job Role",
             value:
                 careerPreferenceProvider.model.role == null ||
@@ -97,6 +102,7 @@ class CareerProfileCard extends StatelessWidget {
 
           _buildDivider(),
           _buildRow(
+            colors: colors,
             label1: "Work location",
             value1:
                 careerPreferenceProvider.model.location == null ||
@@ -112,6 +118,7 @@ class CareerProfileCard extends StatelessWidget {
           _buildDivider(),
 
           _buildRow(
+            colors: colors,
             label1: "Employment type",
             value1: careerPreferenceProvider.model.empType == "partTime"
                 ? "Part Time"
@@ -143,6 +150,7 @@ class CareerProfileCard extends StatelessWidget {
           ),
           _buildDivider(),
           _buildRow(
+            colors: colors,
             label1: "Salary Range",
             value1:
                 careerPreferenceProvider.model.startSalary == null ||
@@ -168,6 +176,7 @@ class CareerProfileCard extends StatelessWidget {
           ),
           _buildDivider(),
           _buildRowSingle(
+            colors: colors,
             label: "Shift Time",
             value:
                 careerPreferenceProvider.model.shiftTime == null ||
@@ -195,6 +204,7 @@ class CareerProfileCard extends StatelessWidget {
     required String value1,
     required String label2,
     required String value2,
+    required AppColors colors,
   }) {
     bool isAddAction1 = value1.startsWith("Add ");
     bool isAddAction2 = value2.startsWith("Add ");
@@ -207,7 +217,7 @@ class CareerProfileCard extends StatelessWidget {
             children: [
               customText(
                 title: label1,
-                color: Constants.subtitleclr,
+                color: colors.subTitleColor,
                 fontSize: 12,
               ),
               const SizedBox(height: 3),
@@ -223,7 +233,9 @@ class CareerProfileCard extends StatelessWidget {
                   title: value1,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isAddAction1 ? Constants.darkBlue : Colors.black,
+                  color: isAddAction1
+                      ? Constants.darkBlue
+                      : colors.headingColor,
                 ),
               ),
             ],
@@ -235,7 +247,7 @@ class CareerProfileCard extends StatelessWidget {
             children: [
               customText(
                 title: label2,
-                color: Constants.subtitleclr,
+                color: colors.subTitleColor,
                 fontSize: 12,
               ),
               const SizedBox(height: 3),
@@ -251,7 +263,9 @@ class CareerProfileCard extends StatelessWidget {
                   title: value2,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isAddAction2 ? Constants.darkBlue : Colors.black,
+                  color: isAddAction2
+                      ? Constants.darkBlue
+                      : colors.headingColor,
                 ),
               ),
             ],
@@ -261,12 +275,16 @@ class CareerProfileCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRowSingle({required String label, required String value}) {
+  Widget _buildRowSingle({
+    required String label,
+    required String value,
+    required AppColors colors,
+  }) {
     bool isAddAction = value.startsWith("Add ");
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        customText(title: label, color: Constants.subtitleclr, fontSize: 12),
+        customText(title: label, color: colors.subTitleColor, fontSize: 12),
         const SizedBox(height: 4),
 
         /// clickable only if value is "Add something"
@@ -278,7 +296,7 @@ class CareerProfileCard extends StatelessWidget {
               : null,
           child: customText(
             title: value,
-            color: isAddAction ? Constants.darkBlue : Colors.black,
+            color: isAddAction ? Constants.darkBlue : colors.headingColor,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),

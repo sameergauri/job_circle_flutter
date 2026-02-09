@@ -30,12 +30,14 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colors = context.appColors;
     final loginProvider = Provider.of<LoginProvider>(context);
 
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: colors.bgColor,
           body: Column(
             children: [
               /// JC Logo
@@ -45,7 +47,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 width: MediaQuery.of(context).size.width / 1.8,
                 child: Image.asset(
-                  CustomAssetUrl.jclogoicon,
+                  isDarkMode
+                      ? CustomAssetUrl
+                            .jcLogoForDark // Image for Dark Theme
+                      : CustomAssetUrl.jclogoicon, // Image for Light Theme
                   fit: BoxFit.cover,
                 ),
               ),
@@ -53,22 +58,23 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 40),
 
               /// Title
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: customText(
                   title: "Select Your Mobile Number",
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   textAlign: TextAlign.center,
+                  color: colors.headingColor,
                 ),
               ),
               const SizedBox(height: 8),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: customText(
                   title: "We will send you a 4 digit verification code",
                   fontSize: 14,
-                  color: Colors.grey,
+                  color: colors.subTitleColor,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -90,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                       )
                     : loginProvider.phoneNumbers.isEmpty
                     ? _buildNoPhoneView(loginProvider)
-                    : _buildSimCardsView(loginProvider),
+                    : _buildSimCardsView(loginProvider, colors),
               ),
 
               /// Footer
@@ -100,26 +106,29 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const customText(
+                      customText(
                         title: "Made in",
                         fontWeight: FontWeight.bold,
+                        color: colors.headingColor,
                       ),
                       const SizedBox(width: 6),
                       Image.asset(CustomAssetUrl.indiaicon, height: 22),
                       const SizedBox(width: 6),
-                      const customText(
+                      customText(
                         title: "with",
                         fontWeight: FontWeight.bold,
+                        color: colors.headingColor,
                       ),
                       const SizedBox(width: 6),
                       Image.asset(CustomAssetUrl.hearticon, height: 22),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const customText(
+                  customText(
                     title: "@ All rights reserved - 2025-26",
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
+                    color: colors.headingColor,
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -138,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   /// ✅ SIM Cards Display - Automatic Cards
-  Widget _buildSimCardsView(LoginProvider provider) {
+  Widget _buildSimCardsView(LoginProvider provider, AppColors colors) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       itemCount: provider.phoneNumbers.length,
@@ -154,7 +163,12 @@ class _LoginPageState extends State<LoginPage> {
           onTap: () => _selectAndSendOTP(provider, phoneNumber),
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.only(
+              left: 12,
+              right: 12,
+              top: 10,
+              bottom: 10,
+            ),
             decoration: BoxDecoration(
               gradient: isSelected
                   ? LinearGradient(
@@ -185,26 +199,10 @@ class _LoginPageState extends State<LoginPage> {
             child: Row(
               children: [
                 // SIM Icon with Animation
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    gradient: isSelected
-                        ? LinearGradient(
-                            colors: [
-                              Constants.darkBlue,
-                              Constants.darkBlue.withOpacity(0.8),
-                            ],
-                          )
-                        : null,
-                    color: isSelected ? null : Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(
-                    Icons.sim_card_rounded,
-                    color: isSelected ? Colors.white : Colors.grey.shade600,
-                    size: 32,
-                  ),
+                Icon(
+                  Icons.sim_card_rounded,
+                  color: isSelected ? Colors.white : Colors.grey.shade600,
+                  size: 32,
                 ),
                 const SizedBox(width: 18),
 
@@ -216,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                       customText(
                         monst: true,
                         title: phoneNumber,
-                        fontSize: 19,
+                        fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: isSelected ? Constants.darkBlue : Colors.black87,
                         letterspacing: 0.5,

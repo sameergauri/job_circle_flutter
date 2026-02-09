@@ -199,28 +199,38 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final provider = Provider.of<LoginProvider>(context);
 
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: Colors.white,
+          /*  floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              CustomBottomSheet.showCustomBottomSheetForAppTheme(
+                context: context,
+              );
+            },
+            child: Icon(Icons.add),
+          ), */
+          backgroundColor: colors.bgColor,
           body: IntrinsicHeight(
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   Image.asset(CustomAssetUrl.otplogoicon),
-                  const customText(
+                  customText(
                     title: 'OTP Verification',
                     fontSize: 22,
                     fontWeight: FontWeight.w500,
+                    color: colors.headingColor,
                   ),
                   const SizedBox(height: 20),
-                  const customText(
+                  customText(
                     title: 'Enter the OTP sent to',
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey,
+                    color: colors.subTitleColor,
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -231,6 +241,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                         title: "+91 ${provider.mobileController.text}",
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
+                        color: colors.headingColor,
                       ),
                       const SizedBox(width: 8),
                       InkWell(
@@ -251,6 +262,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                       SizedBox(
                         width: 50,
                         child: TextField(
+                          cursorColor: colors.headingColor,
                           style: GoogleFonts.montserrat(),
                           controller: provider.otp1,
                           maxLength: 1,
@@ -273,6 +285,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                       SizedBox(
                         width: 50,
                         child: TextField(
+                          cursorColor: colors.headingColor,
                           style: GoogleFonts.montserrat(),
                           controller: provider.otp2,
                           maxLength: 1,
@@ -297,6 +310,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                       SizedBox(
                         width: 50,
                         child: TextField(
+                          cursorColor: colors.headingColor,
                           style: GoogleFonts.montserrat(),
                           controller: provider.otp3,
                           maxLength: 1,
@@ -321,6 +335,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                       SizedBox(
                         width: 50,
                         child: TextField(
+                          cursorColor: colors.headingColor,
                           style: GoogleFonts.montserrat(),
                           controller: provider.otp4,
                           focusNode: otpChar4FocusNode,
@@ -381,9 +396,9 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
                         resendOtpTimerHide
                             ? Row(
                                 children: [
-                                  const customText(
+                                  customText(
                                     title: "Don't receive the OTP?",
-                                    color: Constants.subtitleclr,
+                                    color: colors.subTitleColor,
                                   ),
                                   InkWell(
                                     onTap: () => resendOTP(provider),

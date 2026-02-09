@@ -26,7 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     CacheClearAppVersionService.checkAppVersion(context);
-   WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LoginProvider>().verifySimCardConsistency(context);
     });
   }
@@ -42,17 +42,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
       drawer: CustomDrawer(
         scaffoldKey: _scaffoldKey,
         onClose: () => _scaffoldKey.currentState?.closeDrawer(),
       ),
       key: _scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: colors.bgColor,
       body: IndexedStack(index: currentIndex, children: pages),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Constants.borderColor,
+          color: colors.appbarColor,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
@@ -68,15 +69,27 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            navItem(CustomAssetUrl.homepageicon, "JOBS", 0),
-            navItem(CustomAssetUrl.atsicon, "ATS", 1),
+            navItem(
+              CustomAssetUrl.jobicon,
+              "JOBS",
+              0,
+              colors,
+              CustomIconUrl.jobicon,
+            ),
+            navItem(CustomAssetUrl.atsicon, "ATS", 1, colors, ""),
           ],
         ),
       ),
     );
   }
 
-  Widget navItem(String img, String label, int index) {
+  Widget navItem(
+    String img,
+    String label,
+    int index,
+    AppColors colors,
+    String selecticon,
+  ) {
     bool isSelected = currentIndex == index;
     return InkWell(
       splashColor: Constants.borderColor,
@@ -93,16 +106,28 @@ class _HomeScreenState extends State<HomeScreen> {
           vertical: 8,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? Constants.darkBlue : Colors.transparent,
+          color: isSelected
+              ? colors.selectedNavTabColor
+              : colors.unSelectedNavTabColor,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Row(
           children: [
-            Image.asset(
-              img,
-              height: isSelected ? 20 : 24,
-              color: isSelected ? Constants.white : Constants.subtitleclr,
-            ),
+            currentIndex == index && selecticon != ''
+                ? Image.network(
+                    selecticon,
+                    height: 24,
+                    color: currentIndex == index
+                        ? colors.selectedNavTabTextColor
+                        : colors.unselectedNavTabIconColor,
+                  )
+                : Image.asset(
+                    img,
+                    height: isSelected ? 20 : 24,
+                    color: isSelected
+                        ? colors.selectedNavTabTextColor
+                        : colors.unselectedNavTabIconColor,
+                  ),
             /* Icon(icon,
                 color: isSelected ? Colors.white : Constants.subtitleclr), */
             if (isSelected)
@@ -111,7 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: customText(
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   title: label,
-                  color: Constants.white,
+                  color: isSelected
+                      ? colors.selectedNavTabTextColor
+                      : colors.unSelectedNavTabTextColor,
                 ),
               ),
           ],

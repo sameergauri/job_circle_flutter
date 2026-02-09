@@ -19,11 +19,12 @@ class ProjectSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(bottom: 5),
       margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -39,13 +40,15 @@ class ProjectSection extends StatelessWidget {
                   child: CustomNetworkImage(
                     imageUrl: CustomIconUrl.projecticon,
                     defaultIcon: Icons.celebration_outlined,
+                    color: colors.subTitleColor,
                   ),
                 ),
                 SizedBox(width: 5),
-                const customText(
+                customText(
                   title: "Projects",
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
+                  color: colors.headingColor,
                 ),
                 Expanded(
                   child: Row(
@@ -62,9 +65,9 @@ class ProjectSection extends StatelessWidget {
                             ),
                           );
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
-                          color: Constants.subtitleclr,
+                          color: colors.subTitleColor,
                           size: 20,
                         ),
                       ),
@@ -151,6 +154,7 @@ class ProjectSection extends StatelessWidget {
                               horizontal: 6,
                             ),
                             decoration: BoxDecoration(
+                              color: Constants.lightdull,
                               border: Border.all(color: Constants.lightdull),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -172,13 +176,14 @@ class ProjectSection extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
+                                  color: colors.headingColor,
                                 ),
                                 if (data.role != null)
                                   customText(
                                     title: data.role ?? '',
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    color: Constants.subtitleclr,
+                                    color: colors.subTitleColor,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                               ],
@@ -192,7 +197,7 @@ class ProjectSection extends StatelessWidget {
                                   ),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
+                                  color: colors.subTitleColor,
                                   overflow: TextOverflow.ellipsis,
                                 )
                               : SizedBox.shrink(),
@@ -204,7 +209,7 @@ class ProjectSection extends StatelessWidget {
                             margin: EdgeInsets.only(top: 4),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
-                              color: Constants.lightdull,
+                              color: colors.bottomsheerCard1Color,
                             ),
                             child: ExpandableTextWidget(
                               initialMaxLines: 5,

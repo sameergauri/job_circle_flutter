@@ -4,7 +4,6 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
-
 class CustomRadioOption extends StatelessWidget {
   final bool isSelected1;
   final bool isSelected2;
@@ -51,6 +50,7 @@ class CustomRadioOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final partnerSlabs = payoutDetails.slabs
         .where((slab) => slab.targetType.toUpperCase() == "PARTNER")
         .toList();
@@ -80,7 +80,7 @@ class CustomRadioOption extends StatelessWidget {
                               : Icons.radio_button_off,
                           color: isSelected1
                               ? Constants.darkBlue
-                              : Constants.subtitleclr,
+                              : colors.subTitleColor,
                         ),
                       ),
                       const WidgetSpan(child: SizedBox(width: 8)),
@@ -98,7 +98,7 @@ class CustomRadioOption extends StatelessWidget {
                             "$partnerpayment if the candidate completes $days of employment",
                         style: GoogleFonts.merriweather(
                           fontSize: 12,
-                          color: Constants.black,
+                          color: colors.headingColor,
                           fontWeight: isSelected1
                               ? FontWeight.w600
                               : FontWeight.w400,
@@ -126,7 +126,7 @@ class CustomRadioOption extends StatelessWidget {
                                   : Icons.radio_button_off,
                               color: isSelected2
                                   ? Constants.themeBgColor
-                                  : Constants.subtitleclr,
+                                  : colors.subTitleColor,
                             ),
                           ),
                           const WidgetSpan(child: SizedBox(width: 8)),
@@ -144,7 +144,7 @@ class CustomRadioOption extends StatelessWidget {
                                 "$specialpayment if the candidate completes 30 days of employment",
                             style: GoogleFonts.merriweather(
                               fontSize: 12,
-                              color: Constants.black,
+                              color: colors.headingColor,
                               fontWeight: isSelected2
                                   ? FontWeight.w600
                                   : FontWeight.w400,
@@ -157,9 +157,9 @@ class CustomRadioOption extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 10),
-              const customText(
+              customText(
                 fontStyle: FontStyle.italic,
-                color: Constants.subtitleclr,
+                color: colors.subTitleColor,
                 title:
                     "I hereby confirm that I am referring a candidate under the selected payout scheme and understand that the referral reward will be processed only upon fulfillment of the respective clause.",
               ),
@@ -182,7 +182,7 @@ class CustomRadioOption extends StatelessWidget {
                               : Icons.radio_button_off,
                           color: isSelected1
                               ? Constants.themeBgColor
-                              : Constants.subtitleclr,
+                              : colors.subTitleColor,
                         ),
                       ),
                       const WidgetSpan(child: SizedBox(width: 8)),
@@ -191,7 +191,7 @@ class CustomRadioOption extends StatelessWidget {
                             "$partnerpayment% of the candidate’s CTC if the candidate completes $days days of employment",
                         style: GoogleFonts.merriweather(
                           fontSize: 12,
-                          color: Constants.black,
+                          color: colors.headingColor,
                           fontWeight: isSelected1
                               ? FontWeight.w600
                               : FontWeight.w400,
@@ -219,7 +219,7 @@ class CustomRadioOption extends StatelessWidget {
                                   : Icons.radio_button_off,
                               color: isSelected2
                                   ? Constants.themeBgColor
-                                  : Constants.subtitleclr,
+                                  : colors.subTitleColor,
                             ),
                           ),
                           const WidgetSpan(child: SizedBox(width: 8)),
@@ -237,7 +237,7 @@ class CustomRadioOption extends StatelessWidget {
                                 "$specialpayment if the candidate completes 30 days of employment",
                             style: GoogleFonts.merriweather(
                               fontSize: 12,
-                              color: Constants.black,
+                              color: colors.headingColor,
                               fontWeight: isSelected2
                                   ? FontWeight.w600
                                   : FontWeight.w400,
@@ -250,9 +250,9 @@ class CustomRadioOption extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 10),
-              const customText(
+              customText(
                 fontStyle: FontStyle.italic,
-                color: Constants.subtitleclr,
+                color: colors.subTitleColor,
                 title:
                     "I hereby confirm that I am referring a candidate under the selected payout scheme and understand that the referral reward will be processed only upon fulfillment of the respective clause.",
               ),
@@ -284,7 +284,7 @@ class CustomRadioOption extends StatelessWidget {
                           fontWeight: isSelected1
                               ? FontWeight.w600
                               : FontWeight.w400,
-                          color: Constants.black,
+                          color: colors.headingColor,
                           fontSize: 12,
                         ),
                       ),
@@ -303,7 +303,7 @@ class CustomRadioOption extends StatelessWidget {
                           fontWeight: isSelected1
                               ? FontWeight.w600
                               : FontWeight.w400,
-                          color: Constants.black,
+                          color: colors.headingColor,
                           fontSize: 12,
                         ),
                       ),
@@ -323,11 +323,11 @@ class CustomRadioOption extends StatelessWidget {
                                 left: iconPosition.dx - 10,
                                 top: iconPosition.dy - 120,
                                 child: Material(
-                                  color: Colors.transparent,
+                                  color: colors.appbarColor,
                                   child: Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: Constants.borderColor,
+                                      color: colors.appbarColor,
                                       borderRadius: BorderRadius.circular(8),
                                       boxShadow: const [
                                         BoxShadow(
@@ -342,10 +342,11 @@ class CustomRadioOption extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        const customText(
+                                        customText(
                                           title: "Slab Details (90 days)",
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
+                                          color: colors.headingColor,
                                         ),
                                         const SizedBox(height: 8),
                                         ...partnerSlabs.map(
@@ -357,6 +358,7 @@ class CustomRadioOption extends StatelessWidget {
                                               title:
                                                   "${formatSlabLabel(slab.formattedAmount)}/- per candidate",
                                               fontSize: 10,
+                                              color: colors.headingColor,
                                             ),
                                           ),
                                         ),
@@ -387,7 +389,7 @@ class CustomRadioOption extends StatelessWidget {
                           fontWeight: isSelected1
                               ? FontWeight.w600
                               : FontWeight.w400,
-                          color: Constants.black,
+                          color: colors.headingColor,
                           fontSize: 12,
                         ),
                       ),
@@ -413,7 +415,7 @@ class CustomRadioOption extends StatelessWidget {
                                   : Icons.radio_button_off,
                               color: isSelected2
                                   ? Constants.themeBgColor
-                                  : Constants.subtitleclr,
+                                  : colors.subTitleColor,
                             ),
                           ),
                           const WidgetSpan(child: SizedBox(width: 8)),
@@ -431,7 +433,7 @@ class CustomRadioOption extends StatelessWidget {
                                 "$specialpayment if the candidate completes 30 days of employment",
                             style: GoogleFonts.merriweather(
                               fontSize: 12,
-                              color: Constants.black,
+                              color: colors.headingColor,
                               fontWeight: isSelected2
                                   ? FontWeight.w600
                                   : FontWeight.w400,

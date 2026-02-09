@@ -5,6 +5,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_add_skill.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
@@ -18,6 +19,7 @@ class ProfileAddSkill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<ProfileProvider>(context, listen: false);
       provider.fetchSkills();
@@ -29,6 +31,7 @@ class ProfileAddSkill extends StatelessWidget {
     });
 
     return Scaffold(
+     
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
         child: CustomButtonForSave(
@@ -51,15 +54,16 @@ class ProfileAddSkill extends StatelessWidget {
       appBar: AppBar(
         titleSpacing: 0.0,
         title: OnboardingTitle(title: "Skills", fontSize: 16),
-        backgroundColor: Constants.borderColor,
+        backgroundColor: colors.appbarColor,
         elevation: 0,
       ),
-      backgroundColor: Constants.white,
-      body: _customBody(),
+      backgroundColor: colors.bgColor,
+
+      body: _customBody(colors),
     );
   }
 
-  Widget _customBody() {
+  Widget _customBody(AppColors colors) {
     return Consumer<ProfileProvider>(
       builder: (context, provider, _) {
         return Padding(
@@ -91,11 +95,12 @@ class ProfileAddSkill extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        const customText(
+                        customText(
                           textAlign: TextAlign.center,
                           title:
                               "No skill found for your search.\nClick 'Add New Skill' to add it.",
                           fontSize: 14,
+                          color: colors.subTitleColor,
                         ),
                         const SizedBox(height: 10),
                         CustomAddButton(
@@ -125,8 +130,8 @@ class ProfileAddSkill extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(top: 10),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Constants.borderColor),
+                      color: colors.bottomsheetbgColor,
+                      border: Border.all(color:colors.appbarColor!),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
@@ -150,8 +155,8 @@ class ProfileAddSkill extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final isOdd = index % 2 == 0;
                         final backgroundColor = isOdd
-                            ? Constants.lightdull
-                            : Colors.white;
+                            ? colors.bottomsheerCard1Color
+                            : colors.bottomsheerCard2Color;
                         final suggestion = provider.apifetchSkills.where((
                           element,
                         ) {
@@ -166,7 +171,11 @@ class ProfileAddSkill extends StatelessWidget {
                           ),
                           child: ListTile(
                             dense: true,
-                            title: customText(title: suggestion, fontSize: 14),
+                            title: customText(
+                              title: suggestion,
+                              fontSize: 14,
+                              color: colors.headingColor,
+                            ),
                             onTap: () {
                               if (provider.tempSelectedSkills.contains(
                                 suggestion,
@@ -191,18 +200,18 @@ class ProfileAddSkill extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
-                      const customText(
+                      customText(
                         title: "Selected Skills",
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        color: colors.headingColor,
                       ),
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
                         children: provider.tempSelectedSkills.map((skill) {
-                          return CustomToggleButton(
-                            isSelect: true,
+                          return CustomSelectedSkillButton(
                             title: skill,
                             onTap: () {
                               provider.toggleSkill(skill);

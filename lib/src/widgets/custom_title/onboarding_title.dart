@@ -9,12 +9,13 @@ class OnboardingTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.only(top: 5, bottom: 5),
       child: customText(
         title: title,
         fontSize: fontSize,
-        color: Constants.black,
+        color: colors.headingColor,
         fontWeight: FontWeight.w600,
       ),
     );

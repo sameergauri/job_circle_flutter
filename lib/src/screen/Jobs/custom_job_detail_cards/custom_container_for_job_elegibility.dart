@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
 class CustomContainerForEligibility extends StatelessWidget {
@@ -17,6 +18,7 @@ class CustomContainerForEligibility extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(top: 6, bottom: 6),
       child: Column(
@@ -26,6 +28,7 @@ class CustomContainerForEligibility extends StatelessWidget {
             title: heading,
             fontSize: 14,
             fontWeight: FontWeight.w700,
+            color: colors.headingColor,
           ),
           const SizedBox(height: 4),
           isList
@@ -41,14 +44,16 @@ class CustomContainerForEligibility extends StatelessWidget {
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const customText(
+                                  customText(
                                     title: "• ",
                                     letterspacing: 1.0,
+                                    color: colors.jobdetailGreyColor,
                                   ),
                                   Expanded(
                                     child: customText(
                                       title: e,
                                       letterspacing: 0.5,
+                                      color: colors.jobdetailGreyColor,
                                     ),
                                   ),
                                 ],

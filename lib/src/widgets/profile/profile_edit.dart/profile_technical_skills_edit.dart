@@ -18,6 +18,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<ProfileProvider>(context, listen: false);
       provider.fetchSkills();
@@ -51,15 +52,15 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
       appBar: AppBar(
         titleSpacing: 0.0,
         title: OnboardingTitle(title: "Technical Skills", fontSize: 16),
-        backgroundColor: Constants.borderColor,
+        backgroundColor: colors.appbarColor,
         elevation: 0,
       ),
-      backgroundColor: Constants.white,
-      body: _customBody(),
+      backgroundColor: colors.bgColor,
+      body: _customBody(colors),
     );
   }
 
-  Widget _customBody() {
+  Widget _customBody(AppColors colors) {
     return Consumer<ProfileProvider>(
       builder: (context, provider, _) {
         return Padding(
@@ -91,17 +92,19 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        const customText(
+                        customText(
                           textAlign: TextAlign.center,
                           title:
                               "No skill found for your search.\nClick 'Add New Skill' to add it.",
                           fontSize: 14,
+                          color: colors.subTitleColor,
                         ),
                         const SizedBox(height: 10),
                         CustomAddButton(
                           title: "Add New Technical Skill",
                           onTab: () {
-                            final newSkill = provider.technicalSkillController
+                            final newSkill = provider
+                                .technicalSkillController
                                 .text
                                 .trim();
                             if (newSkill.isNotEmpty) {
@@ -126,8 +129,8 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(top: 10),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Constants.borderColor),
+                      color: colors.bottomsheetbgColor,
+                      border: Border.all(color: colors.appbarColor!),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
@@ -151,8 +154,9 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final isOdd = index % 2 == 0;
                         final backgroundColor = isOdd
-                            ? Constants.lightdull
-                            : Colors.white;
+                            ? colors.bottomsheerCard1Color
+                            : colors.bottomsheerCard2Color;
+
                         final suggestion = provider.apifetchSkills.where((
                           element,
                         ) {
@@ -168,7 +172,11 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                           ),
                           child: ListTile(
                             dense: true,
-                            title: customText(title: suggestion, fontSize: 14),
+                            title: customText(
+                              title: suggestion,
+                              fontSize: 14,
+                              color: colors.headingColor,
+                            ),
                             onTap: () {
                               if (provider.tempSelectedTechnicalSkills.contains(
                                 suggestion,
@@ -193,10 +201,11 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
-                      const customText(
+                      customText(
                         title: "Selected Technical Skills",
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        color: colors.headingColor,
                       ),
                       const SizedBox(height: 8),
                       Wrap(
@@ -205,8 +214,7 @@ class ProfileAddTechnicalSkill extends StatelessWidget {
                         children: provider.tempSelectedTechnicalSkills.map((
                           skill,
                         ) {
-                          return CustomToggleButton(
-                            isSelect: true,
+                          return CustomSelectedSkillButton(
                             title: skill,
                             onTap: () {
                               provider.toggleTechnicalSkill(skill);

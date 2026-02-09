@@ -23,7 +23,6 @@ import 'package:job_circle/src/widgets/button/custom_document_upload_button.dart
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/button/custom_radio_option_button.dart';
 import 'package:job_circle/src/widgets/container/custom_container_to_view_document.dart';
-import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_pdf_view_dialogue.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
@@ -62,6 +61,7 @@ class _AddResumeState extends State<AddResume> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Consumer<ReferResumeProvider>(
@@ -71,7 +71,7 @@ class _AddResumeState extends State<AddResume> {
           children: [
             Scaffold(
               // backgroundColor: const Color(0xfffedf6f9), //TODO: old background color
-              backgroundColor: Colors.white,
+              backgroundColor: colors.bgColor,
               bottomNavigationBar: SafeArea(
                 minimum: const EdgeInsets.all(
                   8,
@@ -176,30 +176,35 @@ class _AddResumeState extends State<AddResume> {
               extendBodyBehindAppBar: true,
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
                 titleSpacing: 0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: IconThemeData(color: colors.headingColor),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    OnboardingTitle(title: widget.role.toString()),
+                    customText(
+                      title: widget.role.toString(),
+                      color: colors.headingColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                     Row(
                       children: [
                         customText(
                           title: widget.process,
                           fontSize: 12,
-                          color: Constants.black,
+                          color: colors.headingColor,
                         ),
-                        const customText(
+                        customText(
                           title: " || ",
                           fontSize: 14,
-                          color: Constants.black,
+                          color: colors.headingColor,
                         ),
                         customText(
                           title: widget.nature_of_work,
                           fontSize: 14,
-                          color: Constants.black,
+                          color: colors.headingColor,
                         ),
                       ],
                     ),
@@ -220,19 +225,28 @@ class _AddResumeState extends State<AddResume> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             const SizedBox(height: 15),
-                            const customText(title: "Candidate First Name*"),
+                            customText(
+                              title: "Candidate First Name*",
+                              color: colors.headingColor,
+                            ),
                             CustomTextFieldforAll(
                               controller: provider.firstname,
                               hint: "Enter First Name",
                             ),
                             const SizedBox(height: 10),
-                            const customText(title: "Candidate Last Name*"),
+                            customText(
+                              title: "Candidate Last Name*",
+                              color: colors.headingColor,
+                            ),
                             CustomTextFieldforAll(
                               controller: provider.lastname,
                               hint: "Enter Last Name",
                             ),
                             const SizedBox(height: 10),
-                            const customText(title: "Contact Number*"),
+                            customText(
+                              title: "Contact Number*",
+                              color: colors.headingColor,
+                            ),
                             CustomTextFieldforAll(
                               isPrimaryNumber: true,
                               isDisabled: false,
@@ -242,7 +256,10 @@ class _AddResumeState extends State<AddResume> {
                               hint: "Enter Contact Number",
                             ),
                             const SizedBox(height: 10),
-                            const customText(title: "Alternate Number"),
+                            customText(
+                              title: "Alternate Number",
+                              color: colors.headingColor,
+                            ),
                             CustomTextFieldforAll(
                               maxLength: 10,
                               controller: provider.alternatenumber,
@@ -251,14 +268,20 @@ class _AddResumeState extends State<AddResume> {
                             ),
 
                             const SizedBox(height: 10),
-                            customText(title: "Email ID"),
+                            customText(
+                              title: "Email ID",
+                              color: colors.headingColor,
+                            ),
                             CustomTextFieldforAll(
                               isGmail: true,
                               controller: provider.email,
                               hint: "Enter Email ID",
                             ),
                             const SizedBox(height: 10),
-                            const customText(title: "Gender"),
+                            customText(
+                              title: "Gender",
+                              color: colors.headingColor,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -285,7 +308,10 @@ class _AddResumeState extends State<AddResume> {
                               ],
                             ),
                             const SizedBox(height: 10),
-                            const customText(title: "Date of Birth"),
+                            customText(
+                              title: "Date of Birth",
+                              color: colors.headingColor,
+                            ),
                             CustomTextFieldforAll(
                               sufix: provider.age,
                               prefixicon: CustomIconUrl.dojicon,
@@ -379,7 +405,10 @@ class _AddResumeState extends State<AddResume> {
                               ),
                             ), */
                             SizedBox(height: 10),
-                            const customText(title: "Level of Education*"),
+                            customText(
+                              title: "Level of Education*",
+                              color: colors.headingColor,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -406,7 +435,10 @@ class _AddResumeState extends State<AddResume> {
                               ],
                             ),
                             const SizedBox(height: 10),
-                            const customText(title: "Level of Work Status*"),
+                            customText(
+                              title: "Level of Work Status*",
+                              color: colors.headingColor,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [

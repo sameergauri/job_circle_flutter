@@ -28,18 +28,19 @@ class ProfileProjectEdit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Constants.white,
+              backgroundColor: colors.bgColor,
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
                 titleSpacing: 0.0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: IconThemeData(color: colors.headingColor),
                 title: const OnboardingTitle(title: "Projects", fontSize: 16),
                 actions: [
                   !provider.showProjectForm &&
@@ -72,8 +73,8 @@ class ProfileProjectEdit extends StatelessWidget {
                     provider.profile!.projects == null ||
                         provider.profile!.projects!.isEmpty ||
                         provider.showProjectForm
-                    ? customForm(provider, context)
-                    : CustomBody(provider),
+                    ? customForm(provider, context, colors)
+                    : CustomBody(provider, colors),
               ),
             ),
             if (provider.isUpdating) CustomLoadingIndicator(),
@@ -83,7 +84,11 @@ class ProfileProjectEdit extends StatelessWidget {
     );
   }
 
-  Widget customForm(ProfileProvider provider, BuildContext context) {
+  Widget customForm(
+    ProfileProvider provider,
+    BuildContext context,
+    AppColors colors,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: SingleChildScrollView(
@@ -92,9 +97,10 @@ class ProfileProjectEdit extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 10),
-            const customText(
+            customText(
               title: "Project Title*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               maxLength: 30,
@@ -102,21 +108,21 @@ class ProfileProjectEdit extends StatelessWidget {
               hint: "Enter project title",
             ),
             SizedBox(height: 15),
-            const customText(title: "Description*"),
+            customText(title: "Description*", color: colors.headingColor),
             CustomAutoSizeTextField(
               controller: provider.project_description,
               hintText: "Enter project description",
               maxline: 4,
               maxLength: 1200,
             ),
-            const SizedBox(height: 15),
-            const customText(title: "Role*", fontStyle: FontStyle.italic),
+            SizedBox(height: 15),
+            customText(title: "Role*", color: colors.headingColor),
             CustomTextFieldforAll(
               controller: provider.project_role,
               hint: "Enter your role in the project",
             ),
-            const SizedBox(height: 15),
-            const customText(title: "Project url", fontStyle: FontStyle.italic),
+            SizedBox(height: 15),
+            customText(title: "Project url", color: colors.headingColor),
             CustomTextFieldforAll(
               isGmail: true,
               controller: provider.project_url,
@@ -124,7 +130,7 @@ class ProfileProjectEdit extends StatelessWidget {
               maxline: 2,
             ),
             SizedBox(height: 15),
-            const customText(title: "Skills", fontStyle: FontStyle.italic),
+            customText(title: "Skills", color: colors.headingColor),
             CustomTextFieldForSkills(
               title: "Skills",
               initialSkills: provider.projectItSkills,
@@ -135,8 +141,8 @@ class ProfileProjectEdit extends StatelessWidget {
               controller: provider.proj_skillController,
               hintText: "Enter your skills",
             ),
-            const SizedBox(height: 15),
-            const customText(title: "Start Month"),
+            SizedBox(height: 15),
+            customText(title: "Start Month", color: colors.headingColor),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -165,7 +171,7 @@ class ProfileProjectEdit extends StatelessWidget {
               ],
             ),
             SizedBox(height: 15),
-            const customText(title: "Valid till"),
+            customText(title: "Valid till", color: colors.headingColor),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -188,7 +194,7 @@ class ProfileProjectEdit extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 15),
+            SizedBox(height: 15),
             if (provider.isEditProject &&
                 provider.profile!.projects!.length > 1)
               Row(
@@ -200,7 +206,10 @@ class ProfileProjectEdit extends StatelessWidget {
                       provider.clearProjectForm();
                       provider.setShowProjectForm(false);
                     },
-                    child: customText(title: "Delete Project"),
+                    child: customText(
+                      title: "Delete Project",
+                      color: colors.headingColor,
+                    ),
                   ),
                 ],
               ),
@@ -244,7 +253,7 @@ class ProfileProjectEdit extends StatelessWidget {
     );
   }
 
-  Widget CustomBody(ProfileProvider provider) {
+  Widget CustomBody(ProfileProvider provider, AppColors colors) {
     // Sort the list but keep track of original indices
     final sortedProjectsWithIndex = List.generate(
       provider.profile!.projects!.length,
@@ -280,6 +289,7 @@ class ProfileProjectEdit extends StatelessWidget {
                   height: 50,
                   width: 50,
                   decoration: BoxDecoration(
+                    color: Constants.lightdull,
                     border: Border.all(color: Constants.lightdull),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -299,6 +309,7 @@ class ProfileProjectEdit extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        color: colors.headingColor,
                       ),
                       customText(
                         monst: true,
@@ -306,6 +317,7 @@ class ProfileProjectEdit extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         overflow: TextOverflow.ellipsis,
+                        color: colors.headingColor,
                       ),
                     ],
                   ),
@@ -317,7 +329,7 @@ class ProfileProjectEdit extends StatelessWidget {
                         ),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Constants.subtitleclr,
+                        color: colors.subTitleColor,
                         overflow: TextOverflow.ellipsis,
                       )
                     : SizedBox.shrink(),

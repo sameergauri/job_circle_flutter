@@ -29,6 +29,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Stack(
       children: [
         Column(
@@ -41,16 +42,21 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 title: "Invoice date: ${invoice.invoiceSubmitDate}",
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Constants.black,
+                color: colors.headingColor,
               ),
             ),
             const SizedBox(height: 10),
 
             // Organization Name & Address (Assumed Static)
-            const customText(title: "To,", fontWeight: FontWeight.bold),
+            customText(
+              title: "To,",
+              fontWeight: FontWeight.bold,
+              color: colors.headingColor,
+            ),
             customText(
               title: invoice.orgizationName.toString(),
               fontSize: 12,
+              color: colors.headingColor,
               // fontWeight: FontWeight.bold,
             ),
             customText(
@@ -67,7 +73,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                   .where((part) => part.isNotEmpty)
                   .join(', '),
               fontSize: 12,
-              color: Constants.subtitleclr,
+              color: colors.subTitleColor,
             ),
             const SizedBox(height: 10),
             // Invoice Number
@@ -76,14 +82,15 @@ class CustomInvoiveDetailCard extends StatelessWidget {
               title: "Invoice No: ${invoice.invoiceNo}",
               fontSize: 12,
               fontWeight: FontWeight.w500,
+              color: colors.headingColor,
             ),
             const SizedBox(height: 16),
 
             // Table Header
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              color: Constants.lightdull,
-              child: const Row(
+              color: colors.bottomsheerCard1Color,
+              child: Row(
                 children: [
                   Expanded(
                     flex: 8,
@@ -94,6 +101,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                         title: "Candidate Name",
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
+                        color: colors.headingColor,
                       ),
                     ),
                   ),
@@ -103,6 +111,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       title: "PO No.",
                       fontWeight: FontWeight.bold,
+                      color: colors.headingColor,
                     ),
                   ),
                   Expanded(
@@ -111,6 +120,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       title: "DOJ",
                       fontWeight: FontWeight.bold,
+                      color: colors.headingColor,
                     ),
                   ),
                   Expanded(
@@ -119,6 +129,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       title: "Amount",
                       fontWeight: FontWeight.bold,
+                      color: colors.headingColor,
                     ),
                   ),
                 ],
@@ -140,7 +151,10 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       flex: 8,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 8),
-                        child: customText(title: candidate.name.toString()),
+                        child: customText(
+                          title: candidate.name.toString(),
+                          color: colors.subtitleTextColor,
+                        ),
                       ),
                     ),
                     Expanded(
@@ -148,6 +162,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                       child: customText(
                         textAlign: TextAlign.center,
                         title: candidate.id.toString(),
+                        color: colors.subtitleTextColor,
                       ),
                     ),
                     Expanded(
@@ -157,6 +172,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                         title: candidate.doj != null
                             ? _formatDate(candidate.doj.toString())
                             : "",
+                        color: colors.subtitleTextColor,
                       ),
                     ),
                     Expanded(
@@ -183,10 +199,11 @@ class CustomInvoiveDetailCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const customText(
+                customText(
                   monst: true,
-                  title: "Total: ₹ ",
+                  title: "Total: ",
                   fontWeight: FontWeight.bold,
+                  color: colors.headingColor,
                 ),
                 CustomIconTitleButton(
                   height: 20.0,
@@ -203,50 +220,70 @@ class CustomInvoiveDetailCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                const customText(
+                customText(
                   title: "Amount In Words : ",
                   fontWeight: FontWeight.bold,
+                  color: colors.headingColor,
                 ),
                 customText(
+                  color: colors.subtitleTextColor,
                   title: convertNumberToWords(invoice.invoiceAmount.toInt()),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            const customText(
+            customText(
               title: "Banking Detail",
               fontSize: 13,
               fontWeight: FontWeight.bold,
+              color: colors.headingColor,
             ),
             Row(
               children: [
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    customText(title: "Bank Name"),
-                    customText(title: "Account Type"),
-                    customText(title: "Holder Name(As per Bank Record)"),
-                    customText(title: "Account No"),
-                    customText(title: "IFSC Code"),
+                    customText(title: "Bank Name", color: colors.headingColor),
+                    customText(
+                      title: "Account Type",
+                      color: colors.headingColor,
+                    ),
+                    customText(
+                      title: "Holder Name(As per Bank Record)",
+                      color: colors.headingColor,
+                    ),
+                    customText(title: "Account No", color: colors.headingColor),
+                    customText(title: "IFSC Code", color: colors.headingColor),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    customText(title: " : ${invoice.bankName}"),
-                    customText(title: " : ${invoice.accountType}"),
-                    customText(title: " : ${invoice.accountHolderName}"),
+                    customText(
+                      title: " : ${invoice.bankName}",
+                      color: colors.subtitleTextColor,
+                    ),
+                    customText(
+                      title: " : ${invoice.accountType}",
+                      color: colors.subtitleTextColor,
+                    ),
+                    customText(
+                      title: " : ${invoice.accountHolderName}",
+                      color: colors.subtitleTextColor,
+                    ),
                     customText(
                       monst: true,
                       title: " : ${invoice.accountNumber}",
                       fontWeight: FontWeight.w500,
                       letterspacing: 0.6,
+                      color: colors.subtitleTextColor,
                     ),
                     customText(
                       monst: true,
                       title: " : ${invoice.ifscCode}",
                       fontWeight: FontWeight.w500,
                       letterspacing: 0.6,
+                      color: colors.subtitleTextColor,
                     ),
                   ],
                 ),
@@ -273,11 +310,15 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     const SizedBox(height: 10),
 
                     // Organization Name & Address (Assumed Static)
-                    const customText(
+                    customText(
                       title: "From,",
                       fontWeight: FontWeight.bold,
+                      color: colors.headingColor,
                     ),
-                    customText(title: invoice.accountHolderName.toString()),
+                    customText(
+                      title: invoice.accountHolderName.toString(),
+                      color: colors.subtitleTextColor,
+                    ),
                   ],
                 ),
               ],
@@ -291,7 +332,11 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const customText(title: "Payment Receipt", fontSize: 14),
+                    customText(
+                      title: "Payment Receipt",
+                      fontSize: 14,
+                      color: colors.headingColor,
+                    ),
                     CustomContainerSelectToViewDoc(
                       heading: '',
                       candidateName: '',
@@ -323,7 +368,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     titleColor: Constants.red,
                     fontsize: 11,
                     subtitle: invoice.invoiceRemark.toString(),
-                    valueColor: Constants.black,
+                    valueColor: colors.subTitleColor!,
                     title: "Reason of rejection",
                   ),
                 ],
@@ -337,13 +382,13 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     titleColor: Constants.red,
                     fontsize: 11,
                     subtitle: invoice.invoiceRemark.toString(),
-                    valueColor: Constants.black,
+                    valueColor: colors.subTitleColor!,
                     title: "Incorrect",
                   ),
                 ],
               ),
             if (invoice.paymentStatus == "invoicesent")
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 8),
@@ -351,7 +396,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     fontsize: 11,
                     subtitle:
                         "Pending by Processing, Team will be process shortly.",
-                    valueColor: Constants.black,
+                    valueColor: colors.subTitleColor!,
                     title: "Invoice Sent",
                   ),
                 ],

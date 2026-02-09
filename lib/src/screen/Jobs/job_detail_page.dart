@@ -20,6 +20,7 @@ import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/view_containe
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
+import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -55,24 +56,27 @@ class _JobDetailPageState extends State<JobDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<JobDetailProvider>(
       builder: (context, provider, child) {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Colors.white,
+             
+              backgroundColor: colors.bgColor,
               appBar: AppBar(
                 titleSpacing: 0,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
-                iconTheme: const IconThemeData(color: Colors.black),
-                title: const customText(
+                iconTheme: IconThemeData(color: colors.headingColor),
+                title: customText(
                   title: "Job Detail",
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
+                  color: colors.headingColor,
                 ),
               ),
-              body: _buildBody(provider),
+              body: _buildBody(provider, colors),
             ),
           ],
         );
@@ -80,7 +84,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
   }
 
-  Widget _buildBody(JobDetailProvider provider) {
+  Widget _buildBody(JobDetailProvider provider, AppColors colors) {
     if (provider.isLoading) {
       return const Center(
         child: CircularProgressIndicator(color: Constants.darkBlue),
@@ -133,7 +137,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   stringList: job.jobBenefits!,
                   title: "Job Benefits",
                 ),
-                if (job.certifications != null && job.certifications!.isNotEmpty)
+                if (job.certifications != null &&
+                    job.certifications!.isNotEmpty)
                   ViewContainerForCerAndBenefits(
                     stringList: job.certifications!,
                     title: "Certificate",
@@ -168,7 +173,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                 ViewConatinerForSkills(
                   skills: job.skills!,
                   title: "Skills",
-                  valueColor: Constants.subtitleclr,
+                  valueColor: colors.jobdetailGreyColor!,
                 ),
                 if (FromWhere.homePage == widget.fromWhere)
                   CustomButtonForJobPosting(

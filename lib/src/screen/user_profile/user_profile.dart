@@ -7,6 +7,7 @@ import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
+import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/profile/career_preference_view_card.dart';
 import 'package:job_circle/src/widgets/profile/custom_app_bar.dart';
 import 'package:job_circle/src/widgets/profile/custom_award_achivmnt.dart';
@@ -45,10 +46,12 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer2<ProfileProvider, CareerPreferenceProvider>(
       builder: (context, provider, careerPreferenceProvider, child) {
         if (provider.isFetching && provider.profile == null) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: colors.bgColor,
             body: Center(
               child: CircularProgressIndicator(color: Constants.darkBlue),
             ),
@@ -59,7 +62,8 @@ class _UserProfileState extends State<UserProfile> {
         final hasError = provider.profile == null;
 
         if (hasError) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: colors.bgColor,
             body: Center(
               child: CircularProgressIndicator(color: Constants.themeBgColor),
             ),
@@ -69,8 +73,8 @@ class _UserProfileState extends State<UserProfile> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Colors.white,
-              floatingActionButton:
+              backgroundColor: colors.bgColor,
+               floatingActionButton:
                   profileData.resume != null &&
                       profileData.resume != " " &&
                       profileData.resume != 'null'
@@ -106,7 +110,7 @@ class _UserProfileState extends State<UserProfile> {
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: Divider(
-                            color: Constants.lightdull,
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -121,8 +125,8 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.bio != "")
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: const Divider(
-                            color: Constants.lightdull,
+                          child: Divider(
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -133,8 +137,8 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.educationDetails!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 10),
-                          child: const Divider(
-                            color: Constants.lightdull,
+                          child: Divider(
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -149,8 +153,8 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.certifications!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: const Divider(
-                            color: Constants.lightdull,
+                          child: Divider(
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -165,8 +169,8 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.projects!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: const Divider(
-                            color: Constants.lightdull,
+                          child: Divider(
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -181,8 +185,8 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.awardsAndAchievements!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: const Divider(
-                            color: Constants.lightdull,
+                          child: Divider(
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -197,8 +201,8 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.allSkills!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: const Divider(
-                            color: Constants.lightdull,
+                          child: Divider(
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -214,8 +218,8 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.technicalSkills!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: const Divider(
-                            color: Constants.lightdull,
+                          child: Divider(
+                            color: colors.bottomsheerCard1Color,
                             thickness: 6,
                           ),
                         ),
@@ -225,11 +229,17 @@ class _UserProfileState extends State<UserProfile> {
                           profileData.technicalSkills!.isNotEmpty)
                         CustomTechnicalSkill(provider: provider),
                       //
-                      const Divider(color: Constants.lightdull, thickness: 6),
+                      Divider(
+                        color: colors.bottomsheerCard1Color,
+                        thickness: 6,
+                      ),
                       CustomLanguageKnownContainer(profileProvider: provider),
                       const SizedBox(height: 10),
                       if (careerPreferenceProvider.hasExistingData)
-                        const Divider(color: Constants.lightdull, thickness: 6),
+                        Divider(
+                          color: colors.bottomsheerCard1Color,
+                          thickness: 6,
+                        ),
                       if (careerPreferenceProvider.hasExistingData)
                         CareerProfileCard(
                           // career preference card
@@ -241,7 +251,7 @@ class _UserProfileState extends State<UserProfile> {
                           SizedBox(
                             width: MediaQuery.of(context).size.width / 3,
                             child: Divider(
-                              color: Constants.borderColor,
+                              color: colors.appbarColor,
                               thickness: 6,
                             ),
                           ),

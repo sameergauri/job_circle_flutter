@@ -25,18 +25,19 @@ class ProfileAwardEdit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Constants.white,
+              backgroundColor: colors.bgColor,
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
                 titleSpacing: 0.0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: IconThemeData(color: colors.headingColor),
                 title: const OnboardingTitle(
                   title: "Awards & Achievements",
                   fontSize: 16,
@@ -80,8 +81,8 @@ class ProfileAwardEdit extends StatelessWidget {
                     provider.profile!.awardsAndAchievements == null ||
                         provider.profile!.awardsAndAchievements!.isEmpty ||
                         provider.showAwardForm
-                    ? customForm(provider, context)
-                    : CustomBody(provider),
+                    ? customForm(provider, context, colors)
+                    : CustomBody(provider, colors),
               ),
             ),
             if (provider.isUpdating) CustomLoadingIndicator(),
@@ -91,7 +92,11 @@ class ProfileAwardEdit extends StatelessWidget {
     );
   }
 
-  Widget customForm(ProfileProvider provider, BuildContext context) {
+  Widget customForm(
+    ProfileProvider provider,
+    BuildContext context,
+    AppColors colors,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: SingleChildScrollView(
@@ -100,14 +105,18 @@ class ProfileAwardEdit extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 10),
-            const customText(title: "Title*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Title*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldforAll(
               maxLength: 30,
               controller: provider.awardTitleController,
               hint: "Enter award title",
             ),
             SizedBox(height: 15),
-            const customText(title: "Description*"),
+            customText(title: "Description*", color: colors.headingColor),
             CustomAutoSizeTextField(
               controller: provider.awardDescriptionController,
               hintText: "Enter award description",
@@ -127,7 +136,10 @@ class ProfileAwardEdit extends StatelessWidget {
                       provider.clearAwardForm();
                       provider.setShowAwardForm(false);
                     },
-                    child: customText(title: "Delete Award"),
+                    child: customText(
+                      title: "Delete Award",
+                      color: colors.headingColor,
+                    ),
                   ),
                 ],
               ),
@@ -156,7 +168,7 @@ class ProfileAwardEdit extends StatelessWidget {
     );
   }
 
-  Widget CustomBody(ProfileProvider provider) {
+  Widget CustomBody(ProfileProvider provider, AppColors colors) {
     // Sort the list but keep track of original indices
     final sortedAwardsWithIndex = List.generate(
       provider.profile!.awardsAndAchievements!.length,
@@ -216,7 +228,7 @@ class ProfileAwardEdit extends StatelessWidget {
                             style: GoogleFonts.merriweather(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                              color: colors.headingColor,
                             ),
                           ),
 
@@ -231,7 +243,7 @@ class ProfileAwardEdit extends StatelessWidget {
                                     style: GoogleFonts.merriweather(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
-                                      color: Colors.black,
+                                      color: colors.headingColor,
                                     ),
                                   ),
                                   // Part 2: Description (Normal & 12)
@@ -240,7 +252,7 @@ class ProfileAwardEdit extends StatelessWidget {
                                     style: GoogleFonts.merriweather(
                                       fontSize: 12,
                                       fontWeight: FontWeight.normal,
-                                      color: Constants.subtitleclr,
+                                      color: colors.subTitleColor,
                                     ),
                                   ),
                                 ],

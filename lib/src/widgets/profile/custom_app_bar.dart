@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/screen/settings/settings_home_page.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 
 import '../../model/user_profile/user_model.dart';
 
@@ -21,37 +22,41 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return AppBar(
       leadingWidth: 25,
       titleSpacing: 0,
-      iconTheme: const IconThemeData(color: Colors.black),
-      backgroundColor: Colors.white,
+      iconTheme: IconThemeData(color: colors.subtitleTextColor),
+      backgroundColor: colors.appbarColor,
       elevation: 0,
       title: Padding(
         padding: const EdgeInsets.only(right: 0, left: 16),
         child: SizedBox(
           height: MediaQuery.of(context).size.height / 24,
           child: TextField(
-            style: GoogleFonts.merriweather(color: Colors.black),
-            cursorColor: Colors.black,
+            style: GoogleFonts.montserrat(
+              color: colors.textfieldTextColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+            cursorColor: colors.headingColor,
             decoration: InputDecoration(
-              fillColor: Colors.white,
-              disabledBorder: OutlineInputBorder(
+              fillColor: Colors.transparent,
+              border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.grey),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade400),
+                borderSide: const BorderSide(color: Colors.grey),
               ),
-              border: OutlineInputBorder(
+              disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade400),
+                borderSide: const BorderSide(color: Colors.grey),
               ),
-              focusColor: Colors.grey.shade400,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade400),
+                borderSide: const BorderSide(color: Colors.grey),
               ),
               filled: true,
               contentPadding: const EdgeInsets.only(left: 5, top: 10),
@@ -69,12 +74,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           padding: EdgeInsets.zero,
           onPressed: () {
-            CustomSnackbar.show(
-              "The functionality is not implemented yet",
-              true,
-            );
+            NavigationService.push(SettingHomePage());
           },
-          icon: const Icon(Icons.settings, color: Colors.black),
+          icon: Icon(Icons.settings, color: colors.subtitleTextColor),
         ),
       ],
       /* actions: [  // TODO:: Resume Builder Integration

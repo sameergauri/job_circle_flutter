@@ -28,28 +28,29 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-     context.read<AppliedPageProvider>().fetchAppliedJobs();
+      context.read<AppliedPageProvider>().fetchAppliedJobs();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
-      backgroundColor: Constants.white,
+      backgroundColor: colors.bgColor,
       body: Consumer<AppliedPageProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
             return Scaffold(
-              backgroundColor: Colors.white,
-              body: const Center(
-                child: CircularProgressIndicator(color: Constants.darkBlue),
+              backgroundColor: colors.bgColor,
+              body: Center(
+                child: CircularProgressIndicator(color: colors.atsTabTextColor),
               ),
             );
           }
 
           if (provider.error != null) {
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: colors.bgColor,
               body: Center(child: Text('Error: ${provider.error}')),
             );
           }
@@ -57,7 +58,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
           final atsData = provider.atsData;
           if (atsData == null || atsData.applicationData.isEmpty) {
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: colors.bgColor,
               body: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
@@ -119,7 +120,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
           });
 
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: colors.bgColor,
             body: DefaultTabController(
               length: tabs.length,
               child: Column(
@@ -128,8 +129,8 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
                     dividerHeight: 1.0,
                     indicator: UnderlineTabIndicator(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(
-                        color: Constants.orange,
+                      borderSide: BorderSide(
+                        color: colors.orangeLine!,
                         width: 3.0,
                       ),
                     ),
@@ -138,23 +139,28 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
                     overlayColor: WidgetStateProperty.all(Colors.transparent),
                     tabAlignment: TabAlignment.start,
                     isScrollable: true,
-                    labelColor: Constants.black,
+                    labelColor: colors.atsTabTextColor,
                     unselectedLabelColor: Constants.subtitleclr,
-                    indicatorColor: Constants.orange,
+                    indicatorColor: colors.orangeLine,
                     labelStyle: GoogleFonts.merriweather(
-                      color: Constants.black,
+                      color: colors.subtabTitleColor,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                     unselectedLabelStyle: GoogleFonts.merriweather(
-                      color: Constants.subtitleclr,
+                      color: colors.subtitleTextColor,
                       fontSize: 12,
                       fontWeight: FontWeight.normal,
                     ),
                     tabs: tabs
                         .map(
-                          (tab) =>
-                              Tab(child: customText(title: tab, fontSize: 12)),
+                          (tab) => Tab(
+                            child: customText(
+                              title: tab,
+                              fontSize: 12,
+                              color: colors.subtabTitleColor,
+                            ),
+                          ),
                         )
                         .toList(),
                   ),
@@ -176,7 +182,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
                               final app = applications[index];
                               return Column(
                                 children: [
-                                  listViewItemNew(context, app, tab),
+                                  listViewItemNew(context, app, tab, colors),
                                   const Padding(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 10,
@@ -204,6 +210,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
     BuildContext context,
     AppliedApplicant item,
     String tab,
+    AppColors colors,
   ) {
     return InkWell(
       onTap: () async {
@@ -242,6 +249,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
                       padding: const EdgeInsets.only(bottom: 2),
                       child: customText(
                         title: item.level.toString(),
+                        color: colors.headingColor,
                         fontSize: 14,
                         overflow: TextOverflow.ellipsis,
                         fontWeight: FontWeight.w700,
@@ -253,6 +261,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
                           "${item.process} || ${item.jobLocation?.join(', ') ?? ''}",
                       overflow: TextOverflow.ellipsis,
                       fontSize: 12,
+                      color: colors.subtitleTextColor,
                     ),
                   ],
                 ),
@@ -263,7 +272,7 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
               children: [
                 Container(
                   decoration: BoxDecoration(
-                    color: Constants.lightdull,
+                    color: colors.atsCardColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   margin: const EdgeInsets.only(top: 4),
@@ -310,11 +319,11 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
                           FlutterPhoneDirectCaller.callNumber(
                             "91${item.sourcecontactNo}",
                           );
-                        })
+                        }, colors)
                       : tab.contains("Not Shortlisted")
                       ? customButton(item, "More Jobs", () async {
                           NavigationService.pushAndRemoveUntil(HomeScreen());
-                        })
+                        }, colors)
                       : null,
                 ),
               ],
@@ -329,13 +338,14 @@ class _AtsAppliedPageState extends State<AtsAppliedPage> {
     AppliedApplicant item,
     String title,
     VoidCallback onTap,
+    AppColors colors,
   ) {
     return InkWell(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(top: 5, left: 5, right: 5, bottom: 5),
         decoration: BoxDecoration(
-          color: Constants.white,
+          color: colors.bgColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Constants.darkBlue),
         ),

@@ -34,18 +34,19 @@ class ProfileCertificateEdit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Constants.white,
+              backgroundColor: colors.bgColor,
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
                 titleSpacing: 0.0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: IconThemeData(color: colors.headingColor),
                 title: const OnboardingTitle(
                   title: "Certificate",
                   fontSize: 16,
@@ -80,8 +81,8 @@ class ProfileCertificateEdit extends StatelessWidget {
                 child:
                     provider.profile!.certifications!.isEmpty ||
                         provider.showCertificateForm
-                    ? customForm(provider, context)
-                    : CustomBody(provider),
+                    ? customForm(provider, context, colors)
+                    : CustomBody(provider, colors),
               ),
             ),
             if (provider.isUpdating) CustomLoadingIndicator(),
@@ -91,7 +92,11 @@ class ProfileCertificateEdit extends StatelessWidget {
     );
   }
 
-  Widget customForm(ProfileProvider provider, BuildContext context) {
+  Widget customForm(
+    ProfileProvider provider,
+    BuildContext context,
+    AppColors colors,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SingleChildScrollView(
@@ -100,9 +105,10 @@ class ProfileCertificateEdit extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            const customText(
+            customText(
               title: "Certification Name*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldForMasterData(
               focusNode: provider.certificateNameFocusNode,
@@ -113,9 +119,10 @@ class ProfileCertificateEdit extends StatelessWidget {
               title: "Certificate Name",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Issuing Organization*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldForMasterData(
               focusNode: provider.organizationNameFocusNode,
@@ -126,25 +133,27 @@ class ProfileCertificateEdit extends StatelessWidget {
               title: "Organization Name",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Credential ID",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               controller: provider.credentialId,
               hint: "Enter credential ID (optional)",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Credential URL",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               controller: provider.credentialUrl,
               hint: "Enter credential URL (optional)",
             ),
             const SizedBox(height: 15),
-            const customText(title: "Issue Date*"),
+            customText(title: "Issue Date*", color: colors.headingColor),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -178,7 +187,7 @@ class ProfileCertificateEdit extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 10),
-                  const customText(title: "Valid till"),
+                  customText(title: "Valid till", color: colors.headingColor),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -272,7 +281,10 @@ class ProfileCertificateEdit extends StatelessWidget {
                       provider.clearCertificateForm();
                       provider.setShowCertificateForm(false);
                     },
-                    child: customText(title: "Delete Certificate"),
+                    child: customText(
+                      title: "Delete Certificate",
+                      color: colors.headingColor,
+                    ),
                   ),
                 ],
               ),
@@ -307,7 +319,7 @@ class ProfileCertificateEdit extends StatelessWidget {
     );
   }
 
-  Widget CustomBody(ProfileProvider provider) {
+  Widget CustomBody(ProfileProvider provider, AppColors colors) {
     // Sort the list but keep track of original indices
     final sortedCertificatesWithIndex = List.generate(
       provider.profile!.certifications!.length,
@@ -352,6 +364,7 @@ class ProfileCertificateEdit extends StatelessWidget {
                   height: 50,
                   width: 50,
                   decoration: BoxDecoration(
+                    color: Constants.lightdull,
                     border: Border.all(color: Constants.lightdull),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -376,6 +389,7 @@ class ProfileCertificateEdit extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
+                        color: colors.headingColor,
                       ),
                       customText(
                         monst: true,
@@ -383,6 +397,7 @@ class ProfileCertificateEdit extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         overflow: TextOverflow.ellipsis,
+                        color: colors.headingColor,
                       ),
                     ],
                   ),
@@ -394,7 +409,7 @@ class ProfileCertificateEdit extends StatelessWidget {
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
                   overflow: TextOverflow.ellipsis,
-                  color: Constants.subtitleclr,
+                  color: colors.subTitleColor,
                 ),
                 trailing: CustomIconButton(
                   imageUrl: CustomIconUrl.editicon,

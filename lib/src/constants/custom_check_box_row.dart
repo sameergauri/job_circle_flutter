@@ -16,6 +16,7 @@ class CustomCheckboxRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,8 +32,8 @@ class CustomCheckboxRow extends StatelessWidget {
           child: Theme(
             data: ThemeData(unselectedWidgetColor: Colors.white),
             child: Checkbox(
-              side: const BorderSide(color: Colors.white),
-              activeColor: Colors.white,
+              side: BorderSide(color: colors.bgColor!),
+              activeColor: colors.bgColor,
               checkColor: Colors.blue, // Change color based on your constants
               visualDensity: VisualDensity.compact,
               value: value,
@@ -44,7 +45,7 @@ class CustomCheckboxRow extends StatelessWidget {
           child: customText(
             title: title,
             fontSize: 12,
-            color: value ? Constants.black : Constants.subtitleclr,
+            color: value ? colors.subtitleTextColor : colors.subTitleColor,
           ),
         ),
       ],

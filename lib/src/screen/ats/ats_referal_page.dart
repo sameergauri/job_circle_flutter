@@ -30,21 +30,22 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
       body: Consumer<ReferalPageProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
             return Scaffold(
-              backgroundColor: Colors.white,
-              body: const Center(
-                child: CircularProgressIndicator(color: Constants.darkBlue),
+              backgroundColor: colors.bgColor,
+              body: Center(
+                child: CircularProgressIndicator(color: colors.atsTabTextColor),
               ),
             );
           }
 
           if (provider.error != null) {
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: colors.bgColor,
               body: Center(child: Text('Error: ${provider.error}')),
             );
           }
@@ -52,7 +53,7 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
           final atsData = provider.atsData;
           if (atsData == null || atsData.applicationData.isEmpty) {
             return Scaffold(
-              backgroundColor: Colors.white,
+              backgroundColor: colors.bgColor,
               body: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
@@ -114,7 +115,7 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
           });
 
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: colors.bgColor,
             body: DefaultTabController(
               length: tabs.length,
               child: Column(
@@ -123,8 +124,8 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
                     dividerHeight: 1.0,
                     indicator: UnderlineTabIndicator(
                       borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(
-                        color: Constants.orange,
+                      borderSide: BorderSide(
+                        color: colors.orangeLine!,
                         width: 3.0,
                       ),
                     ),
@@ -133,23 +134,28 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
                     overlayColor: WidgetStateProperty.all(Colors.transparent),
                     tabAlignment: TabAlignment.start,
                     isScrollable: true,
-                    labelColor: Constants.black,
-                    unselectedLabelColor: Constants.subtitleclr,
-                    indicatorColor: Constants.orange,
+                    labelColor: colors.atsTabTextColor!,
+                    unselectedLabelColor: colors.subtitleTextColor!,
+                    indicatorColor: colors.orangeLine!,
                     labelStyle: GoogleFonts.merriweather(
-                      color: Constants.black,
+                      color: colors.subtabTitleColor!,
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                     unselectedLabelStyle: GoogleFonts.merriweather(
-                      color: Constants.subtitleclr,
+                      color: colors.subtitleTextColor!,
                       fontSize: 12,
                       fontWeight: FontWeight.normal,
                     ),
                     tabs: tabs
                         .map(
-                          (tab) =>
-                              Tab(child: customText(title: tab, fontSize: 12)),
+                          (tab) => Tab(
+                            child: customText(
+                              title: tab,
+                              fontSize: 12,
+                              color: colors.subtabTitleColor,
+                            ),
+                          ),
                         )
                         .toList(),
                   ),
@@ -171,7 +177,7 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
                               final app = applications[index];
                               return Column(
                                 children: [
-                                  listViewItemNew(context, app, tab),
+                                  listViewItemNew(context, app, tab, colors),
                                   if (index != applications.length - 1)
                                     const Padding(
                                       padding: EdgeInsets.symmetric(
@@ -196,7 +202,12 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
     );
   }
 
-  Widget listViewItemNew(BuildContext context, Application item, String tab) {
+  Widget listViewItemNew(
+    BuildContext context,
+    Application item,
+    String tab,
+    AppColors colors,
+  ) {
     return InkWell(
       onTap: () async {
         NavigationService.push(
@@ -239,6 +250,7 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
                         fontSize: 14,
                         overflow: TextOverflow.ellipsis,
                         fontWeight: FontWeight.w700,
+                        color: colors.headingColor,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -247,6 +259,7 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
                           "${item.process.toString()} || ${item.level.toString()}",
                       overflow: TextOverflow.ellipsis,
                       fontSize: 12,
+                      color: colors.subtitleTextColor,
                     ),
                   ],
                 ),
@@ -254,7 +267,7 @@ class _ATSReferalPageState extends State<ATSReferalPage> {
             ),
             Container(
               decoration: BoxDecoration(
-                color: Constants.lightdull,
+                color: colors.atsCardColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               margin: const EdgeInsets.only(top: 4),

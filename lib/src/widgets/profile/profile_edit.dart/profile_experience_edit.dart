@@ -40,18 +40,19 @@ class ProfileExperienceEdit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Constants.white,
+              backgroundColor: colors.bgColor,
               appBar: AppBar(
                 automaticallyImplyLeading: true,
-                backgroundColor: Constants.borderColor,
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
                 titleSpacing: 0.0,
-                iconTheme: const IconThemeData(color: Colors.black),
+                iconTheme: IconThemeData(color: colors.headingColor),
                 title: const OnboardingTitle(title: "Experience", fontSize: 16),
                 actions: [
                   !provider.showExperienceForm &&
@@ -83,8 +84,8 @@ class ProfileExperienceEdit extends StatelessWidget {
                 child:
                     provider.profile!.experiences!.isEmpty ||
                         provider.showExperienceForm
-                    ? customForm(provider, context)
-                    : CustomBody(provider),
+                    ? customForm(provider, context, colors)
+                    : CustomBody(provider, colors),
               ),
             ),
             if (provider.isUpdating) CustomLoadingIndicator(),
@@ -94,7 +95,7 @@ class ProfileExperienceEdit extends StatelessWidget {
     );
   }
 
-  Widget CustomBody(ProfileProvider provider) {
+  Widget CustomBody(ProfileProvider provider, AppColors colors) {
     // Sort the list but keep track of original indices
     final sortedExperiencesWithIndex = List.generate(
       provider.profile!.experiences!.length,
@@ -160,6 +161,7 @@ class ProfileExperienceEdit extends StatelessWidget {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
+                color: Constants.lightdull,
                 border: Border.all(color: Constants.lightdull),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -179,6 +181,7 @@ class ProfileExperienceEdit extends StatelessWidget {
               title: exp.jobTitle!,
               fontWeight: FontWeight.bold,
               fontSize: 14,
+              color: colors.headingColor,
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,14 +191,14 @@ class ProfileExperienceEdit extends StatelessWidget {
                     customText(
                       title: exp.companyName!,
                       fontWeight: FontWeight.w500,
-                      color: Constants.subtitleclr,
+                      color: colors.subTitleColor,
                       overflow: TextOverflow.ellipsis,
                     ),
                     if (exp.empType != null && exp.empType != '')
                       customText(
                         title: ' • ${exp.empType!}',
                         fontWeight: FontWeight.w500,
-                        color: Constants.subtitleclr,
+                        color: colors.subTitleColor,
                       ),
                   ],
                 ),
@@ -218,7 +221,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                         "",
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Constants.subtitleclr,
+                    color: colors.subTitleColor,
                     overflow: TextOverflow.ellipsis,
                   ),
                 Row(
@@ -227,13 +230,13 @@ class ProfileExperienceEdit extends StatelessWidget {
                       customText(
                         title: exp.jobLocation!,
                         fontWeight: FontWeight.w500,
-                        color: Constants.subtitleclr,
+                        color: colors.subTitleColor,
                       ),
                     if (exp.workType != null && exp.workType != '')
                       customText(
                         title: ' • ${exp.workType!}',
                         fontWeight: FontWeight.w500,
-                        color: Constants.subtitleclr,
+                        color: colors.subTitleColor,
                       ),
                   ],
                 ),
@@ -251,7 +254,11 @@ class ProfileExperienceEdit extends StatelessWidget {
     );
   }
 
-  Widget customForm(ProfileProvider provider, BuildContext context) {
+  Widget customForm(
+    ProfileProvider provider,
+    BuildContext context,
+    AppColors colors,
+  ) {
     var width = MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -261,7 +268,11 @@ class ProfileExperienceEdit extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 10),
-            const customText(title: "Job Title*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Job Title*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldForMasterData(
               focusNode: provider.jobRoleFocusNode,
               contextIn: context,
@@ -271,9 +282,10 @@ class ProfileExperienceEdit extends StatelessWidget {
               title: "Job Title",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Company Name*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomSuggestionTextField(
               focusNode: provider.companyNameFocusNode,
@@ -290,7 +302,11 @@ class ProfileExperienceEdit extends StatelessWidget {
               hintText: "Company Name",
             ),
             const SizedBox(height: 15),
-            const customText(title: "Industry*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Industry*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldForMasterData(
               focusNode: provider.industryFocusNode,
               contextIn: context,
@@ -300,9 +316,10 @@ class ProfileExperienceEdit extends StatelessWidget {
               title: "Industry",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Functional Area*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldForMasterData(
               focusNode: provider.functionalAreaFocusNode,
@@ -313,9 +330,10 @@ class ProfileExperienceEdit extends StatelessWidget {
               title: "Functional Area",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Employment Type*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -368,7 +386,11 @@ class ProfileExperienceEdit extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 15),
-            const customText(title: "Work Mode*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Work Mode*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             Wrap(
               children: [
                 CustomPopUpForLocation(
@@ -431,7 +453,10 @@ class ProfileExperienceEdit extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 15),
-                    const customText(title: "Job Location"),
+                    customText(
+                      title: "Job Location",
+                      color: colors.headingColor,
+                    ),
                     CustomToggleButton(
                       isSelect: true,
                       title: provider.onSiteLocation != null
@@ -454,9 +479,10 @@ class ProfileExperienceEdit extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const customText(
+                    customText(
                       title: "Start Date*",
                       fontStyle: FontStyle.italic,
+                      color: colors.headingColor,
                     ),
                     SizedBox(
                       width: width / 2.6,
@@ -516,9 +542,10 @@ class ProfileExperienceEdit extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const customText(
+                      customText(
                         title: "Last Date*",
                         fontStyle: FontStyle.italic,
+                        color: colors.headingColor,
                       ),
                       SizedBox(
                         width: width / 2.6,
@@ -608,7 +635,10 @@ class ProfileExperienceEdit extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const customText(title: "Job Responsibiity"),
+                  customText(
+                    title: "Job Responsibiity",
+                    color: colors.headingColor,
+                  ),
                   ValueListenableBuilder<TextEditingValue>(
                     valueListenable: provider.jobrole,
                     builder: (context, value, child) {
@@ -656,7 +686,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                               ),
                               child: customText(
                                 title: "Clear All",
-                                color: Constants.red,
+                                color: colors.orangeLine,
                               ),
                             ),
                           );
@@ -695,7 +725,11 @@ class ProfileExperienceEdit extends StatelessWidget {
               ],
             ),
             SizedBox(height: 15),
-            const customText(title: "Skills*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Skills*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldForSkills(
               title: "Skills",
               initialSkills: provider.skills,
@@ -707,9 +741,10 @@ class ProfileExperienceEdit extends StatelessWidget {
               hintText: "Enter your skills",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Anual Salary",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               isGmail: true,
@@ -720,9 +755,10 @@ class ProfileExperienceEdit extends StatelessWidget {
             ),
 
             SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Profile Headline",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomAutoSizeTextField(
               maxLength: 120,
@@ -735,9 +771,10 @@ class ProfileExperienceEdit extends StatelessWidget {
             //
             //
             //
-            const customText(
+            customText(
               title: "Career Assets",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             //
             //
@@ -923,7 +960,11 @@ class ProfileExperienceEdit extends StatelessWidget {
                       ),
                     ),
                     builder: (context) {
-                      return _buildBottomSheetContent(context, provider);
+                      return _buildBottomSheetContent(
+                        context,
+                        provider,
+                        colors,
+                      );
                     },
                   );
                 },
@@ -944,7 +985,10 @@ class ProfileExperienceEdit extends StatelessWidget {
                       provider.clearExperienceForm();
                       provider.setShowExperienceForm(false);
                     },
-                    child: customText(title: "Delete Experience"),
+                    child: customText(
+                      title: "Delete Experience",
+                      color: colors.headingColor,
+                    ),
                   ),
                 ],
               ),
@@ -997,6 +1041,7 @@ class ProfileExperienceEdit extends StatelessWidget {
   Widget _buildBottomSheetContent(
     BuildContext context,
     ProfileProvider provider,
+    AppColors colors,
   ) {
     final List<String> options = [
       "Offer Letter",
@@ -1006,7 +1051,8 @@ class ProfileExperienceEdit extends StatelessWidget {
       "Experience / Relieving Letter",
     ];
 
-    return Padding(
+    return Container(
+      color: colors.appbarColor,
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1095,13 +1141,17 @@ class ProfileExperienceEdit extends StatelessWidget {
                             ),
                           ],
                           color: index % 2 == 0
-                              ? Constants.lightdull
-                              : Constants.white,
+                              ? colors.bottomsheerCard1Color
+                              : colors.bottomsheerCard2Color,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: ListTile(
                           trailing: const Icon(Icons.add),
-                          title: customText(fontSize: 12, title: option),
+                          title: customText(
+                            fontSize: 12,
+                            title: option,
+                            color: colors.headingColor,
+                          ),
                         ),
                       ),
               );

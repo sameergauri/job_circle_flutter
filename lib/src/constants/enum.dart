@@ -44,6 +44,7 @@ enum ESharedPreferences {
   email,
   orgnizationId,
   msg,
+  theme_mode,
 }
 
 enum EPartnerApproval {

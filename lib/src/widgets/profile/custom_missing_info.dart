@@ -427,6 +427,7 @@ class _CustomMissingInfoContainerState
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     FileUploader fileUploader = FileUploader();
     final profileData = widget.provider.profile;
 
@@ -441,7 +442,7 @@ class _CustomMissingInfoContainerState
       width: double.maxFinite,
       height:
           MediaQuery.of(context).size.height / 11, // Fixed height for PageView
-      decoration: const BoxDecoration(color: Constants.borderColor),
+      decoration: BoxDecoration(color: colors.appbarColor),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -480,8 +481,8 @@ class _CustomMissingInfoContainerState
                       width: _currentIndex == index ? 12 : 6,
                       decoration: BoxDecoration(
                         color: _currentIndex == index
-                            ? Constants.orange
-                            : Constants.subtitleclr,
+                            ? colors.orangeLine
+                            : colors.subTitleColor,
                         borderRadius: BorderRadius.circular(3),
                       ),
                     );

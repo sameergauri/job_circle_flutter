@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
+import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
@@ -14,11 +15,12 @@ class CustomSummaryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(bottom: 5, top: 5),
       margin: const EdgeInsets.only(left: 10, right: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -32,13 +34,15 @@ class CustomSummaryContainer extends StatelessWidget {
                 child: CustomNetworkImage(
                   imageUrl: CustomIconUrl.summaryicon,
                   defaultIcon: Icons.cast_for_education,
+                  color: colors.subTitleColor,
                 ),
               ),
               SizedBox(width: 5),
-              const customText(
+              customText(
                 title: "Summary",
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
+                color: colors.headingColor,
               ),
               Expanded(
                 child: Row(
@@ -69,7 +73,7 @@ class CustomSummaryContainer extends StatelessWidget {
             padding: const EdgeInsets.only(right: 4, top: 4, bottom: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Colors.white,
+              color: colors.bgColor,
             ),
             child: ExpandableTextWidget(
               isSummary: true,

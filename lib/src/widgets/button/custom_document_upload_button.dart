@@ -26,6 +26,7 @@ class _CustomDocumentUploadButtonState
     extends State<CustomDocumentUploadButton> {
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return GestureDetector(
       onTap: () {
         widget.onTab();
@@ -45,7 +46,7 @@ class _CustomDocumentUploadButtonState
                 padding: EdgeInsets.symmetric(vertical: 6, horizontal: 10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: Colors.white,
+                  color: colors.unSelectedTabColor,
                   boxShadow: [
                     BoxShadow(
                       offset: const Offset(1, 1),
@@ -57,7 +58,7 @@ class _CustomDocumentUploadButtonState
                 ),
                 child: customText(
                   title: widget.title,
-                  color: Constants.darkBlue,
+                  color: colors.atsTabTextColor,
                 ),
               ),
               customText(

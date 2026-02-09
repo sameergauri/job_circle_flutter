@@ -32,6 +32,7 @@ class RecruiterDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 6, top: 6),
       child: Column(
@@ -42,11 +43,11 @@ class RecruiterDetailsCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Constants.white,
+              color: colors.recruiterCardBgColor,
               borderRadius: BorderRadius.circular(8),
-              boxShadow: const [
+              boxShadow:  [
                 BoxShadow(
-                  color: Constants.lightdull,
+                  color: colors.shadowColor!,
                   blurRadius: 8,
                   spreadRadius: 4,
                   offset: Offset(0, 4),
@@ -78,6 +79,7 @@ class RecruiterDetailsCard extends StatelessWidget {
                       customText(
                         title: recruiterName,
                         fontWeight: FontWeight.w700,
+                        color: colors.headingColor,
                       ),
                       const SizedBox(width: 5),
                       const Icon(
@@ -92,12 +94,12 @@ class RecruiterDetailsCard extends StatelessWidget {
                     children: [
                       customText(
                         title: designation,
-                        color: Constants.subtitleclr,
+                        color: colors.jobdetailGreyColor,
                       ),
                       if (location.isNotEmpty && location != "null")
                         customText(
                           title: location,
-                          color: Constants.subtitleclr,
+                          color: colors.jobdetailGreyColor,
                         ),
                     ],
                   ),
@@ -106,7 +108,7 @@ class RecruiterDetailsCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     CustomcallsmsButton(
-                      color: Constants.darkBlue,
+                      color: colors.mailCallIconColor!,
                       imageUrl:
                           "https://cdn-icons-png.flaticon.com/128/16866/16866136.png",
                       label: "Email",
@@ -117,7 +119,7 @@ class RecruiterDetailsCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 15),
                     CustomcallsmsButton(
-                      color: Constants.darkBlue,
+                      color: colors.mailCallIconColor!,
                       imageUrl:
                           "https://cdn-icons-png.flaticon.com/128/9821/9821767.png",
                       label: "Call",
@@ -129,7 +131,7 @@ class RecruiterDetailsCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 15),
                     CustomcallsmsButton(
-                      color: Constants.darkgreen,
+                      color: colors.chatIconColor!,
                       imageUrl:
                           "https://cdn-icons-png.flaticon.com/128/9821/9821763.png",
                       label: "Chat",

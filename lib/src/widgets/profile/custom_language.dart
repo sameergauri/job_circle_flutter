@@ -17,11 +17,12 @@ class CustomLanguageKnownContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(bottom: 5, top: 5),
       margin: const EdgeInsets.only(left: 10, right: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -36,13 +37,15 @@ class CustomLanguageKnownContainer extends StatelessWidget {
                 child: CustomNetworkImage(
                   imageUrl: CustomIconUrl.languageicon,
                   defaultIcon: Icons.language,
+                  color: colors.subTitleColor,
                 ),
               ),
               SizedBox(width: 5),
-              const customText(
+              customText(
                 title: "Language Known",
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
+                color: colors.headingColor,
               ),
               Expanded(
                 child: Row(
@@ -58,9 +61,9 @@ class CustomLanguageKnownContainer extends StatelessWidget {
                               profileProvider.assignDataFromModelToController();
                               NavigationService.push(ProfileBasicInforEdit());
                             },
-                            child: const Icon(
+                            child: Icon(
                               Icons.add,
-                              color: Constants.subtitleclr,
+                              color: colors.subTitleColor,
                               size: 20,
                             ),
                           ),
@@ -104,12 +107,12 @@ class CustomLanguageKnownContainer extends StatelessWidget {
                         horizontal: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: Constants.lightdull,
+                        color: colors.bottomsheerCard1Color,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: customText(
                         title: skill,
-                        color: Colors.black,
+                        color: colors.headingColor,
                         fontWeight: FontWeight.w500,
                         fontSize: 12,
                       ),

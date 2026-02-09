@@ -1,6 +1,7 @@
 // ignore_for_file: unused_local_variable, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/src/constants/colors.dart';
 
 class CustomNewListTile extends StatelessWidget {
   const CustomNewListTile({
@@ -69,6 +70,7 @@ class CustomNewListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final theme = Theme.of(context);
     final listTileTheme = ListTileTheme.of(context);
 
@@ -94,9 +96,9 @@ class CustomNewListTile extends StatelessWidget {
         ? (selectedColor ?? listTileTheme.selectedColor ?? iconColor)
         : (iconColor ?? listTileTheme.iconColor);
 
-    final Color? backgroundColor = selected
+    final Color? backgroundColor = colors.bgColor; /* selected
         ? (selectedTileColor ?? listTileTheme.selectedTileColor)
-        : (tileColor ?? listTileTheme.tileColor);
+        : (tileColor ?? listTileTheme.tileColor); */
 
     // Text styles
     final TextStyle baseTitleStyle =

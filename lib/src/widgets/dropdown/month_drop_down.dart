@@ -48,20 +48,26 @@ class _MonthDropdownState extends State<MonthDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return DropdownButtonFormField<String>(
+      dropdownColor: colors.appbarColor,
       menuMaxHeight: 200,
       initialValue: selectedMonth,
-      hint: customText(monst: true, title: widget.hint),
+      hint: customText(
+        monst: true,
+        title: widget.hint,
+        color: colors.headingColor,
+      ),
       decoration: InputDecoration(
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Constants.black),
+          borderSide: BorderSide(color: colors.headingColor!),
           borderRadius: BorderRadius.circular(8),
         ),
-        disabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Constants.subtitleclr),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: colors.subTitleColor!),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Constants.subtitleclr),
+          borderSide: BorderSide(color: colors.subTitleColor!),
           borderRadius: BorderRadius.circular(8),
         ),
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
@@ -71,7 +77,11 @@ class _MonthDropdownState extends State<MonthDropdown> {
           .map(
             (month) => DropdownMenuItem<String>(
               value: month,
-              child: customText(monst: true, title: month),
+              child: customText(
+                monst: true,
+                title: month,
+                color: colors.headingColor,
+              ),
             ),
           )
           .toList(),

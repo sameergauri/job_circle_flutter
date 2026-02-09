@@ -57,6 +57,8 @@ class CustomTextFieldforAll extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
+
     // Get screen size using MediaQuery
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -75,6 +77,7 @@ class CustomTextFieldforAll extends StatelessWidget {
         onTap: () {
           onTab != null ? onTab!() : null;
         },
+        cursorColor: colors.headingColor,
         onChanged: onChanged,
         onFieldSubmitted: onFieldSubmitted,
         onEditingComplete: onEditingComplete,
@@ -96,11 +99,17 @@ class CustomTextFieldforAll extends StatelessWidget {
             ? TextCapitalization.none
             : TextCapitalization.sentences,
         controller: controller,
-        style: GoogleFonts.montserrat(
-          color: Colors.black,
-          fontSize: fontSize, // Responsive font size
-          fontWeight: FontWeight.w500,
-        ),
+        style: isSearch != null && isSearch!
+            ? GoogleFonts.montserrat(
+                color: colors.textfieldTextColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              )
+            : GoogleFonts.montserrat(
+                color: colors.headingColor,
+                fontSize: fontSize, // Responsive font size
+                fontWeight: FontWeight.w500,
+              ),
 
         decoration: InputDecoration(
           suffix: sufix != null && sufix != ""
@@ -131,28 +140,48 @@ class CustomTextFieldforAll extends StatelessWidget {
               ? true
               : false,
           fillColor: isPrimaryNumber
-              ? Constants.lightdull
+              ? colors.bottomsheerCard1Color
               : isSearch != null && isSearch!
-              ? Colors.white
+              ? Colors.transparent
               : Colors.transparent,
           counterText: headline != null && headline == true ? null : '',
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Constants.lightdull),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Constants.lightdull),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Constants.lightdull),
-          ),
+          border: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
+                ),
+          enabledBorder: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
+                ),
+          disabledBorder: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
+                ),
           focusColor: const Color(0x0ff0eceb),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.black),
-          ),
+          focusedBorder: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.headingColor!),
+                ),
           hintText: hint,
           hintStyle: isSearchBar != null && isSearchBar != false
               ? GoogleFonts.montserrat(

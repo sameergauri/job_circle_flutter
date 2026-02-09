@@ -162,6 +162,7 @@ class _JobHomePageState extends State<JobHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final customColors = Theme.of(context).extension<AppColors>()!;
     return Consumer<JobProvider>(
       builder: (context, jobProvider, child) {
         final jobs = jobProvider.jobs;
@@ -177,10 +178,18 @@ class _JobHomePageState extends State<JobHomePage> {
         return Stack(
           children: [
             Scaffold(
-              backgroundColor: Colors.white,
+              /*  floatingActionButton: FloatingActionButton(
+                onPressed: () {
+                  CustomBottomSheet.showCustomBottomSheetForAppTheme(
+                    context: context,
+                  );
+                },
+                child: Icon(Icons.color_lens),
+              ), */
+              backgroundColor: customColors.bgColor,
               appBar: AppBar(
                 elevation: 0,
-                backgroundColor: Constants.white,
+                backgroundColor: customColors.appbarColor,
                 titleSpacing: 0,
                 leading: IconButton(
                   onPressed: () {
@@ -200,7 +209,7 @@ class _JobHomePageState extends State<JobHomePage> {
                     backgroundColor: Constants.white,
                     child: CircleAvatar(
                       radius: 28,
-                      backgroundColor: Constants.borderColor,
+                      backgroundColor: customColors.circlebgColor,
                       backgroundImage:
                           userData?.userProfilePic != null &&
                               userData?.userProfilePic != " " &&

@@ -17,11 +17,12 @@ class CustomAwardAchievment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(bottom: 5),
       margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -37,13 +38,15 @@ class CustomAwardAchievment extends StatelessWidget {
                   child: CustomNetworkImage(
                     imageUrl: CustomIconUrl.awatdsIcon,
                     defaultIcon: Icons.celebration_outlined,
+                    color: colors.subTitleColor,
                   ),
                 ),
                 SizedBox(width: 5),
-                const customText(
+                customText(
                   title: "Awards & Achievements",
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
+                  color: colors.headingColor,
                 ),
                 Expanded(
                   child: Row(
@@ -58,9 +61,9 @@ class CustomAwardAchievment extends StatelessWidget {
                             ProfileAwardEdit(fromEditOrAdd: FromEditOrAdd.add),
                           );
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
-                          color: Constants.subtitleclr,
+                          color: colors.subTitleColor,
                           size: 20,
                         ),
                       ),
@@ -176,7 +179,7 @@ class CustomAwardAchievment extends StatelessWidget {
                                       style: GoogleFonts.merriweather(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.black,
+                                        color: colors.headingColor,
                                       ),
                                     ),
 
@@ -191,7 +194,7 @@ class CustomAwardAchievment extends StatelessWidget {
                                               style: GoogleFonts.merriweather(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
-                                                color: Colors.black,
+                                                color: colors.headingColor,
                                               ),
                                             ),
                                             // Part 2: Description (Normal & 12)
@@ -200,7 +203,7 @@ class CustomAwardAchievment extends StatelessWidget {
                                               style: GoogleFonts.merriweather(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.normal,
-                                                color: Constants.subtitleclr,
+                                                color: colors.subTitleColor,
                                               ),
                                             ),
                                           ],

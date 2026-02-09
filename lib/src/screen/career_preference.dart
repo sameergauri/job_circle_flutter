@@ -35,28 +35,30 @@ class _CareerPreferenceState extends State<CareerPreference> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<CareerPreferenceProvider>(
       builder: (context, provider, child) {
         {
           return Stack(
             children: [
               Scaffold(
-                backgroundColor: Constants.white,
+                backgroundColor: colors.bgColor,
                 appBar: AppBar(
                   automaticallyImplyLeading: true,
-                  backgroundColor: Constants.borderColor,
+                  backgroundColor: colors.appbarColor,
                   title: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       customText(
                         title: 'Set your Career Preferences',
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: colors.headingColor,
                       ),
                       customText(
                         title: 'Help us match you with the right opportunities',
                         fontSize: 12,
-                        color: Colors.black,
+                        color: colors.subTitleColor,
                       ),
                     ],
                   ),
@@ -69,7 +71,11 @@ class _CareerPreferenceState extends State<CareerPreference> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Preferred Industry
-                        customText(title: 'Preferred Industry', fontSize: 12),
+                        customText(
+                          title: 'Preferred Industry',
+                          fontSize: 12,
+                          color: colors.headingColor,
+                        ),
                         CustomTextFieldForCareerPreference(
                           title: "Industries",
                           initialList: provider.selectedIndustries,
@@ -82,7 +88,11 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         const SizedBox(height: 10),
 
                         // Preferred Job Role
-                        customText(title: 'Preferred Job Role', fontSize: 12),
+                        customText(
+                          title: 'Preferred Job Role',
+                          fontSize: 12,
+                          color: colors.headingColor,
+                        ),
                         CustomTextFieldForCareerPreference(
                           title: "Job Role",
                           initialList: provider.selectedJobRole,
@@ -95,7 +105,11 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         const SizedBox(height: 10),
 
                         // Employment Type
-                        customText(title: 'Employment Type', fontSize: 12),
+                        customText(
+                          title: 'Employment Type',
+                          fontSize: 12,
+                          color: colors.headingColor,
+                        ),
                         SingleChildScrollView(
                           physics: BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
@@ -137,7 +151,11 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         const SizedBox(height: 10),
 
                         // Preferred Work Mode
-                        customText(title: 'Preferred Work Mode', fontSize: 12),
+                        customText(
+                          title: 'Preferred Work Mode',
+                          fontSize: 12,
+                          color: colors.headingColor,
+                        ),
                         Wrap(
                           children: [
                             CustomToggleButton(
@@ -159,7 +177,11 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         ),
 
                         const SizedBox(height: 10),
-                        customText(title: 'Shift Time', fontSize: 12),
+                        customText(
+                          title: 'Shift Time',
+                          fontSize: 12,
+                          color: colors.headingColor,
+                        ),
                         SingleChildScrollView(
                           physics: BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
@@ -193,7 +215,11 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         const SizedBox(height: 10),
 
                         // Preferred Location
-                        customText(title: 'Preferred Location', fontSize: 12),
+                        customText(
+                          title: 'Preferred Location',
+                          fontSize: 12,
+                          color: colors.headingColor,
+                        ),
                         CustomTextFieldForCareerPreference(
                           title: "Preferred Locations",
                           initialList: provider.preferredLocations,
@@ -209,6 +235,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
                         customText(
                           title: 'Expected Salary Range (Annual)',
                           fontSize: 12,
+                          color: colors.headingColor,
                         ),
 
                         Padding(
@@ -259,6 +286,7 @@ class _CareerPreferenceState extends State<CareerPreference> {
                           "Open to Relocation",
                           provider.openToRelocation,
                           provider.updateRelocation,
+                          colors,
                         ),
 
                         const SizedBox(height: 10),
@@ -269,7 +297,11 @@ class _CareerPreferenceState extends State<CareerPreference> {
                           provider.immediateJoiner,
                           provider.updateImmediateJoiner,
                         ), */
-                        customText(title: 'Notice Period', fontSize: 12),
+                        customText(
+                          title: 'Notice Period',
+                          fontSize: 12,
+                          color: colors.headingColor,
+                        ),
                         Wrap(
                           children: [
                             CustomToggleButton(
@@ -351,11 +383,16 @@ class _CareerPreferenceState extends State<CareerPreference> {
     );
   }
 
-  Widget _switch(String title, bool value, Function(bool) onChanged) {
+  Widget _switch(
+    String title,
+    bool value,
+    Function(bool) onChanged,
+    AppColors colors,
+  ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
+        color: colors.bottomsheerCard1Color,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey.shade300),
       ),

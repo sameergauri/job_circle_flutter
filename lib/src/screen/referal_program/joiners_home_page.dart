@@ -10,6 +10,7 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
+import 'package:job_circle/src/provider/referal_program/bank_detail_provider.dart';
 import 'package:job_circle/src/provider/referal_program/joiners_provider.dart';
 import 'package:job_circle/src/screen/referal_program/invoice.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -64,13 +65,14 @@ class _JoinersHomePageState extends State<JoinersHomePage>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<GenerateInvoiceProvider>(
       builder: (context, provider, child) {
         final state = provider.state;
 
         if (state.isLoading) {
-          return const Scaffold(
-            backgroundColor: Constants.white,
+          return Scaffold(
+            backgroundColor: colors.bgColor,
             body: Center(
               child: CircularProgressIndicator(color: Constants.darkBlue),
             ),
@@ -79,8 +81,13 @@ class _JoinersHomePageState extends State<JoinersHomePage>
 
         if (state.error != null) {
           return Scaffold(
-            backgroundColor: Constants.white,
-            body: Center(child: Text('Error: ${state.error}')),
+            backgroundColor: colors.bgColor,
+            body: Center(
+              child: customText(
+                title: 'Error: ${state.error}',
+                color: colors.headingColor,
+              ),
+            ),
           );
         }
 
@@ -90,14 +97,14 @@ class _JoinersHomePageState extends State<JoinersHomePage>
             state.joinersResponse!.resultData!.notPayable == null &&
             state.joinersResponse!.resultData!.pending == null &&
             state.joinersResponse!.resultData!.joiners == null) {
-          return const Scaffold(
-            backgroundColor: Constants.white,
+          return Scaffold(
+            backgroundColor: colors.bgColor,
             body: Center(
               child: customText(
                 title: "No data available",
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Constants.darkBlue,
+                color: colors.headingColor,
               ),
             ),
           );
@@ -112,11 +119,11 @@ class _JoinersHomePageState extends State<JoinersHomePage>
         }
 
         return Scaffold(
-          backgroundColor: Constants.white,
+          backgroundColor: colors.bgColor,
           appBar: AppBar(
             elevation: 0,
-            iconTheme: const IconThemeData(color: Constants.black),
-            backgroundColor: Constants.borderColor,
+            iconTheme: IconThemeData(color: colors.subtitleTextColor),
+            backgroundColor: colors.appbarColor,
             titleSpacing: 0,
             title: Padding(
               padding: const EdgeInsets.only(right: 10),
@@ -135,7 +142,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                 padding: const EdgeInsets.only(right: 10),
                 child: TextButton(
                   onPressed: () {
-                    _showDateFilterBottomSheet(context, state);
+                    _showDateFilterBottomSheet(context, state, colors);
                   },
                   child: customText(
                     title:
@@ -144,7 +151,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                         ? "${DateFormat('MMM').format(DateFormat('MM').parse(state.selectedMonth!))} ${state.selectedYear}"
                         : "Month",
                     fontWeight: FontWeight.bold,
-                    color: Constants.black,
+                    color: colors.subtitleTextColor,
                     fontSize: 14,
                   ),
                 ),
@@ -152,7 +159,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
             ],
           ),
           body: state.statusCategories.isEmpty
-              ? const Center(
+              ? Center(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
@@ -165,6 +172,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                           color: Constants.darkBlue,
                         ),
                         customText(
+                          color: colors.headingColor,
                           textAlign: TextAlign.center,
                           title:
                               "We couldn't find any candidate matching your search",
@@ -178,7 +186,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      color: Colors.white,
+                      color: colors.bgColor,
                       child: TabBar(
                         controller: _tabController,
                         tabs: state.statusCategories.map((status) {
@@ -193,16 +201,18 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                         tabAlignment: TabAlignment.start,
                         isScrollable: true,
                         indicatorSize: TabBarIndicatorSize.label,
-                        labelColor: Constants.black,
+                        labelColor: colors.atsTabTextColor,
                         unselectedLabelColor: Constants.subtitleclr,
-                        indicatorColor: Constants.orange,
+                        indicatorColor: colors.orangeLine,
                         labelStyle: GoogleFonts.merriweather(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
+                          color: colors.subtabTitleColor,
                         ),
                         unselectedLabelStyle: GoogleFonts.merriweather(
                           fontSize: 12,
                           fontWeight: FontWeight.normal,
+                          color: colors.subtitleTextColor,
                         ),
                       ),
                     ),
@@ -218,6 +228,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                                 state,
                                 status,
                                 provider,
+                                colors,
                               ),
                             )
                             .toList(),
@@ -258,6 +269,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
   void _showDateFilterBottomSheet(
     BuildContext context,
     GenerateInvoiceState state,
+    AppColors colors,
   ) {
     final allJoiners = [
       ...(state.joinersResponse?.resultData?.joiners?.values
@@ -311,7 +323,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
           builder: (context, provider, child) {
             return Container(
               padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(color: Colors.white),
+              decoration: BoxDecoration(color: colors.bottomsheetbgColor),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,8 +372,8 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                           child: Container(
                             decoration: BoxDecoration(
                               color: index % 2 == 0
-                                  ? Constants.lightdull
-                                  : Colors.white,
+                                  ? colors.bottomsheerCard1Color
+                                  : colors.bottomsheerCard2Color,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             padding: const EdgeInsets.only(
@@ -374,6 +386,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 customText(
+                                  color: colors.headingColor,
                                   title: date,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -409,6 +422,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
     GenerateInvoiceState state,
     String status,
     GenerateInvoiceProvider provider,
+    AppColors colors,
   ) {
     if (joiners == null || joiners.isEmpty) {
       return const Center(child: customText(title: "No data available"));
@@ -424,6 +438,15 @@ class _JoinersHomePageState extends State<JoinersHomePage>
       ..sort((a, b) => a.key.toLowerCase().compareTo(b.key.toLowerCase()));
 
     final dateFormat = DateFormat('dd MMM yyyy');
+
+    final bankingProvider = context.watch<BankingProvider>();
+
+    // fetch bank detail before clicking on create invoice
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bankingProvider = context.read<BankingProvider>();
+      bankingProvider.fetchBankingData();
+    });
+    //
 
     return Stack(
       children: [
@@ -445,7 +468,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
 
               return SliverStickyHeader(
                 header: Container(
-                  color: Constants.lightdull,
+                  color: colors.bottomsheerCard1Color,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16.0,
                     vertical: 6,
@@ -497,7 +520,7 @@ class _JoinersHomePageState extends State<JoinersHomePage>
             child: SizedBox(
               height: kToolbarHeight,
               child: Container(
-                color: Constants.borderColor,
+                color: colors.appbarColor,
                 padding: const EdgeInsets.only(left: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -525,14 +548,9 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                       width: 200,
                       child: CustomButtonForSave(
                         title: "Create Invoice",
-                        onTap: () {
-                          final bankdetail = state
-                              .joinersResponse!
-                              .resultData!
-                              .payable!
-                              .entries
-                              .first
-                              .value
+                        onTap: () async {
+                          final bankdetail = bankingProvider
+                              .fetchBankDetail!
                               .first
                               .accountNumber;
                           if (bankdetail == null ||
@@ -545,34 +563,25 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                           } else {
                             NavigationService.push(
                               InvoiceScreen(
-                                joinersdata: state
-                                    .joinersResponse!
-                                    .resultData!
-                                    .payable!
-                                    .entries
-                                    .expand((e) => e.value)
-                                    .where((joiner) {
-                                      if (joiner.dateOfJoining == null) {
-                                        return false;
-                                      }
-                                      try {
-                                        final date = DateFormat(
-                                          'dd MMM yyyy',
-                                        ).parse(joiner.dateOfJoining!);
-                                        final month = DateFormat(
-                                          'MM',
-                                        ).format(date);
-                                        final year = DateFormat(
-                                          'yyyy',
-                                        ).format(date);
+                                joinersdata: joiners.where((joiner) {
+                                  if (joiner.dateOfJoining == null) {
+                                    return false;
+                                  }
+                                  try {
+                                    final date = DateFormat(
+                                      'dd MMM yyyy',
+                                    ).parse(joiner.dateOfJoining!);
+                                    final month = DateFormat('MM').format(date);
+                                    final year = DateFormat(
+                                      'yyyy',
+                                    ).format(date);
 
-                                        return month == state.selectedMonth &&
-                                            year == state.selectedYear;
-                                      } catch (e) {
-                                        return false;
-                                      }
-                                    })
-                                    .toList(),
+                                    return month == state.selectedMonth &&
+                                        year == state.selectedYear;
+                                  } catch (e) {
+                                    return false;
+                                  }
+                                }).toList(),
                               ),
                             );
                           }

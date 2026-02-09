@@ -142,6 +142,7 @@ class _CustomTextFieldForSkillsState extends State<CustomTextFieldForSkills> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Column(
@@ -174,7 +175,7 @@ class _CustomTextFieldForSkillsState extends State<CustomTextFieldForSkills> {
               return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: Constants.white,
+                  color: colors.bottomsheetbgColor,
                 ),
                 child: child,
               );
@@ -190,8 +191,8 @@ class _CustomTextFieldForSkillsState extends State<CustomTextFieldForSkills> {
             itemBuilder: (context, suggestion) {
               final isOdd = suggestionIndex % 2 == 0;
               final backgroundColor = isOdd
-                  ? Colors.grey.shade200
-                  : Colors.white;
+                  ? colors.bottomsheerCard1Color
+                  : colors.bottomsheerCard2Color;
               suggestionIndex++;
               return Container(
                 decoration: BoxDecoration(
@@ -203,6 +204,7 @@ class _CustomTextFieldForSkillsState extends State<CustomTextFieldForSkills> {
                     title: suggestion.toString(),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
+                    color: colors.headingColor,
                   ),
                 ),
               );
@@ -221,7 +223,7 @@ class _CustomTextFieldForSkillsState extends State<CustomTextFieldForSkills> {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Constants.lightdull,
+                      color: colors.bottomsheerCard1Color,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: ListTile(
@@ -229,6 +231,7 @@ class _CustomTextFieldForSkillsState extends State<CustomTextFieldForSkills> {
                         fontSize: 12,
                         title: "Add ${widget.controller.text}",
                         fontWeight: FontWeight.w600,
+                        color: colors.headingColor,
                       ),
                     ),
                   ),
@@ -244,6 +247,7 @@ class _CustomTextFieldForSkillsState extends State<CustomTextFieldForSkills> {
                       fontSize: 12,
                       title: "Searching...",
                       fontWeight: FontWeight.w600,
+                      color: colors.headingColor,
                     ),
                   ],
                 ),

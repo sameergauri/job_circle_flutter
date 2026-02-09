@@ -91,6 +91,7 @@ class _CustomTextFieldForMasterDataState
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return SizedBox(
@@ -123,7 +124,7 @@ class _CustomTextFieldForMasterDataState
           return Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Constants.white,
+              color: colors.bottomsheetbgColor,
             ),
             child: child,
           );
@@ -140,7 +141,9 @@ class _CustomTextFieldForMasterDataState
         },
         itemBuilder: (context, suggestion) {
           final isOdd = suggestionIndex % 2 == 0;
-          final backgroundColor = isOdd ? Colors.grey.shade200 : Colors.white;
+          final backgroundColor = isOdd
+              ? colors.bottomsheerCard1Color
+              : colors.bottomsheerCard2Color;
 
           // Increment the suggestion index counter
           suggestionIndex++;
@@ -156,6 +159,7 @@ class _CustomTextFieldForMasterDataState
                 title: suggestion.toString(),
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
+                color: colors.headingColor,
               ),
             ),
           );
@@ -186,7 +190,7 @@ class _CustomTextFieldForMasterDataState
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Constants.lightdull,
+                  color: colors.bottomsheetbgColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: ListTile(
@@ -198,6 +202,7 @@ class _CustomTextFieldForMasterDataState
                         ? 'No result found. select from suggestion.'
                         : "Add ${widget.title}",
                     fontWeight: FontWeight.w600,
+                    color: colors.headingColor,
                   ),
                 ),
               ),
@@ -208,6 +213,7 @@ class _CustomTextFieldForMasterDataState
           return Container(
             margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            color: colors.bottomsheetbgColor,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -216,6 +222,7 @@ class _CustomTextFieldForMasterDataState
                   fontSize: 12,
                   title: "Searching...",
                   fontWeight: FontWeight.w600,
+                  color: colors.headingColor,
                 ),
               ],
             ),

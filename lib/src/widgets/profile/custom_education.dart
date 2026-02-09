@@ -17,6 +17,7 @@ class CustomEducationContainer extends StatelessWidget {
   const CustomEducationContainer({super.key, required this.provider});
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final profileData = provider.profile;
 
     /// Sorting
@@ -43,7 +44,7 @@ class CustomEducationContainer extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 5),
       margin: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colors.bgColor,
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -59,13 +60,15 @@ class CustomEducationContainer extends StatelessWidget {
                   child: CustomNetworkImage(
                     imageUrl: CustomIconUrl.profileeducation,
                     defaultIcon: Icons.cast_for_education,
+                    color: colors.subTitleColor,
                   ),
                 ),
                 SizedBox(width: 5),
-                const customText(
+                customText(
                   title: "Education",
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
+                  color: colors.headingColor,
                 ),
                 Expanded(
                   child: Row(
@@ -82,9 +85,9 @@ class CustomEducationContainer extends StatelessWidget {
                             ),
                           );
                         },
-                        child: const Icon(
+                        child: Icon(
                           Icons.add,
-                          color: Constants.subtitleclr,
+                          color: colors.subTitleColor,
                           size: 20,
                         ),
                       ),
@@ -129,6 +132,7 @@ class CustomEducationContainer extends StatelessWidget {
           (profileData.educationDetails == null ||
                   profileData.educationDetails!.isEmpty)
               ? Container(
+                  color: colors.bgColor,
                   padding: const EdgeInsets.only(left: 6, bottom: 10),
                   child: const Column(
                     children: [
@@ -169,6 +173,7 @@ class CustomEducationContainer extends StatelessWidget {
                               horizontal: 6,
                             ),
                             decoration: BoxDecoration(
+                              color: Constants.lightdull,
                               border: Border.all(color: Constants.lightdull),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -196,12 +201,14 @@ class CustomEducationContainer extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
+                                color: colors.headingColor,
                               ),
                               customText(
                                 title: data.university ?? "",
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 overflow: TextOverflow.ellipsis,
+                                color: colors.headingColor,
                               ),
                             ],
                           ),
@@ -211,7 +218,7 @@ class CustomEducationContainer extends StatelessWidget {
                                   title: "Pursuing",
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
+                                  color: colors.subTitleColor,
                                   overflow: TextOverflow.ellipsis,
                                 )
                               : data.passingYear != null
@@ -224,7 +231,7 @@ class CustomEducationContainer extends StatelessWidget {
                                       : data.passingYear.toString(),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
+                                  color: colors.subTitleColor,
                                   overflow: TextOverflow.ellipsis,
                                 )
                               : customText(
@@ -236,7 +243,7 @@ class CustomEducationContainer extends StatelessWidget {
                                       : data.firstYear.toString(),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Constants.subtitleclr,
+                                  color: colors.subTitleColor,
                                   overflow: TextOverflow.ellipsis,
                                 ),
                         ),

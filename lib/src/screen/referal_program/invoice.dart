@@ -12,6 +12,7 @@ import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/provider/referal_program/invoice_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -38,6 +39,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<InvoiceProvider>(
       builder: (context, provider, child) {
         final state = provider.state;
@@ -45,6 +47,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         return Stack(
           children: [
             Scaffold(
+             
               bottomNavigationBar: state.selectedOrganization != null
                   ? Padding(
                       padding: const EdgeInsets.only(
@@ -74,17 +77,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               appBar: AppBar(
                 titleSpacing: 0.0,
                 automaticallyImplyLeading: true,
-                iconTheme: const IconThemeData(color: Constants.black),
-                backgroundColor: Constants.borderColor,
+                iconTheme: IconThemeData(color: colors.headingColor),
+                backgroundColor: colors.appbarColor,
                 elevation: 0,
-                title: const customText(
+                title: customText(
                   title: 'Invoice',
-                  color: Colors.black,
+                  color: colors.headingColor,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              backgroundColor: Colors.white,
+              backgroundColor: colors.bgColor,
               body: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: Container(
@@ -95,15 +98,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInvoiceHeader(state),
-                        _buildOrganizationSelector(state, provider),
-                        _buildInvoiceNumber(state),
-                        _buildInvoiceTable(state),
-                        _buildTotalAmount(state),
-                        _buildAmountInWords(state),
-                        _buildBankingDetails(state),
-                        _buildTermsAndConditions(provider, state),
-                        _buildFromSection(state),
+                        _buildInvoiceHeader(state, colors),
+                        _buildOrganizationSelector(state, provider, colors),
+                        _buildInvoiceNumber(state, colors),
+                        _buildInvoiceTable(state, colors),
+                        _buildTotalAmount(state, colors),
+                        _buildAmountInWords(state, colors),
+                        _buildBankingDetails(state, colors),
+                        _buildTermsAndConditions(provider, state, colors),
+                        _buildFromSection(state, colors),
                       ],
                     ),
                   ),
@@ -126,7 +129,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildInvoiceHeader(InvoiceState state) {
+  Widget _buildInvoiceHeader(InvoiceState state, AppColors colors) {
     final formattedDate = DateFormat('dd MMM yyyy').format(DateTime.now());
 
     return Row(
@@ -136,7 +139,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           title: "Invoice date: $formattedDate",
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: Constants.black,
+          color: colors.headingColor,
         ),
       ],
     );
@@ -145,6 +148,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   Widget _buildOrganizationSelector(
     InvoiceState state,
     InvoiceProvider provider,
+    AppColors colors,
   ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -152,7 +156,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const customText(title: "To,", fontWeight: FontWeight.bold),
+            customText(
+              title: "To,",
+              fontWeight: FontWeight.bold,
+              color: colors.headingColor,
+            ),
             GestureDetector(
               onTap: () =>
                   _showOrganizationBottomSheet(context, provider, state),
@@ -164,17 +172,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                         'Select Organization',
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: state.selectedOrganization != null
-                        ? Colors.black
-                        : Constants.orange,
+                    color: colors.orangeLine,
                   ),
                   const SizedBox(width: 5),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    color: state.selectedOrganization != null
-                        ? Constants.orange
-                        : Constants.black,
-                  ),
+                  Icon(Icons.arrow_drop_down, color: colors.orangeLine),
                 ],
               ),
             ),
@@ -182,6 +183,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               customText(
                 title: _formatAddress(state.selectedOrganization!.address),
                 fontSize: 12,
+                color: colors.subtitleTextColor,
               ),
           ],
         ),
@@ -189,7 +191,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildInvoiceNumber(InvoiceState state) {
+  Widget _buildInvoiceNumber(InvoiceState state, AppColors colors) {
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10),
       child: customText(
@@ -197,28 +199,29 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         title: "Invoice No: ${state.invoiceNumber}",
         fontSize: 12,
         fontWeight: FontWeight.w500,
+        color: colors.subtitleTextColor,
       ),
     );
   }
 
-  Widget _buildInvoiceTable(InvoiceState state) {
+  Widget _buildInvoiceTable(InvoiceState state, AppColors colors) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
-          color: Constants.lightdull,
-          child: const Row(
+          color: colors.bottomsheerCard1Color,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
                 flex: 5,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: customText(
-                    textAlign: TextAlign.center,
-                    title: "Candidate Name",
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+                child: customText(
+                  textAlign: TextAlign.center,
+                  title: "Candidate Name",
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  color: colors.headingColor,
                 ),
               ),
               Expanded(
@@ -227,6 +230,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   textAlign: TextAlign.center,
                   title: "PO No.",
                   fontWeight: FontWeight.bold,
+                  color: colors.headingColor,
                 ),
               ),
               Expanded(
@@ -235,6 +239,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   textAlign: TextAlign.center,
                   title: "DOJ",
                   fontWeight: FontWeight.bold,
+                  color: colors.headingColor,
                 ),
               ),
               Expanded(
@@ -243,6 +248,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   textAlign: TextAlign.center,
                   title: "Amount",
                   fontWeight: FontWeight.bold,
+                  color: colors.headingColor,
                 ),
               ),
             ],
@@ -263,6 +269,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: customText(
+                      color: colors.subtitleTextColor,
                       title:
                           candidate.candidateName?.toString().replaceAll(
                             ',',
@@ -275,6 +282,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 Expanded(
                   flex: 4,
                   child: customText(
+                    color: colors.subtitleTextColor,
                     textAlign: TextAlign.center,
                     title: candidate.id?.toString() ?? 'Unknown',
                   ),
@@ -282,6 +290,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 Expanded(
                   flex: 3,
                   child: customText(
+                    color: colors.subtitleTextColor,
                     textAlign: TextAlign.center,
                     title: _formatDate(
                       candidate.dateOfJoining?.toString() ?? "Unknown",
@@ -291,6 +300,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 Expanded(
                   flex: 2,
                   child: customText(
+                    color: colors.subtitleTextColor,
                     textAlign: TextAlign.center,
                     title: candidate.partnerPayout != null
                         ? "₹ ${candidate.partnerPayout!.toStringAsFixed(0)}"
@@ -305,12 +315,13 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildTotalAmount(InvoiceState state) {
+  Widget _buildTotalAmount(InvoiceState state, AppColors colors) {
     return Align(
       alignment: Alignment.centerRight,
       child: Padding(
         padding: const EdgeInsets.only(right: 10),
         child: customText(
+          color: colors.headingColor,
           monst: true,
           title: "Total: ₹ ${state.totalAmount}",
           fontWeight: FontWeight.bold,
@@ -319,13 +330,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildAmountInWords(InvoiceState state) {
+  Widget _buildAmountInWords(InvoiceState state, AppColors colors) {
     return Column(
       children: [
         SizedBox(height: 10),
         Row(
           children: [
-            const customText(
+            customText(
+              color: colors.headingColor,
               title: 'Amount in words: ',
               fontWeight: FontWeight.bold,
             ),
@@ -333,6 +345,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               child: customText(
                 title: '${_amountToWords(state.totalAmount)} only',
                 fontSize: 12,
+                color: colors.subtitleTextColor,
               ),
             ),
           ],
@@ -343,7 +356,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildBankingDetails(InvoiceState state) {
+  Widget _buildBankingDetails(InvoiceState state, AppColors colors) {
     if (state.filteredJoiners.isEmpty) return const SizedBox();
 
     final joiner = state.filteredJoiners.first;
@@ -351,40 +364,55 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     return Column(
       children: [
         SizedBox(height: 10),
-        const customText(
+        customText(
           title: "Banking Detail",
           fontSize: 13,
           fontWeight: FontWeight.bold,
+          color: colors.headingColor,
         ),
         Row(
           children: [
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                customText(title: "Bank Name"),
-                customText(title: "Account Type"),
-                customText(title: "Holder Name(As per Bank Record)"),
-                customText(title: "Account No"),
-                customText(title: "IFSC Code"),
+                customText(title: "Bank Name", color: colors.headingColor),
+                customText(title: "Account Type", color: colors.headingColor),
+                customText(
+                  title: "Holder Name(As per Bank Record)",
+                  color: colors.headingColor,
+                ),
+                customText(title: "Account No", color: colors.headingColor),
+                customText(title: "IFSC Code", color: colors.headingColor),
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                customText(title: " : ${joiner.bankName}"),
-                customText(title: " : ${joiner.accountType}"),
-                customText(title: " : ${joiner.accountHolderName}"),
+                customText(
+                  title: " : ${joiner.bankName}",
+                  color: colors.subtitleTextColor,
+                ),
+                customText(
+                  title: " : ${joiner.accountType}",
+                  color: colors.subtitleTextColor,
+                ),
+                customText(
+                  title: " : ${joiner.accountHolderName}",
+                  color: colors.subtitleTextColor,
+                ),
                 customText(
                   monst: true,
                   title: " : ${joiner.accountNumber}",
                   fontWeight: FontWeight.w500,
                   letterspacing: 0.6,
+                  color: colors.subtitleTextColor,
                 ),
                 customText(
                   monst: true,
                   title: " : ${joiner.ifscCode}",
                   fontWeight: FontWeight.w500,
                   letterspacing: 0.6,
+                  color: colors.subtitleTextColor,
                 ),
               ],
             ),
@@ -398,6 +426,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   Widget _buildTermsAndConditions(
     InvoiceProvider provider,
     InvoiceState state,
+    AppColors colors,
   ) {
     if (state.filteredJoiners.isEmpty) return const SizedBox();
 
@@ -413,7 +442,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildFromSection(InvoiceState state) {
+  Widget _buildFromSection(InvoiceState state, AppColors colors) {
     if (state.filteredJoiners.isEmpty) return const SizedBox();
 
     final joiner = state.filteredJoiners.first;
@@ -425,8 +454,15 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 10),
-            const customText(title: "From,", fontWeight: FontWeight.bold),
-            customText(title: joiner.accountHolderName.toString()),
+            customText(
+              title: "From,",
+              fontWeight: FontWeight.bold,
+              color: colors.headingColor,
+            ),
+            customText(
+              title: joiner.accountHolderName.toString(),
+              color: colors.subtitleTextColor,
+            ),
           ],
         ),
       ],

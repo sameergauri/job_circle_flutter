@@ -21,7 +21,6 @@ import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_document_upload_button.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/container/custom_container_to_view_document.dart';
-import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_pdf_view_dialogue.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_auto_size_text_field.dart';
@@ -50,6 +49,7 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final jobProvider = Provider.of<JobProvider>(context, listen: false);
     return Consumer<ProfileProvider>(
       builder: (context, provider, child) {
@@ -94,31 +94,33 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
                   }
                 },
                 title: "Save",
-                buttonColor: Constants.darkBlue,
-                textColor: Constants.white,
+                // buttonColor: Constants.darkBlue,
+                textColor: colors.buttonTextColor,
               ),
             ),
           ),
           //  extendBodyBehindAppBar: true,
           appBar: AppBar(
             automaticallyImplyLeading: true,
-            backgroundColor: Constants.borderColor,
+            backgroundColor: colors.appbarColor,
             elevation: 0,
             titleSpacing: 0.0,
-            iconTheme: const IconThemeData(color: Colors.black),
-            title: const OnboardingTitle(
+            iconTheme: IconThemeData(color: colors.headingColor),
+            title: customText(
               title: "Personal Detail",
               fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: colors.headingColor,
             ),
           ),
-          backgroundColor: Constants.white,
-          body: _customBody(provider),
+          backgroundColor: colors.bgColor,
+          body: _customBody(provider, colors),
         );
       },
     );
   }
 
-  Widget _customBody(ProfileProvider provider) {
+  Widget _customBody(ProfileProvider provider, AppColors colors) {
     return SingleChildScrollView(
       physics: BouncingScrollPhysics(),
       child: Padding(
@@ -126,27 +128,40 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const customText(title: "First Name*", fontStyle: FontStyle.italic),
+            customText(
+              title: "First Name*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldforAll(
               controller: provider.firstname,
               hint: "Enter First Name",
             ),
             const SizedBox(height: 15),
-            const customText(title: "Middle Name", fontStyle: FontStyle.italic),
+            customText(
+              title: "Middle Name",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldforAll(
               controller: provider.middlename,
               hint: "Enter Middle Name",
             ),
             const SizedBox(height: 15),
-            const customText(title: "Last Name*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Last Name*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldforAll(
               controller: provider.lastname,
               hint: "Enter Last Name",
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Contact Number",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               controller: provider.contactno,
@@ -155,9 +170,10 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               isDisabled: false,
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Alternate Number",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               controller: provider.alternateno,
@@ -167,14 +183,22 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
             ),
 
             const SizedBox(height: 15),
-            const customText(title: "Email ID", fontStyle: FontStyle.italic),
+            customText(
+              title: "Email ID",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldforAll(
               controller: provider.emailid,
               hint: "Enter Email ID",
               isGmail: true,
             ),
             const SizedBox(height: 15),
-            const customText(title: "Gender*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Gender*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -199,9 +223,10 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               ],
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Date of Birth*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               sufix: provider.age,
@@ -252,7 +277,11 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               },
             ),
             const SizedBox(height: 15),
-            const customText(title: "Locality*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Locality*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldForMasterData(
               contextIn: context,
               controller: provider.locality,
@@ -261,7 +290,11 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               title: "Locality",
             ),
             const SizedBox(height: 15),
-            const customText(title: "City*", fontStyle: FontStyle.italic),
+            customText(
+              title: "City*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldForMasterData(
               contextIn: context,
               controller: provider.location,
@@ -270,7 +303,11 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               title: "Location",
             ),
             const SizedBox(height: 15),
-            const customText(title: "Pin Code*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Pin Code*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldForMasterData(
               contextIn: context,
               controller: provider.pincode,
@@ -279,7 +316,11 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               title: "Pin Code",
             ),
             const SizedBox(height: 15),
-            const customText(title: "Languages*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Languages*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             Wrap(
               direction: Axis.horizontal,
               children: provider.language
@@ -293,9 +334,10 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
                   .toList(),
             ),
             SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Profile Headline",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomAutoSizeTextField(
               maxLength: 120,
@@ -304,16 +346,21 @@ class _ProfileBasicInforEditState extends State<ProfileBasicInforEdit> {
               maxline: 3,
             ),
             SizedBox(height: 15),
-            const customText(title: "Linkdin URL", fontStyle: FontStyle.italic),
+            customText(
+              title: "Linkdin URL",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldforAll(
               controller: provider.linkdinUrl,
               hint: "Enter Linkdin URL",
               isGmail: true,
             ),
             SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Profile Role",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomTextFieldforAll(
               controller: provider.profileRole,

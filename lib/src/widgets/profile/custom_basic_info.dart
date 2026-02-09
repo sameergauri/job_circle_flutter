@@ -22,12 +22,13 @@ class CustomBasicInfoContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
     final jobProvider = Provider.of<JobProvider>(context, listen: false);
     return Container(
-      decoration: const BoxDecoration(color: Colors.white),
+      decoration: BoxDecoration(color: colors.bgColor),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -182,6 +183,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                           "${profileProvider.profile!.firstName.toString().toTitleCase()} ${profileProvider.profile!.lastName.toString().toTitleCase()}",
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: colors.headingColor,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -210,6 +212,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                             textAlign: TextAlign.center,
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
+                            color: colors.headingColor,
                           ),
                         ),
                       ],
@@ -222,7 +225,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                         maxlines: 3,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Constants.subtitleclr,
+                        color: colors.subTitleColor,
                       ),
                   ],
                 ),

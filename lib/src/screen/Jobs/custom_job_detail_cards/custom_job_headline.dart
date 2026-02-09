@@ -30,6 +30,7 @@ class CustomJobHeadline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(
         //p: 4,
@@ -46,14 +47,25 @@ class CustomJobHeadline extends StatelessWidget {
                   companyIcon != null &&
                       companyIcon != "" &&
                       companyIcon != "null"
-                  ? CustomNetworkImage(
-                      imageUrl: "${GlobalConstants.Image_url}$companyIcon",
+                  ? Container(
+                      padding: const EdgeInsets.all(4),
                       height: 50,
                       width: 50,
-                      defaultIcon: Icons.home,
+                      decoration: BoxDecoration(
+                        color: Constants.lightdull,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: CustomNetworkImage(
+                        imageUrl: "${GlobalConstants.Image_url}$companyIcon",
+                        height: 50,
+                        width: 50,
+                        defaultIcon: Icons.home,
+                      ),
                     )
                   : Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(4),
+                      height: 50,
+                      width: 50,
                       decoration: BoxDecoration(
                         color: Constants.lightdull,
                         borderRadius: BorderRadius.circular(5),
@@ -67,6 +79,7 @@ class CustomJobHeadline extends StatelessWidget {
                     ),
               title: customText(
                 title: jobHeadline.toString(),
+                color: colors.headingColor,
                 fontWeight: FontWeight.w700,
                 fontSize: jobHeadline!.length < 30 ? 16 : 14,
               ),
@@ -75,11 +88,12 @@ class CustomJobHeadline extends StatelessWidget {
           _buildInfoRow(
             Icons.work_outline_outlined,
             formatExperience(experience.replaceAll("Years", 'yrs')),
+            colors,
           ),
           const SizedBox(height: 5),
-          _buildInfoRow(Icons.currency_rupee, salary),
+          _buildInfoRow(Icons.currency_rupee, salary, colors),
           const SizedBox(height: 5),
-          _buildInfoRow(Icons.location_on_outlined, location),
+          _buildInfoRow(Icons.location_on_outlined, location, colors),
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
@@ -120,15 +134,19 @@ class CustomJobHeadline extends StatelessWidget {
     return exp; // default return if pattern doesn't match
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  Widget _buildInfoRow(IconData icon, String text, AppColors colors) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Icon(icon, size: 18, color: Constants.subtitleclr),
+        Icon(icon, size: 18, color: colors.jobdetailGreyColor),
         const SizedBox(width: 5),
         Expanded(
-          child: customText(title: text, fontSize: 12, color: Constants.black),
+          child: customText(
+            title: text,
+            fontSize: 12,
+            color: colors.jobdetailGreyColor,
+          ),
         ),
       ],
     );

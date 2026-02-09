@@ -20,6 +20,7 @@ class CustomIconTitleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return GestureDetector(
       onTap: onTap,
       child: Row(
@@ -36,7 +37,7 @@ class CustomIconTitleButton extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 2),
-          customText(title: title, fontSize: 12),
+          customText(title: title, fontSize: 12, color: colors.headingColor),
         ],
       ),
     );

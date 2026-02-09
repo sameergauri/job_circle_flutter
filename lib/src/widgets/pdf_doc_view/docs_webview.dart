@@ -31,6 +31,7 @@ class _DocxViewerWidgetState extends State<DocxViewerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     // ✅ Check if file is PDF — wrap URL for Google Docs Viewer
     final String fileUrl =
         'https://view.officeapps.live.com/op/embed.aspx?src=${widget.docxUrl}';
@@ -99,7 +100,7 @@ class _DocxViewerWidgetState extends State<DocxViewerWidget> {
           ),
           if (isLoading)
             Container(
-              color: Colors.white,
+              color: colors.bgColor,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -119,7 +120,7 @@ class _DocxViewerWidgetState extends State<DocxViewerWidget> {
             ),
           if (errorMessage != null)
             Container(
-              color: Colors.white,
+              color: colors.bgColor,
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -135,7 +136,10 @@ class _DocxViewerWidgetState extends State<DocxViewerWidget> {
                       child: Text(
                         errorMessage!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 14),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: colors.headingColor,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -147,8 +151,11 @@ class _DocxViewerWidgetState extends State<DocxViewerWidget> {
                         });
                         webViewController.reload();
                       },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      icon: Icon(Icons.refresh, color: colors.headingColor),
+                      label: Text(
+                        'Retry',
+                        style: TextStyle(color: colors.headingColor),
+                      ),
                     ),
                   ],
                 ),
@@ -194,11 +201,13 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.bgColor,
       body: pdfController == null
           ? SizedBox.shrink()
           : PdfViewPinch(
+          
               controller: pdfController!,
               onDocumentLoaded: (document) {
                 setState(() {
@@ -218,8 +227,8 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                 });
               },
               builders: PdfViewPinchBuilders<DefaultBuilderOptions>(
-                options: const DefaultBuilderOptions(),
-                documentLoaderBuilder: (_) => const Center(
+                options: DefaultBuilderOptions(),
+                documentLoaderBuilder: (_) => Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -230,6 +239,7 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
+                          color: colors.headingColor,
                         ),
                       ),
                     ],
@@ -253,7 +263,10 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                         child: Text(
                           'Error loading PDF: ${error.toString()}',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 14),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.headingColor,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -263,8 +276,11 @@ class _PdfViewerScreenState extends State<PdfViewerScreen> {
                             _initializePdfController();
                           });
                         },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
+                        icon: Icon(Icons.refresh, color: colors.headingColor),
+                        label: Text(
+                          'Retry',
+                          style: TextStyle(color: colors.headingColor),
+                        ),
                       ),
                     ],
                   ),

@@ -151,6 +151,7 @@ class _CustomTextFieldForCareerPreferenceState
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Column(
@@ -183,7 +184,7 @@ class _CustomTextFieldForCareerPreferenceState
               return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
-                  color: Constants.white,
+                  color: colors.bottomsheetbgColor,
                 ),
                 child: child,
               );
@@ -199,8 +200,8 @@ class _CustomTextFieldForCareerPreferenceState
             itemBuilder: (context, suggestion) {
               final isOdd = suggestionIndex % 2 == 0;
               final backgroundColor = isOdd
-                  ? Colors.grey.shade200
-                  : Colors.white;
+                  ? colors.bottomsheerCard1Color
+                  : colors.bottomsheerCard2Color;
               suggestionIndex++;
               return Container(
                 decoration: BoxDecoration(
@@ -212,6 +213,7 @@ class _CustomTextFieldForCareerPreferenceState
                     title: suggestion.toString(),
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
+                    color: colors.headingColor,
                   ),
                 ),
               );
@@ -233,7 +235,7 @@ class _CustomTextFieldForCareerPreferenceState
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Constants.lightdull,
+                      color: colors.bottomsheerCard1Color,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: ListTile(
@@ -241,6 +243,7 @@ class _CustomTextFieldForCareerPreferenceState
                         fontSize: 12,
                         title: "No matches found",
                         fontWeight: FontWeight.w600,
+                        color: colors.headingColor,
                       ),
                     ),
                   ),
@@ -249,6 +252,10 @@ class _CustomTextFieldForCareerPreferenceState
               return Container(
                 margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                decoration: BoxDecoration(
+                  color: colors.bottomsheetbgColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -256,6 +263,7 @@ class _CustomTextFieldForCareerPreferenceState
                       fontSize: 12,
                       title: "Searching...",
                       fontWeight: FontWeight.w600,
+                      color: colors.headingColor,
                     ),
                   ],
                 ),

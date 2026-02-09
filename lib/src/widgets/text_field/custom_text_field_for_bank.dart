@@ -28,6 +28,7 @@ class CustomTextFieldForBank extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final suggestionProvider = Provider.of<BankSuggestionProvider>(context);
 
     return Container(
@@ -70,8 +71,8 @@ class CustomTextFieldForBank extends StatelessWidget {
             decoration: BoxDecoration(
               color:
                   (suggestionProvider.suggestions.indexOf(suggestion) % 2 == 0)
-                  ? Constants.lightdull
-                  : Colors.white,
+                  ? colors.bottomsheerCard1Color
+                  : colors.bottomsheerCard2Color,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
@@ -79,6 +80,7 @@ class CustomTextFieldForBank extends StatelessWidget {
                 title: (suggestion.name ?? ''),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
+                color: colors.headingColor,
               ),
             ),
           );
@@ -99,7 +101,7 @@ class CustomTextFieldForBank extends StatelessWidget {
           }
           return Container(
             decoration: BoxDecoration(
-              color: Constants.lightdull,
+              color: colors.bottomsheerCard1Color,
               borderRadius: BorderRadius.circular(8),
             ),
             child: ListTile(
@@ -108,6 +110,7 @@ class CustomTextFieldForBank extends StatelessWidget {
                 fontSize: 12,
                 title: "No result found.",
                 fontWeight: FontWeight.w600,
+                color: colors.subTitleColor,
               ),
             ),
           );

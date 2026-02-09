@@ -17,6 +17,7 @@ class CustomFieldBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       margin: const EdgeInsets.only(left: 8, top: 8, bottom: 8, right: 8),
       padding: const EdgeInsets.only(right: 10, top: 5, left: 10, bottom: 5),
@@ -29,7 +30,7 @@ class CustomFieldBlock extends StatelessWidget {
             offset: Offset(1, 1),
           ),
         ],
-        color: Colors.white,
+        color: colors.bottomsheerCard2Color,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -43,10 +44,43 @@ class CustomFieldBlock extends StatelessWidget {
             title: description,
             fontSize: 12,
             fontWeight: FontWeight.w500,
-            color: Colors.black,
+            color: colors.headingColor,
           ),
           // const Spacer(),
-          ElevatedButton(
+          InkWell(
+            onTap: onPressed,
+            child: Container(
+              margin: EdgeInsets.zero,
+              decoration: BoxDecoration(
+                color: colors.selectedNavTabColor,
+                borderRadius: BorderRadius.circular(8),
+                border: /*  isBorder != null && isBorder != false
+              ? Border.all(color: Constants.darkBlue)
+              : */ Border.all(
+                  color: colors.selectedNavTabBorderColor!,
+                ),
+              ),
+              // width: isBorder != null && isBorder! ? null : double.infinity,
+              padding: const EdgeInsets.only(
+                bottom: 6,
+                top: 6,
+                left: 5,
+                right: 5,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  customText(
+                    title: buttonText,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: colors.buttonTextColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          /*  ElevatedButton(
             onPressed: onPressed,
             style: ElevatedButton.styleFrom(
               // Remove the vertical padding to reduce the height between button and text
@@ -70,7 +104,7 @@ class CustomFieldBlock extends StatelessWidget {
               color: Constants.white,
               fontWeight: FontWeight.bold,
             ),
-          ),
+          ), */
         ],
       ),
     );

@@ -44,16 +44,18 @@ class CustomPDFViewerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
       backgroundColor: Constants.white,
       floatingActionButton: enableDelete != null && enableDelete == true
-          ? _buildFloatingActionButton()
+          ? _buildFloatingActionButton(colors)
           : null,
       appBar: AppBar(
         title: customText(
           title: title,
           fontSize: 16,
           fontWeight: FontWeight.w700,
+          color: colors.headingColor,
         ),
       ),
       body: _buildViewer(),
@@ -89,7 +91,7 @@ class CustomPDFViewerDialog extends StatelessWidget {
   }
   //
 
-  Widget? _buildFloatingActionButton() {
+  Widget? _buildFloatingActionButton(AppColors colors) {
     if (isFromAts && contact_no != null) {
       return FabWithMenu(contact_no: contact_no, alternateno: alternate_no);
     } else if (isFromAts && contact_no == null) {
@@ -101,7 +103,7 @@ class CustomPDFViewerDialog extends StatelessWidget {
           onDelete?.call();
           NavigationService.pop();
         },
-        backgroundColor: Constants.borderColor,
+        backgroundColor: colors.bottomsheetbgColor,
         child: Image.network(
           CustomIconUrl.deleteicon,
           height: 30,

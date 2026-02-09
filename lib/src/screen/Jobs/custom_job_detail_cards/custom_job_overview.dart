@@ -20,66 +20,61 @@ class CustomJobOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       margin: const EdgeInsets.only(top: 6, bottom: 6),
       padding: const EdgeInsets.only(top: 6, bottom: 6, left: 6),
       decoration: BoxDecoration(
-        color: Constants.borderColor,
-        border: Border.all(color: Constants.darkBlue),
+        color: colors.atsCardColor,
+        border: Border.all(color: colors.jobdetailContainerColor!),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const customText(
+          customText(
             title: "Job Overview",
             fontSize: 14,
             fontWeight: FontWeight.w700,
+            color: colors.headingColor,
           ),
           const SizedBox(height: 6),
-          _buildInfoRow(
-            CustomIconUrl.educationoutlineicon,
-            education,
-          ),
+          _buildInfoRow(CustomIconUrl.educationoutlineicon, education, colors),
           const SizedBox(height: 4),
-          _buildInfoRow(
-            CustomIconUrl.holidayicon,
-            weekoff,
-          ),
+          _buildInfoRow(CustomIconUrl.holidayicon, weekoff, colors),
           const SizedBox(height: 4),
-          _buildInfoRow(
-             CustomIconUrl.watchicon,
-            shifttime,
-          ),
+          _buildInfoRow(CustomIconUrl.watchicon, shifttime, colors),
           const SizedBox(height: 4),
-          if (language.isNotEmpty) _buildLanguageRow(),
+          if (language.isNotEmpty) _buildLanguageRow(colors),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(String imgurl, String text) {
+  Widget _buildInfoRow(String imgurl, String text, AppColors colors) {
     return Row(
       children: [
         CustomNetworkImage(
           imageUrl: imgurl,
           defaultIcon: Icons.error_outline,
           height: 16,
+          color: colors.jobdetailGreyColor,
         ),
         const SizedBox(width: 8),
-        customText(title: text),
+        customText(title: text, color: colors.jobdetailGreyColor),
       ],
     );
   }
 
-  Widget _buildLanguageRow() {
+  Widget _buildLanguageRow(AppColors colors) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CustomNetworkImage(
-          imageUrl:  CustomIconUrl.languageicon,
+        CustomNetworkImage(
+          imageUrl: CustomIconUrl.languageicon,
           defaultIcon: Icons.error_outline,
           height: 16,
+          color: colors.jobdetailGreyColor,
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -89,6 +84,7 @@ class CustomJobOverview extends StatelessWidget {
                 : "${language.join(', ')} (Any one regional language is mandatory)", // Comma separated string
             softwrap: true,
             overflow: TextOverflow.visible,
+            color: colors.jobdetailGreyColor,
           ),
         ),
       ],

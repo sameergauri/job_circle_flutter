@@ -35,12 +35,13 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final jobProvider = Provider.of<JobProvider>(context, listen: false);
     final userdetail = jobProvider.userData;
     return Container(
       width: 250, // Set width of the drawer
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: colors.draweBgColor,
         boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
       ),
       child: Column(
@@ -48,7 +49,7 @@ class CustomDrawer extends StatelessWidget {
         children: [
           Container(
             // height: 150,
-            color: Constants.borderColor,
+            color: colors.appbarColor,
             padding: const EdgeInsets.only(
               top: kTextTabBarHeight,
               left: kTextTabBarHeight / 2,
@@ -67,7 +68,7 @@ class CustomDrawer extends StatelessWidget {
                   },
                   child: CircleAvatar(
                     radius: 30,
-                    backgroundColor: Constants.white,
+                    backgroundColor: colors.circlebgColor,
                     backgroundImage:
                         userdetail!.userProfilePic != "" &&
                             userdetail.userProfilePic != null &&
@@ -88,10 +89,12 @@ class CustomDrawer extends StatelessWidget {
                   title: userdetail.userName.toString(),
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
+                  color: colors.headingColor,
                 ),
                 customText(
                   title: cleanedLocation(userdetail.userLocation.toString()),
                   fontSize: 14,
+                  color: colors.headingColor,
                 ),
               ],
             ),
@@ -108,11 +111,13 @@ class CustomDrawer extends StatelessWidget {
             leading: CustomNetworkImage(
               imageUrl: CustomIconUrl.referalprogramicon,
               defaultIcon: Icons.room_preferences_sharp,
+              color: colors.subtitleTextColor,
             ),
-            title: const customText(
+            title: customText(
               title: 'Referral Program',
               fontSize: 12,
               fontWeight: FontWeight.normal,
+              color: colors.subtitleTextColor,
               // color: Constants.darkBlue,
             ),
             children: [
@@ -123,11 +128,13 @@ class CustomDrawer extends StatelessWidget {
                 leading: CustomNetworkImage(
                   imageUrl: CustomIconUrl.joinersicon,
                   defaultIcon: Icons.room_preferences_sharp,
+                  color: colors.subtitleTextColor,
                 ),
-                title: const customText(
+                title: customText(
                   title: "Joiner's",
                   fontSize: 12,
                   fontWeight: FontWeight.normal,
+                  color: colors.subtitleTextColor,
                 ),
                 onTap: () {
                   NavigationService.push(JoinersHomePage());
@@ -142,11 +149,13 @@ class CustomDrawer extends StatelessWidget {
                 leading: CustomNetworkImage(
                   imageUrl: CustomIconUrl.walleticon,
                   defaultIcon: Icons.room_preferences_sharp,
+                  color: colors.subtitleTextColor,
                 ),
-                title: const customText(
+                title: customText(
                   title: 'Payment Tracker',
                   fontSize: 12,
                   fontWeight: FontWeight.normal,
+                  color: colors.subtitleTextColor,
                 ),
                 onTap: () {
                   NavigationService.push(PaymentStatusHomePage());
@@ -161,11 +170,13 @@ class CustomDrawer extends StatelessWidget {
                 leading: CustomNetworkImage(
                   imageUrl: CustomIconUrl.bankicon,
                   defaultIcon: Icons.room_preferences_sharp,
+                  color: colors.subtitleTextColor,
                 ),
-                title: const customText(
+                title: customText(
                   title: 'My Banking Detail',
                   fontSize: 12,
                   fontWeight: FontWeight.normal,
+                  color: colors.subtitleTextColor,
                 ),
                 onTap: () {
                   NavigationService.push(
@@ -187,11 +198,13 @@ class CustomDrawer extends StatelessWidget {
             leading: CustomNetworkImage(
               imageUrl: CustomIconUrl.mailicon,
               defaultIcon: Icons.room_preferences_sharp,
+              color: colors.subtitleTextColor,
             ),
-            title: const customText(
+            title: customText(
               title: 'Write to us',
               fontSize: 12,
               fontWeight: FontWeight.normal,
+              color: colors.subtitleTextColor,
             ),
             onTap: () async {
               await launchUrl(Uri.parse("mailto:support@jobcircle.co.in?"));
@@ -205,11 +218,13 @@ class CustomDrawer extends StatelessWidget {
             leading: CustomNetworkImage(
               imageUrl: CustomIconUrl.shareicon,
               defaultIcon: Icons.room_preferences_sharp,
+              color: colors.subtitleTextColor,
             ),
-            title: const customText(
+            title: customText(
               title: 'Share App',
               fontSize: 12,
               fontWeight: FontWeight.normal,
+              color: colors.subtitleTextColor,
             ),
             onTap: () {
               shareApp();
@@ -220,11 +235,15 @@ class CustomDrawer extends StatelessWidget {
             dense: true,
             minLeadingWidth: 0.0,
             minVerticalPadding: 5.1,
-            leading: const Icon(Icons.logout_outlined),
-            title: const customText(
+            leading: Icon(
+              Icons.logout_outlined,
+              color: colors.subtitleTextColor,
+            ),
+            title: customText(
               title: 'LogOut',
               fontSize: 12,
               fontWeight: FontWeight.normal,
+              color: colors.subtitleTextColor,
             ),
             onTap: () async {
               // Clear Shared Preferences and navigate to Login Page
@@ -233,7 +252,7 @@ class CustomDrawer extends StatelessWidget {
               await client.disconnectUser();
               SharedPrefsHelper.clearAllPreferences();
               await CacheClearAppVersionService.clearCache();
-              NavigationService.pushAndRemoveUntil( LoginPage());
+              NavigationService.pushAndRemoveUntil(LoginPage());
               onClose();
             },
           ),
@@ -342,6 +361,7 @@ class CustomDrawer extends StatelessWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.normal,
                     fontStyle: FontStyle.italic,
+                    color: colors.headingColor,
                   ),
                 ),
               ],
@@ -382,6 +402,7 @@ class CareerPreferenceToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<CareerPreferenceProvider>(
       builder: (context, provider, child) {
         return ListTile(
@@ -391,11 +412,13 @@ class CareerPreferenceToggle extends StatelessWidget {
           leading: CustomNetworkImage(
             imageUrl: CustomIconUrl.careerpreficon,
             defaultIcon: Icons.work_outline,
+            color: colors.subtitleTextColor,
           ),
           title: customText(
             title: 'Looking for Job',
             fontSize: 12,
             fontWeight: FontWeight.normal,
+            color: colors.subtitleTextColor,
           ),
           trailing: Transform.scale(
             alignment: Alignment.centerRight,
@@ -410,7 +433,7 @@ class CareerPreferenceToggle extends StatelessWidget {
               }),
               padding: EdgeInsets.zero,
               value: provider.jobPrefEnable,
-              activeColor: Constants.darkBlue,
+              activeColor: Constants.tongleColor,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               onChanged: (value) {
                 if (!value) {

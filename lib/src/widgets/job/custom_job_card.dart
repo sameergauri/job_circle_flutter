@@ -30,6 +30,7 @@ class CustomJobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final isLoading = ValueNotifier<bool>(false);
 
     return Container(
@@ -40,6 +41,7 @@ class CustomJobCard extends StatelessWidget {
           if (job.jobPostType != null &&
               (job.jobPostType == 2 || job.jobPostType == 3))
             Container(
+              margin: const EdgeInsets.only(bottom: 5),
               padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               width: double.infinity,
               decoration: BoxDecoration(
@@ -79,10 +81,14 @@ class CustomJobCard extends StatelessWidget {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                border: Border.all(color: Constants.lightdull),
+                color: Constants.lightdull,
+                border: Border.all(color: colors.textColor!),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: job.companyIcon != null && job.companyIcon != ""
+              child:
+                  job.companyIcon != null &&
+                      job.companyIcon != "" &&
+                      job.companyIcon != " "
                   ? CustomNetworkImage(
                       imageUrl:
                           "${GlobalConstants.Image_url}${job.companyIcon}",
@@ -91,6 +97,7 @@ class CustomJobCard extends StatelessWidget {
                   : Image.network(
                       CustomIconUrl.companyicon,
                       fit: BoxFit.contain,
+                      color: colors.unselectedNavTabIconColor,
                     ),
             ),
             title: customText(
@@ -103,6 +110,7 @@ class CustomJobCard extends StatelessWidget {
                         ? 16
                         : 14
                   : 14,
+              color: colors.textPrimary,
             ),
             trailing: ValueListenableBuilder<bool>(
               valueListenable: isLoading,
@@ -231,7 +239,7 @@ class CustomJobCard extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             alignment: WrapAlignment.start,
             children: [
-              const customText(title: "Skills : "),
+              customText(title: "Skills : ", color: colors.textPrimary),
               ...skills.take(10).toList().asMap().entries.map((entry) {
                 final skillIndex = entry.key;
                 final value = entry.value;
@@ -381,6 +389,7 @@ class CustomRecommendJobcard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final customColors = context.appColors;
     final isLoading = ValueNotifier<bool>(false);
 
     return Container(
@@ -430,7 +439,8 @@ class CustomRecommendJobcard extends StatelessWidget {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                border: Border.all(color: Constants.lightdull),
+                color: Constants.lightdull,
+                border: Border.all(color: customColors.textColor!),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: job.companyIcon != null && job.companyIcon != ""
@@ -442,6 +452,7 @@ class CustomRecommendJobcard extends StatelessWidget {
                   : Image.network(
                       CustomIconUrl.companyicon,
                       fit: BoxFit.contain,
+                      color: customColors.unselectedNavTabIconColor,
                     ),
             ),
             title: customText(
@@ -454,6 +465,7 @@ class CustomRecommendJobcard extends StatelessWidget {
                         ? 16
                         : 14
                   : 14,
+              color: customColors.textPrimary,
             ),
             trailing: ValueListenableBuilder<bool>(
               valueListenable: isLoading,
@@ -580,7 +592,7 @@ class CustomRecommendJobcard extends StatelessWidget {
             crossAxisAlignment: WrapCrossAlignment.center,
             alignment: WrapAlignment.start,
             children: [
-              const customText(title: "Skills : "),
+              customText(title: "Skills : ", color: customColors.textPrimary),
               ...skills.take(10).toList().asMap().entries.map((entry) {
                 final skillIndex = entry.key;
                 final value = entry.value;

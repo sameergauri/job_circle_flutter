@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/src/constants/colors.dart';
 
 class ViewConatinerForSkills extends StatelessWidget {
   final List<String> skills;
@@ -15,6 +16,7 @@ class ViewConatinerForSkills extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Container(
       padding: const EdgeInsets.only(top: 6, bottom: 6),
       child: Wrap(
@@ -27,7 +29,7 @@ class ViewConatinerForSkills extends StatelessWidget {
                   style: GoogleFonts.merriweather(
                     fontWeight: FontWeight.w700,
                     fontSize: 12,
-                    color: Colors.black,
+                    color: colors.headingColor,
                   ),
                 ),
                 TextSpan(

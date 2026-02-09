@@ -22,6 +22,7 @@ class CustomButtonForSave extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -29,11 +30,11 @@ class CustomButtonForSave extends StatelessWidget {
             ? const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 10)
             : EdgeInsets.zero,
         decoration: BoxDecoration(
-          color: buttonColor ?? Constants.darkBlue,
+          color: buttonColor ?? colors.selectedNavTabColor,
           borderRadius: BorderRadius.circular(8),
           border: isBorder != null && isBorder != false
               ? Border.all(color: Constants.darkBlue)
-              : const Border(),
+              : Border.all(color: colors.selectedNavTabBorderColor!),
         ),
         width: isBorder != null && isBorder! ? null : double.infinity,
         padding: const EdgeInsets.only(bottom: 8, top: 8),
@@ -44,7 +45,7 @@ class CustomButtonForSave extends StatelessWidget {
               title: title,
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: textColor ?? Colors.white,
+              color: textColor ?? colors.buttonTextColor,
             ),
           ],
         ),

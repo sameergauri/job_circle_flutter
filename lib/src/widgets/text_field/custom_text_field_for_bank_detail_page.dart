@@ -27,6 +27,7 @@ class CustomBankTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     TextInputType keyboardType;
     if (textfieldNo == 1 || textfieldNo == 2) {
       keyboardType = TextInputType.number;
@@ -68,12 +69,14 @@ class CustomBankTextField extends StatelessWidget {
         textCapitalization: textCapitalization,
         controller: controller,
         style: GoogleFonts.montserrat(
-          color: Constants.black,
+          color: colors.headingColor,
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
         decoration: InputDecoration(
-          fillColor: enabled ? Colors.transparent : Constants.lightdull,
+          fillColor: enabled
+              ? Colors.transparent
+              : colors.bottomsheerCard1Color,
           filled: !enabled,
           contentPadding: const EdgeInsets.only(
             top: 8,
@@ -84,20 +87,20 @@ class CustomBankTextField extends StatelessWidget {
           counterText: '',
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Constants.lightdull),
+            borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Constants.lightdull),
+            borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
           ),
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Constants.lightdull),
+            borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
           ),
           focusColor: const Color(0x0ff0eceb),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.black),
+            borderSide: BorderSide(color: colors.headingColor!),
           ),
           hintText: hint,
           hintStyle: GoogleFonts.montserrat(

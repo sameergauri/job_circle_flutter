@@ -69,6 +69,7 @@ class CustomToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return IntrinsicWidth(
       child: InkWell(
         splashColor: Colors.transparent,
@@ -77,17 +78,23 @@ class CustomToggleButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
           margin: const EdgeInsets.only(top: 5, bottom: 5, right: 10),
           decoration: BoxDecoration(
-            color: isSelect ? Constants.borderColor : Colors.white,
+            color: isSelect
+                ? colors.selectedTabColor!
+                : colors.unSelectedTabColor!,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelect ? Constants.borderColor : Constants.lightdull,
+              color: isSelect
+                  ? colors.selectedTabBorderColor!
+                  : colors.unSelectedTabBorderColor!,
             ),
           ),
           child: Center(
             child: customText(
               title: title,
               fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
-              color: Constants.black,
+              color: isSelect
+                  ? colors.selectedTabTextColor
+                  : colors.unSelectedTabTextColor,
               fontSize: 12,
               softwrap: isForTab ? false : null,
               overflow: isForTab ? TextOverflow.visible : null,
@@ -118,6 +125,7 @@ class CustomGenderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return IntrinsicWidth(
       child: InkWell(
         splashColor: Colors.transparent,
@@ -128,17 +136,67 @@ class CustomGenderButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
           margin: const EdgeInsets.only(top: 5, bottom: 5, right: 10),
           decoration: BoxDecoration(
-            color: isSelect ? Constants.borderColor : Colors.white,
+            color: isSelect
+                ? colors.selectedTabColor!
+                : colors.unSelectedTabColor!,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isSelect ? Constants.borderColor : Constants.lightdull,
+              color: isSelect
+                  ? colors.selectedTabBorderColor!
+                  : colors.unSelectedTabBorderColor!,
             ),
           ),
           child: Center(
             child: customText(
               title: title,
               fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
-              color: Constants.black,
+              color: isSelect
+                  ? colors.selectedTabTextColor
+                  : colors.unSelectedTabTextColor,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class CustomSelectedSkillButton extends StatelessWidget {
+  final String title;
+  final VoidCallback onTap;
+ 
+
+  const CustomSelectedSkillButton({
+    super.key,
+    required this.title,
+    required this.onTap,
+ 
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+    return IntrinsicWidth(
+      child: InkWell(
+        splashColor: Colors.transparent,
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+          margin: const EdgeInsets.only(top: 5, bottom: 5, right: 10),
+          decoration: BoxDecoration(
+            color: colors.appbarColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: colors.appbarColor!
+            ),
+          ),
+          child: Center(
+            child: customText(
+              title: title,
+              fontWeight:  FontWeight.bold,
+              color: colors.headingColor,
               fontSize: 12,
             ),
           ),

@@ -28,6 +28,7 @@ class _DropDownYearState extends State<DropDownYear> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     // 1. Calculate the years directly inside build
     // This ensures the list is ALWAYS fresh
     final List<int> years = _generateYears();
@@ -50,6 +51,7 @@ class _DropDownYearState extends State<DropDownYear> {
     }
 
     return DropdownButtonFormField<int>(
+      dropdownColor: colors.appbarColor,
       menuMaxHeight: 300,
       isExpanded: true,
       // If selectedYear is not null but also not in the 'items' list, Flutter throws an error.
@@ -57,17 +59,21 @@ class _DropDownYearState extends State<DropDownYear> {
       initialValue: (selectedYear != null && years.contains(selectedYear))
           ? selectedYear
           : null,
-      hint: customText(monst: true, title: widget.hint),
+      hint: customText(
+        monst: true,
+        title: widget.hint,
+        color: colors.headingColor,
+      ),
       decoration: InputDecoration(
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Constants.black),
+          borderSide: BorderSide(color: colors.headingColor!),
           borderRadius: BorderRadius.circular(8),
         ),
-        disabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Constants.subtitleclr),
+        disabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: colors.subTitleColor!),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Constants.subtitleclr),
+          borderSide: BorderSide(color: colors.subTitleColor!),
           borderRadius: BorderRadius.circular(8),
         ),
         contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
@@ -77,7 +83,11 @@ class _DropDownYearState extends State<DropDownYear> {
           .map(
             (year) => DropdownMenuItem<int>(
               value: year,
-              child: customText(monst: true, title: year.toString()),
+              child: customText(
+                monst: true,
+                title: year.toString(),
+                color: colors.headingColor,
+              ),
             ),
           )
           .toList(),

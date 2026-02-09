@@ -82,6 +82,7 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
 
   @override
   Widget build(BuildContext context) {
+    final customColors = Theme.of(context).extension<AppColors>()!;
     return Stack(
       alignment: Alignment.centerLeft,
       children: [
@@ -90,6 +91,7 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
               ? MediaQuery.of(context).size.height / 24
               : null,
           child: TextFormField(
+            cursorColor: customColors.headingColor,
             focusNode: focusNode,
             onTap: () {
               widget.onTab != null ? widget.onTab!() : null;
@@ -120,7 +122,7 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
                 ? TextCapitalization.none
                 : TextCapitalization.sentences,
             style: GoogleFonts.montserrat(
-              color: Colors.black,
+              color: customColors.textfieldTextColor,
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
@@ -154,7 +156,7 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.black),
+                borderSide: const BorderSide(color: Colors.grey),
               ),
               // hintText removed since we are manually overlaying
             ),
@@ -213,7 +215,7 @@ class _DynamicHintTextFieldState extends State<DynamicHintTextField>
                         _currentDynamicHint,
                       ), // must be unique for each hint
                       style: GoogleFonts.merriweather(
-                        color: Constants.black,
+                        color: customColors.textfieldTextColor,
                         fontStyle: FontStyle.italic,
                         fontSize: 14,
                       ),

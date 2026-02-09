@@ -17,9 +17,7 @@ import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/container/custom_container_to_view_document.dart';
 import 'package:job_circle/src/widgets/container/custom_remark_coontainer.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
-import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_pdf_view_dialogue.dart';
-import 'package:job_circle/src/widgets/list_tile/custom_list_tile.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_field_for_bank.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_field_for_bank_detail_page.dart';
@@ -56,10 +54,12 @@ class _BankingDetailsState extends State<BankingDetails> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Consumer<BankingProvider>(
       builder: (context, provider, child) {
         if (provider.isLoading) {
-          return const Scaffold(
+          return Scaffold(
+            backgroundColor: colors.bgColor,
             body: Center(
               child: CircularProgressIndicator(
                 color: Constants.darkBlue,
@@ -70,22 +70,30 @@ class _BankingDetailsState extends State<BankingDetails> {
         }
         return provider.fetchBankDetail != null &&
                 provider.fetchBankDetail!.isNotEmpty
-            ? _buildBankingListView(provider.fetchBankDetail!)
-            : _buildBankingForm(context, provider);
+            ? _buildBankingListView(provider.fetchBankDetail!, colors)
+            : _buildBankingForm(context, provider, colors);
       },
     );
   }
 
-  Widget _buildBankingListView(List<FetchBankDetailModel> bankingData) {
+  Widget _buildBankingListView(
+    List<FetchBankDetailModel> bankingData,
+    AppColors colors,
+  ) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.bgColor,
       appBar: AppBar(
         automaticallyImplyLeading: true,
-        backgroundColor: Constants.borderColor,
+        backgroundColor: colors.appbarColor,
         elevation: 0,
         titleSpacing: 0.0,
-        iconTheme: const IconThemeData(color: Colors.black),
-        title: const OnboardingTitle(title: "Banking Detail", fontSize: 16),
+        iconTheme: IconThemeData(color: colors.headingColor),
+        title: customText(
+          title: "Banking Detail",
+          fontSize: 16,
+          color: colors.headingColor,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       body: ListView.builder(
         itemCount: bankingData.length,
@@ -93,7 +101,7 @@ class _BankingDetailsState extends State<BankingDetails> {
           final bankData = bankingData[index];
           return Column(
             children: [
-              _buildBankingCard(bankData),
+              _buildBankingCard(bankData, colors),
               if (index != bankingData.length - 1)
                 const Divider(thickness: 1.0),
             ],
@@ -103,22 +111,27 @@ class _BankingDetailsState extends State<BankingDetails> {
     );
   }
 
-  Widget _buildBankingForm(BuildContext context, BankingProvider provider) {
+  Widget _buildBankingForm(
+    BuildContext context,
+    BankingProvider provider,
+    AppColors colors,
+  ) {
     return GestureDetector(
       onTap: provider.hideAccountNumber,
       child: Stack(
         children: [
           Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: colors.bgColor,
             appBar: AppBar(
               automaticallyImplyLeading: true,
-              backgroundColor: Constants.borderColor,
+              backgroundColor: colors.appbarColor,
               elevation: 0,
               titleSpacing: 0.0,
-              iconTheme: const IconThemeData(color: Colors.black),
-              title: const OnboardingTitle(
+              iconTheme: IconThemeData(color: colors.headingColor),
+              title: customText(
                 title: "Banking Detail",
                 fontSize: 16,
+                color: colors.headingColor,
               ),
             ),
             bottomNavigationBar: CustomButtonForSave(
@@ -155,7 +168,7 @@ class _BankingDetailsState extends State<BankingDetails> {
               },
               title: "Submit",
             ),
-            body: _buildBankingFormContent(context, provider),
+            body: _buildBankingFormContent(context, provider, colors),
           ),
           if (provider.isLoading) CustomLoadingIndicator(),
         ],
@@ -166,6 +179,7 @@ class _BankingDetailsState extends State<BankingDetails> {
   Widget _buildBankingFormContent(
     BuildContext context,
     BankingProvider provider,
+    AppColors colors,
   ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -174,9 +188,10 @@ class _BankingDetailsState extends State<BankingDetails> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 20),
-            const customText(
+            customText(
               title: "Name as per Bank Record*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomBankTextField(
               controller: provider.accountHolderNameController,
@@ -187,7 +202,11 @@ class _BankingDetailsState extends State<BankingDetails> {
               maxLength: 30,
             ),
             const SizedBox(height: 15),
-            const customText(title: "Bank Name*", fontStyle: FontStyle.italic),
+            customText(
+              title: "Bank Name*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomTextFieldForBank(
               controller: provider.bankNameController,
               hintText: "Type to search",
@@ -196,9 +215,10 @@ class _BankingDetailsState extends State<BankingDetails> {
               onChanged: (p0) {},
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Bank Account Number*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomBankTextField(
               controller: provider.acNoController,
@@ -211,9 +231,10 @@ class _BankingDetailsState extends State<BankingDetails> {
               onSubmitted: (_) => provider.hideAccountNumber(),
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Re confirm your Bank Account Number*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             CustomBankTextField(
               controller: provider.acNoVerifyController,
@@ -224,7 +245,11 @@ class _BankingDetailsState extends State<BankingDetails> {
               maxLength: 16,
             ),
             const SizedBox(height: 15),
-            const customText(title: "IFSC Code*", fontStyle: FontStyle.italic),
+            customText(
+              title: "IFSC Code*",
+              fontStyle: FontStyle.italic,
+              color: colors.headingColor,
+            ),
             CustomBankTextField(
               controller: provider.ifscCodeController,
               hint: "BK***15D",
@@ -234,9 +259,10 @@ class _BankingDetailsState extends State<BankingDetails> {
               maxLength: 11,
             ),
             const SizedBox(height: 15),
-            const customText(
+            customText(
               title: "Bank Account Type*",
               fontStyle: FontStyle.italic,
+              color: colors.headingColor,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -308,13 +334,14 @@ class _BankingDetailsState extends State<BankingDetails> {
     }
   }
 
-  Widget _buildBankingCard(FetchBankDetailModel data) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+  Widget _buildBankingCard(FetchBankDetailModel data, AppColors colors) {
+    return Container(
+      color: colors.bgColor,
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomNewListTile(
+          ListTile(
             dense: true,
             contentPadding: EdgeInsets.zero,
             trailing: Container(
@@ -330,7 +357,11 @@ class _BankingDetailsState extends State<BankingDetails> {
                     ),
                   );
                 },
-                child: Image.network(CustomIconUrl.documenticon, height: 30),
+                child: Image.network(
+                  CustomIconUrl.documenticon,
+                  height: 30,
+                  color: colors.headingColor,
+                ),
               ),
             ),
             leading: Container(
@@ -350,10 +381,12 @@ class _BankingDetailsState extends State<BankingDetails> {
               title: widget.name.toString(),
               fontSize: 14,
               fontWeight: FontWeight.bold,
+              color: colors.headingColor,
             ),
             subtitle: customText(
               title: "${data.accountNumber} || ${data.ifscCode}",
               fontSize: 12,
+              color: colors.subTitleColor,
             ),
           ),
           if (data.isVerify != 0)
@@ -361,14 +394,11 @@ class _BankingDetailsState extends State<BankingDetails> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 2,
-                    horizontal: 6,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 6),
                   decoration: BoxDecoration(
-                    border: Border.all(color: Constants.borderColor),
+                    border: Border.all(color: colors.appbarColor!),
                     borderRadius: BorderRadius.circular(8),
-                    color: Constants.borderColor,
+                    color: colors.appbarColor,
                   ),
                   child: customText(
                     title: data.isVerify == null
@@ -390,7 +420,7 @@ class _BankingDetailsState extends State<BankingDetails> {
           if (data.isVerify == 0)
             CustomRemarkConatiner(
               subtitle: data.remark!,
-              valueColor: Constants.subtitleclr,
+              valueColor: colors.subTitleColor!,
               title: "Rejected",
             ),
         ],
