@@ -10,6 +10,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
+import 'package:job_circle/src/provider/app_theme_provider.dart/app_theme_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
@@ -115,10 +116,12 @@ class _CustomMissingInfoContainerState
           description: "Never skip adding your resume.",
           buttonText: "+ Build Resume",
           onPressed: () async {
+            final provider = context.read<ThemeProvider>();
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => ResumeTemplateSelectionScreen(
+                  themeMode: provider.themeMode,
                   buttonTitle: "Add To Profile",
                   userProfileJson: profileData.toJson(),
                   geminiApiKey: 'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc',

@@ -98,6 +98,7 @@ class CvParseUserProfile extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ResumeTemplateSelectionScreen(
+                                  themeMode: ThemeMode.light,
                                   buttonTitle: "Save & Continue",
                                   userProfileJson: provider
                                       .buildProfileModelFromProvider(provider)

@@ -7,6 +7,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_onboarding_titlle.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/provider/app_theme_provider.dart/app_theme_provider.dart' as  show;
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
@@ -44,6 +45,7 @@ class AddSummary extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => ResumeTemplateSelectionScreen(
+                          themeMode: ThemeMode.light,
                           buttonTitle: "Save & Continue",
                           userProfileJson: provider
                               .buildProfileModelFromProvider(provider)
