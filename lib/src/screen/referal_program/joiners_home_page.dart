@@ -549,15 +549,23 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                       child: CustomButtonForSave(
                         title: "Create Invoice",
                         onTap: () async {
-                          final bankdetail = bankingProvider
-                              .fetchBankDetail!
-                              .first
-                              .accountNumber;
-                          if (bankdetail == null ||
-                              bankdetail.isEmpty ||
-                              bankdetail == "null") {
+                          // Safe way using ternary operator
+                          final bankList = bankingProvider.fetchBankDetail;
+
+                          final accountNumber =
+                              (bankList != null && bankList.isNotEmpty)
+                              ? bankList.first.accountNumber
+                              : 'null'; // Default value agar data na ho
+                          final bankStatus =
+                              (bankList != null && bankList.isNotEmpty)
+                              ? bankList.first.isVerify
+                              : 0;
+                          if (accountNumber == null ||
+                              accountNumber.isEmpty ||
+                              accountNumber == "null" ||
+                              (bankStatus == null || bankStatus == 0)) {
                             CustomSnackbar.show(
-                              "Add banking detail to generate invoice",
+                              "Add or check your banking detail.",
                               true,
                             );
                           } else {

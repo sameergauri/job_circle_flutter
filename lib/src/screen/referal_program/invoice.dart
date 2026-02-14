@@ -12,7 +12,6 @@ import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/provider/referal_program/invoice_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -47,7 +46,6 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         return Stack(
           children: [
             Scaffold(
-             
               bottomNavigationBar: state.selectedOrganization != null
                   ? Padding(
                       padding: const EdgeInsets.only(
@@ -59,15 +57,22 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       child: CustomButtonForSave(
                         isPading: false,
                         onTap: () async {
-                          await provider.submitInvoice();
-                          if (state.submissionSuccess) {
+                          if (!state.termsAccepted) {
                             CustomSnackbar.show(
-                              'Invoice submitted successfully',
-                              false,
+                              "Accept terms and condition to submit the invoice",
+                              true,
                             );
-                            NavigationService.pop();
-                          } else if (state.error != null) {
-                            CustomSnackbar.show(state.error!, true);
+                          } else {
+                            await provider.submitInvoice();
+                            if (state.submissionSuccess) {
+                              CustomSnackbar.show(
+                                'Invoice submitted successfully',
+                                false,
+                              );
+                              NavigationService.pop();
+                            } else if (state.error != null) {
+                              CustomSnackbar.show(state.error!, true);
+                            }
                           }
                         },
                         title: 'Submit Invoice',
