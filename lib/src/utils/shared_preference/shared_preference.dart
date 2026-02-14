@@ -65,5 +65,23 @@ class SharedPrefsHelper {
   static void remove(ESharedPreferences key) => _prefs?.remove(key.name);
 
   /// **Clear All SharedPreferences Data**
-  static void clearAllPreferences() => _prefs?.clear();
+  // static void clearAllPreferences() => _prefs?.clear();
+  /// **Clear All Data EXCEPT Persistent App Settings (like Theme)**
+  static Future<void> clearAllPreferences() async {
+    if (_prefs == null) return;
+
+    // List of keys we want to PRESERVE even after logout
+    final List<String> preserveKeys = [
+      ESharedPreferences.theme_mode.name,
+      // Add other keys here like language_code if needed
+    ];
+
+    final allKeys = _prefs!.getKeys();
+
+    for (String key in allKeys) {
+      if (!preserveKeys.contains(key)) {
+        await _prefs!.remove(key);
+      }
+    }
+  }
 }

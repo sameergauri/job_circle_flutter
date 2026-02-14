@@ -12,7 +12,7 @@ class ThemeProvider with ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
 
   ThemeProvider() {
-    _loadFromPrefs(); // App start hote hi saved theme load karo
+    loadFromPrefs(); // App start hote hi saved theme load karo
   }
 
   // Theme change karne aur save karne ka function
@@ -29,7 +29,7 @@ class ThemeProvider with ChangeNotifier {
   }
 
   // Local storage se data nikalne ka logic
-  void _loadFromPrefs() async {
+  void loadFromPrefs() async {
     String themeStr = SharedPrefsHelper.getString(
       ESharedPreferences.theme_mode,
     );
