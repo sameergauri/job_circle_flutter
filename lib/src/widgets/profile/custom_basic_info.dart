@@ -206,7 +206,14 @@ class CustomBasicInfoContainer extends StatelessWidget {
                                           .experiences!
                                           .isNotEmpty
                                 ? "${profileProvider.profile!.experiences!.first.jobTitle} at ${profileProvider.profile!.experiences!.first.companyName}"
-                                : "${profileProvider.profile!.educationDetails!.first.degreeSpc} from ${profileProvider.profile!.educationDetails!.first.university}",
+                                : profileProvider.profile!.educationDetails !=
+                                          null &&
+                                      profileProvider
+                                          .profile!
+                                          .educationDetails!
+                                          .isNotEmpty
+                                ? "${profileProvider.profile!.educationDetails!.first.degreeSpc} from ${profileProvider.profile!.educationDetails!.first.university}"
+                                : "",
                             softwrap: true,
                             maxlines: 3,
                             textAlign: TextAlign.center,

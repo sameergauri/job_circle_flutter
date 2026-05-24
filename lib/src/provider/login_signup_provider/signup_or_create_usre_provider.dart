@@ -1832,7 +1832,10 @@ class SignupCreateUserProvider with ChangeNotifier {
         );
       }
       if (exp.endDate != null) {
-        if (exp.endDate == "Present") {
+        if (exp.endDate == "Present" ||
+            exp.endDate == "Current" ||
+            exp.endDate == "present" ||
+            exp.endDate == "current") {
           current = true;
         } else {
           end = CvParseExpDateFormatter.formatDate(
