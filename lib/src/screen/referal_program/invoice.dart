@@ -12,6 +12,7 @@ import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/provider/referal_program/invoice_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/decryption_helper_service.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -69,6 +70,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                                 'Invoice submitted successfully',
                                 false,
                               );
+                              NavigationService.pop();
                               NavigationService.pop();
                             } else if (state.error != null) {
                               CustomSnackbar.show(state.error!, true);
@@ -366,6 +368,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
     final joiner = state.filteredJoiners.first;
 
+    String readableAccount = CryptoHelper.decryptECB(
+      base64CipherText: joiner.accountNumber ?? '',
+    );
+
+    String readableIfsc = CryptoHelper.decryptECB(
+      base64CipherText: joiner.ifscCode ?? '',
+    );
+
     return Column(
       children: [
         SizedBox(height: 10),
@@ -407,14 +417,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 ),
                 customText(
                   monst: true,
-                  title: " : ${joiner.accountNumber}",
+                  title: " : $readableAccount",
                   fontWeight: FontWeight.w500,
                   letterspacing: 0.6,
                   color: colors.subtitleTextColor,
                 ),
                 customText(
                   monst: true,
-                  title: " : ${joiner.ifscCode}",
+                  title: " : $readableIfsc",
                   fontWeight: FontWeight.w500,
                   letterspacing: 0.6,
                   color: colors.subtitleTextColor,
@@ -439,10 +449,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
     return CustomCheckboxRow(
       title:
-          'I, ${joiner.accountHolderName!.replaceAll(',', '')}, hereby acknowledge and agree that the above invoice accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
+          'I, ${(joiner.accountHolderName ?? '').replaceAll(',', '')}, hereby acknowledge and agree that the above invoice accurately represents the services provided. I confirm the authenticity of the information and authorize the processing of the mentioned sum.',
       value: state.termsAccepted,
       onChanged: (value) {
-        provider.setTermsCondition(value!);
+        if (value != null) provider.setTermsCondition(value);
       },
     );
   }

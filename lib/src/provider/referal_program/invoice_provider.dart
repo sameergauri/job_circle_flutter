@@ -155,6 +155,8 @@ class InvoiceProvider with ChangeNotifier {
   }
 }
 
+const _sentinel = Object();
+
 class InvoiceState {
   final List<JoinerData> joinersData;
   final List<JoinerData> filteredJoiners;
@@ -182,7 +184,7 @@ class InvoiceState {
     List<JoinerData>? joinersData,
     List<JoinerData>? filteredJoiners,
     List<OrganizationInfo>? organizationList,
-    OrganizationInfo? selectedOrganization,
+    Object? selectedOrganization = _sentinel,
     String? invoiceNumber,
     bool? termsAccepted,
     bool? isLoading,
@@ -193,7 +195,9 @@ class InvoiceState {
       joinersData: joinersData ?? this.joinersData,
       filteredJoiners: filteredJoiners ?? this.filteredJoiners,
       organizationList: organizationList ?? this.organizationList,
-      selectedOrganization: selectedOrganization ?? this.selectedOrganization,
+      selectedOrganization: selectedOrganization == _sentinel
+          ? this.selectedOrganization
+          : selectedOrganization as OrganizationInfo?,
       invoiceNumber: invoiceNumber ?? this.invoiceNumber,
       termsAccepted: termsAccepted ?? this.termsAccepted,
       isLoading: isLoading ?? this.isLoading,

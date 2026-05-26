@@ -9,6 +9,7 @@ import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/referal_program/ppayment_status_model.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/decryption_helper_service.dart';
 import 'package:job_circle/src/utils/salary_round_off.dart';
 import 'package:job_circle/src/utils/utils.dart';
 import 'package:job_circle/src/widgets/container/custom_container_to_view_document.dart';
@@ -29,6 +30,13 @@ class CustomInvoiveDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String readableAccount = CryptoHelper.decryptECB(
+      base64CipherText: invoice.accountNumber.toString(),
+    );
+
+    String readableIfsc = CryptoHelper.decryptECB(
+      base64CipherText: invoice.ifscCode.toString(),
+    );
     final colors = context.appColors;
     return Stack(
       children: [
@@ -273,14 +281,14 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                     ),
                     customText(
                       monst: true,
-                      title: " : ${invoice.accountNumber}",
+                      title: " : $readableAccount",
                       fontWeight: FontWeight.w500,
                       letterspacing: 0.6,
                       color: colors.subtitleTextColor,
                     ),
                     customText(
                       monst: true,
-                      title: " : ${invoice.ifscCode}",
+                      title: " : $readableIfsc",
                       fontWeight: FontWeight.w500,
                       letterspacing: 0.6,
                       color: colors.subtitleTextColor,

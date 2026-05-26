@@ -40,7 +40,6 @@ class CustomContainerSelectToViewDoc extends StatelessWidget {
           Container(
             width: MediaQuery.of(context).size.width,
             margin: const EdgeInsets.only(bottom: 7),
-            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
@@ -50,40 +49,44 @@ class CustomContainerSelectToViewDoc extends StatelessWidget {
                   offset: const Offset(1.0, 2.0),
                 ),
               ],
-              color: colors.bottomsheerCard2Color,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              onTap: () {
-                onPressed();
-              },
-              leading: SizedBox(
-                height: 50,
-                width: 50,
-                child: Image.asset(
-                  CustomAssetUrl.documentiicon,
-                  fit: BoxFit.fill,
+            child: Material(
+              color: colors.bottomsheerCard2Color,
+              borderRadius: BorderRadius.circular(8),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 6,
+                  horizontal: 12,
                 ),
+                dense: true,
+                onTap: onPressed,
+                leading: SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: Image.asset(
+                    CustomAssetUrl.documentiicon,
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                title: customText(
+                  title: candidateName != ""
+                      ? isDocx
+                            ? '$candidateName.docx'
+                            : "$candidateName.pdf"
+                      : isDocx
+                      ? 'Resume.docx'
+                      : "Resume.pdf",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: colors.headingColor,
+                ),
+                subtitle: date != null
+                    ? customText(
+                        title: DateFormat("MMM d, yyyy, h:mm a").format(date!),
+                      )
+                    : null,
               ),
-              title: customText(
-                title: candidateName != ""
-                    ? isDocx
-                          ? '$candidateName.docx'
-                          : "$candidateName.pdf"
-                    : isDocx
-                    ? 'Resume.docx'
-                    : "Resume.pdf",
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: colors.headingColor,
-              ),
-              subtitle: date != null
-                  ? customText(
-                      title: DateFormat("MMM d, yyyy, h:mm a").format(date!),
-                    )
-                  : null,
             ),
           ),
         ],
