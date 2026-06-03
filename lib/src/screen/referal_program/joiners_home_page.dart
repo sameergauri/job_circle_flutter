@@ -549,6 +549,8 @@ class _JoinersHomePageState extends State<JoinersHomePage>
                       child: CustomButtonForSave(
                         title: "Create Invoice",
                         onTap: () async {
+                          await bankingProvider.fetchBankingData();
+
                           // Safe way using ternary operator
                           final bankList = bankingProvider.fetchBankDetail;
 

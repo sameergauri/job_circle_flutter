@@ -32,7 +32,6 @@ class PaymentStatusProvider with ChangeNotifier {
     } catch (e) {
       _state = _state.copyWith(error: e.toString(), isLoading: false);
     }
-
     notifyListeners();
   }
 
@@ -142,7 +141,7 @@ class PaymentStatusProvider with ChangeNotifier {
     String? selectedYear,
   ) {
     return items.where((item) {
-      if (item.invoiceSubmitDate.isNotEmpty) {
+      if(item.invoiceSubmitDate.isNotEmpty) {
         try {
           final date = DateFormat('dd MMM yyyy').parse(item.invoiceSubmitDate);
           return (selectedMonth == null ||
@@ -220,7 +219,6 @@ class PaymentStatusState {
     if (filteredRejectedData.isNotEmpty) {
       tabs.add({'name': 'Not Paid', 'data': filteredRejectedData});
     }
-
     return tabs;
   }
 }

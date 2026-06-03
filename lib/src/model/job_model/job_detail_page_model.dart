@@ -199,3 +199,93 @@ class Slab {
     );
   }
 }
+
+class JobDetailScreeningQuestion {
+  final int? id;
+  final int? questionBankId;
+  final String? questionText;
+  final String? questionCategory;
+  final String? questionType;
+  final int? orderNumber;
+  final String? optionA;
+  final String? optionB;
+  final String? optionC;
+  final String? optionD;
+  final String? optionE;
+  final String? optionF;
+  final String? optionG;
+  final String? optionH;
+  final List<String>? correctOptions;
+  final bool? required;
+  final bool? allowToLead;
+  final double? numericOption;
+
+  JobDetailScreeningQuestion({
+    this.id,
+    this.questionBankId,
+    this.questionText,
+    this.questionCategory,
+    this.questionType,
+    this.orderNumber,
+    this.optionA,
+    this.optionB,
+    this.optionC,
+    this.optionD,
+    this.optionE,
+    this.optionF,
+    this.optionG,
+    this.optionH,
+    this.correctOptions,
+    this.required,
+    this.allowToLead,
+    this.numericOption,
+  });
+
+  factory JobDetailScreeningQuestion.fromJson(Map<String, dynamic> json) {
+    return JobDetailScreeningQuestion(
+      id: json['id'] as int?,
+      questionBankId: json['questionBankId'] as int?,
+      questionText: json['questionText'] as String?,
+      questionCategory: json['questionCategory'] as String?,
+      questionType: json['questionType'] as String?,
+      orderNumber: json['orderNumber'] as int?,
+      optionA: json['optionA'] as String?,
+      optionB: json['optionB'] as String?,
+      optionC: json['optionC'] as String?,
+      optionD: json['optionD'] as String?,
+      optionE: json['optionE'] as String?,
+      optionF: json['optionF'] as String?,
+      optionG: json['optionG'] as String?,
+      optionH: json['optionH'] as String?,
+      correctOptions: (json['correctOptions'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      required: json['required'] as bool?,
+      allowToLead: json['allowToLead'] as bool?,
+      numericOption: json['numericOption'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'questionBankId': questionBankId,
+      'questionText': questionText,
+      'questionCategory': questionCategory,
+      'questionType': questionType,
+      'orderNumber': orderNumber,
+      'optionA': optionA,
+      'optionB': optionB,
+      'optionC': optionC,
+      'optionD': optionD,
+      'optionE': optionE,
+      'optionF': optionF,
+      'optionG': optionG,
+      'optionH': optionH,
+      'correctOptions': correctOptions,
+      'required': required,
+      'allowToLead': allowToLead,
+      'numericOption': numericOption,
+    };
+  }
+}

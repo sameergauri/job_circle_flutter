@@ -79,3 +79,7 @@ enum SuggestionType { jobTitle, company, resideat }
 enum FromEditOrAdd { edit, add }
 
 enum PrefTextFieldType { Industry, JobRole, WorkMode, ShiftTime, Location }
+
+enum QuestionType {
+    SINGLE_SELECT,MULTIPLE_SELECT,NUMERIC
+}

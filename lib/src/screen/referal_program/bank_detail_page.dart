@@ -354,6 +354,7 @@ class _BankingDetailsState extends State<BankingDetails> {
                       pdfUrl:
                           '${GlobalConstants.Image_url}${data.cancleCheque}',
                       isFromAts: false,
+                      title: "Cancel Cheque",
                     ),
                   );
                 },

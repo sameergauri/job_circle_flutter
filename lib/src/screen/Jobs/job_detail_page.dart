@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
 import 'package:job_circle/src/provider/add_resume/add_resume_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_detail_provider.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_container_for_job_benefits.dart';
@@ -17,6 +18,7 @@ import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_job_ov
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_recruiter_card.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_referal_program_card.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/view_container_for_skills.dart';
+import 'package:job_circle/src/screen/screening_question/Screening_question_page.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
@@ -62,7 +64,6 @@ class _JobDetailPageState extends State<JobDetailPage> {
         return Stack(
           children: [
             Scaffold(
-             
               backgroundColor: colors.bgColor,
               appBar: AppBar(
                 titleSpacing: 0,
@@ -100,6 +101,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
     }
 
     final job = provider.jobDetail!;
+    final screeningQuestions = provider.screeningQuestions;
 
     return Stack(
       children: [
@@ -182,7 +184,12 @@ class _JobDetailPageState extends State<JobDetailPage> {
                       if (widget.resume.isNotEmpty &&
                           widget.resume != "null" &&
                           widget.resume.trim().isNotEmpty) {
-                        handleApplyNow(context, job.id!, provider);
+                        handleApplyNow(
+                          context,
+                          job.id!,
+                          provider,
+                          screeningQuestions,
+                        );
                       } else {
                         showDialog(
                           barrierDismissible: false,
@@ -385,8 +392,14 @@ class _JobDetailPageState extends State<JobDetailPage> {
     BuildContext context,
     int jobId,
     JobDetailProvider provider,
+    List<JobDetailScreeningQuestion> screeningQuestions,
   ) async {
-    final id = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
-    provider.applyJob(jobId, id, context);
+    if (screeningQuestions.isNotEmpty && screeningQuestions != null) {
+      // Agar screening questions hain, toh pehle unko show karo
+      NavigationService.push(ScreeningQuestionPage());
+    } else {
+      int id = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+      provider.submitApplicationWithScreening(jobId, id, context,true);
+    }
   }
 }

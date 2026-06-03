@@ -233,10 +233,10 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
           );
         }
 
-        if (state.paymentStatus == null ||
-            (state.paymentStatus!.resultData.invoiceSent.isEmpty &&
-                state.paymentStatus!.resultData.paidData.isEmpty &&
-                state.paymentStatus!.resultData.validation.isEmpty)) {
+        if ((state.paymentStatus!.resultData.invoiceSent.isEmpty &&
+            state.paymentStatus!.resultData.paidData.isEmpty &&
+            state.paymentStatus!.resultData.validation.isEmpty &&
+            state.paymentStatus!.resultData.rejectData.isEmpty)) {
           return Scaffold(
             backgroundColor: colors.bgColor,
             body: Center(
@@ -263,7 +263,6 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
         _tabController ??= TabController(length: tabData.length, vsync: this);
 
         return Scaffold(
-         
           backgroundColor: colors.bgColor,
           appBar: AppBar(
             elevation: 0,
@@ -289,7 +288,7 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
                   child: customTextForWeather(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                   color: colors.subtitleTextColor!,
+                    color: colors.subtitleTextColor!,
                     title: state.selectedDate != null
                         ? "${DateFormat('MMM').format(DateFormat('MM').parse(state.selectedDate!['month']!))} ${state.selectedDate!['year']}"
                         : "Month",

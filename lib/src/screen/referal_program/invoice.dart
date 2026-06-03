@@ -1,5 +1,5 @@
 // screens/Billing/ui/invoice_screen.dart
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
 
 import 'dart:ui';
 
@@ -11,6 +11,7 @@ import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/provider/referal_program/invoice_provider.dart';
+import 'package:job_circle/src/provider/referal_program/joiners_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/decryption_helper_service.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
@@ -40,10 +41,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
+    final pro = Provider.of<GenerateInvoiceProvider>(context, listen: false);
     return Consumer<InvoiceProvider>(
       builder: (context, provider, child) {
         final state = provider.state;
-
         return Stack(
           children: [
             Scaffold(
@@ -60,18 +61,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                         onTap: () async {
                           if (!state.termsAccepted) {
                             CustomSnackbar.show(
-                              "Accept terms and condition to submit the invoice",
+                              "Kindly acknowledge to submit the invoice",
                               true,
                             );
                           } else {
                             await provider.submitInvoice();
+                            pro.fetchJoinersData();
                             if (state.submissionSuccess) {
                               CustomSnackbar.show(
                                 'Invoice submitted successfully',
                                 false,
                               );
-                              NavigationService.pop();
-                              NavigationService.pop();
                             } else if (state.error != null) {
                               CustomSnackbar.show(state.error!, true);
                             }

@@ -2,10 +2,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:job_circle/src/model/referal_program/joiners_model.dart';
 import 'package:job_circle/src/model/referal_program/submit_invoice_model.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/services/referal_program/referal_program_service.dart';
 
 class InvoiceProvider with ChangeNotifier {
-
   InvoiceState _state = InvoiceState();
 
   InvoiceState get state => _state;
@@ -90,6 +90,7 @@ class InvoiceProvider with ChangeNotifier {
           submissionSuccess: true,
           error: null,
         );
+        NavigationService.pop();
       } else {
         throw Exception('Failed to submit invoice');
       }
@@ -100,7 +101,6 @@ class InvoiceProvider with ChangeNotifier {
         submissionSuccess: false,
       );
     }
-
     notifyListeners();
   }
 

@@ -15,6 +15,7 @@ import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.d
 
 class JobDetailProvider extends ChangeNotifier {
   JobDetailPageModel? jobDetail;
+  List<JobDetailScreeningQuestion> screeningQuestions = [];
   bool _isLoading = false;
   bool _applyLoading = false;
   String? error;
@@ -30,6 +31,7 @@ class JobDetailProvider extends ChangeNotifier {
       _isLoading = true;
       error = null;
       jobDetail = null;
+      screeningQuestions = [];
       notifyListeners();
 
       final url =
@@ -41,8 +43,11 @@ class JobDetailProvider extends ChangeNotifier {
         final jsonData = json.decode(response.body);
 
         if (jsonData['resultKey'] == 'SUCCESS') {
-          final jobData = jsonData['resultData']['jobDetails'];
-          jobDetail = JobDetailPageModel.fromJson(jobData);
+          final resultData = jsonData['resultData'];
+          jobDetail = JobDetailPageModel.fromJson(resultData['jobDetails']);
+          screeningQuestions = (resultData['screeningQuestions'] as List<dynamic>? ?? [])
+              .map((q) => JobDetailScreeningQuestion.fromJson(q as Map<String, dynamic>))
+              .toList();
           _isLoading = false;
           notifyListeners();
         } else {
@@ -62,7 +67,126 @@ class JobDetailProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> applyJob(int jobId, int userId, BuildContext context) async {
+  // apply with screening questions
+  // providers/job_detail_provider.dart mein yeh states aur methods add karo
+
+  // ⚡ User ke live answers save rakhne ke liye maps (Key = Question ID)
+  final Map<int, List<String>> _selectedOptionsMap = {};
+  final Map<int, int> _numericAnswersMap = {};
+
+  Map<int, List<String>> get selectedOptionsMap => _selectedOptionsMap;
+  Map<int, int> get numericAnswersMap => _numericAnswersMap;
+
+  // Answers update karne ke functions (Form UI isko call karega)
+  void updateOptionAnswer(
+    int questionId,
+    List<String> options, {
+    bool isMultiple = false,
+  }) {
+    if (isMultiple) {
+      _selectedOptionsMap[questionId] = options;
+    } else {
+      _selectedOptionsMap[questionId] = options.take(1).toList();
+    }
+    notifyListeners();
+  }
+
+  void updateNumericAnswer(int questionId, int val) {
+    _numericAnswersMap[questionId] = val;
+    notifyListeners();
+  }
+
+  // ⚡ BACKEND AS PER YOUR SPECIFIC JSON FORMAT PAYLOAD GENERATOR
+  List<Map<String, dynamic>> getFinalAnswersPayload() {
+    return screeningQuestions.map((q) {
+      final qId = q.id ?? 0;
+      return {
+        "numericAnswer": _numericAnswersMap[qId] ?? 0,
+        "screeningQuestionId": qId,
+        "selectedOptions": _selectedOptionsMap[qId] ?? [],
+      };
+    }).toList();
+  }
+
+bool isEligible() {
+    for (final q in screeningQuestions) {
+      if (q.allowToLead != true) continue;
+
+      final qId = q.id ?? 0;
+
+      if (q.questionType == "NUMERIC") {
+        final userAnswer = _numericAnswersMap[qId] ?? 0;
+        final threshold = q.numericOption ?? 0;
+        if (userAnswer <= threshold) return false;
+      } else {
+        final userSelected = _selectedOptionsMap[qId] ?? [];
+        final correct = q.correctOptions ?? [];
+        final allCorrect = correct.every((c) => userSelected.contains(c));
+        if (!allCorrect) return false;
+      }
+    }
+    return true;
+  }
+
+  Future<void> submitApplicationWithScreening(
+    int jobId,
+    int userId,
+    BuildContext context,
+    bool is_eligible,
+  ) async {
+    _applyLoading = true;
+    notifyListeners();
+
+    // ⚡ Agar sawal hain toh payload banao, nahi toh khali list [] bhejo
+    final answersPayload = screeningQuestions.isNotEmpty
+        ? getFinalAnswersPayload()
+        : <Map<String, dynamic>>[];
+    print("🚀 Payload sending to Backend: ${jsonEncode(answersPayload)}");
+
+    try {
+      final message = await AddResumeAndApplyService.postJobApply(
+        jobId: jobId,
+        userId: userId,
+        screeningAnswers: answersPayload,
+        isEligible: is_eligible,
+      );
+
+      if (message.contains("Successfully") && context.mounted) {
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => CustomDialogueForAddResume(
+            error: false,
+            onClose: () {
+              Navigator.pop(context); // Dialog pop
+
+              // ⚡ Agar questions the toh hum Preview Page par the, isliye 2 baar pop karenge
+              // Agar questions nahi the, toh hum direct Job Detail page se aaye hain, toh 1 hi pop kaafi h
+              if (screeningQuestions.isNotEmpty) {
+                Navigator.pop(context); // Preview page pop
+                Navigator.pop(context); // Form page pop
+              } else {
+                Navigator.pop(context); // Normal page pop
+              }
+
+              _applyLoading = false;
+              notifyListeners();
+            },
+            subtitle: message,
+          ),
+        );
+      } else {
+        CustomSnackbar.show(message, true);
+      }
+    } catch (e) {
+      CustomSnackbar.show("Unexpected error: $e", true);
+    } finally {
+      _applyLoading = false;
+      notifyListeners();
+    }
+  }
+
+/*   Future<void> applyJob(int jobId, int userId, BuildContext context) async {
     _applyLoading = true;
     notifyListeners();
 
@@ -104,7 +228,7 @@ class JobDetailProvider extends ChangeNotifier {
       _applyLoading = false;
       notifyListeners();
     }
-  }
+  } */
 
   void setLoading(bool value) {
     _applyLoading = value;

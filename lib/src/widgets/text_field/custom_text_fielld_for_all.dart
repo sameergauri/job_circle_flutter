@@ -29,6 +29,7 @@ class CustomTextFieldforAll extends StatelessWidget {
   final bool? readonly;
   final String? prefixicon;
   final String? sufix;
+  final String? initialValue;
 
   const CustomTextFieldforAll({
     super.key,
@@ -53,6 +54,7 @@ class CustomTextFieldforAll extends StatelessWidget {
     this.focusNode,
     this.prefixicon,
     this.sufix,
+    this.initialValue,
   });
 
   @override
@@ -72,6 +74,7 @@ class CustomTextFieldforAll extends StatelessWidget {
           : MediaQuery.of(context).size.height /
                 24, // Default height for single line
       child: TextFormField(
+        initialValue: initialValue,
         readOnly: readonly!,
         focusNode: focusNode,
         onTap: () {

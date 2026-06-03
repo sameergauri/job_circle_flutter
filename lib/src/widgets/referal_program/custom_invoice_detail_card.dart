@@ -373,7 +373,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   CustomRemarkConatiner(
-                    titleColor: Constants.red,
+                    titleColor: colors.subTitleColor,
                     fontsize: 11,
                     subtitle: invoice.invoiceRemark.toString(),
                     valueColor: colors.subTitleColor!,
@@ -387,7 +387,7 @@ class CustomInvoiveDetailCard extends StatelessWidget {
                 children: [
                   const SizedBox(height: 8),
                   CustomRemarkConatiner(
-                    titleColor: Constants.red,
+                    titleColor: colors.subTitleColor,
                     fontsize: 11,
                     subtitle: invoice.invoiceRemark.toString(),
                     valueColor: colors.subTitleColor!,

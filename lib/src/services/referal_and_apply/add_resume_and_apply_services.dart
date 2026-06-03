@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/model/referal_model/add_resume_model.dart';
@@ -29,7 +30,44 @@ class AddResumeAndApplyService {
       rethrow;
     }
   }
+
   static Future<String> postJobApply({
+    required int jobId,
+    required int userId,
+    required List<Map<String, dynamic>> screeningAnswers,
+    required bool isEligible,
+  }) async {
+    try {
+      final Map<String, dynamic> requestBody = {
+        "answers": screeningAnswers,
+        "isEligible": isEligible,
+      };
+
+      final response = await http.post(
+        Uri.parse('${GlobalConstants.applyUrl}?jobId=$jobId&userId=$userId'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+        final String codeValue = jsonData['code'] ?? "";
+        final String resultKey = jsonData["resultKey"] ?? "";
+
+        if (resultKey == "ERROR") {
+          return codeValue.replaceAll(" within the last 30 days", "");
+        } else {
+          return "Application Submitted Successfully!";
+        }
+      } else {
+        return "Request failed with status: ${response.statusCode}";
+      }
+    } catch (e) {
+      return "Error applying job: $e";
+    }
+  }
+
+  /* static Future<String> postJobApply({
     required int jobId,
     required int userId,
   }) async {
@@ -55,5 +93,5 @@ class AddResumeAndApplyService {
     } catch (e) {
       return "Error applying job: $e";
     }
-  }
+  } */
 }
