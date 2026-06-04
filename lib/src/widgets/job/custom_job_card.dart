@@ -714,6 +714,7 @@ class CustomRecommendJobcard extends StatelessWidget {
         const CustomNetworkImage(
           imageUrl: CustomIconUrl.languageicon,
           defaultIcon: Icons.error_outline,
+          color: Constants.subtitleclr,
           height: 14,
         ),
         const SizedBox(width: 3),
