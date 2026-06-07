@@ -7,12 +7,14 @@ class CustomDialogueForAddResume extends StatefulWidget {
   final VoidCallback onClose;
   final bool error;
   final bool confirmationDialogue;
+  final String? title;
   const CustomDialogueForAddResume({
     super.key,
     required this.subtitle,
     required this.onClose,
     required this.error,
     this.confirmationDialogue = false,
+    this.title,
   });
 
   @override
@@ -37,14 +39,15 @@ class _CustomDialogueForAddResumeState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (widget.confirmationDialogue) SizedBox(height: 5),
-            if (widget.confirmationDialogue)
+            if (widget.confirmationDialogue || widget.title != null)
+              SizedBox(height: 5),
+            if (widget.confirmationDialogue || widget.title != null)
               customText(
-                title: widget.subtitle,
+                title: widget.title != null ? widget.title! : widget.subtitle,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
-            if (!widget.confirmationDialogue)
+            if (!widget.confirmationDialogue || widget.title != null)
               customText(title: widget.subtitle, fontSize: 14),
             if (widget.confirmationDialogue) SizedBox(height: 10),
             InkWell(

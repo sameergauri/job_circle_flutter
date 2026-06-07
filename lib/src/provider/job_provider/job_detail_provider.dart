@@ -184,6 +184,7 @@ class JobDetailProvider extends ChangeNotifier {
                 barrierDismissible: false,
                 context: context,
                 builder: (context) => CustomDialogueForAddResume(
+                  title: "Screening Criteria Not Met",
                   error: true,
                   onClose: () {
                     Navigator.pop(context); // Dialog pop
@@ -200,6 +201,7 @@ class JobDetailProvider extends ChangeNotifier {
                     _applyLoading = false;
                     notifyListeners();
                   },
+
                   subtitle:
                       "Thank you for your interest in this opportunity. Based on your screening responses, you have not been shortlisted for this position. We appreciate your interest and wish you success in your job search.",
                 ),
