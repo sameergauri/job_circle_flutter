@@ -8,7 +8,6 @@ import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
-import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/services/referal_and_apply/add_resume_and_apply_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
@@ -45,9 +44,14 @@ class JobDetailProvider extends ChangeNotifier {
         if (jsonData['resultKey'] == 'SUCCESS') {
           final resultData = jsonData['resultData'];
           jobDetail = JobDetailPageModel.fromJson(resultData['jobDetails']);
-          screeningQuestions = (resultData['screeningQuestions'] as List<dynamic>? ?? [])
-              .map((q) => JobDetailScreeningQuestion.fromJson(q as Map<String, dynamic>))
-              .toList();
+          screeningQuestions =
+              (resultData['screeningQuestions'] as List<dynamic>? ?? [])
+                  .map(
+                    (q) => JobDetailScreeningQuestion.fromJson(
+                      q as Map<String, dynamic>,
+                    ),
+                  )
+                  .toList();
           _isLoading = false;
           notifyListeners();
         } else {
@@ -108,7 +112,7 @@ class JobDetailProvider extends ChangeNotifier {
     }).toList();
   }
 
-bool isEligible() {
+  bool isEligible() {
     for (final q in screeningQuestions) {
       if (q.allowToLead != true) continue;
 
@@ -132,7 +136,7 @@ bool isEligible() {
     int jobId,
     int userId,
     BuildContext context,
-    bool is_eligible,
+    bool isEligible,
   ) async {
     _applyLoading = true;
     notifyListeners();
@@ -148,35 +152,64 @@ bool isEligible() {
         jobId: jobId,
         userId: userId,
         screeningAnswers: answersPayload,
-        isEligible: is_eligible,
+        isEligible: isEligible,
       );
 
       if (message.contains("Successfully") && context.mounted) {
-        showDialog(
-          barrierDismissible: false,
-          context: context,
-          builder: (context) => CustomDialogueForAddResume(
-            error: false,
-            onClose: () {
-              Navigator.pop(context); // Dialog pop
+        isEligible
+            ? showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) => CustomDialogueForAddResume(
+                  error: false,
+                  onClose: () {
+                    Navigator.pop(context); // Dialog pop
 
-              // ⚡ Agar questions the toh hum Preview Page par the, isliye 2 baar pop karenge
-              // Agar questions nahi the, toh hum direct Job Detail page se aaye hain, toh 1 hi pop kaafi h
-              if (screeningQuestions.isNotEmpty) {
-                Navigator.pop(context); // Preview page pop
-                Navigator.pop(context); // Form page pop
-              } else {
-                Navigator.pop(context); // Normal page pop
-              }
+                    // ⚡ Agar questions the toh hum Preview Page par the, isliye 2 baar pop karenge
+                    // Agar questions nahi the, toh hum direct Job Detail page se aaye hain, toh 1 hi pop kaafi h
+                    if (screeningQuestions.isNotEmpty) {
+                      Navigator.pop(context); // Preview page pop
+                      Navigator.pop(context); // Form page pop
+                    } else {
+                      Navigator.pop(context); // Normal page pop
+                    }
 
-              _applyLoading = false;
-              notifyListeners();
-            },
-            subtitle: message,
-          ),
-        );
+                    _applyLoading = false;
+                    notifyListeners();
+                  },
+                  subtitle: message,
+                ),
+              )
+            : showDialog(
+                barrierDismissible: false,
+                context: context,
+                builder: (context) => CustomDialogueForAddResume(
+                  error: true,
+                  onClose: () {
+                    Navigator.pop(context); // Dialog pop
+
+                    // ⚡ Agar questions the toh hum Preview Page par the, isliye 2 baar pop karenge
+                    // Agar questions nahi the, toh hum direct Job Detail page se aaye hain, toh 1 hi pop kaafi h
+                    if (screeningQuestions.isNotEmpty) {
+                      Navigator.pop(context); // Preview page pop
+                      Navigator.pop(context); // Form page pop
+                    } else {
+                      Navigator.pop(context); // Normal page pop
+                    }
+
+                    _applyLoading = false;
+                    notifyListeners();
+                  },
+                  subtitle:
+                      "Thank you for your interest in this opportunity. Based on your screening responses, you have not been shortlisted for this position. We appreciate your interest and wish you success in your job search.",
+                ),
+              );
       } else {
         CustomSnackbar.show(message, true);
+        if (screeningQuestions.isNotEmpty) {
+          Navigator.pop(context); // Preview page pop
+          Navigator.pop(context); // Form page pop
+        }
       }
     } catch (e) {
       CustomSnackbar.show("Unexpected error: $e", true);
@@ -186,7 +219,7 @@ bool isEligible() {
     }
   }
 
-/*   Future<void> applyJob(int jobId, int userId, BuildContext context) async {
+  /*   Future<void> applyJob(int jobId, int userId, BuildContext context) async {
     _applyLoading = true;
     notifyListeners();
 
