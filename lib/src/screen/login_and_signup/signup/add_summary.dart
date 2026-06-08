@@ -3,18 +3,18 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_onboarding_titlle.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
-import 'package:job_circle/src/provider/app_theme_provider.dart/app_theme_provider.dart' as  show;
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/login_signup_provider/signup_or_create_usre_provider.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
+import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text/custom_text_with_underline.dart';
-import 'package:job_circle/src/widgets/text_field/custom_auto_size_text_field.dart';
 import 'package:provider/provider.dart';
 import 'package:resume_builder_kit/resume_builder_kit.dart';
 
@@ -66,7 +66,6 @@ class AddSummary extends StatelessWidget {
                                   await jobprovider.fetchJobs(
                                     applyCityFilter: false,
                                   );
-                                  
                                 }
                               }
                               CustomSnackbar.show(
@@ -117,73 +116,70 @@ class AddSummary extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const customText(title: ""),
-                        /* ValueListenableBuilder<TextEditingValue>(  // <-- Delete this line if not using ValueListenableBuilder
-                              valueListenable: provider.bio,
-                              builder: (context, value, child) {
-                                if (value.text.isEmpty &&
-                                    provider.isSummaryGenereted == false) {
-                                  return InkWell(
-                                    onTap: () async {
-                                      provider.fetchSummaryUsingAi();
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.only(
-                                        left: 5,
-                                        right: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Constants.lightdull,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Constants.subtitleclr,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          CustomNetworkImage(
-                                            imageUrl: CustomIconUrl.aiicon,
-                                            defaultIcon:
-                                                Icons.star_border_outlined,
-                                          ),
-                                          customText(
-                                            title: "AI writer",
-                                            color: Constants.winecolor,
-                                          ),
-                                        ],
-                                      ),
+                        ValueListenableBuilder<TextEditingValue>(
+                          // <-- Delete this line if not using ValueListenableBuilder
+                          valueListenable: provider.bio,
+                          builder: (context, value, child) {
+                            if (value.text.isEmpty &&
+                                provider.isSummaryGenereted == false) {
+                              return InkWell(
+                                onTap: () async {
+                                  provider.fetchSummaryUsingAi();
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.only(left: 5, right: 5),
+                                  decoration: BoxDecoration(
+                                    color: Constants.lightdull,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Constants.subtitleclr,
                                     ),
-                                  );
-                                } else {
-                                  return InkWell(
-                                    onTap: () async {
-                                      provider.clearProfileSummary();
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.only(
-                                        left: 5,
-                                        right: 5,
-                                        top: 4,
-                                        bottom: 4,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CustomNetworkImage(
+                                        imageUrl: CustomIconUrl.aiicon,
+                                        defaultIcon: Icons.star_border_outlined,
                                       ),
-                                      child: customText(
-                                        title: "Clear All",
-                                        color: Constants.red,
+                                      customText(
+                                        title: "AI writer",
+                                        color: Constants.winecolor,
                                       ),
-                                    ),
-                                  );
-                                }
-                              },
-                            ), */
+                                    ],
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return InkWell(
+                                onTap: () async {
+                                  provider.clearProfileSummary();
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                    left: 5,
+                                    right: 5,
+                                    top: 4,
+                                    bottom: 4,
+                                  ),
+                                  child: customText(
+                                    title: "Clear All",
+                                    color: Constants.red,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ],
                     ),
                   ),
-                  CustomAutoSizeTextField(
+                  /*  CustomAutoSizeTextField(
                     needClearAll: false,
                     controller: provider.bio,
                     hintText:
                         "Boost visibility with a compelling career summary.",
                     maxline: 15,
-                  ),
+                  ), */
                 ],
               ),
             ),

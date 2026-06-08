@@ -25,12 +25,8 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
   @override
   void initState() {
     super.initState();
-    // ⚡ 1. MAGIC LOGIC: Job Detail page se pehli baar yahan aane par saare purane answers reset ho jayenge.
-    // WidgetsBinding ka use kiya taaki build cycle ke beech me provider state crash na ho.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<JobDetailProvider>();
-      provider.selectedOptionsMap.clear();
-      provider.numericAnswersMap.clear();
+      context.read<JobDetailProvider>().clearAnswers();
     });
   }
 
@@ -72,6 +68,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
                   "Please answer all the questions to proceed",
               fontSize: 12,
               color: colors.subtitleTextColor,
+              fontStyle: FontStyle.italic,
             ),
           ],
         ),
@@ -80,7 +77,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
         color: colors.bgColor,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: CustomButtonForJobPosting(
-          buttonText: isLastPage ? "Next to Review" : "Next",
+          buttonText: isLastPage ? "Review" : "Next",
           onTap: () {
             // ⚡ 2. VALIDATION CHECK: Current chunk ke saare questions verify karo
             bool allAnswered = true;
@@ -197,7 +194,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
                       ),
                     ],
                   ),
-                  Divider(color: colors.tabBorderColor),
+                  Divider(color: colors.subTitleColor),
                 ],
 
                 // ── CASE 2: SINGLE SELECT FLOW (Dynamic Options Loop) ──
@@ -220,7 +217,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
                       }).toList(),
                     ),
                   ),
-                  Divider(color: colors.tabBorderColor),
+                  Divider(color: colors.subTitleColor),
                 ],
 
                 // ── CASE 3: MULTIPLE SELECT FLOW (Dynamic Options Loop) ──
@@ -241,7 +238,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
                       );
                     }).toList(),
                   ),
-                  Divider(color: colors.tabBorderColor),
+                  Divider(color: colors.subTitleColor),
                 ],
 
                 // ── CASE 4: NUMERIC TEXTFIELD FLOW ──
@@ -251,6 +248,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
                     width: 150,
                     height: MediaQuery.of(context).size.height / 24,
                     child: TextFormField(
+                      key: ValueKey('numeric_${qId}_${provider.resetCounter}'),
                       keyboardType: TextInputType.number,
                       inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly,
@@ -311,7 +309,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
   Widget _buildNewOptionRow(
     String optionKey,
     String? optionText,
-    dynamic colors,
+    AppColors colors,
   ) {
     if (optionText == null || optionText.isEmpty) {
       return const SizedBox.shrink();
@@ -324,7 +322,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
         children: [
           Radio<String>(
             value: optionKey,
-            activeColor: colors.accentBlue,
+            activeColor: colors.darkBlue,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
           ),
@@ -345,7 +343,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
     String? optionText,
     List<String> currentAnswers,
     Function(List<String>) onUpdate,
-    dynamic colors,
+    AppColors colors,
   ) {
     if (optionText == null || optionText.isEmpty) {
       return const SizedBox.shrink();
@@ -360,7 +358,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
         children: [
           Checkbox(
             value: isChecked,
-            activeColor: colors.accentBlue,
+            activeColor: colors.darkBlue,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
             onChanged: (bool? val) {

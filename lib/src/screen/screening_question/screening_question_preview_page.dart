@@ -29,7 +29,7 @@ class ScreeningQuestionPreviewPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             customText(
-              title: "Review Your Answers",
+              title: "Review your Answers",
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: colors.headingColor,
@@ -40,6 +40,7 @@ class ScreeningQuestionPreviewPage extends StatelessWidget {
                   "Please check your answers before submitting your application",
               fontSize: 12,
               color: colors.subtitleTextColor,
+              fontStyle: FontStyle.italic,
             ),
           ],
         ),
@@ -50,7 +51,7 @@ class ScreeningQuestionPreviewPage extends StatelessWidget {
         child: provider.applyLoading
             ? const Center(child: CircularProgressIndicator())
             : CustomButtonForJobPosting(
-                buttonText: "Submit & Apply",
+                buttonText: "Submit",
                 onTap: () {
                   provider.submitApplicationWithScreening(
                     jobId,
@@ -97,7 +98,7 @@ class ScreeningQuestionPreviewPage extends StatelessWidget {
               color: colors.surfaceColor,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: colors.tabBorderColor ?? Colors.grey.shade200,
+                color: colors.subTitleColor ?? Colors.grey.shade200,
               ),
             ),
             child: Column(
@@ -114,10 +115,10 @@ class ScreeningQuestionPreviewPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     customText(
-                      title: "Your Answer: ",
+                      title: "Answer: ",
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: colors.accentBlue,
+                      color: colors.textPrimary,
                     ),
                     Expanded(
                       child: customText(

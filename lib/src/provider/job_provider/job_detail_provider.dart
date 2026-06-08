@@ -77,6 +77,8 @@ class JobDetailProvider extends ChangeNotifier {
   // ⚡ User ke live answers save rakhne ke liye maps (Key = Question ID)
   final Map<int, List<String>> _selectedOptionsMap = {};
   final Map<int, int> _numericAnswersMap = {};
+  int _resetCounter = 0;
+  int get resetCounter => _resetCounter;
 
   Map<int, List<String>> get selectedOptionsMap => _selectedOptionsMap;
   Map<int, int> get numericAnswersMap => _numericAnswersMap;
@@ -160,8 +162,8 @@ class JobDetailProvider extends ChangeNotifier {
             ? showDialog(
                 barrierDismissible: false,
                 context: context,
-                builder: (context) => CustomDialogueForAddResume(
-                  error: false,
+                builder: (context) => CustomDialogueForApply(
+                  success: true,
                   onClose: () {
                     Navigator.pop(context); // Dialog pop
 
@@ -177,15 +179,17 @@ class JobDetailProvider extends ChangeNotifier {
                     _applyLoading = false;
                     notifyListeners();
                   },
-                  subtitle: message,
+                  title: message,
+                  subtitle: "",
                 ),
               )
             : showDialog(
                 barrierDismissible: false,
                 context: context,
-                builder: (context) => CustomDialogueForAddResume(
+                builder: (context) => CustomDialogueForApply(
+                  success: false,
                   title: "Screening Criteria Not Met",
-                  error: true,
+
                   onClose: () {
                     Navigator.pop(context); // Dialog pop
 
@@ -264,6 +268,13 @@ class JobDetailProvider extends ChangeNotifier {
       notifyListeners();
     }
   } */
+
+  void clearAnswers() {
+    _selectedOptionsMap.clear();
+    _numericAnswersMap.clear();
+    _resetCounter++;
+    notifyListeners();
+  }
 
   void setLoading(bool value) {
     _applyLoading = value;

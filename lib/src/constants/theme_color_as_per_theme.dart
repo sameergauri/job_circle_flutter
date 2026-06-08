@@ -70,6 +70,7 @@ final lightThemeData = ThemeData(
       subTitleColor: Constants.subtitleclr,
       buttonTextColor: Constants.white,
       circlebgColor: Constants.white,
+      darkBlue: Constants.darkBlue
     ),
   ],
 );
@@ -142,6 +143,7 @@ final darkThemeData = ThemeData.dark().copyWith(
       subTitleColor: Constants.subtitleTextColor,
       buttonTextColor: Constants.darkBlue,
       circlebgColor: Constants.subtitleTextColor,
+      darkBlue: Constants.darkBlue,
     ),
   ],
 );

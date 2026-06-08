@@ -92,6 +92,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color? subTitleColor;
   final Color? buttonTextColor;
   final Color? circlebgColor;
+  final Color? darkBlue;
 
   // searchfield page colors can be added here
 
@@ -144,6 +145,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.subTitleColor,
     required this.buttonTextColor,
     required this.circlebgColor,
+    required this.darkBlue,
   });
 
   @override
@@ -191,6 +193,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? subTitleColor,
     Color? buttonTextColor,
     Color? circlebgColor,
+    Color? darkBlue,
   }) {
     return AppColors(
       bgColor: bgColor ?? this.bgColor,
@@ -248,7 +251,8 @@ class AppColors extends ThemeExtension<AppColors> {
           bottomsheerCard2Color ?? this.bottomsheerCard2Color,
       subTitleColor: subTitleColor ?? this.subTitleColor,
       buttonTextColor: buttonTextColor ?? this.buttonTextColor,
-       circlebgColor: circlebgColor ?? this.circlebgColor,
+      circlebgColor: circlebgColor ?? this.circlebgColor,
+      darkBlue: darkBlue ?? this.darkBlue,
     );
   }
 
@@ -386,7 +390,8 @@ class AppColors extends ThemeExtension<AppColors> {
       ),
       subTitleColor: Color.lerp(subTitleColor, other.subTitleColor, t),
       buttonTextColor: Color.lerp(buttonTextColor, other.buttonTextColor, t),
-      circlebgColor: Color.lerp(circlebgColor, other.circlebgColor, t)
+      circlebgColor: Color.lerp(circlebgColor, other.circlebgColor, t),
+      darkBlue: Color.lerp(darkBlue, other.darkBlue, t),
     );
   }
 }

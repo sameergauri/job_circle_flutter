@@ -118,7 +118,10 @@ class JobDetailPageModel {
       jobBenefits: List<String>.from(json['jobBenifits'] ?? []),
       eligibility: List<String>.from(json['eligibility'] ?? []),
       eligibility2: List<String>.from(json['eligibility2'] ?? []),
-      certifications: List<String>.from(json['certifications'] ?? []),
+      certifications: (json['certifications'] as List<dynamic>? ?? [])
+          .map((e) => e is Map ? (e['value'] as String? ?? '') : e.toString())
+          .where((s) => s.isNotEmpty)
+          .toList(),
       skills: List<String>.from(json['skills'] ?? []),
       jobResponsibilities: List<String>.from(json['jobResponsibility'] ?? []),
       locations: List<String>.from(json['location'] ?? []),

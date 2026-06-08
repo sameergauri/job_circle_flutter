@@ -29,7 +29,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   // Timer for OTP and Session Expiry
   //
   Timer? _timer;
-  int _remainingSeconds = 300; // 5 Minutes (5 * 60)
+  int _remainingSeconds = 600; // 5 Minutes (5 * 60)
 
   int get remainingSeconds => _remainingSeconds;
 
