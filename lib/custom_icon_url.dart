@@ -237,6 +237,8 @@ class CustomIconUrl {
       'https://cdn-icons-png.flaticon.com/128/780/780477.png';
   static const buildresumeicon =
       "https://cdn-icons-png.flaticon.com/128/15236/15236260.png";
+  static const without =
+      'https://cdn-icons-png.flaticon.com/128/5718/5718921.png';
 }
 
 class CustomAssetUrl {

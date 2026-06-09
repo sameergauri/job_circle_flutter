@@ -16,7 +16,7 @@ class JobServices {
     // String? selectedCity,
     required String userId,
   }) async {
-    final userid = userId;
+    String userid = userId;
 
     final queryParams = {
       'pageNumber': '1',
@@ -28,7 +28,7 @@ class JobServices {
       queryParams['cities'] = selectedCity;
     } */
 
-    final url = Uri.parse(
+    Uri url = Uri.parse(
       GlobalConstants.getAllJobsUrl,
     ).replace(queryParameters: queryParams);
 

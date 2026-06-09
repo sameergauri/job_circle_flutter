@@ -11,7 +11,7 @@ class ATSServices {
   static Future<AppliedJobModel> fetchAppliedJobs() async {
     int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     try {
-      final uri = Uri.parse('${GlobalConstants.getAppliedJobDataUrl}$userid');
+      Uri uri = Uri.parse('${GlobalConstants.getAppliedJobDataUrl}$userid');
 
       final response = await http.post(uri);
 
@@ -29,7 +29,7 @@ class ATSServices {
   static Future<ATSReferalPageModel> fetchReferalJobs() async {
     int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     try {
-      final uri = Uri.parse('${GlobalConstants.getReferalJobDataUrl}$userid');
+      Uri uri = Uri.parse('${GlobalConstants.getReferalJobDataUrl}$userid');
 
       final response = await http.post(uri);
 

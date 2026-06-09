@@ -126,7 +126,7 @@ class CustomJobCard extends StatelessWidget {
                       )
                     : InkWell(
                         onTap: () async {
-                          final userId = SharedPrefsHelper.getInt(
+                          int userId = SharedPrefsHelper.getInt(
                             ESharedPreferences.user_id,
                           );
 

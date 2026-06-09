@@ -215,7 +215,7 @@ class ProfileProvider with ChangeNotifier {
   }
 
   // Add to clearAllProfileData and dispose
-  final _userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+  int _userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
   ProfileModel? _profile;
   CreateNewUserModel? _createNewUserModel;
   ResponsibilityAiModel? _responsibilityAiModel;

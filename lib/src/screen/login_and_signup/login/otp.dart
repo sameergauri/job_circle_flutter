@@ -171,12 +171,12 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
     );
 
     if (success) {
-      final firstName = SharedPrefsHelper.getString(
+      String firstName = SharedPrefsHelper.getString(
         ESharedPreferences.user_firstName,
       );
-      final userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
-      final usertype = SharedPrefsHelper.getInt(ESharedPreferences.user_type);
-      final msg = SharedPrefsHelper.getString(ESharedPreferences.msg);
+      int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+      int usertype = SharedPrefsHelper.getInt(ESharedPreferences.user_type);
+      String msg = SharedPrefsHelper.getString(ESharedPreferences.msg);
       clearOTPText(provider);
       provider.mobileController.clear();
       Utils.gotoScreen(

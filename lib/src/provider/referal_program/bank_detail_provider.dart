@@ -119,7 +119,7 @@ class BankingProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      final userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+      int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
       PostBankDetailModel postBankDetailModel = PostBankDetailModel(
         uid: userid,
         accountNumber: int.tryParse(acNoController.text),

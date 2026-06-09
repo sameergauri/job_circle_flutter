@@ -43,7 +43,7 @@ class SignupCreateUserProvider with ChangeNotifier {
   void startTimer(BuildContext context) {
     // Prevent multiple timers
     _timer?.cancel();
-    _remainingSeconds = 300; // Reset to 5 mins
+    _remainingSeconds = 600; // Reset to 5 mins
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_remainingSeconds > 0) {
@@ -1601,7 +1601,7 @@ class SignupCreateUserProvider with ChangeNotifier {
 
   // Save and Update Functions
   Future<bool> saveUserData() async {
-    final token = SharedPrefsHelper.getString(ESharedPreferences.user_token);
+    String token = SharedPrefsHelper.getString(ESharedPreferences.user_token);
     _isLoading = true;
     notifyListeners();
     try {
@@ -2263,5 +2263,67 @@ class SignupCreateUserProvider with ChangeNotifier {
           )
           .toList(),
     );
+  }
+  //
+  //
+  //
+  //
+  //
+  //TODO:: when user save data without creating profile....
+  //
+  //
+  //
+  //
+  //
+    // Build Model
+  CreateNewUserModel builModelWithoutProfile() {
+    return CreateNewUserModel(
+      educationRequest: [],
+      experienceRequest: [],
+      certificationsRequest: [],
+      userProjectRequest: [],
+      awardsAndAchievementsRequest: [],
+      userRequest: UserRequest(
+        experience: _experience ? 1 : 0,
+        education: _graduate ? 1 : 0,
+        firstName: firstname.text,
+        middleName: middlename.text,
+        lastName: lastname.text,
+        mobile: int.tryParse(contactno.text),
+        userLocation: location.text,
+        gender: _male
+            ? 'Male'
+            : _female
+            ? 'Female'
+            : null,
+      ),
+    );
+  }
+
+  // Save and Update Functions
+  Future<bool> saveUserDataWithoutProfile() async {
+    final token = SharedPrefsHelper.getString(ESharedPreferences.user_token);
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final model = builModelWithoutProfile();
+      final result = await SignupService.saveUserData(model, token);
+      if (result) {
+        _userModel = model;
+        clearAll();
+        stopTimer();
+        CustomSnackbar.show(
+          '🤝 Welcome to Job Circle — where talent meets opportunity.',
+          false,
+        );
+      }
+      return result;
+    } catch (e) {
+      CustomSnackbar.show('Failed to save data: $e', true);
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
