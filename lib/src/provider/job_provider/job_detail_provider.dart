@@ -150,7 +150,7 @@ class JobDetailProvider extends ChangeNotifier {
     print("🚀 Payload sending to Backend: ${jsonEncode(answersPayload)}");
 
     try {
-      final message = await AddResumeAndApplyService.postJobApply(
+      String message = await AddResumeAndApplyService.postJobApply(
         jobId: jobId,
         userId: userId,
         screeningAnswers: answersPayload,
