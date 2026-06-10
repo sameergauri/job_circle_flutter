@@ -88,12 +88,24 @@ class _ResumeParsePageState extends State<ResumeParsePage> {
                     children: [
                       const Spacer(flex: 1),
                       // Main Heading
-                      customText(
-                        title: "Your Career Quest Begins",
-                        fontSize: 28,
-                        fontWeight: FontWeight
-                            .w800, // 🎯 Ekdum sahi production standard weight
-                        color: Constants.winecolor,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          customText(
+                            title: "Your Career Quest ",
+                            fontSize: 26,
+                            fontWeight: FontWeight
+                                .w800, // 🎯 Ekdum sahi production standard weight
+                            color: Constants.winecolor,
+                          ),
+                          customText(
+                            title: "Begins",
+                            fontSize: 26,
+                            fontWeight: FontWeight
+                                .w800, // 🎯 Ekdum sahi production standard weight
+                            color: Constants.indigo,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                       // Subtitle
@@ -220,10 +232,10 @@ class _ResumeParsePageState extends State<ResumeParsePage> {
         boxShadow: [
           BoxShadow(
             color: isPrimary
-                ? clrtwo.withValues(alpha: 0.3)
-                : Colors.grey.withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+                ? Constants.indigo.withValues(alpha: 0.22)
+                : Colors.grey.withValues(alpha: 0.12),
+            blurRadius: 15,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -233,27 +245,30 @@ class _ResumeParsePageState extends State<ResumeParsePage> {
           onTap: () => onTab(),
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
+              gradient: isPrimary
+                  ? LinearGradient(
+                      colors: [Constants.indigo, Constants.diffblue],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              color: isPrimary ? null : Colors.white,
               border: isPrimary
                   ? null
-                  : Border.all(color: Colors.grey.shade200, width: 1),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [clrone, clrtwo],
-              ),
+                  : Border.all(color: Colors.grey.shade200, width: 1.5),
             ),
             child: Row(
               children: [
                 // Icon Wrapper
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isPrimary
-                        ? Constants.white.withValues(alpha: 0.18)
-                        : iconcolor.withValues(alpha: 0.08),
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : Colors.grey.shade100,
                     shape: BoxShape.circle,
                   ),
                   child: CustomNetworkImage(

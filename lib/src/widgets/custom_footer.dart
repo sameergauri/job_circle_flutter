@@ -38,7 +38,7 @@ class CustomFooter extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           customText(
-            title: '@ All rights reserved 2025-26',
+            title: '@ All rights reserved 2026-27',
             fontWeight: FontWeight.bold,
             fontSize: 12,
             color: colors.headingColor,

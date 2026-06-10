@@ -347,6 +347,7 @@ class CustomJobCard extends StatelessWidget {
           imageUrl: CustomIconUrl.languageicon,
           defaultIcon: Icons.error_outline,
           height: 14,
+          color: Constants.subtitleclr,
         ),
         const SizedBox(width: 3),
         Expanded(

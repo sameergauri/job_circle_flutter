@@ -8,6 +8,7 @@ class CustomDialogueForAddResume extends StatefulWidget {
   final bool error;
   final bool confirmationDialogue;
   final String? title;
+  final String? buttonText;
   const CustomDialogueForAddResume({
     super.key,
     required this.subtitle,
@@ -15,6 +16,7 @@ class CustomDialogueForAddResume extends StatefulWidget {
     required this.error,
     this.confirmationDialogue = false,
     this.title,
+    this.buttonText,
   });
 
   @override
@@ -26,14 +28,17 @@ class _CustomDialogueForAddResumeState
     extends State<CustomDialogueForAddResume> {
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Dialog(
       backgroundColor: Colors.red,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: widget.error ? Colors.red : Colors.white),
+          border: Border.all(
+            color: widget.error ? Colors.red : colors.atsCardColor!,
+          ),
           borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
+          color: colors.bottomsheetbgColor,
         ),
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         child: Column(
@@ -46,9 +51,14 @@ class _CustomDialogueForAddResumeState
                 title: widget.title != null ? widget.title! : widget.subtitle,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
+                color: colors.textPrimary,
               ),
             if (!widget.confirmationDialogue || widget.title != null)
-              customText(title: widget.subtitle, fontSize: 14),
+              customText(
+                title: widget.subtitle,
+                fontSize: 14,
+                color: colors.subTitleColor,
+              ),
             if (widget.confirmationDialogue) SizedBox(height: 10),
             InkWell(
               onTap: widget.onClose,
@@ -67,7 +77,11 @@ class _CustomDialogueForAddResumeState
                       : Constants.darkBlue,
                 ),
                 child: customText(
-                  title: widget.confirmationDialogue ? "Yes" : "Close",
+                  title: widget.buttonText != null
+                      ? widget.buttonText!
+                      : widget.confirmationDialogue
+                      ? "Yes"
+                      : "Close",
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -105,7 +119,9 @@ class _CustomDialogueForApplyState extends State<CustomDialogueForApply> {
       canPop: false,
       child: Dialog(
         backgroundColor: colors.bottomsheetbgColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
@@ -140,7 +156,11 @@ class _CustomDialogueForApplyState extends State<CustomDialogueForApply> {
                   InkWell(
                     onTap: widget.onClose,
                     child: Container(
-                      margin: const EdgeInsets.only(top: 10, right: 6, bottom: 4),
+                      margin: const EdgeInsets.only(
+                        top: 10,
+                        right: 6,
+                        bottom: 4,
+                      ),
                       padding: const EdgeInsets.symmetric(
                         vertical: 4,
                         horizontal: 12,

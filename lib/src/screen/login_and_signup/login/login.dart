@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: customText(
-                  title: "Select Your Mobile Number",
+                  title: "Select your Mobile Number",
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   textAlign: TextAlign.center,
@@ -125,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 8),
                   customText(
-                    title: "@ All rights reserved - 2025-26",
+                    title: "@ All rights reserved - 2026-27",
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: colors.headingColor,
@@ -149,6 +149,7 @@ class _LoginPageState extends State<LoginPage> {
   /// ✅ SIM Cards Display - Automatic Cards
   Widget _buildSimCardsView(LoginProvider provider, AppColors colors) {
     return ListView.builder(
+      physics: NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 20),
       itemCount: provider.phoneNumbers.length,
       itemBuilder: (context, index) {
@@ -179,12 +180,16 @@ class _LoginPageState extends State<LoginPage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     )
-                  : null,
-              color: isSelected ? null : Colors.white,
+                  : LinearGradient(
+                      colors: [colors.appbarColor!, colors.appbarColor!],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+              // color: isSelected ? null : Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? Constants.darkBlue : Colors.grey.shade300,
-                width: isSelected ? 2.5 : 1.5,
+                width: isSelected ? 0.9 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
@@ -200,8 +205,8 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 // SIM Icon with Animation
                 Icon(
-                  Icons.sim_card_rounded,
-                  color: isSelected ? Colors.white : Colors.grey.shade600,
+                  Icons.sim_card_outlined,
+                  color: colors.subTitleColor,
                   size: 32,
                 ),
                 const SizedBox(width: 18),
@@ -215,39 +220,21 @@ class _LoginPageState extends State<LoginPage> {
                         monst: true,
                         title: phoneNumber,
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isSelected ? Constants.darkBlue : Colors.black87,
+                        // fontWeight: FontWeight.bold,
+                        color: isSelected
+                            ? Constants.darkBlue
+                            : colors.textPrimary,
                         letterspacing: 0.5,
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Constants.darkBlue.withOpacity(0.15)
-                                  : Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: customText(
-                              title: slot,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isSelected
-                                  ? Constants.darkBlue
-                                  : Colors.grey.shade700,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
                           customText(
-                            title: carrier,
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                            fontWeight: FontWeight.w500,
+                            title: "$slot : $carrier",
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: colors.subTitleColor,
+                            fontStyle: FontStyle.italic,
                           ),
                         ],
                       ),

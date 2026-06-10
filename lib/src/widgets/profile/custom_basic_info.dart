@@ -173,7 +173,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(width: 30), // placeholder for left space
+              const SizedBox(width: 20), // placeholder for left space
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -224,10 +224,13 @@ class CustomBasicInfoContainer extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (profileProvider.profile!.userLocality != null)
+                    if (profileProvider.profile!.userLocation != null)
                       customText(
-                        title:
-                            ' ${capitalizeFirstLetter(formatLocality(profileProvider.profile!.userLocality.toString()))}',
+                        title: capitalizeFirstLetter(
+                          formatLocality(
+                            profileProvider.profile!.userLocation.toString(),
+                          ),
+                        ),
                         softwrap: true,
                         maxlines: 3,
                         fontSize: 12,

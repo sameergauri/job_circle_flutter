@@ -36,7 +36,6 @@ class JobServices {
 
     try {
       final response = await http.post(url);
-
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final model = JobHomePageModel.fromJson(jsonData);

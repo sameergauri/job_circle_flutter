@@ -196,8 +196,11 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           context: context,
                           builder: (context) {
                             return CustomDialogueForAddResume(
+                              buttonText: "Ok",
                               error: false,
-                              onClose: () => NavigationService.pop(),
+                              onClose: () {
+                                NavigationService.pop();
+                              },
                               subtitle:
                                   "Your CV is not uploaded in the profile",
                             );
@@ -399,7 +402,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
       NavigationService.push(ScreeningQuestionPage());
     } else {
       int id = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
-      provider.submitApplicationWithScreening(jobId, id, context,true);
+      provider.submitApplicationWithScreening(jobId, id, context, true);
     }
   }
 }

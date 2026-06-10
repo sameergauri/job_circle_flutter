@@ -310,6 +310,26 @@ class CustomDrawer extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () async {
+                          final url = Uri.parse("https://www.jobcircle.co.in");
+                          if (!await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication, // important!
+                          )) {
+                            throw Exception('Could not launch $url');
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.grey.shade300,
+                          child: CustomNetworkImage(
+                            imageUrl: CustomIconUrl.websiteicon,
+                            defaultIcon: Icons.switch_access_shortcut_rounded,
+                            height: 18,
+                            color: Constants.darkBlue,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () async {
                           final url = Uri.parse(
                             "https://www.instagram.com/jobcircleofficial?igsh=MTZzbXJ4dGJjaGt3ag==",
                           );
@@ -363,24 +383,6 @@ class CustomDrawer extends StatelessWidget {
                       fontWeight: FontWeight.normal,
                       fontStyle: FontStyle.italic,
                       color: colors.headingColor,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      final url = Uri.parse("https://www.jobcircle.co.in");
-                      if (!await launchUrl(
-                        url,
-                        mode: LaunchMode.externalApplication, // important!
-                      )) {
-                        throw Exception('Could not launch $url');
-                      }
-                    },
-                    child: customText(
-                      title: 'www.jobcircle.co.in',
-                      fontSize: 10,
-                      fontWeight: FontWeight.normal,
-                      fontStyle: FontStyle.italic,
-                      color: colors.accentBlue,
                     ),
                   ),
                 ],

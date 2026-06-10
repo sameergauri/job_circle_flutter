@@ -141,7 +141,7 @@ class CustomExperienceContainer extends StatelessWidget {
                   child: const Column(
                     children: [
                       customText(
-                        title: "Fresher.",
+                        title: "Add experience",
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         fontStyle: FontStyle.italic,

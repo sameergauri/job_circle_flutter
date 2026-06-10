@@ -21,6 +21,18 @@ class CacheClearAppVersionService {
     }
   }
 
+  static bool _isNewer(String latest, String current) {
+    final l = latest.split('.').map(int.tryParse).toList();
+    final c = current.split('.').map(int.tryParse).toList();
+    for (int i = 0; i < l.length; i++) {
+      final lv = i < l.length ? (l[i] ?? 0) : 0;
+      final cv = i < c.length ? (c[i] ?? 0) : 0;
+      if (lv > cv) return true;
+      if (lv < cv) return false;
+    }
+    return false;
+  }
+
   static Future<void> checkAppVersion(BuildContext context) async {
     //TODO::: current version is same as pubspec.yaml file
     // Make an HTTP request to your server or a version-check API
@@ -35,7 +47,7 @@ class CacheClearAppVersionService {
         const String currentVersion =
             '1.1.10'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
-        if (latestVersion.compareTo(currentVersion) > 0) {
+        if (_isNewer(latestVersion, currentVersion)) {
           // Display update notificationra
           showDialog(
             context: context,

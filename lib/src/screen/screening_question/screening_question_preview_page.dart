@@ -64,8 +64,20 @@ class ScreeningQuestionPreviewPage extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: questions.length,
+        itemCount: questions.length + 1,
         itemBuilder: (context, index) {
+          // 1. Check if we have iterated past all items to render the custom trailing element
+          if (index == questions.length) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width / 3,
+                  child: Divider(color: colors.appbarColor, thickness: 6),
+                ),
+              ],
+            );
+          }
           final q = questions[index];
           final qId = q.id ?? 0;
 

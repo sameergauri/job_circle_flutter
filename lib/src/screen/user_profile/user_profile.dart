@@ -7,7 +7,6 @@ import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
-import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/profile/career_preference_view_card.dart';
 import 'package:job_circle/src/widgets/profile/custom_app_bar.dart';
 import 'package:job_circle/src/widgets/profile/custom_award_achivmnt.dart';
@@ -74,7 +73,7 @@ class _UserProfileState extends State<UserProfile> {
           children: [
             Scaffold(
               backgroundColor: colors.bgColor,
-               floatingActionButton:
+              floatingActionButton:
                   profileData.resume != null &&
                       profileData.resume != " " &&
                       profileData.resume != 'null'
@@ -88,177 +87,185 @@ class _UserProfileState extends State<UserProfile> {
                 },
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [
-                      CustomBasicInfoContainer(profileProvider: provider),
-                      if (_hasMissingInfo(
-                        profileData,
-                        careerPreferenceProvider,
-                      ))
-                        CustomMissingInfoContainer(
-                          provider: provider,
-                          careerPreferenceProvider: careerPreferenceProvider,
-                        ),
-                      if ((profileData.bio != null &&
-                              profileData.bio != " " &&
-                              profileData.bio != "null") &&
-                          (profileData.resume != null &&
-                              profileData.resume != " " &&
-                              profileData.allSkills!.isNotEmpty &&
-                              profileData.profilePic != " " &&
-                              profileData.profilePic != null))
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Column(
+                      children: [
+                        CustomBasicInfoContainer(profileProvider: provider),
+                        if (_hasMissingInfo(
+                          profileData,
+                          careerPreferenceProvider,
+                        ))
+                          CustomMissingInfoContainer(
+                            provider: provider,
+                            careerPreferenceProvider: careerPreferenceProvider,
                           ),
-                        ),
-                      if (profileData.bio != null &&
-                          profileData.bio != " " &&
-                          profileData.bio != "" &&
-                          profileData.bio != "null")
-                        CustomSummaryContainer(provider: provider),
-                      if (profileData.bio != null &&
-                          profileData.bio != " " &&
-                          profileData.bio != "null" &&
-                          profileData.bio != "")
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
-                          ),
-                        ),
-                      CustomExperienceContainer(profileProvider: provider),
-                      if (profileData.educationDetails != null &&
-                          profileData.educationDetails != "" &&
-                          profileData.educationDetails != [] &&
-                          profileData.educationDetails!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
-                          ),
-                        ),
-                      if (profileData.educationDetails != null &&
-                          profileData.educationDetails != "" &&
-                          profileData.educationDetails != [] &&
-                          profileData.educationDetails!.isNotEmpty)
-                        CustomEducationContainer(provider: provider),
-                      if (profileData.certifications != null &&
-                          profileData.certifications != "" &&
-                          profileData.certifications != [] &&
-                          profileData.certifications!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
-                          ),
-                        ),
-                      if (profileData.certifications != null &&
-                          profileData.certifications != "" &&
-                          profileData.certifications != [] &&
-                          profileData.certifications!.isNotEmpty)
-                        CertificationSection(provider: provider),
-                      if (profileData.projects != null &&
-                          profileData.projects != "" &&
-                          profileData.projects != [] &&
-                          profileData.projects!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
-                          ),
-                        ),
-                      if (profileData.projects != null &&
-                          profileData.projects != "" &&
-                          profileData.projects != [] &&
-                          profileData.projects!.isNotEmpty)
-                        ProjectSection(provider: provider),
-                      if (profileData.awardsAndAchievements != null &&
-                          profileData.awardsAndAchievements != "" &&
-                          profileData.awardsAndAchievements != [] &&
-                          profileData.awardsAndAchievements!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
-                          ),
-                        ),
-                      if (profileData.awardsAndAchievements != null &&
-                          profileData.awardsAndAchievements != "" &&
-                          profileData.awardsAndAchievements != [] &&
-                          profileData.awardsAndAchievements!.isNotEmpty)
-                        CustomAwardAchievment(provider: provider),
-                      if (profileData.allSkills != null &&
-                          profileData.allSkills != "" &&
-                          profileData.allSkills != [] &&
-                          profileData.allSkills!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
-                          ),
-                        ),
-                      if (profileData.allSkills != null &&
-                          profileData.allSkills != "" &&
-                          profileData.allSkills != [] &&
-                          profileData.allSkills!.isNotEmpty)
-                        SkillsSection(provider: provider),
-                      //for technical skills
-                      if (profileData.technicalSkills != null &&
-                          profileData.technicalSkills != "" &&
-                          profileData.technicalSkills != [] &&
-                          profileData.technicalSkills!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Divider(
-                            color: colors.bottomsheerCard1Color,
-                            thickness: 6,
-                          ),
-                        ),
-                      if (profileData.technicalSkills != null &&
-                          profileData.technicalSkills != "" &&
-                          profileData.technicalSkills != [] &&
-                          profileData.technicalSkills!.isNotEmpty)
-                        CustomTechnicalSkill(provider: provider),
-                      //
-                      Divider(
-                        color: colors.bottomsheerCard1Color,
-                        thickness: 6,
-                      ),
-                      CustomLanguageKnownContainer(profileProvider: provider),
-                      const SizedBox(height: 10),
-                      if (careerPreferenceProvider.hasExistingData)
-                        Divider(
-                          color: colors.bottomsheerCard1Color,
-                          thickness: 6,
-                        ),
-                      if (careerPreferenceProvider.hasExistingData)
-                        CareerProfileCard(
-                          // career preference card
-                          careerPreferenceProvider: careerPreferenceProvider,
-                        ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 3,
+                        if ((profileData.bio != null &&
+                                profileData.bio != " " &&
+                                profileData.bio != "null") &&
+                            (profileData.resume != null &&
+                                profileData.resume != " " &&
+                                profileData.allSkills!.isNotEmpty &&
+                                profileData.profilePic != " " &&
+                                profileData.profilePic != null))
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
                             child: Divider(
-                              color: colors.appbarColor,
+                              color: colors.bottomsheerCard1Color,
                               thickness: 6,
                             ),
                           ),
+                        if (profileData.bio != null &&
+                            profileData.bio != " " &&
+                            profileData.bio != "" &&
+                            profileData.bio != "null")
+                          CustomSummaryContainer(provider: provider),
+                        if (profileData.bio != null &&
+                            profileData.bio != " " &&
+                            profileData.bio != "null" &&
+                            profileData.bio != "")
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Divider(
+                              color: colors.bottomsheerCard1Color,
+                              thickness: 6,
+                            ),
+                          ),
+                        CustomExperienceContainer(profileProvider: provider),
+                        if (profileData.educationDetails != null &&
+                            profileData.educationDetails != "" &&
+                            profileData.educationDetails != [] &&
+                            profileData.educationDetails!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Divider(
+                              color: colors.bottomsheerCard1Color,
+                              thickness: 6,
+                            ),
+                          ),
+                        if (profileData.educationDetails != null &&
+                            profileData.educationDetails != "" &&
+                            profileData.educationDetails != [] &&
+                            profileData.educationDetails!.isNotEmpty)
+                          CustomEducationContainer(provider: provider),
+                        if (profileData.certifications != null &&
+                            profileData.certifications != "" &&
+                            profileData.certifications != [] &&
+                            profileData.certifications!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Divider(
+                              color: colors.bottomsheerCard1Color,
+                              thickness: 6,
+                            ),
+                          ),
+                        if (profileData.certifications != null &&
+                            profileData.certifications != "" &&
+                            profileData.certifications != [] &&
+                            profileData.certifications!.isNotEmpty)
+                          CertificationSection(provider: provider),
+                        if (profileData.projects != null &&
+                            profileData.projects != "" &&
+                            profileData.projects != [] &&
+                            profileData.projects!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Divider(
+                              color: colors.bottomsheerCard1Color,
+                              thickness: 6,
+                            ),
+                          ),
+                        if (profileData.projects != null &&
+                            profileData.projects != "" &&
+                            profileData.projects != [] &&
+                            profileData.projects!.isNotEmpty)
+                          ProjectSection(provider: provider),
+                        if (profileData.awardsAndAchievements != null &&
+                            profileData.awardsAndAchievements != "" &&
+                            profileData.awardsAndAchievements != [] &&
+                            profileData.awardsAndAchievements!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Divider(
+                              color: colors.bottomsheerCard1Color,
+                              thickness: 6,
+                            ),
+                          ),
+                        if (profileData.awardsAndAchievements != null &&
+                            profileData.awardsAndAchievements != "" &&
+                            profileData.awardsAndAchievements != [] &&
+                            profileData.awardsAndAchievements!.isNotEmpty)
+                          CustomAwardAchievment(provider: provider),
+                        if (profileData.allSkills != null &&
+                            profileData.allSkills != "" &&
+                            profileData.allSkills != [] &&
+                            profileData.allSkills!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Divider(
+                              color: colors.bottomsheerCard1Color,
+                              thickness: 6,
+                            ),
+                          ),
+                        if (profileData.allSkills != null &&
+                            profileData.allSkills != "" &&
+                            profileData.allSkills != [] &&
+                            profileData.allSkills!.isNotEmpty)
+                          SkillsSection(provider: provider),
+                        //for technical skills
+                        if (profileData.technicalSkills != null &&
+                            profileData.technicalSkills != "" &&
+                            profileData.technicalSkills != [] &&
+                            profileData.technicalSkills!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Divider(
+                              color: colors.bottomsheerCard1Color,
+                              thickness: 6,
+                            ),
+                          ),
+                        if (profileData.technicalSkills != null &&
+                            profileData.technicalSkills != "" &&
+                            profileData.technicalSkills != [] &&
+                            profileData.technicalSkills!.isNotEmpty)
+                          CustomTechnicalSkill(provider: provider),
+                        //
+                        if (profileData.languagesKnown != null &&
+                            profileData.languagesKnown!.isNotEmpty) ...[
+                          Divider(
+                            color: colors.bottomsheerCard1Color,
+                            thickness: 6,
+                          ),
+                          CustomLanguageKnownContainer(
+                            profileProvider: provider,
+                          ),
                         ],
-                      ),
-                      SizedBox(height: 20),
-                    ],
+                        const SizedBox(height: 10),
+                        if (careerPreferenceProvider.hasExistingData)
+                          Divider(
+                            color: colors.bottomsheerCard1Color,
+                            thickness: 6,
+                          ),
+                        if (careerPreferenceProvider.hasExistingData)
+                          CareerProfileCard(
+                            // career preference card
+                            careerPreferenceProvider: careerPreferenceProvider,
+                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 3,
+                              child: Divider(
+                                color: colors.appbarColor,
+                                thickness: 6,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),
