@@ -26,6 +26,25 @@ class CustomBasicInfoContainer extends StatelessWidget {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
 
+    final profile = profileProvider.profile;
+
+    String subHeadlineText = "";
+    if (profile != null) {
+      if (profile.profileHeadline != null &&
+          profile.profileHeadline!.isNotEmpty &&
+          profile.profileHeadline != "null") {
+        subHeadlineText = profile.profileHeadline!;
+      } else if (profile.experiences != null &&
+          profile.experiences!.isNotEmpty) {
+        final exp = profile.experiences!.first;
+        subHeadlineText = "${exp.jobTitle} at ${exp.companyName}";
+      } else if (profile.educationDetails != null &&
+          profile.educationDetails!.isNotEmpty) {
+        final edu = profile.educationDetails!.first;
+        subHeadlineText = "${edu.degreeSpc} from ${edu.university}";
+      }
+    }
+
     final jobProvider = Provider.of<JobProvider>(context, listen: false);
     return Container(
       decoration: BoxDecoration(color: colors.bgColor),
@@ -178,58 +197,38 @@ class CustomBasicInfoContainer extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    customText(
-                      title:
-                          "${profileProvider.profile!.firstName.toString().toTitleCase()} ${profileProvider.profile!.lastName.toString().toTitleCase()}",
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: colors.headingColor,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: customTextFornCambria(
-                            monst: false,
-                            title:
-                                profileProvider.profile!.profileHeadline !=
-                                        null &&
-                                    profileProvider.profile!.profileHeadline !=
-                                        "" &&
-                                    profileProvider.profile!.profileHeadline !=
-                                        "null"
-                                ? "${profileProvider.profile!.profileHeadline}"
-                                : profileProvider.profile!.experiences !=
-                                          null &&
-                                      profileProvider
-                                          .profile!
-                                          .experiences!
-                                          .isNotEmpty
-                                ? "${profileProvider.profile!.experiences!.first.jobTitle} at ${profileProvider.profile!.experiences!.first.companyName}"
-                                : profileProvider.profile!.educationDetails !=
-                                          null &&
-                                      profileProvider
-                                          .profile!
-                                          .educationDetails!
-                                          .isNotEmpty
-                                ? "${profileProvider.profile!.educationDetails!.first.degreeSpc} from ${profileProvider.profile!.educationDetails!.first.university}"
-                                : "",
-                            softwrap: true,
-                            maxlines: 3,
-                            textAlign: TextAlign.center,
-                            fontSize: 14,
-                            fontWeight: FontWeight.normal,
-                            color: colors.headingColor,
+                    // Always shows FirstName and LastName
+                    if (profile != null)
+                      customText(
+                        title:
+                            "${profile.firstName.toString().toTitleCase()} ${profile.lastName.toString().toTitleCase()}",
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.headingColor,
+                      ),
+                    if (subHeadlineText.isNotEmpty) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: customTextFornCambria(
+                              monst: false,
+                              title: subHeadlineText,
+                              softwrap: true,
+                              maxlines: 3,
+                              textAlign: TextAlign.center,
+                              fontSize: 14,
+                              fontWeight: FontWeight.normal,
+                              color: colors.headingColor,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    if (profileProvider.profile!.userLocation != null)
+                        ],
+                      ),
+                    ],
+                    if (profile?.userLocation != null) ...[
                       customText(
                         title: capitalizeFirstLetter(
-                          formatLocality(
-                            profileProvider.profile!.userLocation.toString(),
-                          ),
+                          formatLocality(profile!.userLocation.toString()),
                         ),
                         softwrap: true,
                         maxlines: 3,
@@ -237,6 +236,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         color: colors.subTitleColor,
                       ),
+                    ],
                   ],
                 ),
               ),
