@@ -258,7 +258,6 @@ class ProfileEducationEdit extends StatelessWidget {
                   ),
                 ],
               ),
-
             const SizedBox(height: 10),
             CustomCheckboxRow(
               title: "Currently Studying",
@@ -269,7 +268,6 @@ class ProfileEducationEdit extends StatelessWidget {
                 provider.setCurrentlyStudying(value!);
               },
             ),
-
             SizedBox(height: 10),
             if (provider.markSheet == null ||
                 provider.markSheet == '' ||
@@ -316,7 +314,6 @@ class ProfileEducationEdit extends StatelessWidget {
                   );
                 },
               ),
-
             const SizedBox(height: 15),
             if (provider.isEditingEducation &&
                 provider.profile!.educationDetails!.length > 1)

@@ -8,7 +8,8 @@ import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class ScreeningQuestionPreviewPage extends StatelessWidget {
-  const ScreeningQuestionPreviewPage({super.key});
+  final int? refid;
+  const ScreeningQuestionPreviewPage({super.key,this.refid});
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +59,7 @@ class ScreeningQuestionPreviewPage extends StatelessWidget {
                     userId,
                     context,
                     provider.isEligible(),
+                    refid,
                   );
                 },
               ),

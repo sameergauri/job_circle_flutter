@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
 import 'package:job_circle/src/provider/add_resume/add_resume_provider.dart';
@@ -27,17 +28,20 @@ import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class JobDetailPage extends StatefulWidget {
   final int jobId;
   final FromWhere fromWhere;
   final String resume;
+  final int? referrerUserId;
 
   const JobDetailPage({
     super.key,
     required this.jobId,
     required this.fromWhere,
     required this.resume,
+    this.referrerUserId,
   });
 
   @override
@@ -66,6 +70,30 @@ class _JobDetailPageState extends State<JobDetailPage> {
             Scaffold(
               backgroundColor: colors.bgColor,
               appBar: AppBar(
+                actions: [
+                  IconButton(
+                    onPressed: () async {
+                      final result = await provider.shareJob(
+                        jobId: provider.jobDetail!.id!,
+                        shareMedium: 'whatsapp', // optional
+                      );
+                      if (result['success'] == true) {
+                        String shareUrl = result['shareUrl'];
+                        await Share.share(
+                          "${provider.jobDetail!.jobHeadline}\n${provider.jobDetail!.companyName ?? ''}\n\nApply here: $shareUrl",
+                          subject: provider.jobDetail!.jobHeadline,
+                        );
+                        CustomSnackbar.show("Job shared successfully!", false);
+                      } else {
+                        CustomSnackbar.show(
+                          result['message'] ?? "Failed to share",
+                          true,
+                        );
+                      }
+                    },
+                    icon: Icon(Icons.share, color: colors.textPrimary),
+                  ),
+                ],
                 titleSpacing: 0,
                 backgroundColor: colors.appbarColor,
                 elevation: 0,
@@ -189,6 +217,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                           job.id!,
                           provider,
                           screeningQuestions,
+                          widget.referrerUserId,
                         );
                       } else {
                         showDialog(
@@ -396,13 +425,14 @@ class _JobDetailPageState extends State<JobDetailPage> {
     int jobId,
     JobDetailProvider provider,
     List<JobDetailScreeningQuestion> screeningQuestions,
+    int? refid,
   ) async {
     if (screeningQuestions.isNotEmpty && screeningQuestions != null) {
       // Agar screening questions hain, toh pehle unko show karo
-      NavigationService.push(ScreeningQuestionPage());
+      NavigationService.push(ScreeningQuestionPage(refid: refid));
     } else {
       int id = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
-      provider.submitApplicationWithScreening(jobId, id, context, true);
+      provider.submitApplicationWithScreening(jobId, id, context, true, refid);
     }
   }
 }

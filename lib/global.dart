@@ -5,8 +5,8 @@ class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
   static const API_Host_one =
       "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090";
-      // "192.168.1.103:8081";
-      // "192.168.1.104:9090";
+  // "192.168.1.103:8081";
+  // "192.168.1.104:9090";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
   static const Image_url = "https://s3.ap-south-1.amazonaws.com/job-circle-2/";
 
@@ -131,4 +131,10 @@ class GlobalConstants {
       '$_baseurl/api/v1/recommendations/getShiftTypeDropdown';
   static const getLocation =
       '$_baseurl/api/v1/recommendations/getLocationDropdown';
+  //
+  //
+  // TODO:: Job share option api.
+  static const sharejob = '$_baseurl/api/jobs/share';
+  static const validatesharejob = '$_baseurl/api/jobs/share/validate/';
+  //
 }

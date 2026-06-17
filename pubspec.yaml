@@ -49,6 +49,7 @@ dependencies:
   resume_builder_kit:
     path: D:/JobCircle/packages/resume_builder_kit
   encrypt: ^5.0.3
+  app_links: ^7.1.2
  
   
 

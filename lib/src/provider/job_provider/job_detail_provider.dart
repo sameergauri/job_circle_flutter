@@ -140,6 +140,7 @@ class JobDetailProvider extends ChangeNotifier {
     int userId,
     BuildContext context,
     bool isEligible,
+    int? refid,
   ) async {
     _applyLoading = true;
     notifyListeners();
@@ -156,6 +157,7 @@ class JobDetailProvider extends ChangeNotifier {
         userId: userId,
         screeningAnswers: answersPayload,
         isEligible: isEligible,
+        refid: refid,
       );
       if (message.contains("Successfully") && context.mounted) {
         isEligible
@@ -259,5 +261,58 @@ class JobDetailProvider extends ChangeNotifier {
   void clearJobDetails() {
     jobDetail = null;
     notifyListeners();
+  }
+
+  /// Share Job Function (Provider mein)
+  Future<Map<String, dynamic>> shareJob({
+    required int jobId,
+    String shareMedium = 'others',
+  }) async {
+    try {
+      // Get current user id from Shared Preferences
+      final int currentUserId = SharedPrefsHelper.getInt(
+        ESharedPreferences.user_id,
+      );
+
+      final Map<String, dynamic> requestBody = {
+        "jobId": jobId,
+        "userId": currentUserId,
+        "shareMedium": shareMedium,
+      };
+
+      final response = await http.post(
+        Uri.parse(GlobalConstants.sharejob),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
+
+        final bool resultKey = jsonData["success"] ?? "ERROR";
+
+        if (resultKey == true) {
+          return {
+            "success": true,
+            "shareCode": jsonData['shareCode'] ?? "",
+            "shareUrl": jsonData['shareUrl'] ?? "",
+            "message": "Job shared successfully!",
+          };
+        } else {
+          return {"success": false, "message": "Failed to share job"};
+        }
+      } else {
+        return {
+          "success": false,
+          "message": "Server error: ${response.statusCode}",
+        };
+      }
+    } catch (e) {
+      print("Error in shareJob: $e");
+      return {
+        "success": false,
+        "message": "Something went wrong while sharing",
+      };
+    }
   }
 }

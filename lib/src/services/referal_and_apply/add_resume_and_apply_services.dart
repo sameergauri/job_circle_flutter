@@ -4,7 +4,9 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
+import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/referal_model/add_resume_model.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class AddResumeAndApplyService {
   static Future<String> referAndAddResume({
@@ -36,6 +38,7 @@ class AddResumeAndApplyService {
     required int userId,
     required List<Map<String, dynamic>> screeningAnswers,
     required bool isEligible,
+    int? refid,
   }) async {
     try {
       final Map<String, dynamic> requestBody = {
@@ -44,7 +47,13 @@ class AddResumeAndApplyService {
       };
 
       final response = await http.post(
-        Uri.parse('${GlobalConstants.applyUrl}?jobId=$jobId&userId=$userId'),
+        refid != null
+            ? Uri.parse(
+                '${GlobalConstants.applyUrl}?jobId=$jobId&userId=$userId&refId=$refid',
+              )
+            : Uri.parse(
+                '${GlobalConstants.applyUrl}?jobId=$jobId&userId=$userId',
+              ),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(requestBody),
       );
@@ -64,6 +73,26 @@ class AddResumeAndApplyService {
       }
     } catch (e) {
       return "Error applying job: $e";
+    }
+  }
+
+  static Future<Map<String, dynamic>> validateShareCode(
+    String shareCode,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '${GlobalConstants.validatesharejob}$shareCode',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {"success": false, "message": "Invalid link"};
+      }
+    } catch (e) {
+      return {"success": false, "message": "Network error"};
     }
   }
 

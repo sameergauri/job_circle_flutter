@@ -12,7 +12,8 @@ import 'package:provider/provider.dart';
 
 // ⚡ 1. Isko Stateful banaya taaki local page counter maintain ho sake
 class ScreeningQuestionPage extends StatefulWidget {
-  const ScreeningQuestionPage({super.key});
+  final int? refid;
+  const ScreeningQuestionPage({super.key,this.refid});
 
   @override
   State<ScreeningQuestionPage> createState() => _ScreeningQuestionPageState();
@@ -116,7 +117,7 @@ class _ScreeningQuestionPageState extends State<ScreeningQuestionPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ScreeningQuestionPreviewPage(),
+                  builder: (context) =>  ScreeningQuestionPreviewPage(refid: widget.refid,),
                 ),
               );
             }
