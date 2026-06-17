@@ -2,15 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
-import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
-import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/services/login_and_signup_services/login_service.dart';
-import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sim_reader/sim_reader.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class LoginProvider extends ChangeNotifier {
   final TextEditingController mobileController = TextEditingController();
@@ -18,6 +13,10 @@ class LoginProvider extends ChangeNotifier {
   final TextEditingController otp2 = TextEditingController();
   final TextEditingController otp3 = TextEditingController();
   final TextEditingController otp4 = TextEditingController();
+
+  bool _isChecked = false;
+
+  bool get isChecked => _isChecked;
 
   bool isLoading = false;
   bool isLoadingNumbers = false;
@@ -28,66 +27,62 @@ class LoginProvider extends ChangeNotifier {
   String? selectedPhoneNumber;
   String? appSignature;
 
+  void changeChecked(bool value) {
+    _isChecked = value;
+    notifyListeners();
+  }
+
   /// ✅ Get REAL Phone Numbers from SIM Cards using mobile_number package
-  Future<void> getPhoneNumbers() async {
+  /// ✅ Google ka Default Phone Number Picker Dialog
+  Future<String?> showGooglePhonePicker() async {
+    try {
+      final String? phone = await SmsAutoFill().hint;
+      if (phone != null && phone.isNotEmpty) {
+        print('✅ Google Dialog se mila: $phone');
+        String formatted = _formatPhoneNumber(phone);
+        setSelectedPhoneNumber(formatted);
+        return formatted;
+      }
+    } catch (e) {
+      print('❌ Google Phone Picker Error: $e');
+    }
+    return null;
+  }
+
+  /// ✅ Updated getPhoneNumbers - Ab Google Dialog use karega
+  Future<void> getPhoneNumbers({bool showDialog = true}) async {
     isLoadingNumbers = true;
     notifyListeners();
 
     try {
-      // 1. Permission request (sim_reader requires READ_PHONE_STATE)
-      var phonePermission = await Permission.phone.request();
+      await Permission.phone.request();
 
-      if (phonePermission.isGranted) {
-        // Get app signature (Same as before)
-        try {
-          appSignature = await SmsAutoFill().getAppSignature;
-          print('📱 App Signature: $appSignature');
-        } catch (e) {
-          print('⚠️ Signature Error: $e');
-        }
+      String? detectedNumber;
 
-        // 2. Fetch SIM Cards using sim_reader
-        // sim_reader returns List<SimCard>
-        List<SimInfo>? simCards = await SimReader.getAllSimInfo();
+      if (showDialog) {
+        detectedNumber = await showGooglePhonePicker();
+      }
 
-        List<Map<String, String>> detectedNumbers = [];
+      List<Map<String, String>> detectedNumbers = [];
 
-        if (simCards.isNotEmpty) {
-          print('🔍 Found ${simCards.length} SIM card(s)');
+      if (detectedNumber != null) {
+        detectedNumbers.add({
+          'number': detectedNumber,
+          'carrier': 'Auto Detected',
+          'slot': 'SIM',
+        });
+      }
 
-          for (var sim in simCards) {
-            // Debug prints to see what we are getting
-            print(
-              '📱 Found SIM: ${sim.phoneNumber} | Carrier: ${sim.carrierName}',
-            );
+      phoneNumbers = detectedNumbers;
 
-            // sim_reader uses .phoneNumber instead of .number
-            if (sim.phoneNumber != null && sim.phoneNumber!.isNotEmpty) {
-              detectedNumbers.add({
-                'number': _formatPhoneNumber(sim.phoneNumber!),
-                'carrier': sim.carrierName ?? 'Unknown',
-                'slot': "SIM ${sim.simSlotIndex ?? detectedNumbers.length + 1}",
-                'slotIndex': '${sim.simSlotIndex ?? 0}',
-              });
-            }
-          }
-        }
-
-        phoneNumbers = detectedNumbers;
-
-        if (phoneNumbers.isEmpty) {
-          print(
-            '⚠️ SIM cards found but numbers are empty (Carrier restriction)',
-          );
-          // Option: Yahan aap SmsAutoFill().hint call kar sakte hain fallback ke liye
-        }
+      if (phoneNumbers.isEmpty) {
+        CustomSnackbar.show("No number detected. Please try again.", true);
       } else {
-        print('❌ Permission Denied');
-        CustomSnackbar.show("Phone permission required", true);
+        // Auto select first number
+        setSelectedPhoneNumber(phoneNumbers.first['number']!);
       }
     } catch (e) {
-      print('❌ sim_reader Error: $e');
-      phoneNumbers = [];
+      print('Error in getPhoneNumbers: $e');
     } finally {
       isLoadingNumbers = false;
       notifyListeners();
@@ -244,60 +239,6 @@ class LoginProvider extends ChangeNotifier {
         backgroundColor: success ? Colors.green : Colors.red,
       ),
     );
-  }
-
-  /// ✅ Check if the logged-in number is still present in the device SIM slots
-  Future<void> verifySimCardConsistency(BuildContext context) async {
-    print("🔍 SIM Check Started..."); // Add this to debug
-    try {
-      // 1. Get the logged-in number from SharedPrefs
-      final loggedInNumber = SharedPrefsHelper.getInt(
-        ESharedPreferences.user_mobile,
-      );
-
-      if (loggedInNumber == 0 || loggedInNumber.toString().isEmpty) return;
-
-      // 2. Fetch current SIM cards
-      List<SimInfo>? simCards = await SimReader.getAllSimInfo();
-
-      bool isNumberPresent = false;
-      String formattedLoggedIn = loggedInNumber.toString().replaceAll(
-        RegExp(r'\D'),
-        '',
-      );
-
-      // Ensure we compare the last 10 digits to avoid country code mismatches
-      if (formattedLoggedIn.length > 10) {
-        formattedLoggedIn = formattedLoggedIn.substring(
-          formattedLoggedIn.length - 10,
-        );
-      }
-
-      for (var sim in simCards) {
-        if (sim.phoneNumber != null) {
-          String currentSim = sim.phoneNumber!.replaceAll(RegExp(r'\D'), '');
-          if (currentSim.endsWith(formattedLoggedIn)) {
-            isNumberPresent = true;
-            break;
-          }
-        }
-      }
-      // 3. If number not found in any SIM slot, force logout
-      if (!isNumberPresent) {
-        print(
-          "🚨 Security Alert: Registered SIM removed or changed. Logging out.",
-        );
-        final client = StreamChat.of(context).client;
-        // 1. Disconnect Stream
-        await client.disconnectUser();
-        SharedPrefsHelper.clearAllPreferences();
-        await CacheClearAppVersionService.clearCache();
-        NavigationService.pushAndRemoveUntil(LoginPage());
-        // _forceLogout(context);
-      }
-    } catch (e) {
-      print("❌ SIM Verification Error: $e");
-    }
   }
 
   @override

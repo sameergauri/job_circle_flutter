@@ -7,6 +7,8 @@ import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/login_signup_provider/login_provider.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/otp.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/terms_privacy_codepage.dart';
+import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 
@@ -21,11 +23,16 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration.zero, () {
+      final provider = Provider.of<LoginProvider>(context, listen: false);
+      provider.getPhoneNumbers(showDialog: true); // Google Dialog pehle aayega
+    });
+    /*  super.initState();
     // ✅ Automatically detect phone numbers on page load
     Future.delayed(Duration.zero, () {
       final loginProvider = Provider.of<LoginProvider>(context, listen: false);
       loginProvider.getPhoneNumbers();
-    });
+    }); */
   }
 
   @override
@@ -54,14 +61,12 @@ class _LoginPageState extends State<LoginPage> {
                   fit: BoxFit.cover,
                 ),
               ),
-
               const SizedBox(height: 40),
 
-              /// Title
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: customText(
-                  title: "Select your Mobile Number",
+                  title: "Login or Sign Up",
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   textAlign: TextAlign.center,
@@ -82,22 +87,73 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 30),
 
               /// ✅ SIM Cards - Direct Display (No Bottom Sheet!)
+              /* if (loginProvider.phoneNumbers.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: TextButton.icon(
+                      onPressed: () {
+                        final provider = Provider.of<LoginProvider>(
+                          context,
+                          listen: false,
+                        );
+                        provider.getPhoneNumbers(showDialog: true);
+                      },
+                      icon: const Icon(Icons.swap_horiz, color: Colors.blue),
+                      label: const customText(title: "Switch SIM"),
+                    ),
+                  ),
+                ), */
               Expanded(
+                flex: 2,
                 child: loginProvider.isLoadingNumbers
-                    ? const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircularProgressIndicator(),
-                            SizedBox(height: 16),
-                            customText(title: 'Detecting SIM cards...'),
-                          ],
-                        ),
-                      )
+                    ? const Center(child: CircularProgressIndicator())
                     : loginProvider.phoneNumbers.isEmpty
                     ? _buildNoPhoneView(loginProvider)
                     : _buildSimCardsView(loginProvider, colors),
               ),
+              if (loginProvider.phoneNumbers.isNotEmpty)
+                Expanded(
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CustomButtonForSave(
+                          buttonColor: colors.darkBlue,
+                          textColor: Constants.white,
+                          isPading: false,
+                          onTap: () => _selectAndSendOTP(
+                            loginProvider,
+                            loginProvider.selectedPhoneNumber ?? '',
+                          ),
+                          title: "Continue",
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            customText(
+                              title: "By continuing, I agree to ",
+                              color: colors.textPrimary,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                NavigationService.push(TermsPrivacyCodePage());
+                              },
+                              child: customText(
+                                title: "Terms of Service",
+                                color: colors.darkBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
               /// Footer
               Column(
@@ -161,7 +217,10 @@ class _LoginPageState extends State<LoginPage> {
         final isSelected = provider.selectedPhoneNumber == phoneNumber;
 
         return GestureDetector(
-          onTap: () => _selectAndSendOTP(provider, phoneNumber),
+          onTap: () {
+            final provider = Provider.of<LoginProvider>(context, listen: false);
+            provider.getPhoneNumbers(showDialog: true);
+          },
           child: Container(
             margin: const EdgeInsets.only(bottom: 16),
             padding: const EdgeInsets.only(
@@ -171,7 +230,8 @@ class _LoginPageState extends State<LoginPage> {
               bottom: 10,
             ),
             decoration: BoxDecoration(
-              gradient: isSelected
+              color: colors.bgColor,
+              /*  gradient: isSelected
                   ? LinearGradient(
                       colors: [
                         Constants.darkBlue.withOpacity(0.1),
@@ -185,7 +245,7 @@ class _LoginPageState extends State<LoginPage> {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-              // color: isSelected ? null : Colors.white,
+              // color: isSelected ? null : Colors.white, */
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? Constants.darkBlue : Colors.grey.shade300,
@@ -206,7 +266,7 @@ class _LoginPageState extends State<LoginPage> {
                 // SIM Icon with Animation
                 Icon(
                   Icons.sim_card_outlined,
-                  color: colors.subTitleColor,
+                  color: colors.textPrimary,
                   size: 32,
                 ),
                 const SizedBox(width: 18),
@@ -220,20 +280,19 @@ class _LoginPageState extends State<LoginPage> {
                         monst: true,
                         title: phoneNumber,
                         fontSize: 16,
-                        // fontWeight: FontWeight.bold,
-                        color: isSelected
-                            ? Constants.darkBlue
-                            : colors.textPrimary,
+                        fontWeight: FontWeight.bold,
+                        color: colors.textPrimary,
                         letterspacing: 0.5,
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
+                          Icon(Icons.swap_horiz, color: Colors.blue),
                           customText(
-                            title: "$slot : $carrier",
+                            title: "Switch SIM",
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: colors.subTitleColor,
+                            color: colors.darkBlue,
                             fontStyle: FontStyle.italic,
                           ),
                         ],
@@ -243,17 +302,15 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 // Check Icon
-                AnimatedScale(
+                /*  AnimatedScale(
                   scale: isSelected ? 1.0 : 0.8,
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
-                    isSelected ? Icons.check_circle : Icons.circle_outlined,
-                    color: isSelected
-                        ? Constants.darkBlue
-                        : Colors.grey.shade400,
+                    Icons.radio_button_on_sharp,
+                    color: colors.textPrimary,
                     size: 30,
                   ),
-                ),
+                ), */
               ],
             ),
           ),

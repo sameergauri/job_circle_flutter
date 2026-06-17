@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     CacheClearAppVersionService.checkAppVersion(context);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LoginProvider>().verifySimCardConsistency(context);
+      //context.read<LoginProvider>().verifySimCardConsistency(context);
     });
   }
 
@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
       splashColor: Constants.borderColor,
       onTap: () {
         CacheClearAppVersionService.checkAppVersion(context);
-        context.read<LoginProvider>().verifySimCardConsistency(context);
+        //context.read<LoginProvider>().verifySimCardConsistency(context);
         setState(() => currentIndex = index);
       },
       child: AnimatedContainer(

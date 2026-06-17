@@ -195,9 +195,9 @@ class _JobHomePageState extends State<JobHomePage> {
                   onPressed: () {
                     widget.scaffoldKey.currentState?.openDrawer();
                     // check the sim card is in the phone or not
-                    context.read<LoginProvider>().verifySimCardConsistency(
-                      context,
-                    );
+                    // context.read<LoginProvider>().verifySimCardConsistency(
+                    //   context,
+                    // );
                   },
                   icon: /* jobProvider.isLoading
                       ? CircularProgressIndicator(
