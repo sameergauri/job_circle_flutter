@@ -42,6 +42,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
   bool vrifyButtonDisabled = true;
   bool resendOtpHide = true;
   bool resendOtpTimerHide = false;
+  bool _isNavigating = false;
 
   String get timerText =>
       '${((timerMaxSeconds - currentSeconds) ~/ 60).toString().padLeft(2, '0')}: ${((timerMaxSeconds - currentSeconds) % 60).toString().padLeft(2, '0')}';
@@ -158,6 +159,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
   }
 
   Future<void> verifyOTP(LoginProvider provider) async {
+    setState(() => _isNavigating = true);
+
     String otp =
         provider.otp1.text +
         provider.otp2.text +
@@ -187,6 +190,8 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
         msg: msg,
         from: "otp",
       );
+    } else {
+      setState(() => _isNavigating = false);
     }
   }
 
@@ -449,7 +454,7 @@ class _OTPScreenState extends State<OTPScreen> with CodeAutoFill {
             ),
           ),
         ),
-        if (provider.isLoading)
+        if (provider.isLoading || _isNavigating)
           const CustomLoadingIndicator(
             loaderColor: Constants.darkBlue,
             blurSigma: 5,
