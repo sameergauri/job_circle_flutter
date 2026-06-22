@@ -6,6 +6,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/utils/chat_utils.dart';
 import 'package:job_circle/src/widgets/button/custom_call_sms_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class RecruiterDetailsCard extends StatelessWidget {
@@ -123,11 +124,7 @@ class RecruiterDetailsCard extends StatelessWidget {
                       imageUrl:
                           "https://cdn-icons-png.flaticon.com/128/9821/9821767.png",
                       label: "Call",
-                      onTap: () async {
-                        FlutterPhoneDirectCaller.callNumber(
-                          contactNumber.toString(),
-                        );
-                      },
+                      onTap: () => _handleCallPermission(context),
                     ),
                     const SizedBox(width: 15),
                     CustomcallsmsButton(
@@ -155,6 +152,160 @@ class RecruiterDetailsCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _handleCallPermission(BuildContext context) async {
+    final status = await Permission.phone.status;
+
+    if (status.isGranted) {
+      await FlutterPhoneDirectCaller.callNumber(contactNumber.toString());
+      return;
+    }
+
+    if (status.isPermanentlyDenied) {
+      // System dialog won't appear — show our dialog with settings option
+      if (context.mounted) _showCallPermissionDialog(context);
+      return;
+    }
+
+    // Status is denied/undetermined — show system dialog only, never our custom dialog here
+    final result = await Permission.phone.request();
+    if (!context.mounted) return;
+
+    if (result.isGranted) {
+      await FlutterPhoneDirectCaller.callNumber(contactNumber.toString());
+    }
+    // Any denial from system dialog → do nothing; next tap will show our custom dialog
+  }
+
+  void _showCallPermissionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => PopScope(
+        canPop: false,
+        child: Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E2E)
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: Constants.darkBlue.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.phone_rounded,
+                      color: Constants.darkBlue,
+                      size: 36,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Phone Permission Required",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : const Color(0xFF1A1A2E),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Constants.darkBlue.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Constants.darkBlue.withValues(alpha: 0.15),
+                        width: 1,
+                      ),
+                    ),
+                    child: Text(
+                      "Phone permission has been permanently denied. Please enable it from app settings to make direct calls.",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white70
+                            : Colors.grey.shade700,
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.grey.shade600,
+                            side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            "Cancel",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(ctx).pop();
+                            await openAppSettings();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Constants.darkBlue,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            "Open Settings",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

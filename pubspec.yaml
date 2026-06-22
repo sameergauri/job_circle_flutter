@@ -6,8 +6,8 @@ description: Job circle.
 
 
 publish_to: "none"
-version: 1.1.11+36
-# on play store : 1.1.11+36 date : 17-06-2026
+version: 1.1.12+37
+# on play store : 1.1.12+37 date : 22-06-2026
 
 environment:
   sdk: ^3.9.0

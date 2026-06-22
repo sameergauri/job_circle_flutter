@@ -73,7 +73,7 @@ class SharedPrefsHelper {
     // List of keys we want to PRESERVE even after logout
     final List<String> preserveKeys = [
       ESharedPreferences.theme_mode.name,
-      // Add other keys here like language_code if needed
+      ESharedPreferences.sim_consent_agreed.name,
     ];
 
     final allKeys = _prefs!.getKeys();

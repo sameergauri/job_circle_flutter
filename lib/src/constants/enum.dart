@@ -45,6 +45,7 @@ enum ESharedPreferences {
   orgnizationId,
   msg,
   theme_mode,
+  sim_consent_agreed,
 }
 
 enum EPartnerApproval {

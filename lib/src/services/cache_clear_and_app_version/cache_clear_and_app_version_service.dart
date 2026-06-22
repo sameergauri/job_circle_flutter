@@ -45,7 +45,7 @@ class CacheClearAppVersionService {
             data['resultData']['version']; //TODO::: latest version is one previous version of the currenct app ...
 
         const String currentVersion =
-            '1.1.11'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+            '1.1.12'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
         if (_isNewer(latestVersion, currentVersion)) {
           // Display update notificationra
@@ -62,7 +62,7 @@ class CacheClearAppVersionService {
                 child: const CustomDialog(),
               );
             },
-          );  
+          );
         }
       } else {
         print('Failed to fetch data. Status Code: ${response.statusCode}');
