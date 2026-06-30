@@ -31,6 +31,7 @@ class _TermsPrivacyCodePageState extends State<TermsPrivacyCodePage>
   Widget build(BuildContext context) {
     final colors = context.appColors;
     return Scaffold(
+      backgroundColor: colors.bgColor,
       appBar: AppBar(
         title: const OnboardingTitle(title: "Terms of service", fontSize: 16),
         elevation: 2,
@@ -74,25 +75,35 @@ class _TermsPrivacyCodePageState extends State<TermsPrivacyCodePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildContentTab(termsAndConditionsText, "Terms and Conditions"),
-          _buildContentTab(privacyPolicyText, "Privacy Policy"),
-          _buildContentTab(codeOfConductText, "Code of Conduct"),
+          _buildContentTab(
+            termsAndConditionsText,
+            "Terms and Conditions",
+            colors,
+          ),
+          _buildContentTab(privacyPolicyText, "Privacy Policy", colors),
+          _buildContentTab(codeOfConductText, "Code of Conduct", colors),
         ],
       ),
     );
   }
 
-  Widget _buildContentTab(String fullText, String title) {
+  Widget _buildContentTab(String fullText, String title, AppColors colors) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [const SizedBox(height: 10), _buildFormattedText(fullText)],
+      child: Container(
+        padding: const EdgeInsets.only(left: 16, right: 16),
+        // color: colors.bgColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 10),
+            _buildFormattedText(fullText, colors),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildFormattedText(String text) {
+  Widget _buildFormattedText(String text, AppColors colors) {
     final lines = text.split('\n');
     List<Widget> widgets = [];
 
@@ -114,7 +125,7 @@ class _TermsPrivacyCodePageState extends State<TermsPrivacyCodePage>
               textAlign: TextAlign.left, // Force Left Align
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: colors.textPrimary,
             ),
           ),
         );
@@ -132,12 +143,17 @@ class _TermsPrivacyCodePageState extends State<TermsPrivacyCodePage>
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const customText(title: "• ", fontSize: 18),
+                customText(
+                  title: "• ",
+                  fontSize: 18,
+                  color: colors.textPrimary,
+                ),
                 Expanded(
                   child: customText(
                     title: line.replaceAll(RegExp(r'^[•ü\-\*]\s*'), ''),
                     textAlign: TextAlign.left,
                     fontSize: 15.5,
+                    color: colors.textPrimary,
                   ),
                 ),
               ],
@@ -155,7 +171,7 @@ class _TermsPrivacyCodePageState extends State<TermsPrivacyCodePage>
               children: [
                 customText(
                   title: "${line.split('.').first}. ",
-
+                  color: colors.textPrimary,
                   fontSize: 15.5,
                   fontWeight: FontWeight.bold,
                 ),
@@ -164,6 +180,7 @@ class _TermsPrivacyCodePageState extends State<TermsPrivacyCodePage>
                     title: line.replaceAll(RegExp(r'^\d+\.\s*'), ''),
                     textAlign: TextAlign.left,
                     fontSize: 15.5,
+                    color: colors.textPrimary,
                   ),
                 ),
               ],
@@ -180,6 +197,7 @@ class _TermsPrivacyCodePageState extends State<TermsPrivacyCodePage>
               title: line,
               textAlign: TextAlign.left,
               fontSize: 15.5,
+              color: colors.textPrimary,
             ),
           ),
         );

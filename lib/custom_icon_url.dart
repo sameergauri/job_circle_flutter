@@ -239,6 +239,8 @@ class CustomIconUrl {
       "https://cdn-icons-png.flaticon.com/128/15236/15236260.png";
   static const without =
       'https://cdn-icons-png.flaticon.com/128/5718/5718921.png';
+  static const indiaFlagIcon =
+      'https://cdn-icons-png.flaticon.com/128/14009/14009677.png';
 }
 
 class CustomAssetUrl {

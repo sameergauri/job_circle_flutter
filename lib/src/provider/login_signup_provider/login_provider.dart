@@ -1,11 +1,13 @@
-// ignore_for_file: todo, avoid_print, use_build_context_synchronously
+// ignore_for_file: curly_braces_in_flow_control_structures, todo, avoid_print, use_build_context_synchronously
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/services/login_and_signup_services/login_service.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sms_autofill/sms_autofill.dart';
+import 'package:sim_reader/sim_reader.dart';
 
 class LoginProvider extends ChangeNotifier {
   final TextEditingController mobileController = TextEditingController();
@@ -32,64 +34,102 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// ✅ Get REAL Phone Numbers from SIM Cards using mobile_number package
-  /// ✅ Google ka Default Phone Number Picker Dialog
-  Future<String?> showGooglePhonePicker() async {
-    try {
-      final String? phone = await SmsAutoFill().hint;
-      if (phone != null && phone.isNotEmpty) {
-        print('✅ Google Dialog se mila: $phone');
-        String formatted = _formatPhoneNumber(phone);
-        setSelectedPhoneNumber(formatted);
-        return formatted;
-      }
-    } catch (e) {
-      print('❌ Google Phone Picker Error: $e');
-    }
-    return null;
-  }
-
-  /// ✅ Updated getPhoneNumbers - Ab Google Dialog use karega
-  Future<void> getPhoneNumbers({bool showDialog = true}) async {
+  // ================== SIM Reader (Correct Dual SIM Support) ==================
+  Future<void> getPhoneNumbers() async {
     isLoadingNumbers = true;
+    phoneNumbers = [];
+    selectedPhoneNumber = null;
     notifyListeners();
 
+    print("🔄 Starting SIM detection...");
+
     try {
-      await Permission.phone.request();
+      final status = await Permission.phone.request();
+      print("📱 Phone Permission: $status");
 
-      String? detectedNumber;
-
-      if (showDialog) {
-        detectedNumber = await showGooglePhonePicker();
+      if (!status.isGranted) {
+        CustomSnackbar.show("Phone permission required", true);
+        return;
       }
 
-      List<Map<String, String>> detectedNumbers = [];
+      // Get ALL SIM Cards
+      final List<SimInfo> simList = await SimReader.getAllSimInfo();
 
-      if (detectedNumber != null) {
-        detectedNumbers.add({
-          'number': detectedNumber,
-          'carrier': 'Auto Detected',
-          'slot': 'SIM',
-        });
-      }
-
-      phoneNumbers = detectedNumbers;
-
-      if (phoneNumbers.isEmpty) {
-        CustomSnackbar.show("No number detected. Please try again.", true);
+      if (simList.isNotEmpty) {
+        for (var sim in simList) {
+          if (sim.phoneNumber != null && sim.phoneNumber!.trim().isNotEmpty) {
+            String formatted = _formatPhoneNumber(sim.phoneNumber!);
+            phoneNumbers.add({
+              'number': formatted,
+              'carrier': sim.carrierName ?? 'Unknown Operator',
+              'slot': 'Slot ${(sim.simSlotIndex ?? phoneNumbers.length) + 1}',
+              'raw': sim.phoneNumber!,
+            });
+          }
+        }
       } else {
-        // Auto select first number
+        // Fallback to single SIM if getAllSimInfo fails
+        final SimInfo? singleSim = await SimReader.getSimInfo();
+        if (singleSim != null &&
+            singleSim.phoneNumber != null &&
+            singleSim.phoneNumber!.trim().isNotEmpty) {
+          String formatted = _formatPhoneNumber(singleSim.phoneNumber!);
+          phoneNumbers.add({
+            'number': formatted,
+            'carrier': singleSim.carrierName ?? 'Unknown',
+            'slot': 'SIM 1',
+            'raw': singleSim.phoneNumber!,
+          });
+        }
+      }
+
+      if (phoneNumbers.isNotEmpty) {
         setSelectedPhoneNumber(phoneNumbers.first['number']!);
+        mobileController.text = _extract10Digits(phoneNumbers.first['number']!);
+        // CustomSnackbar.show("${phoneNumbers.length} SIM(s) detected", false);
+      } else {
+        // CustomSnackbar.show(
+        //   "No SIM number detected.\nPlease enter manually.",
+        //   true,
+        // );
       }
     } catch (e) {
-      print('Error in getPhoneNumbers: $e');
+      print("SIM Reader Error: $e");
+      CustomSnackbar.show("Error while fetching sim info.", true);
     } finally {
       isLoadingNumbers = false;
       notifyListeners();
     }
   }
 
-  /// Format phone number for display
+  String _extract10Digits(String number) {
+    String clean = number.replaceAll(RegExp(r'[^0-9]'), '');
+    return clean.length > 10 ? clean.substring(clean.length - 10) : clean;
+  }
+
+  String _formatPhoneNumber(String number) {
+    String clean = number.replaceAll(RegExp(r'[^\d+]'), '');
+    if (clean.startsWith('+91'))
+      clean = clean.substring(3);
+    else if (clean.startsWith('91') && clean.length > 10)
+      clean = clean.substring(2);
+    else if (clean.startsWith('+'))
+      clean = clean.substring(1);
+
+    if (clean.length > 10) clean = clean.substring(clean.length - 10);
+
+    if (clean.length == 10) {
+      return '+91 ${clean.substring(0, 5)} ${clean.substring(5)}';
+    }
+    return '+91 $clean';
+  }
+
+  void setSelectedPhoneNumber(String number) {
+    selectedPhoneNumber = number;
+    notifyListeners();
+  }
+
+  /*   /// Format phone number for display
   String _formatPhoneNumber(String number) {
     // Remove all non-digits except +
     String clean = number.replaceAll(RegExp(r'[^\d+]'), '');
@@ -114,13 +154,7 @@ class LoginProvider extends ChangeNotifier {
     }
 
     return '+91 $clean';
-  }
-
-  /// Set selected phone number
-  void setSelectedPhoneNumber(String number) {
-    selectedPhoneNumber = number;
-    notifyListeners();
-  }
+  } */
 
   /// ✅ Generate OTP
   Future<bool> generateOTP(BuildContext context) async {

@@ -6,6 +6,7 @@
     <!-- Phone & SIM permissions -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
     <!-- Added for number and sms  -->
 
     <!--  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"
