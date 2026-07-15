@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_links/app_links.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
@@ -11,45 +13,49 @@ class DeepLinkService {
 
   final AppLinks _appLinks = AppLinks();
 
-  /// Initialize Deep Links
+  // Is variable me hum code store rakhenge
+  String? pendingShareCode;
+
   Future<void> initDeepLinks() async {
-    // Handle initial link (Cold Start)
     try {
       final initialUri = await _appLinks.getInitialLink();
       if (initialUri != null) {
-        _handleDeepLink(initialUri);
+        _extractShareCode(initialUri);
       }
     } catch (e) {
       print("Error getting initial link: $e");
     }
 
-    // Listen to new links (when app is in background)
     _appLinks.uriLinkStream.listen((Uri? uri) {
       if (uri != null) {
-        _handleDeepLink(uri);
+        _extractShareCode(uri, isFromBackground: true);
       }
     });
   }
 
-void _handleDeepLink(Uri uri) {
-    print("Deep Link Intercepted: $uri");
-
-    // Host aur scheme check strict official standard ke hisab se
+  void _extractShareCode(Uri uri, {bool isFromBackground = false}) {
     if ((uri.scheme == "https" || uri.scheme == "http") &&
         (uri.host == "jobcircle.co.in" || uri.host == "jobcast.co.in")) {
-      // Path parameters check (e.g., /share/JOB-EZ29T7)
       if (uri.pathSegments.isNotEmpty && uri.pathSegments.first == 'share') {
         final shareCode = uri.pathSegments.last;
 
         if (shareCode.isNotEmpty && shareCode != 'share') {
-          print("Validated Share Code Found: $shareCode");
-          _navigateToSharedJob(shareCode);
+          // HACK FIX: Humesha variable me hi save karo, direct navigation yahan se mat karo
+          pendingShareCode = shareCode;
+
+          // Agar app already background me chal raha tha aur user home page par hi tha,
+          // toh hum manually check karke turant trigger kar sakte hain.
+          if (isFromBackground) {
+            // Aap chahein toh ek chota check laga sakte hain, par abhi ke liye ise sirf save rehne dein
+            // Taaki double trigger bilkul khatam ho jaye.
+          }
         }
       }
     }
   }
 
-  Future<void> _navigateToSharedJob(String shareCode) async {
+  // Underscore '_' hata kar isko public rakha hai
+  Future<void> navigateToSharedJob(String shareCode) async {
     try {
       final result = await AddResumeAndApplyService.validateShareCode(
         shareCode,
@@ -64,8 +70,6 @@ void _handleDeepLink(Uri uri) {
             resume: "",
           ),
         );
-      } else {
-        print("Invalid share code: $shareCode");
       }
     } catch (e) {
       print("Error navigating to shared job: $e");

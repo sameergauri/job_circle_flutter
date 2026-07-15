@@ -17,6 +17,7 @@ class customText extends StatelessWidget {
   final TextDecoration? textDecoration;
   final double? letterspacing;
   final bool? normal;
+  final bool? isCambria;
 
   const customText({
     required this.title,
@@ -33,6 +34,7 @@ class customText extends StatelessWidget {
     this.textDecoration,
     this.letterspacing,
     this.normal,
+    this.isCambria,
   });
 
   @override
@@ -43,7 +45,7 @@ class customText extends StatelessWidget {
       textAlign: textAlign,
       maxLines: maxlines,
       overflow: overflow,
-      style: monst == null
+      style: monst == null && isCambria == null
           ? GoogleFonts.merriweather(
               fontSize: fontSize ?? 12,
               color: color ?? Colors.black,
@@ -54,6 +56,15 @@ class customText extends StatelessWidget {
             )
           : monst != null && monst == true
           ? GoogleFonts.montserrat(
+              fontSize: fontSize ?? 12,
+              color: color ?? Colors.black,
+              fontWeight: fontWeight,
+              decoration: TextDecoration.none,
+              fontStyle: fontStyle,
+              letterSpacing: letterspacing,
+            )
+          : isCambria != null && isCambria == true
+          ? GoogleFonts.lora(
               fontSize: fontSize ?? 12,
               color: color ?? Colors.black,
               fontWeight: fontWeight,

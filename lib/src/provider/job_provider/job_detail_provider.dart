@@ -279,7 +279,6 @@ class JobDetailProvider extends ChangeNotifier {
         "userId": currentUserId,
         "shareMedium": shareMedium,
       };
-
       final response = await http.post(
         Uri.parse(GlobalConstants.sharejob),
         headers: {"Content-Type": "application/json"},

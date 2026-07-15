@@ -4,9 +4,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
-import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/referal_model/add_resume_model.dart';
-import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class AddResumeAndApplyService {
   static Future<String> referAndAddResume({

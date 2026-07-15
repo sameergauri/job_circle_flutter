@@ -43,6 +43,7 @@ class Constants {
   static const darkThemeTabTextColor = Color(0xfffc4c5c9);
   static const darkThemeTabColor = Color(0xfff353b47);
   static const subtitleTextColor = Color(0xfffc4c5c9);
+  static const sharlogoColor = Color(0xfff5170ff);
 }
 
 class AppColors extends ThemeExtension<AppColors> {
@@ -93,6 +94,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color? buttonTextColor;
   final Color? circlebgColor;
   final Color? darkBlue;
+  final Color? sharlogoColor;
 
   // searchfield page colors can be added here
 
@@ -146,6 +148,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.buttonTextColor,
     required this.circlebgColor,
     required this.darkBlue,
+    required this.sharlogoColor,
   });
 
   @override
@@ -194,6 +197,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? buttonTextColor,
     Color? circlebgColor,
     Color? darkBlue,
+    Color? sharlogoColor,
   }) {
     return AppColors(
       bgColor: bgColor ?? this.bgColor,
@@ -253,6 +257,7 @@ class AppColors extends ThemeExtension<AppColors> {
       buttonTextColor: buttonTextColor ?? this.buttonTextColor,
       circlebgColor: circlebgColor ?? this.circlebgColor,
       darkBlue: darkBlue ?? this.darkBlue,
+      sharlogoColor: sharlogoColor ?? this.sharlogoColor,
     );
   }
 
@@ -392,6 +397,7 @@ class AppColors extends ThemeExtension<AppColors> {
       buttonTextColor: Color.lerp(buttonTextColor, other.buttonTextColor, t),
       circlebgColor: Color.lerp(circlebgColor, other.circlebgColor, t),
       darkBlue: Color.lerp(darkBlue, other.darkBlue, t),
+      sharlogoColor: Color.lerp(sharlogoColor, other.sharlogoColor, t),
     );
   }
 }

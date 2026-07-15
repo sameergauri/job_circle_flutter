@@ -84,3 +84,12 @@ enum PrefTextFieldType { Industry, JobRole, WorkMode, ShiftTime, Location }
 enum QuestionType {
     SINGLE_SELECT,MULTIPLE_SELECT,NUMERIC
 }
+
+enum JobDetailType {
+  education,
+  experience,
+  language,
+  certification,
+  diversity,
+  shiftWeekOff
+}

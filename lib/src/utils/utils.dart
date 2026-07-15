@@ -12,6 +12,7 @@ import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/home_page.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
 import 'package:job_circle/src/screen/login_and_signup/signup/signup_resume_parse_page.dart';
+import 'package:job_circle/src/services/deeplink/deeplink_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/stream_config.dart';
@@ -38,7 +39,7 @@ class Utils {
           ),
         ],
       ),
-    );
+    );  
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -104,6 +105,23 @@ class Utils {
     }
     // ---------------------------------------------
 
+    // --- HELPER FUNCTION FOR DEEP LINK ROUTING ---
+  void checkAndTriggerDeepLink() {
+      if (DeepLinkService().pendingShareCode != null) {
+        final code = DeepLinkService().pendingShareCode!;
+
+        // Pehle hi null kar do taaki koi aur widget isko dubara read na kare
+        DeepLinkService().pendingShareCode = null;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          // Thoda delay badha kar 500ms kar do taaki HomeScreen poori tarah load ho kar shant ho jaye
+          await Future.delayed(const Duration(milliseconds: 500));
+          DeepLinkService().navigateToSharedJob(code);
+        });
+      }
+    }
+    // ---------------------------------------------
+
     if (from == "splash") {
       // ✅ Splash screen logic
       if (empid == null || empid == 0) {
@@ -119,6 +137,8 @@ class Utils {
         await connectChatSafely();
         // Navigate to Home Screen
         NavigationService.pushAndRemoveUntil(HomeScreen());
+        // 2. Ab check karo aur deep link screen push karo
+        checkAndTriggerDeepLink();
       }
     } else if (from == "otp") {
       // ✅ OTP validation logic

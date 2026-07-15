@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:job_circle/my_app.dart';
 import 'package:job_circle/provider_scop.dart';
@@ -9,8 +10,11 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //Deep lin initialization..
-  await DeepLinkService().initDeepLinks();
   await SharedPrefsHelper.init(); // Initialize SharedPreferenceszz
+  // 🌟 ONLY INITIALIZE DEEPLINKS IF RUNNING ON MOBILE
+  if (!kIsWeb) {
+    // Deep link initialization..
+    await DeepLinkService().initDeepLinks();
+  }
   runApp(ProviderScop.setupProviders(child: const MyApp()));
 }

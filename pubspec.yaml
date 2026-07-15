@@ -21,6 +21,7 @@ dependencies:
   google_fonts: ^7.0.1
   cupertino_icons: ^1.0.6
   http: ^1.6.0
+  http_parser: ^4.0.2
   shared_preferences: ^2.5.4
   provider: ^6.1.5+1
   flutter_typeahead: ^5.2.0
@@ -41,6 +42,7 @@ dependencies:
   stream_chat_flutter_core: ^9.22.0
   stream_chat: ^9.22.0
   stream_chat_localizations: ^9.22.0
+  qr_flutter: ^4.1.0
   # Sim detector
   permission_handler: ^12.0.1
   sms_autofill: ^2.5.0

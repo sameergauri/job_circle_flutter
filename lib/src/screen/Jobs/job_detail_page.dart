@@ -26,9 +26,11 @@ import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
+import 'package:job_circle/src/widgets/sharecode/share_job_card_landscape.dart';
+import 'package:job_circle/src/widgets/sharecode/share_job_card_square.dart';
+import 'package:job_circle/src/widgets/sharecode/share_job_service.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 class JobDetailPage extends StatefulWidget {
   final int jobId;
@@ -72,25 +74,45 @@ class _JobDetailPageState extends State<JobDetailPage> {
               appBar: AppBar(
                 actions: [
                   IconButton(
-                    onPressed: () async {
-                      final result = await provider.shareJob(
-                        jobId: provider.jobDetail!.id!,
-                        shareMedium: 'whatsapp', // optional
+                    onPressed: /* () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => Dialog(
+                          insetPadding: const EdgeInsets.all(10),
+                          child: InteractiveViewer(
+                            // Allows you to pinch and zoom to look closely at details
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis
+                                  .horizontal, // Since width is 1080, allow horizontal scrolling
+                              child: ShareJobCardLandscape(
+                                job: provider.jobDetail!,
+                                shareUrl:
+                                    "https://jobcircle.in/job-detail/${provider.jobDetail!.id!}",
+                              ),
+                            ),
+                          ),
+                        ),
                       );
-                      if (result['success'] == true) {
-                        String shareUrl = result['shareUrl'];
-                        await Share.share(
-                          "${provider.jobDetail!.jobHeadline}\n${provider.jobDetail!.companyName ?? ''}\n\nApply here: $shareUrl",
-                          subject: provider.jobDetail!.jobHeadline,
-                        );
-                        CustomSnackbar.show("Job shared successfully!", false);
-                      } else {
-                        CustomSnackbar.show(
-                          result['message'] ?? "Failed to share",
-                          true,
-                        );
-                      }
-                    },
+                    }, */ provider.jobDetail == null
+                        ? null
+                        : () async {
+                            final result = await provider.shareJob(
+                              jobId: provider.jobDetail!.id!,
+                              shareMedium: 'others',
+                            );
+                            if (result['success'] == true) {
+                              await ShareJobService.showOptions(
+                                context: context,
+                                job: provider.jobDetail!,
+                                shareUrl: result['shareUrl'] as String,
+                              );
+                            } else {
+                              CustomSnackbar.show(
+                                result['message'] ?? 'Failed to share',
+                                true,
+                              );
+                            }
+                          },
                     icon: Icon(Icons.share, color: colors.textPrimary),
                   ),
                 ],

@@ -241,6 +241,20 @@ class CustomIconUrl {
       'https://cdn-icons-png.flaticon.com/128/5718/5718921.png';
   static const indiaFlagIcon =
       'https://cdn-icons-png.flaticon.com/128/14009/14009677.png';
+  static const educationOutlineIcon =
+      'https://cdn-icons-png.flaticon.com/128/15399/15399190.png';
+  static const experienceOutlineIcon =
+      'https://cdn-icons-png.flaticon.com/128/18996/18996242.png';
+  static const certificationOutlineIcon =
+      'https://cdn-icons-png.flaticon.com/128/13794/13794298.png';
+  static const shitOutlineIcon =
+      'https://cdn-icons-png.flaticon.com/128/7546/7546823.png';
+  static const weekOffOutlineIcon =
+      'https://cdn-icons-png.flaticon.com/128/9239/9239363.png';
+  static const languageOutlineIcon =
+      'https://cdn-icons-png.flaticon.com/128/17390/17390465.png';
+  static const checkWithCircle =
+      'https://cdn-icons-png.flaticon.com/128/16115/16115554.png';
 }
 
 class CustomAssetUrl {
@@ -256,7 +270,6 @@ class CustomAssetUrl {
   static const placeholdericon = "$_baseurl/placeholder.png";
   static const documentiicon = "$_baseurl/documentStatus.png";
   static const refericon = "$_baseurl/refer.png";
-  static const playstoreicon = '$_baseurl/playstore.png';
   static const shareimage = '$_baseurl/shareimage.png';
   static const qrcodicon = '$_baseurl/qrcode.png';
   static const starimage = '$_baseurl/starimage.png';
@@ -282,4 +295,5 @@ class CustomAssetUrl {
   static const hearticon = "$_baseurl/heart.png";
   static const chaticon = '$_baseurl/chat.png';
   static const jcLogoForDark = '$_baseurl/cjlogo_for_dark.png';
+  static const playstoreicon = '$_baseurl/playstoreicon.png';
 }
