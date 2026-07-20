@@ -84,7 +84,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                             child: SingleChildScrollView(
                               scrollDirection: Axis
                                   .horizontal, // Since width is 1080, allow horizontal scrolling
-                              child: ShareJobCardLandscape(
+                              child: ShareJobCardSquare(
                                 job: provider.jobDetail!,
                                 shareUrl:
                                     "https://jobcircle.in/job-detail/${provider.jobDetail!.id!}",
@@ -186,14 +186,16 @@ class _JobDetailPageState extends State<JobDetailPage> {
                       : [],
                 ),
                 ViewContainerForCerAndBenefits(
-                  stringList: job.jobBenefits!,
                   title: "Job Benefits",
+                  job: job,
+                  type: ConListType.JobBenefits,
                 ),
                 if (job.certifications != null &&
                     job.certifications!.isNotEmpty)
                   ViewContainerForCerAndBenefits(
-                    stringList: job.certifications!,
                     title: "Certificate",
+                    job: job,
+                    type: ConListType.Certificate,
                   ),
                 if (job.jobResponsibilities != null &&
                     job.jobResponsibilities!.isNotEmpty)

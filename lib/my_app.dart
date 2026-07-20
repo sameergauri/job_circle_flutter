@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         return uri.queryParameters['code'] ?? "";
       }
     } catch (e) {
-      print("Error fetching web url parameter: $e");
+      debugPrint("Error fetching web url parameter: $e");
     }
     return "";
   }

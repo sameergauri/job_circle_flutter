@@ -35,7 +35,7 @@ class JobDetailPageModel {
   final List<String>? eligibility;
   final List<String>? eligibility2;
   final List<String>? skills;
-  final List<String>? certifications;
+  final List<CertificateModel>? certifications;
   final List<String>? jobResponsibilities;
   final List<String>? locations;
   final List<String>? language;
@@ -44,6 +44,7 @@ class JobDetailPageModel {
   final PayoutDetails? payoutDetails;
   final String? locationWithWorkType;
   final int? active;
+  final String? jobSummary;
 
   JobDetailPageModel({
     this.id,
@@ -89,6 +90,7 @@ class JobDetailPageModel {
     this.companyIcon,
     this.locationWithWorkType,
     this.active,
+    this.jobSummary,
   });
 
   factory JobDetailPageModel.fromJson(Map<String, dynamic> json) {
@@ -119,8 +121,10 @@ class JobDetailPageModel {
       eligibility: List<String>.from(json['eligibility'] ?? []),
       eligibility2: List<String>.from(json['eligibility2'] ?? []),
       certifications: (json['certifications'] as List<dynamic>? ?? [])
-          .map((e) => e is Map ? (e['value'] as String? ?? '') : e.toString())
-          .where((s) => s.isNotEmpty)
+          .map((e) => e is Map
+            ? CertificateModel.fromJson(e as Map<String, dynamic>)
+            : CertificateModel(value: e.toString()))
+          .where((c) => (c.value ?? '').isNotEmpty)
           .toList(),
       skills: List<String>.from(json['skills'] ?? []),
       jobResponsibilities: List<String>.from(json['jobResponsibility'] ?? []),
@@ -141,6 +145,7 @@ class JobDetailPageModel {
       companyIcon: json['companyIcon'],
       locationWithWorkType: json['locationWithWorkType'],
       active: json['active'],
+      jobSummary: json['jobSummary'],
     );
   }
 }
@@ -290,5 +295,21 @@ class JobDetailScreeningQuestion {
       'allowToLead': allowToLead,
       'numericOption': numericOption,
     };
+  }
+}
+
+class CertificateModel {
+  final int? id;
+  final String? value;
+  final int? mandatory;
+
+  CertificateModel({this.id, this.value, this.mandatory});
+
+  factory CertificateModel.fromJson(Map<String, dynamic> json) {
+    return CertificateModel(
+      id: json['id'],
+      value: json['value'],
+      mandatory: json['mandatory'],
+    );
   }
 }

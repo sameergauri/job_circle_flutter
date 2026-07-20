@@ -237,6 +237,28 @@ class ShareJobCardSquare extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (job.jobSummary?.isNotEmpty == true) ...[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    customText(
+                      title: "Job Summary :",
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    SizedBox(height: 5),
+                    customText(
+                      title: job.jobSummary!,
+                      fontSize: 22,
+                      color: Colors.black,
+                      fontWeight: FontWeight.normal,
+                      isCambria: true,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 30),
+              ],
               // Cleaned up the separate Divider lines here
               if (job.requiredEducation?.isNotEmpty == true)
                 JobDetailRow(
@@ -314,10 +336,11 @@ class ShareJobCardSquare extends StatelessWidget {
             ],
           ),
         ),
+
         Container(
           width: 300,
           height: 650,
-          margin: EdgeInsets.only(right: 10),
+          margin: EdgeInsets.only(right: 10, left: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(45),

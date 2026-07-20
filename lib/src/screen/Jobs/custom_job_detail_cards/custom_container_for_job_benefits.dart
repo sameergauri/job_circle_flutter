@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
 import 'package:job_circle/src/widgets/container/custom_container_for_skills.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 
 class ViewContainerForCerAndBenefits extends StatelessWidget {
-  final List<String> stringList;
+  final JobDetailPageModel job;
   final String title;
+  final ConListType type;
 
   const ViewContainerForCerAndBenefits({
     super.key,
-    required this.stringList,
+    required this.job,
     required this.title,
+    required this.type,
   });
 
   @override
@@ -31,9 +35,24 @@ class ViewContainerForCerAndBenefits extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 4,
-            children: stringList
-                .map((e) => CustomContainerFoeSkill(title: e, isicon: false))
-                .toList(),
+            children: type == ConListType.Certificate
+                ? job.certifications!
+                      .map(
+                        (c) => CustomContainerFoeSkill(
+                          isicon: false,
+                          title:
+                              "${c.value.toString()}${c.mandatory == 1 ? " (Mandate)" : ''}",
+                        ),
+                      )
+                      .toList()
+                : job.jobBenefits!
+                      .map(
+                        (e) => CustomContainerFoeSkill(
+                          isicon: false,
+                          title: e.toString(),
+                        ),
+                      )
+                      .toList(),
           ),
         ],
       ),

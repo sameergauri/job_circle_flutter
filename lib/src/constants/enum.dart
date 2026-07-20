@@ -93,3 +93,7 @@ enum JobDetailType {
   diversity,
   shiftWeekOff
 }
+
+enum ConListType{
+  JobBenefits, Certificate
+}

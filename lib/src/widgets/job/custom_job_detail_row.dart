@@ -52,9 +52,10 @@ class JobDetailRow extends StatelessWidget {
                   children: [
                     customText(
                       title: config.label,
-                      fontSize: 17,
+                      fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.w700,
+                      isCambria: true,
                     ),
                     const SizedBox(height: 4),
 
@@ -71,8 +72,8 @@ class JobDetailRow extends StatelessWidget {
                           children: [
                             TextSpan(
                               text: config.value,
-                              style: GoogleFonts.merriweather(
-                                fontSize: 20,
+                              style: GoogleFonts.lora(
+                                fontSize: 22,
                                 color: Colors.black,
                                 fontWeight: FontWeight.normal,
                               ),
@@ -82,8 +83,20 @@ class JobDetailRow extends StatelessWidget {
                               TextSpan(
                                 text:
                                     " (Candidate should be from relevant experience background)",
-                                style: GoogleFonts.merriweather(
-                                  fontSize: 16,
+                                style: GoogleFonts.lora(
+                                  fontSize: 18,
+                                  color: Color(0xfffff510a),
+                                  fontWeight: FontWeight.normal,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            if (type == JobDetailType.education &&
+                                _isUndergradEligible())
+                              TextSpan(
+                                text:
+                                    " (Under Graduate with relevant experience can apply)",
+                                style: GoogleFonts.lora(
+                                  fontSize: 18,
                                   color: Color(0xfffff510a),
                                   fontWeight: FontWeight.normal,
                                   fontStyle: FontStyle.italic,
@@ -92,20 +105,6 @@ class JobDetailRow extends StatelessWidget {
                           ],
                         ),
                       ),
-
-                    // Education secondary block
-                    if (type == JobDetailType.education &&
-                        _isUndergradEligible()) ...[
-                      const SizedBox(height: 4),
-                      customText(
-                        title:
-                            "(Under Graduate with relevant experience can apply)",
-                        fontSize: 16,
-                        color: Color(0xfffff510a),
-                        fontWeight: FontWeight.normal,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -128,7 +127,7 @@ class JobDetailRow extends StatelessWidget {
         return _RowConfig(
           icon: CustomIconUrl.educationOutlineIcon,
           label: 'Education :',
-          value: job.requiredEducation!,
+          value: job.requiredEducation!.replaceAll("or above", ''),
         );
 
       case JobDetailType.experience:
@@ -150,10 +149,20 @@ class JobDetailRow extends StatelessWidget {
 
       case JobDetailType.certification:
         if (job.certifications?.isNotEmpty != true) return null;
+        final allCertificationText = job.certifications!
+            .map((e) {
+              final name = e.value ?? '';
+              if (name.isEmpty) return '';
+              return e.mandatory == 1 ? '$name (Mandate)' : name;
+            })
+            .where((text) => text.isNotEmpty)
+            .join(', ');
+
+        if (allCertificationText.isEmpty) return null;
         return _RowConfig(
           icon: CustomIconUrl.certificationOutlineIcon,
           label: 'Certification :',
-          value: job.certifications!.join(', '),
+          value: allCertificationText,
         );
 
       case JobDetailType.diversity:
@@ -180,7 +189,7 @@ class JobDetailRow extends StatelessWidget {
 
   bool _isUndergradEligible() {
     return job.eligibility2?.contains(
-          'Under Graduate with relevant experience can apply.',
+          "Under Graduate with relevent experience can apply.",
         ) ==
         true;
   }
@@ -242,9 +251,10 @@ class JobDetailRow extends StatelessWidget {
           (line) => [
             customText(
               title: showDash ? "• $line" : line,
-              fontSize: 20,
+              fontSize: 22,
               color: Colors.black,
               fontWeight: FontWeight.normal,
+              isCambria: true,
             ),
             const SizedBox(height: 4),
           ],
@@ -309,23 +319,23 @@ class JobDetailRow extends StatelessWidget {
     ).allMatches(exp).map((m) => m.group(0)).whereType<String>().toList();
 
     if (exp.contains('-') && nums.length >= 2) {
-      return 'Minimum ${nums[0]} to ${nums[1]} years of experience required.';
+      return 'Min ${nums[0]} to ${nums[1]} years of experience required.';
     }
 
     if (RegExp(r'month', caseSensitive: false).hasMatch(exp) &&
         RegExp(r'above', caseSensitive: false).hasMatch(exp) &&
         nums.isNotEmpty) {
-      return 'Minimum ${nums[0]} month of experience required.';
+      return 'Min ${nums[0]} month of experience required.';
     }
 
     if (RegExp(r'above', caseSensitive: false).hasMatch(exp) &&
         nums.isNotEmpty) {
       final n = nums.first;
-      return 'Minimum $n years of experience required.';
+      return 'Min $n years of experience required.';
     }
 
     if (nums.length == 1) {
-      return 'Minimum ${nums[0]} years of experience required.';
+      return 'Min ${nums[0]} years of experience required.';
     }
 
     return exp;
