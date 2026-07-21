@@ -17,16 +17,33 @@ class MyApp extends StatelessWidget {
   String _getWebShareCode() {
     if (!kIsWeb) return "";
     try {
-      // Flutter ka dynamic system foundation direct link return karega browser engine se
       final Uri uri = Uri.base;
-      // 1. Agar path parameters me hai: jobcircle.co.in/share/XYZ123
-      if (uri.pathSegments.isNotEmpty && uri.pathSegments.contains('share')) {
-        final shareIndex = uri.pathSegments.indexOf('share');
-        if (shareIndex + 1 < uri.pathSegments.length) {
-          return uri.pathSegments[shareIndex + 1];
+
+      // 1. Direct browser string check (Sabse safe tarika path parameters ke liye)
+      final String fullPath = uri.toString();
+      if (fullPath.contains('/share/')) {
+        final parts = fullPath.split('/share/');
+        if (parts.length > 1 && parts[1].isNotEmpty) {
+          // Agar URL me query parameters hain (?code=), toh unhe alag karo
+          final cleanCode = parts[1].split('?').first;
+          if (cleanCode.trim().isNotEmpty) {
+            return cleanCode;
+          }
         }
       }
-      // 2. Fallback check agar aap query parameter use karo: jobcircle.co.in/share?code=XYZ123
+
+      // 2. Fallback check path segments ke liye
+      if (uri.pathSegments.isNotEmpty) {
+        // Agar 'share' ke baad koi segment hai
+        final shareIndex = uri.pathSegments.indexOf('share');
+        if (shareIndex != -1 && shareIndex + 1 < uri.pathSegments.length) {
+          return uri.pathSegments[shareIndex + 1];
+        }
+        // Agar 'share' segment list me nahi hai par last segment hi aapka code hai
+        return uri.pathSegments.last;
+      }
+
+      // 3. Fallback check query parameter ke liye
       if (uri.queryParameters.containsKey('code')) {
         return uri.queryParameters['code'] ?? "";
       }

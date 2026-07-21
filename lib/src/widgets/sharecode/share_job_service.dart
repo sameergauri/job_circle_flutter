@@ -236,7 +236,7 @@ class _ShareOptionsSheetState extends State<_ShareOptionsSheet> {
           _tile(
             '1080x644',
             'Landscape',
-            'Best for WhatsApp status & posts',
+            'WhatsApp chat/group, Feed banner',
             Icons.crop_landscape_rounded,
             colors,
           ),
@@ -244,18 +244,18 @@ class _ShareOptionsSheetState extends State<_ShareOptionsSheet> {
           _tile(
             '1080x1080',
             'Square',
-            'Perfect for Instagram & Facebook',
+            'Instagram Posts, Facebook Feed, LinkedIn Feed & WhatsApp Status',
             Icons.crop_square_rounded,
             colors,
           ),
-          const SizedBox(height: 12),
+          /* const SizedBox(height: 12),
           _tile(
             '1080x2026',
             'Story / Portrait',
-            'Ideal for Instagram & WhatsApp stories',
+            'WhatsApp Status, FB Stories, Insta Reels, YouTube shorts',
             Icons.crop_portrait_rounded,
             colors,
-          ),
+          ), */
         ],
       ),
     );
@@ -306,12 +306,12 @@ class _ShareOptionsSheetState extends State<_ShareOptionsSheet> {
                 ],
               ),
             ),
-            customText(
+            /*  customText(
               title: format,
               fontSize: 11,
               color: Colors.grey.shade400,
               fontWeight: FontWeight.w500,
-            ),
+            ), */
             const SizedBox(width: 4),
             Icon(
               Icons.arrow_forward_ios_rounded,
