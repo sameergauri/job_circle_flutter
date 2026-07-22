@@ -55,9 +55,14 @@ class ShareJobService {
         left: 0,
         width: width,
         height: height,
-        child: Material(
-          type: MaterialType.transparency,
-          child: RepaintBoundary(key: repaintKey, child: card),
+        child: MediaQuery(
+          // Lock text scale to 1.0 so font sizes are identical on every device
+          // regardless of the user's system accessibility text-size setting.
+          data: const MediaQueryData(textScaler: TextScaler.noScaling),
+          child: Material(
+            type: MaterialType.transparency,
+            child: RepaintBoundary(key: repaintKey, child: card),
+          ),
         ),
       ),
     );

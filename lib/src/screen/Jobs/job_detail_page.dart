@@ -73,8 +73,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
               backgroundColor: colors.bgColor,
               appBar: AppBar(
                 actions: [
-                  IconButton(
-                    onPressed: /* () {
+                  if (provider.jobDetail!.payoutDetails != null)
+                    IconButton(
+                      onPressed: /* () {
                       showDialog(
                         context: context,
                         builder: (context) => Dialog(
@@ -94,27 +95,27 @@ class _JobDetailPageState extends State<JobDetailPage> {
                         ),
                       );
                     }, */ provider.jobDetail == null
-                        ? null
-                        : () async {
-                            final result = await provider.shareJob(
-                              jobId: provider.jobDetail!.id!,
-                              shareMedium: 'others',
-                            );
-                            if (result['success'] == true) {
-                              await ShareJobService.showOptions(
-                                context: context,
-                                job: provider.jobDetail!,
-                                shareUrl: result['shareUrl'] as String,
+                          ? null
+                          : () async {
+                              final result = await provider.shareJob(
+                                jobId: provider.jobDetail!.id!,
+                                shareMedium: 'others',
                               );
-                            } else {
-                              CustomSnackbar.show(
-                                result['message'] ?? 'Failed to share',
-                                true,
-                              );
-                            }
-                          },
-                    icon: Icon(Icons.share, color: colors.textPrimary),
-                  ),
+                              if (result['success'] == true) {
+                                await ShareJobService.showOptions(
+                                  context: context,
+                                  job: provider.jobDetail!,
+                                  shareUrl: result['shareUrl'] as String,
+                                );
+                              } else {
+                                CustomSnackbar.show(
+                                  result['message'] ?? 'Failed to share',
+                                  true,
+                                );
+                              }
+                            },
+                      icon: Icon(Icons.share, color: colors.textPrimary),
+                    ),
                 ],
                 titleSpacing: 0,
                 backgroundColor: colors.appbarColor,

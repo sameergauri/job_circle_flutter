@@ -10,6 +10,7 @@ import 'package:job_circle/src/model/user_profile/refer_cv_parse_model.dart';
 import 'package:job_circle/src/services/referal_and_apply/add_resume_and_apply_services.dart';
 import 'package:job_circle/web/web_apply_service.dart';
 import 'package:job_circle/web/web_screening_question_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WebJobApplyFormPage extends StatefulWidget {
   final String shareCode;
@@ -156,6 +157,10 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
     try {
       final jobId = (_jobData!['jobId'] as num?)?.toInt() ?? 0;
       final sharerUserId = (_jobData!['sharerUserId'] as num?)?.toInt() ?? 0;
+      final role = (_jobData!['roleName']);
+      final process = (_jobData!['process']);
+      final companyid = (_jobData!['companyId']);
+      final natureofwork = (_jobData!['functionalOfArea']);
 
       final model = ReferAddResumeModel(
         uid: sharerUserId,
@@ -168,7 +173,10 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
         gender: _selectedGender,
         dob: _selectedDob,
         qualification: _selectedEducation,
-        level: _selectedExperience,
+        level: role,
+        process: process,
+        shortListFor: companyid,
+        naturofwork: natureofwork,
         resume: _uploadedFileName ?? '',
         isExperienced:
             (_selectedExperience != null &&
@@ -250,7 +258,12 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 36),
               child: Column(
                 children: [
-                  _buildCVSection(),
+                  if (_jobData!['jobStatus'] == "ACTIVE") ...[
+                    _buildCVSection(),
+                  ],
+                  if (_jobData!['jobStatus'] != "ACTIVE") ...[
+                    _builIfJobIsInactive(),
+                  ],
                   if (_showForm) ...[
                     const SizedBox(height: 20),
                     _buildForm(),
@@ -408,6 +421,133 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
       ),
     );
   } */
+
+  // ── If job is inactive ──────────────────────────────────────────────────────
+  Widget _builIfJobIsInactive() {
+    return _card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 12),
+          // Icon
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF3E0),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.work_off_rounded,
+              color: Constants.orange,
+              size: 36,
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Heading
+          const Text(
+            'This Job Is No Longer Active',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1A1A2E),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Body message
+          Text(
+            'We\'re sorry for the inconvenience. The position you were looking to apply for is currently inactive. This could be because the role has been filled or temporarily put on hold. Please check back later or explore similar opportunities on our app.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.6,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Divider
+          Divider(color: Colors.grey.shade200, thickness: 1),
+          const SizedBox(height: 20),
+          // Note
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Constants.darkBlue.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: Constants.darkBlue.withValues(alpha: 0.15),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline_rounded,
+                  color: Constants.darkBlue,
+                  size: 18,
+                ),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    'Looking for a job? Thousands of active openings are waiting for you on the Job Circle app.',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Constants.darkBlue,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          // Play Store button
+          GestureDetector(
+            onTap: () async {
+              final uri = Uri.parse(
+                'https://play.google.com/store/apps/details?id=com.job_circle_flutter',
+              );
+              if (await canLaunchUrl(uri)) launchUrl(uri);
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Constants.darkBlue, Color(0xFF1565C0)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Constants.darkBlue.withValues(alpha: 0.30),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.play_arrow_rounded, color: Colors.white, size: 22),
+                  SizedBox(width: 8),
+                  Text(
+                    'Find Similar Jobs on Play Store',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
 
   // ── CV upload section ──────────────────────────────────────────────────────
   Widget _buildCVSection() {
@@ -1102,13 +1242,13 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
     labelText: label,
     labelStyle: TextStyle(fontSize: 13, color: Colors.grey.shade500),
     prefixIcon: Icon(icon, size: 18, color: Colors.grey.shade400),
-    suffixIcon: readOnly
+    /* suffixIcon: readOnly
         ? Icon(
             Icons.lock_outline_rounded,
             size: 14,
             color: Colors.grey.shade400,
           )
-        : null,
+        : null, */
     filled: true,
     fillColor: readOnly ? const Color(0xFFEEEFF1) : _fieldBg,
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

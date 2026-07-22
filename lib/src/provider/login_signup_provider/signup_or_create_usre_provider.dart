@@ -2300,7 +2300,7 @@ class SignupCreateUserProvider with ChangeNotifier {
     );
   }
 
-  // Save and Update Functions
+  // Save and Update Functions 
   Future<bool> saveUserDataWithoutProfile() async {
     final token = SharedPrefsHelper.getString(ESharedPreferences.user_token);
     _isLoading = true;

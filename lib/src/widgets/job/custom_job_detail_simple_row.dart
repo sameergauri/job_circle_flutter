@@ -54,8 +54,8 @@ class JobDetailSimpleRow extends StatelessWidget {
                       children: [
                         TextSpan(
                           text: config.value,
-                          style: GoogleFonts.merriweather(
-                            fontSize: 18,
+                          style: GoogleFonts.lora(
+                            fontSize: 22,
                             color: Colors.black,
                             fontWeight: FontWeight.normal,
                           ),
@@ -65,8 +65,8 @@ class JobDetailSimpleRow extends StatelessWidget {
                           TextSpan(
                             text:
                                 " (Candidate should be from relevant experience background)",
-                            style: GoogleFonts.merriweather(
-                              fontSize: 14,
+                            style: GoogleFonts.lora(
+                              fontSize: 18,
                               color: Color(0xfffff510a),
                               fontWeight: FontWeight.normal,
                               fontStyle: FontStyle.italic,
@@ -77,8 +77,8 @@ class JobDetailSimpleRow extends StatelessWidget {
                           TextSpan(
                             text:
                                 " (Under Graduate with relevant experience can apply)",
-                            style: GoogleFonts.merriweather(
-                              fontSize: 14,
+                            style: GoogleFonts.lora(
+                              fontSize: 18,
                               color: Color(0xfffff510a),
                               fontWeight: FontWeight.normal,
                               fontStyle: FontStyle.italic,
@@ -220,9 +220,10 @@ class JobDetailSimpleRow extends StatelessWidget {
           (line) => [
             customText(
               title: showDash ? "• $line" : line,
-              fontSize: 18,
+              fontSize: 22,
               color: Colors.black,
               fontWeight: FontWeight.normal,
+              isCambria: true,
             ),
             const SizedBox(height: 4),
           ],

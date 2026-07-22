@@ -2,7 +2,7 @@ name: job_circle
 description: Job circle.
 
 #Flutter version of the project when created : 3.19.4 
-#Flutter version of the project at present : 3.35.7 
+#Flutter version of the project at present : 3.44.7 
 
 
 publish_to: "none"

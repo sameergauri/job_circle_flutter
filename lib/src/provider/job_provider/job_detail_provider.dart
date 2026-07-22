@@ -180,7 +180,7 @@ class JobDetailProvider extends ChangeNotifier {
                 context: context,
                 builder: (context) => CustomDialogueForApply(
                   success: false,
-                  title: "Screening Criteria Not Met",
+                  title: "Not Shortlisted",
                   onClose: () {
                     NavigationService.popUntil((p0) => p0.isFirst);
                     _applyLoading = false;
