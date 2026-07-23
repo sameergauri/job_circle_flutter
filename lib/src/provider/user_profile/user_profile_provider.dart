@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, unused_local_variable, prefer_final_fields, use_build_context_synchronously
+// ignore_for_file: unrelated_type_equality_checks, non_constant_identifier_names, unused_local_variable, prefer_final_fields, use_build_context_synchronously
 
 import 'dart:io';
 

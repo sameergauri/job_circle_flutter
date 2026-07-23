@@ -1,4 +1,4 @@
-// ignore_for_file: collection_methods_unrelated_type
+// ignore_for_file: use_full_hex_values_for_flutter_colors, collection_methods_unrelated_type
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -218,13 +218,36 @@ class JobDetailSimpleRow extends StatelessWidget {
     return lines
         .expand(
           (line) => [
-            customText(
-              title: showDash ? "• $line" : line,
-              fontSize: 22,
-              color: Colors.black,
-              fontWeight: FontWeight.normal,
-              isCambria: true,
-            ),
+            showDash
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment
+                        .start, // Keeps bullet aligned at the top
+                    children: [
+                      customText(
+                        title: "• ",
+                        fontSize: 22,
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        isCambria: true,
+                      ),
+                      Expanded(
+                        child: customText(
+                          title: line,
+                          fontSize: 22,
+                          color: Colors.black,
+                          fontWeight: FontWeight.normal,
+                          isCambria: true,
+                        ),
+                      ),
+                    ],
+                  )
+                : customText(
+                    title: line,
+                    fontSize: 22,
+                    color: Colors.black,
+                    fontWeight: FontWeight.normal,
+                    isCambria: true,
+                  ),
             const SizedBox(height: 4),
           ],
         )

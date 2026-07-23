@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:encrypt/encrypt.dart' as enc;
 
 class CryptoHelper {

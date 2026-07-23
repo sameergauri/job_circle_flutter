@@ -58,6 +58,25 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
   static const _successGreen = Color(0xFF2E7D32);
   static const _successGreenBg = Color(0xFFE8F5E9);
 
+  // ─── Reset ─────────────────────────────────────────────────────────────────
+  void _resetForm() {
+    _firstNameCtrl.clear();
+    _lastNameCtrl.clear();
+    _emailCtrl.clear();
+    _phoneCtrl.clear();
+    _altPhoneCtrl.clear();
+    setState(() {
+      _submitted = false;
+      _showForm = false;
+      _uploadedFileName = null;
+      _cvFileName = null;
+      _selectedGender = null;
+      _selectedEducation = null;
+      _selectedExperience = null;
+      _selectedDob = null;
+    });
+  }
+
   // ─── Init ──────────────────────────────────────────────────────────────────
   @override
   void initState() {
@@ -157,10 +176,10 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
     try {
       final jobId = (_jobData!['jobId'] as num?)?.toInt() ?? 0;
       final sharerUserId = (_jobData!['sharerUserId'] as num?)?.toInt() ?? 0;
-      final role = (_jobData!['roleName']);
-      final process = (_jobData!['process']);
-      final companyid = (_jobData!['companyId']);
-      final natureofwork = (_jobData!['functionalOfArea']);
+      final role = (_jobData!['job']['roleName']);
+      final process = (_jobData!['job']['process']);
+      final companyid = (_jobData!['job']['companyId']);
+      final natureofwork = (_jobData!['job']['functionalOfArea']);
 
       final model = ReferAddResumeModel(
         uid: sharerUserId,
@@ -187,7 +206,9 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
       );
 
       // Check if job has screening questions
+      debugPrint('[WebForm] Fetching screening questions for jobId=$jobId');
       final questions = await WebApplyService.fetchScreeningQuestions(jobId);
+      debugPrint('[WebForm] questions.length=${questions.length}');
 
       if (!mounted) return;
       setState(() => _isSubmitting = false);
@@ -201,6 +222,7 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
               questions: questions,
               candidateData: model,
               sharerUserId: sharerUserId,
+              onSubmitComplete: _resetForm,
             ),
           ),
         );
@@ -217,6 +239,9 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
             _submitted = true;
             _isSubmitting = false;
           });
+        } else if (res == 'DUPLICATE') {
+          setState(() => _isSubmitting = false);
+          _snack('CV is already in the pipeline for this job.', isError: true);
         } else {
           setState(() => _isSubmitting = false);
           _snack('Submission failed. Please try again.', isError: true);
@@ -258,10 +283,10 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 36),
               child: Column(
                 children: [
-                  if (_jobData!['jobStatus'] == "ACTIVE") ...[
+                  if (_jobData!['job']['jobStatus'] == "ACTIVE") ...[
                     _buildCVSection(),
                   ],
-                  if (_jobData!['jobStatus'] != "ACTIVE") ...[
+                  if (_jobData!['job']['jobStatus'] != "ACTIVE") ...[
                     _builIfJobIsInactive(),
                   ],
                   if (_showForm) ...[
@@ -1063,60 +1088,67 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
     ),
   );
 
-  Widget _successScreen() => Scaffold(
-    backgroundColor: _bg,
-    body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 90,
-              height: 90,
-              decoration: const BoxDecoration(
-                color: _successGreenBg,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_circle_rounded,
-                color: _successGreen,
-                size: 50,
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Application Submitted!',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'We\'ve received your application.\nSomeone will get in touch with you soon.',
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 14,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-              decoration: BoxDecoration(
-                color: Constants.yelloLight,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                'Powered by Job Circle',
-                style: TextStyle(
-                  color: Constants.darkBlue,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+  Widget _successScreen() => PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (_, _) => _resetForm(),
+    child: Scaffold(
+      backgroundColor: _bg,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: _successGreenBg,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_circle_rounded,
+                  color: _successGreen,
+                  size: 50,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              const Text(
+                'Application Submitted!',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'We\'ve received your application.\nSomeone will get in touch with you soon.',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: Constants.yelloLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Powered by Job Circle',
+                  style: TextStyle(
+                    color: Constants.darkBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),

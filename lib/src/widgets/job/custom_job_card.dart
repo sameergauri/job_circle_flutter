@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously, unused_local_variable, unnecessary_null_comparison
+// ignore_for_file: unrelated_type_equality_checks, avoid_print, use_build_context_synchronously, unused_local_variable, unnecessary_null_comparison
 
 import 'dart:convert';
 

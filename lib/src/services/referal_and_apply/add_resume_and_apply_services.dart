@@ -20,7 +20,11 @@ class AddResumeAndApplyService {
         body: jsonEncode(jsonData.toJson()),
       );
       if (response.statusCode == 200) {
-        return '200';
+        final body = jsonDecode(response.body) as Map<String, dynamic>;
+        if (body['resultKey'] == 'SUCCESS') return '200';
+        final code = (body['code'] as String? ?? '').toLowerCase();
+        if (code.contains('duplicate')) return 'DUPLICATE';
+        return 'ERROR';
       } else {
         print('API Error: ${response.body}');
         return response.statusCode.toString();
@@ -79,9 +83,7 @@ class AddResumeAndApplyService {
   ) async {
     try {
       final response = await http.get(
-        Uri.parse(
-          '${GlobalConstants.validatesharejob}$shareCode',
-        ),
+        Uri.parse('${GlobalConstants.validatesharejob}$shareCode'),
       );
 
       if (response.statusCode == 200) {

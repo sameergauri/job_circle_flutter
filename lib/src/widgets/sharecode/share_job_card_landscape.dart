@@ -1,3 +1,5 @@
+// ignore_for_file: use_full_hex_values_for_flutter_colors
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/custom_icon_url.dart';
@@ -6,7 +8,6 @@ import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
 import 'package:job_circle/src/utils/salary_formater.dart';
 import 'package:job_circle/src/utils/scan_to_apply_cliper.dart';
-import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/job/custom_job_detail_simple_row.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:qr_flutter/qr_flutter.dart';

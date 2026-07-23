@@ -73,7 +73,8 @@ class _JobDetailPageState extends State<JobDetailPage> {
               backgroundColor: colors.bgColor,
               appBar: AppBar(
                 actions: [
-                  if (provider.jobDetail!.payoutDetails != null)
+                  if (provider.jobDetail != null &&
+                      provider.jobDetail!.payoutDetails != null)
                     IconButton(
                       onPressed: /* () {
                       showDialog(

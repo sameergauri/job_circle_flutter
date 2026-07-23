@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/referal_program/ppayment_status_model.dart';
-import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/referal_program/custom_invoice_detail_card.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 

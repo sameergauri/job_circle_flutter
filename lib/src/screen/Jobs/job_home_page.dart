@@ -1,4 +1,5 @@
 // ignore_for_file: unnecessary_null_comparison, unused_element, deprecated_member_use
+// ignore_for_file: todo
 
 import 'dart:convert';
 
@@ -11,7 +12,6 @@ import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
-import 'package:job_circle/src/provider/login_signup_provider/login_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
 import 'package:job_circle/src/screen/chat/chat_list_screen.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';

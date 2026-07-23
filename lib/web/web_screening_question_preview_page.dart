@@ -12,6 +12,7 @@ class WebScreeningQuestionPreviewPage extends StatefulWidget {
   final Map<int, int> numericAnswersMap;
   final ReferAddResumeModel candidateData;
   final int sharerUserId;
+  final VoidCallback onSubmitComplete;
 
   const WebScreeningQuestionPreviewPage({
     super.key,
@@ -20,6 +21,7 @@ class WebScreeningQuestionPreviewPage extends StatefulWidget {
     required this.numericAnswersMap,
     required this.candidateData,
     required this.sharerUserId,
+    required this.onSubmitComplete,
   });
 
   @override
@@ -89,7 +91,6 @@ class _WebScreeningQuestionPreviewPageState
         'numericAnswer': widget.numericAnswersMap[qId] ?? 0,
       };
     }).toList();
-
     return {'isEligible': _isEligible(), 'answers': answers};
   }
 
@@ -108,6 +109,11 @@ class _WebScreeningQuestionPreviewPageState
       if (!mounted) return;
       if (res == '200') {
         setState(() => _submitted = true);
+      } else if (res == 'DUPLICATE') {
+        _snack(
+          'You already referred the same candidate in the last 30 days.',
+          isError: true,
+        );
       } else {
         _snack('Submission failed. Please try again.', isError: true);
       }
@@ -165,28 +171,27 @@ class _WebScreeningQuestionPreviewPageState
   }
 
   // ── Branding ───────────────────────────────────────────────────────────────
-  Widget _buildBranding() => Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: Constants.darkBlue,
-          borderRadius: BorderRadius.circular(8),
+  Widget _buildBranding() => RichText(
+    text: const TextSpan(
+      children: [
+        TextSpan(
+          text: 'JOB',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+            color: Constants.darkBlue,
+          ),
         ),
-        child: const Icon(Icons.work_rounded, color: Colors.white, size: 16),
-      ),
-      const SizedBox(width: 8),
-      const Text(
-        'Job Circle',
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Constants.darkBlue,
+        TextSpan(
+          text: 'CIRCLE',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w900,
+            color: Colors.black,
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 
   /*   // ── Eligibility banner ─────────────────────────────────────────────────────
@@ -445,64 +450,74 @@ class _WebScreeningQuestionPreviewPageState
   );
 
   // ── Success screen ─────────────────────────────────────────────────────────
-  Widget _successScreen(bool isEligible) => Scaffold(
-    backgroundColor: _bg,
-    body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 90,
-              height: 90,
-              decoration: const BoxDecoration(
-                color: _successGreenBg,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isEligible
-                    ? Icons.check_circle_rounded
-                    : Icons.error_outline_rounded,
-                color: isEligible ? _successGreen : Colors.red,
-                size: 50,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              isEligible ? 'Application Submitted!' : 'Not Shortlisted',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              isEligible
-                  ? "We've received your application.\nSomeone will get in touch with you soon."
-                  : "Thank you for your interest in this opportunity. Based on your screening responses, you have not been shortlisted for this position. We appreciate your interest and wish you success in your job search.",
-              style: TextStyle(
-                color: Colors.grey.shade600,
-                fontSize: 14,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF8E1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                'Powered by Job Circle',
-                style: TextStyle(
-                  color: Constants.darkBlue,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
+  Widget _successScreen(bool isEligible) => PopScope(
+    canPop: false,
+    onPopInvokedWithResult: (_, _) {
+      Navigator.popUntil(context, (route) => route.isFirst);
+      widget.onSubmitComplete();
+    },
+    child: Scaffold(
+      backgroundColor: _bg,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: const BoxDecoration(
+                  color: _successGreenBg,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isEligible
+                      ? Icons.check_circle_rounded
+                      : Icons.error_outline_rounded,
+                  color: isEligible ? _successGreen : Colors.red,
+                  size: 50,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              Text(
+                isEligible ? 'Application Submitted!' : 'Not Shortlisted',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                isEligible
+                    ? "We've received your application.\nSomeone will get in touch with you soon."
+                    : "Thank you for your interest in this opportunity. Based on your screening responses, you have not been shortlisted for this position. We appreciate your interest and wish you success in your job search.",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF8E1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Text(
+                  'Powered by Job Circle',
+                  style: TextStyle(
+                    color: Constants.darkBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),

@@ -1,4 +1,4 @@
-// ignore_for_file: todo, non_constant_identifier_names, avoid_print, prefer_final_fields
+// ignore_for_file: use_build_context_synchronously, todo, non_constant_identifier_names, avoid_print, prefer_final_fields
 import 'dart:async';
 import 'dart:io';
 

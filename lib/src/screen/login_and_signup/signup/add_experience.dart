@@ -1,4 +1,4 @@
-// ignore_for_file: null_check_always_fails, invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member, unused_local_variable, avoid_unnecessary_containers, unused_element, deprecated_member_use, unrelated_type_equality_checks
+// ignore_for_file: curly_braces_in_flow_control_structures, null_check_always_fails, invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member, unused_local_variable, avoid_unnecessary_containers, unused_element, deprecated_member_use, unrelated_type_equality_checks
 // ignore_for_file: todo
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

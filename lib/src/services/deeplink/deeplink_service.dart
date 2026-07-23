@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
@@ -40,7 +42,6 @@ class DeepLinkService {
         final shareCode = uri.pathSegments.last;
 
         if (shareCode.isNotEmpty && shareCode != 'share') {
-          // HACK FIX: Humesha variable me hi save karo, direct navigation yahan se mat karo
           pendingShareCode = shareCode;
 
           // Agar app already background me chal raha tha aur user home page par hi tha,

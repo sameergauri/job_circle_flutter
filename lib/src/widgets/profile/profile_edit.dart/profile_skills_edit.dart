@@ -5,7 +5,6 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_add_skill.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';

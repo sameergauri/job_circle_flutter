@@ -11,12 +11,14 @@ class WebScreeningQuestionPage extends StatefulWidget {
   final List<JobDetailScreeningQuestion> questions;
   final ReferAddResumeModel candidateData;
   final int sharerUserId;
+  final VoidCallback onSubmitComplete;
 
   const WebScreeningQuestionPage({
     super.key,
     required this.questions,
     required this.candidateData,
     required this.sharerUserId,
+    required this.onSubmitComplete,
   });
 
   @override
@@ -83,6 +85,7 @@ class _WebScreeningQuestionPageState extends State<WebScreeningQuestionPage> {
             numericAnswersMap: _numericAnswersMap,
             candidateData: widget.candidateData,
             sharerUserId: widget.sharerUserId,
+            onSubmitComplete: widget.onSubmitComplete,
           ),
         ),
       );
@@ -127,29 +130,27 @@ class _WebScreeningQuestionPageState extends State<WebScreeningQuestionPage> {
   }
 
   // ── Branding ───────────────────────────────────────────────────────────────
-  Widget _buildBranding() => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: Constants.darkBlue,
-              borderRadius: BorderRadius.circular(8),
+  Widget _buildBranding() => RichText(
+        text: const TextSpan(
+          children: [
+            TextSpan(
+              text: 'JOB',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Constants.darkBlue,
+              ),
             ),
-            child:
-                const Icon(Icons.work_rounded, color: Colors.white, size: 16),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            'Job Circle',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Constants.darkBlue,
+            TextSpan(
+              text: 'CIRCLE',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       );
 
   // ── Header card ────────────────────────────────────────────────────────────

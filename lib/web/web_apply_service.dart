@@ -1,6 +1,5 @@
-// ignore_for_file: avoid_print
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
@@ -17,21 +16,30 @@ class WebApplyService {
   ) async {
     try {
       final url = '${GlobalConstants.getJobDetailUrl}jobId=$jobId&userId=0';
+      debugPrint('[WebApplyService] fetchScreeningQuestions → jobId=$jobId url=$url');
       final response = await http.post(Uri.parse(url));
+      debugPrint('[WebApplyService] status=${response.statusCode} body=${response.body}');
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
         if (json['resultKey'] == 'SUCCESS') {
+          final resultData = json['resultData'];
           final list =
-              json['resultData']['screeningQuestions'] as List<dynamic>? ?? [];
+              (resultData is Map ? resultData['screeningQuestions'] : null)
+                  as List<dynamic>? ?? [];
+          debugPrint('[WebApplyService] screeningQuestions count=${list.length}');
           return list
               .map(
                 (q) =>
                     JobDetailScreeningQuestion.fromJson(q as Map<String, dynamic>),
               )
               .toList();
+        } else {
+          debugPrint('[WebApplyService] resultKey=${json['resultKey']}');
         }
       }
-    } catch (_) {}
+    } catch (e, st) {
+      debugPrint('[WebApplyService] fetchScreeningQuestions ERROR: $e\n$st');
+    }
     return [];
   }
 
@@ -92,7 +100,7 @@ class WebApplyService {
         }
       }
     } catch (e) {
-      print('CV upload error: $e');
+      debugPrint('CV upload error: $e');
     }
     return null;
   }

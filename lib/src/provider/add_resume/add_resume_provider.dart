@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison, avoid_print
+// ignore_for_file: todo
 
 import 'dart:io';
 
@@ -107,6 +108,11 @@ class ReferResumeProvider with ChangeNotifier {
       if (response == "200") {
         CustomSnackbar.show("Resume Submited Successfully", false);
         NavigationService.pop();
+      } else if (response == "DUPLICATE") {
+        CustomSnackbar.show(
+          "You already referred the same candidate in the last 30 days.",
+          true,
+        );
       } else {
         showDialog(
           barrierDismissible: false,
