@@ -305,21 +305,14 @@ class ShareJobCardSquare extends StatelessWidget {
 
               if (job.eligibility2 != null &&
                   ((job.eligibility2!.contains(
-                            "This role is exclusively for male candidates.",
-                          ) ||
-                          job.eligibility2!.contains(
-                            "This role is exclusively for female candidates.",
-                          ) ||
-                          job.eligibility2!.contains(
-                            "All candidate are encouraged to apply, and we have a preference for female applicants as part of our diversity initiative",
-                          )) ||
+                        "This role is exclusively for male candidates.",
+                      ) ||
                       job.eligibility2!.contains(
-                        // ignore: collection_methods_unrelated_type
-                        RegExp(
-                          r'Candidate age should be in between (\d+)\s*-\s*(\d+)\s*yrs?\.?',
-                          caseSensitive: false,
-                        ),
-                      )))
+                        "This role is exclusively for female candidates.",
+                      ) ||
+                      job.eligibility2!.contains(
+                        "All candidates are encouraged to apply, and we have a preference for female applicants as part of our diversity initiative.",
+                      ))))
                 JobDetailRow(
                   job: job,
                   showDivider: true,
@@ -473,7 +466,7 @@ class ShareJobCardSquare extends StatelessWidget {
 
   // ── Footer (height 60) ──────────────────────────────────────────────────────
   Widget _footer() => Container(
-    margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
+    margin: EdgeInsets.only(left: 20, right: 20, bottom: 10, top: 10),
     padding: const EdgeInsets.symmetric(vertical: 2),
     decoration: BoxDecoration(
       color: _blue,

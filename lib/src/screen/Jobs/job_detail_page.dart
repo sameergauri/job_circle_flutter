@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
@@ -25,6 +26,7 @@ import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
+import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
 import 'package:job_circle/src/widgets/sharecode/share_job_card_landscape.dart';
 import 'package:job_circle/src/widgets/sharecode/share_job_card_square.dart';
@@ -76,26 +78,26 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   if (provider.jobDetail != null &&
                       provider.jobDetail!.payoutDetails != null)
                     IconButton(
-                      onPressed: /* () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => Dialog(
-                          insetPadding: const EdgeInsets.all(10),
-                          child: InteractiveViewer(
-                            // Allows you to pinch and zoom to look closely at details
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis
-                                  .horizontal, // Since width is 1080, allow horizontal scrolling
-                              child: ShareJobCardSquare(
-                                job: provider.jobDetail!,
-                                shareUrl:
-                                    "https://jobcircle.in/job-detail/${provider.jobDetail!.id!}",
+                      onPressed: /*  () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            insetPadding: const EdgeInsets.all(10),
+                            child: InteractiveViewer(
+                              // Allows you to pinch and zoom to look closely at details
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis
+                                    .horizontal, // Since width is 1080, allow horizontal scrolling
+                                child: ShareJobCardSquare(
+                                  job: provider.jobDetail!,
+                                  shareUrl:
+                                      "https://jobcircle.in/job-detail/${provider.jobDetail!.id!}",
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }, */ provider.jobDetail == null
+                        );
+                      }, */ provider.jobDetail == null
                           ? null
                           : () async {
                               final result = await provider.shareJob(
@@ -115,7 +117,11 @@ class _JobDetailPageState extends State<JobDetailPage> {
                                 );
                               }
                             },
-                      icon: Icon(Icons.share, color: colors.textPrimary),
+                      icon: Image.asset(
+                        CustomAssetUrl.shareIcon,
+                        height: 50,
+                        width: 50,
+                      ),
                     ),
                 ],
                 titleSpacing: 0,
@@ -160,7 +166,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
         SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

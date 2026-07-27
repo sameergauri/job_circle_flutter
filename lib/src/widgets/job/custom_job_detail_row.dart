@@ -234,7 +234,9 @@ class JobDetailRow extends StatelessWidget {
       job.englishComsRating,
     ).trim();
     final String regionalText = job.language?.isNotEmpty == true
-        ? "${job.language!.join(', ')} (Any one regional language is mandatory)"
+        ? job.language!.length == 1
+              ? "${job.language!.join(', ')} Language is mandate"
+              : "${job.language!.join(', ')} (Any one regional language is mandatory)"
         : "";
 
     final List<String> lines = [];
@@ -307,7 +309,7 @@ class JobDetailRow extends StatelessWidget {
     } else if (e2.contains("This role is exclusively for female candidates.")) {
       diversityStatements.add("This role is exclusively for female candidates");
     } else if (e2.contains(
-      "All candidate are encouraged to apply, and we have a preference for female applicants as part of our diversity initiative",
+      "All candidates are encouraged to apply, and we have a preference for female applicants as part of our diversity initiative.",
     )) {
       diversityStatements.add("Female candidates are preferred for this role");
     }

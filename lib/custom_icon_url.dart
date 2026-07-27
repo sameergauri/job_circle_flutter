@@ -255,6 +255,10 @@ class CustomIconUrl {
       'https://cdn-icons-png.flaticon.com/128/17390/17390465.png';
   static const checkWithCircle =
       'https://cdn-icons-png.flaticon.com/128/16115/16115554.png';
+  static const landscape =
+      'https://cdn-icons-png.flaticon.com/128/696/696755.png';
+  static const squareIcon =
+      'https://cdn-icons-png.flaticon.com/128/3917/3917480.png';
 }
 
 class CustomAssetUrl {
@@ -296,4 +300,5 @@ class CustomAssetUrl {
   static const chaticon = '$_baseurl/chat.png';
   static const jcLogoForDark = '$_baseurl/cjlogo_for_dark.png';
   static const playstoreicon = '$_baseurl/playstoreicon.png';
+  static const shareIcon = '$_baseurl/sharelogo.png';
 }

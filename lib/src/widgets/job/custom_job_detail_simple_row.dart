@@ -23,7 +23,7 @@ class JobDetailSimpleRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
             radius: 20,
@@ -116,7 +116,7 @@ class JobDetailSimpleRow extends StatelessWidget {
         return _RowConfig(
           icon: CustomIconUrl.educationOutlineIcon,
           label: 'Education :',
-          value: job.requiredEducation!,
+          value: job.requiredEducation!.replaceAll("or above", ''),
         );
 
       case JobDetailType.experience:
@@ -153,7 +153,7 @@ class JobDetailSimpleRow extends StatelessWidget {
 
   bool _isUndergradEligible() {
     return job.eligibility2?.contains(
-          'Under Graduate with relevant experience can apply.',
+          'Under Graduate with relevent experience can apply.',
         ) ==
         true;
   }
@@ -204,7 +204,9 @@ class JobDetailSimpleRow extends StatelessWidget {
       job.englishComsRating,
     ).trim();
     final String regionalText = job.language?.isNotEmpty == true
-        ? "${job.language!.join(', ')} (Any one regional language is mandatory)"
+        ? job.language!.length == 1
+              ? "${job.language!.join(', ')} Language is mandate"
+              : "${job.language!.join(', ')} (Any one regional language is mandatory)"
         : "";
 
     final List<String> lines = [];
@@ -213,46 +215,15 @@ class JobDetailSimpleRow extends StatelessWidget {
 
     if (lines.isEmpty) return [];
 
-    final bool showDash = lines.length > 1;
-
-    return lines
-        .expand(
-          (line) => [
-            showDash
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment
-                        .start, // Keeps bullet aligned at the top
-                    children: [
-                      customText(
-                        title: "• ",
-                        fontSize: 22,
-                        color: Colors.black,
-                        fontWeight: FontWeight.normal,
-                        isCambria: true,
-                      ),
-                      Expanded(
-                        child: customText(
-                          title: line,
-                          fontSize: 22,
-                          color: Colors.black,
-                          fontWeight: FontWeight.normal,
-                          isCambria: true,
-                        ),
-                      ),
-                    ],
-                  )
-                : customText(
-                    title: line,
-                    fontSize: 22,
-                    color: Colors.black,
-                    fontWeight: FontWeight.normal,
-                    isCambria: true,
-                  ),
-            const SizedBox(height: 4),
-          ],
-        )
-        .toList()
-      ..removeLast();
+    return [
+      customText(
+        title: lines.join(' '),
+        fontSize: 22,
+        color: Colors.black,
+        fontWeight: FontWeight.normal,
+        isCambria: true,
+      ),
+    ];
   }
 
   String _getEnglishRatingText(String? rating) {

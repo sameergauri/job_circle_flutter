@@ -188,7 +188,7 @@ class ShareJobCardLandscape extends StatelessWidget {
       if (job.weekOff?.isNotEmpty == true) job.weekOff!,
     ];
     return Padding(
-      padding: const EdgeInsets.only(left: 44, right: 44, top: 20),
+      padding: const EdgeInsets.only(left: 44, right: 44, top: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

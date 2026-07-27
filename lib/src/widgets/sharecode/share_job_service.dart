@@ -7,8 +7,10 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
+import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/sharecode/share_job_card_landscape.dart';
 import 'package:job_circle/src/widgets/sharecode/share_job_card_square.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -226,14 +228,14 @@ class _ShareOptionsSheetState extends State<_ShareOptionsSheet> {
           ),
           const SizedBox(height: 18),
           customText(
-            title: 'Share Job',
+            title: 'Post & Earn',
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: colors.textPrimary,
           ),
           const SizedBox(height: 4),
           customText(
-            title: 'Choose image format',
+            title: 'Choose Layout',
             fontSize: 12,
             color: colors.subTitleColor,
           ),
@@ -241,16 +243,16 @@ class _ShareOptionsSheetState extends State<_ShareOptionsSheet> {
           _tile(
             '1080x644',
             'Landscape',
-            'WhatsApp chat/group, Feed banner',
-            Icons.crop_landscape_rounded,
+            'WhatsApp chat/group, Social media feed',
+            CustomIconUrl.landscape,
             colors,
           ),
           const SizedBox(height: 12),
           _tile(
             '1080x1080',
             'Square',
-            'Instagram Posts, Facebook Feed, LinkedIn Feed & WhatsApp Status',
-            Icons.crop_square_rounded,
+            'Instagram Posts, Facebook or LinkedIn Feed & WhatsApp Status',
+            CustomIconUrl.squareIcon,
             colors,
           ),
           /* const SizedBox(height: 12),
@@ -270,7 +272,7 @@ class _ShareOptionsSheetState extends State<_ShareOptionsSheet> {
     String format,
     String title,
     String subtitle,
-    IconData icon,
+    String icon,
     AppColors? colors,
   ) {
     return InkWell(
@@ -290,7 +292,11 @@ class _ShareOptionsSheetState extends State<_ShareOptionsSheet> {
                 color: Constants.darkBlue.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: Constants.darkBlue, size: 22),
+              child: CustomNetworkImage(
+                imageUrl: icon,
+                defaultIcon: Icons.devices_fold_sharp,
+              ),
+              // child: Icon(icon, color: Constants.darkBlue, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
