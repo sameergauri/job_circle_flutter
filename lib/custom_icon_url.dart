@@ -259,6 +259,7 @@ class CustomIconUrl {
       'https://cdn-icons-png.flaticon.com/128/696/696755.png';
   static const squareIcon =
       'https://cdn-icons-png.flaticon.com/128/3917/3917480.png';
+      static const faqicon = 'https://cdn-icons-png.flaticon.com/128/2618/2618540.png';
 }
 
 class CustomAssetUrl {

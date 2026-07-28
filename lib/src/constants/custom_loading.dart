@@ -1,7 +1,7 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
-
 
 class CustomLoadingIndicator extends StatelessWidget {
   final Color blurColor;

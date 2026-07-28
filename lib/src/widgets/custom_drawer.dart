@@ -8,6 +8,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
+import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
 import 'package:job_circle/src/screen/referal_program/bank_detail_page.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
@@ -229,6 +230,26 @@ class CustomDrawer extends StatelessWidget {
               ),
               onTap: () {
                 shareApp();
+                onClose();
+              },
+            ),
+            ListTile(
+              dense: true,
+              minLeadingWidth: 0.0,
+              minVerticalPadding: 5.1,
+              leading: CustomNetworkImage(
+                imageUrl: CustomIconUrl.faqicon,
+                defaultIcon: Icons.room_preferences_sharp,
+                color: colors.subtitleTextColor,
+              ),
+              title: customText(
+                title: 'FAQ',
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: colors.subtitleTextColor,
+              ),
+              onTap: () async {
+                NavigationService.push(FaqScreen());
                 onClose();
               },
             ),
