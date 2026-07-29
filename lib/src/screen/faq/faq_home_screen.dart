@@ -207,7 +207,7 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
                   child: TabBarView(
                     controller: _tabController,
                     children: provider.categories.map((category) {
-                      final faqs = provider.filteredFaqs;
+                      final faqs = provider.filteredFaqsForCategory(category);
 
                       if (faqs.isEmpty) {
                         return Center(
@@ -288,7 +288,7 @@ class _FaqCard extends StatelessWidget {
           title: customText(
             title: faq.question,
             fontWeight: FontWeight.w700,
-            fontSize: 15,
+            fontSize: 14,
             color: colors.textPrimary,
           ),
           children: [
@@ -298,7 +298,7 @@ class _FaqCard extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: customText(
                   title: faq.answer,
-                  fontSize: 14,
+                  fontSize: 12,
                   color: colors.subTitleColor,
                 ),
               ),

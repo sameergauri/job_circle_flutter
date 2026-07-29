@@ -64,6 +64,19 @@ class FaqProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<FaqItem> filteredFaqsForCategory(String category) {
+    return _allFaqs.where((faq) {
+      final matchesCategory =
+          category == 'All' ||
+          faq.category.name.toLowerCase() == category.toLowerCase();
+      final matchesSearch =
+          _searchQuery.isEmpty ||
+          faq.question.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          faq.answer.toLowerCase().contains(_searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    }).toList();
+  }
+
   int filteredCountForCategory(String category) {
     return _allFaqs.where((faq) {
       final matchesCategory =
