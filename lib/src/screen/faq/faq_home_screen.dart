@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/model/faq/faq_model.dart';
 import 'package:job_circle/src/provider/faq/faq_provider.dart';
+import 'package:job_circle/src/widgets/list_tile/custom_expansion_list_tile.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 
@@ -104,7 +105,7 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
       body: Consumer<FaqProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return CustomLoadingIndicator();
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (provider.errorMessage != null) {
@@ -281,7 +282,7 @@ class _FaqCard extends StatelessWidget {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
+        child: CustomExpansionTile(
           initiallyExpanded: isExpanded,
           onExpansionChanged: onExpansionChanged,
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -296,10 +297,16 @@ class _FaqCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: customText(
-                  title: faq.answer,
-                  fontSize: 12,
-                  color: colors.subTitleColor,
+                child: Text.rich(
+                  TextSpan(
+                    children: _parseFormattedAnswer(
+                      faq.answer,
+                      GoogleFonts.merriweather(
+                        fontSize: 12,
+                        // color: Constants.subtitleclr,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -308,4 +315,63 @@ class _FaqCard extends StatelessWidget {
       ),
     );
   }
+}
+
+// Renders *bold*, _italic_ and *_bold+italic_* markers in the FAQ answer
+// view only — the markers are stripped for display but left untouched in
+// the edit form. The combined pattern is listed first so it wins over the
+// plain bold pattern when both could match at the same `*`.
+final RegExp _formattingPattern = RegExp(
+  r'\*_(.+?)_\*|\*(.+?)\*|_(.+?)_',
+  dotAll: true,
+);
+
+List<InlineSpan> _parseFormattedAnswer(String text, TextStyle baseStyle) {
+  final spans = <InlineSpan>[];
+  var currentIndex = 0;
+
+  for (final match in _formattingPattern.allMatches(text)) {
+    if (match.start > currentIndex) {
+      spans.add(
+        TextSpan(
+          text: text.substring(currentIndex, match.start),
+          style: baseStyle,
+        ),
+      );
+    }
+    final boldItalicText = match.group(1);
+    final boldText = match.group(2);
+    if (boldItalicText != null) {
+      spans.add(
+        TextSpan(
+          text: boldItalicText,
+          style: baseStyle.copyWith(
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      );
+    } else if (boldText != null) {
+      spans.add(
+        TextSpan(
+          text: boldText,
+          style: baseStyle.copyWith(fontWeight: FontWeight.bold),
+        ),
+      );
+    } else {
+      spans.add(
+        TextSpan(
+          text: match.group(3),
+          style: baseStyle.copyWith(fontStyle: FontStyle.italic),
+        ),
+      );
+    }
+    currentIndex = match.end;
+  }
+
+  if (currentIndex < text.length) {
+    spans.add(TextSpan(text: text.substring(currentIndex), style: baseStyle));
+  }
+
+  return spans;
 }

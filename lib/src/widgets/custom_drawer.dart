@@ -18,6 +18,8 @@ import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
+import 'package:job_circle/src/widgets/list_tile/custom_expansion_list_tile.dart';
+import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -102,10 +104,11 @@ class CustomDrawer extends StatelessWidget {
               ),
             ),
             CareerPreferenceToggle(onClose: onClose, scaffoldKey: scaffoldKey),
-            ExpansionTile(
+            CustomExpansionTile(
               dense: true,
               textColor: Constants.darkBlue,
-
+              childrenPadding: EdgeInsets.only(left: 30, right: 10),
+              tilePadding: EdgeInsets.only(left: 10, right: 10),
               iconColor: Constants.darkBlue,
               collapsedIconColor: Constants.darkBlue,
               //  collapsedTextColor: Constants.darkBlue,
@@ -123,7 +126,8 @@ class CustomDrawer extends StatelessWidget {
                 // color: Constants.darkBlue,
               ),
               children: [
-                ListTile(
+                CustomListTile(
+                  contentPadding: EdgeInsets.only(left: 10, right: 10),
                   dense: true,
                   minLeadingWidth: 0.0,
                   minVerticalPadding: 5.1,
@@ -144,7 +148,8 @@ class CustomDrawer extends StatelessWidget {
                     onClose();
                   },
                 ),
-                ListTile(
+                CustomListTile(
+                  contentPadding: EdgeInsets.only(left: 10, right: 10),
                   dense: true,
                   minLeadingWidth: 0.0,
                   minVerticalPadding: 5.1,
@@ -165,7 +170,8 @@ class CustomDrawer extends StatelessWidget {
                     onClose();
                   },
                 ),
-                ListTile(
+                CustomListTile(
+                  contentPadding: EdgeInsets.only(left: 10, right: 10),
                   dense: true,
                   minLeadingWidth: 0.0,
                   minVerticalPadding: 5.1,
@@ -193,7 +199,8 @@ class CustomDrawer extends StatelessWidget {
                 ),
               ],
             ),
-            ListTile(
+            CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
               minVerticalPadding: 5.1,
@@ -213,7 +220,8 @@ class CustomDrawer extends StatelessWidget {
                 onClose();
               },
             ),
-            ListTile(
+            CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
               minVerticalPadding: 5.1,
@@ -233,7 +241,8 @@ class CustomDrawer extends StatelessWidget {
                 onClose();
               },
             ),
-            ListTile(
+            CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
               minVerticalPadding: 5.1,
@@ -253,7 +262,8 @@ class CustomDrawer extends StatelessWidget {
                 onClose();
               },
             ),
-            ListTile(
+            CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
               minVerticalPadding: 5.1,
@@ -449,7 +459,8 @@ class CareerPreferenceToggle extends StatelessWidget {
     final colors = context.appColors;
     return Consumer<CareerPreferenceProvider>(
       builder: (context, provider, child) {
-        return ListTile(
+        return CustomListTile(
+          contentPadding: EdgeInsets.only(left: 10, right: 10),
           dense: true,
           minLeadingWidth: 0.0,
           minVerticalPadding: 5.1,
