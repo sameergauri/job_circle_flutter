@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/model/user_profile/user_model.dart';
+import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
+import 'package:job_circle/src/screen/digi_locker/digilocker_one.dart';
+import 'package:job_circle/src/screen/digi_locker/digilocker_verified_page.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
+import 'package:provider/provider.dart';
 
 class SettingHomePage extends StatelessWidget {
-  const SettingHomePage({super.key});
+  final ProfileModel profile;
+  const SettingHomePage({super.key, required this.profile});
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +52,209 @@ class SettingHomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader('Profile information', colors),
-            _buildSettingsTile('Verifications', () {
-              // Navigate to Verifications Page
-            }, colors),
+            Consumer<ProfileProvider>(
+              builder: (context, profileProvider, child) {
+                return _buildSettingsTile('Verifications', () {
+                  if (profileProvider.profile!.isUserVerified == true) {
+                    NavigationService.push(DigiLockerVerifiedPage());
+                  } else {
+                    final hasRequiredInfo =
+                        (profile.firstName?.trim().isNotEmpty ?? false) &&
+                        (profile.lastName?.trim().isNotEmpty ?? false) &&
+                        (profile.dob?.trim().isNotEmpty ?? false) &&
+                        (profile.gender?.trim().isNotEmpty ?? false);
+
+                    if (!hasRequiredInfo) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => Dialog(
+                          backgroundColor: colors.bottomsheetbgColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFFFFF3E0),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.person_outline_rounded,
+                                    color: colors.orangeLine,
+                                    size: 38,
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+                                Text(
+                                  'Complete Your Profile',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.headingColor,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Please fill in your first name, last name, date of birth, and gender in your profile before starting verification.',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: colors.subTitleColor,
+                                    height: 1.6,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 26),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 46,
+                                  child: ElevatedButton(
+                                    onPressed: () => NavigationService.pop(),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: colors.darkBlue,
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'OK',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (_) => Dialog(
+                          backgroundColor: colors.bottomsheetbgColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: BoxDecoration(
+                                    color: Constants.borderColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.shield_outlined,
+                                    color: colors.darkBlue,
+                                    size: 38,
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+                                Text(
+                                  'Before You Continue',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.headingColor,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  "Please ensure your name (${profile.firstName} ${profile.middleName} ${profile.lastName}) in the profile matches exactly as it appears on your Aadhaar card for successful verification.",
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: colors.subTitleColor,
+                                    height: 1.6,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 26),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 46,
+                                        child: OutlinedButton(
+                                          onPressed: () =>
+                                              NavigationService.pop(),
+                                          style: OutlinedButton.styleFrom(
+                                            side: BorderSide(
+                                              color: colors.darkBlue!,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: colors.darkBlue,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: SizedBox(
+                                        height: 46,
+                                        child: ElevatedButton(
+                                          onPressed: () {
+                                            NavigationService.pop();
+                                            NavigationService.push(
+                                              DigiLockerOne(profile: profile),
+                                            );
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: colors.darkBlue,
+                                            foregroundColor: Colors.white,
+                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Continue',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                }, colors);
+              },
+            ),
             Divider(thickness: 10, color: colors.bottomsheerCard1Color),
             _buildHeader('Display', colors),
             _buildSettingsTile('Dark mode', () {

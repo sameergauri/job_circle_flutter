@@ -5,6 +5,7 @@ import 'package:job_circle/src/provider/ats/ats_applied_job_page_provider.dart';
 import 'package:job_circle/src/provider/ats/ats_referal_job_page_provider.dart';
 import 'package:job_circle/src/provider/bank_text_field_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
+import 'package:job_circle/src/provider/digi_locker/digilocker_status_provider.dart';
 import 'package:job_circle/src/provider/faq/faq_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_detail_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
@@ -39,6 +40,7 @@ class ProviderScop {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => InvoiceProvider()),
         ChangeNotifierProvider(create: (_) => FaqProvider()),
+        ChangeNotifierProvider(create: (_) => DigilockerProvider()),
       ],
       child: child,
     );

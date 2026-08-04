@@ -39,7 +39,7 @@ class Utils {
           ),
         ],
       ),
-    );  
+    );
     showDialog(
       barrierDismissible: false,
       context: context,
@@ -106,7 +106,10 @@ class Utils {
     // ---------------------------------------------
 
     // --- HELPER FUNCTION FOR DEEP LINK ROUTING ---
-  void checkAndTriggerDeepLink() {
+    void checkAndTriggerDeepLink() {
+      // ============================================
+      // 1. Share Deep Link (existing)
+      // ============================================
       if (DeepLinkService().pendingShareCode != null) {
         final code = DeepLinkService().pendingShareCode!;
 
@@ -117,6 +120,33 @@ class Utils {
           // Thoda delay badha kar 500ms kar do taaki HomeScreen poori tarah load ho kar shant ho jaye
           await Future.delayed(const Duration(milliseconds: 500));
           DeepLinkService().navigateToSharedJob(code);
+        });
+      }
+      // ============================================
+      // 2. DigiLocker Deep Link (new)
+      // ============================================
+      if (DeepLinkService().digilockerStatus != null) {
+        final status = DeepLinkService().digilockerStatus!;
+        final userId = DeepLinkService().digilockerUserId ?? "";
+
+        // Clear immediately
+        DeepLinkService().digilockerStatus = null;
+        DeepLinkService().digilockerUserId = null;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Future.delayed(const Duration(milliseconds: 500));
+          // Yahan DigiLocker Result screen pe navigate karo
+          // Example:
+          /*
+          NavigationService.push(
+          DigiLockerResultScreen(
+          status: status,
+          userId: userId,
+        ),
+      );
+          */
+          // Temporary (jab tak Result screen nahi bani)
+          print("DigiLocker Result → status: $status | userId: $userId");
         });
       }
     }

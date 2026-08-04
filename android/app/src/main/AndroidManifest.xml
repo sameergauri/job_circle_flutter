@@ -36,7 +36,7 @@
             </intent-filter>
 
             <meta-data android:name="flutter_deeplinking_enabled" android:value="true" />
-
+            <!-- Share Deep Link -->
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -45,6 +45,15 @@
                 <data android:scheme="http" />
                 <data android:host="jobcircle.co.in" />
                 <data android:pathPrefix="/share" />
+            </intent-filter>
+            <!-- DigiLocker Verification Deep Link (NEW) -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="jobcircle"
+                    android:host="verification" />
             </intent-filter>
 
         </activity>

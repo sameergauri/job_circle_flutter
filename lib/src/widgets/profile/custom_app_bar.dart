@@ -74,7 +74,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         IconButton(
           padding: EdgeInsets.zero,
           onPressed: () {
-            NavigationService.push(SettingHomePage());
+            NavigationService.push(SettingHomePage(profile: data,));
           },
           icon: Icon(Icons.settings, color: colors.subtitleTextColor),
         ),

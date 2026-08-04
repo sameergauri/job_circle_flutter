@@ -32,6 +32,7 @@ class ProfileModel {
   List<CertificationDetailModel>? certifications;
   List<ProjectModel>? projects;
   List<AwardsAndAchievementsModel>? awardsAndAchievements;
+  bool? isUserVerified;
 
   ProfileModel({
     this.id,
@@ -67,6 +68,7 @@ class ProfileModel {
     this.certifications,
     this.projects,
     this.awardsAndAchievements,
+    this.isUserVerified,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) => ProfileModel(
@@ -135,6 +137,7 @@ class ProfileModel {
               (x) => AwardsAndAchievementsModel.fromJson(x),
             ),
           ),
+          isUserVerified: json['isUserVerified'],
   );
 
   Map<String, dynamic> toJson() => {
@@ -189,6 +192,7 @@ class ProfileModel {
     "awardsAndAchievements": awardsAndAchievements == null
         ? []
         : List<dynamic>.from(awardsAndAchievements!.map((x) => x.toJson())),
+        'isUserVerified': isUserVerified,
   };
 }
 

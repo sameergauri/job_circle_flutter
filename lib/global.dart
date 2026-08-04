@@ -10,9 +10,9 @@ class GlobalConstants {
         //TODO:: For App
         // ec2
         "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
-        // local
-        // "192.168.1.103:8081"
-        // "192.168.1.102:9090"
+      // local
+      // "192.168.1.103:8081"
+      // "192.168.1.102:9090"
       //TODO:: For Website......
       : "api.jobcircle.co.in";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
@@ -26,6 +26,14 @@ class GlobalConstants {
       : "http://$API_Host_one";
   // For App
   // static const _baseurl = "http://$API_Host_one";
+  //
+  //
+  // TODO:: DigiLocker
+  static const FetchDigiLocker_verificationStatus =
+      '$_baseurl/api/v1/digilocker/status/';
+  static const deleteDigiLocker_verificationStatus =
+      '$_baseurl/api/v1/digilocker/delete/';
+  static const DigiLocker_verificationStatus = '$_baseurl/api/v1/users/';
   //
   //
   // TODO:: Generate responsibility & Summary using ai
