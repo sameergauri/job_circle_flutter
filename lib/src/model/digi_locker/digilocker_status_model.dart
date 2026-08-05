@@ -42,6 +42,8 @@ class ResultData {
   final String documentType;
   final String documentNumber;
   final String verifiedAt;
+  final String photoUrl;
+  final String mobile;
 
   ResultData({
     required this.userId,
@@ -52,6 +54,8 @@ class ResultData {
     required this.documentType,
     required this.documentNumber,
     required this.verifiedAt,
+    required this.photoUrl,
+    required this.mobile,
   });
 
   factory ResultData.fromJson(Map<String, dynamic> json) {
@@ -64,6 +68,8 @@ class ResultData {
       documentType: json['documentType'] ?? '',
       documentNumber: json['documentNumber'] ?? '',
       verifiedAt: json['verifiedAt'] ?? '',
+      photoUrl: json['photoUrl'] ?? '',
+      mobile: json['mobile'] ?? '',
     );
   }
 
@@ -77,6 +83,8 @@ class ResultData {
       'documentType': documentType,
       'documentNumber': documentNumber,
       'verifiedAt': verifiedAt,
+      'photoUrl': photoUrl,
+      'mobile': mobile,
     };
   }
 }

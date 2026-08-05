@@ -9,21 +9,16 @@ import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
-import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
-import 'package:job_circle/src/screen/referal_program/bank_detail_page.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
 import 'package:job_circle/src/screen/referal_program/payment_status_home_page.dart';
 import 'package:job_circle/src/screen/user_profile/user_profile.dart';
-import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_expansion_list_tile.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -170,7 +165,7 @@ class CustomDrawer extends StatelessWidget {
                     onClose();
                   },
                 ),
-                CustomListTile(
+                /*  CustomListTile(
                   contentPadding: EdgeInsets.only(left: 10, right: 10),
                   dense: true,
                   minLeadingWidth: 0.0,
@@ -196,7 +191,7 @@ class CustomDrawer extends StatelessWidget {
                     );
                     onClose();
                   },
-                ),
+                ), */
               ],
             ),
             CustomListTile(
@@ -262,7 +257,7 @@ class CustomDrawer extends StatelessWidget {
                 onClose();
               },
             ),
-            CustomListTile(
+            /* CustomListTile(
               contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
@@ -287,7 +282,7 @@ class CustomDrawer extends StatelessWidget {
                 NavigationService.pushAndRemoveUntil(LoginPage());
                 onClose();
               },
-            ),
+            ), */
             const Spacer(),
             Padding(
               padding: EdgeInsets.only(bottom: 10),

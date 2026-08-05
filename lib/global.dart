@@ -34,6 +34,7 @@ class GlobalConstants {
   static const deleteDigiLocker_verificationStatus =
       '$_baseurl/api/v1/digilocker/delete/';
   static const DigiLocker_verificationStatus = '$_baseurl/api/v1/users/';
+  static const facecomparison_url = '$_baseurl/api/v1/digilocker/compare-faces';
   //
   //
   // TODO:: Generate responsibility & Summary using ai

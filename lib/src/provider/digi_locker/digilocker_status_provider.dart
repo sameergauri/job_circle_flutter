@@ -82,7 +82,9 @@ class DigilockerProvider with ChangeNotifier {
 
   /// Compare local user data with DigiLocker data
   bool verifyWithLocalData({
-    required String localName,
+    required String localFirstName,
+    required String localLastName,
+    required String localMiddleName,
     required String localDob,
     required String localGender,
   }) {
@@ -98,7 +100,12 @@ class DigilockerProvider with ChangeNotifier {
     final convertedDob = convertDobToDigilockerFormat(localDob);
 
     // Name flexible match
-    final nameMatch = isNameMatching(digi.name, localName);
+    final nameMatch = isNameMatching(
+      digi.name,
+      localFirstName,
+      localLastName,
+      localMiddleName,
+    );
 
     // Gender normalize karke match
     final genderMatch =
@@ -110,6 +117,63 @@ class DigilockerProvider with ChangeNotifier {
     _isVerified = nameMatch && dobMatch && genderMatch;
     notifyListeners();
     return _isVerified;
+  }
+
+  String get photoUrl => _statusData?.resultData?.photoUrl ?? '';
+  String get mobile => _statusData?.resultData?.mobile ?? '';
+
+  /// Full verification: name + dob + gender + face match (>= 90%)
+  Future<bool> verifyFully({
+    required String localFirstName,
+    required String localLastName,
+    required String localMiddleName,
+    required String localDob,
+    required String localGender,
+    required String selfiePath,
+  }) async {
+    // 1. Pehle basic info match
+    final infoMatched = verifyWithLocalData(
+      localFirstName: localFirstName,
+      localLastName: localLastName,
+      localMiddleName: localMiddleName,
+      localDob: localDob,
+      localGender: localGender,
+    );
+
+    if (!infoMatched) {
+      _isVerified = false;
+      notifyListeners();
+      return false;
+    }
+
+    // 2. Photo URL check
+    final digiPhoto = photoUrl;
+    if (digiPhoto.isEmpty) {
+      _error = 'DigiLocker photo not available';
+      _isVerified = false;
+      notifyListeners();
+      return false;
+    }
+
+    // 3. Face match API
+    try {
+      final result = await compareFacesAPI(
+        digilockerPhotoUrl: digiPhoto,
+        selfiePath: selfiePath,
+      );
+
+      final similarity = result['similarity'] as double;
+      final faceMatched = similarity >= 90.0;
+
+      _isVerified = faceMatched;
+      notifyListeners();
+      return faceMatched;
+    } catch (e) {
+      _error = e.toString();
+      _isVerified = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   void clear() {
@@ -168,8 +232,12 @@ class DigilockerProvider with ChangeNotifier {
   /// - Different order (Surname first / last)
   /// - Extra spaces
   /// - Case difference
-  bool isNameMatching(String digiName, String localName) {
-    // Clean & lowercase
+  bool isNameMatching(
+    String digiName,
+    String localFirstName,
+    String localMiddleName,
+    String localLastName,
+  ) {
     final digiParts = digiName
         .toLowerCase()
         .trim()
@@ -177,33 +245,35 @@ class DigilockerProvider with ChangeNotifier {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    final localParts = localName
-        .toLowerCase()
-        .trim()
-        .split(RegExp(r'\s+'))
-        .where((e) => e.isNotEmpty)
-        .toList();
+    if (digiParts.isEmpty) return false;
 
-    if (digiParts.isEmpty || localParts.isEmpty) return false;
+    bool fieldHasAtLeastOneMatch(String value) {
+      final words = value
+          .toLowerCase()
+          .trim()
+          .split(RegExp(r'\s+'))
+          .where((e) => e.isNotEmpty)
+          .toList();
 
-    // Dono sides ke saare words ko sort karke compare karo
-    // Order matter nahi karega
-    digiParts.sort();
-    localParts.sort();
-
-    // Agar exactly same words hain
-    if (digiParts.length == localParts.length) {
-      return listEquals(digiParts, localParts);
+      if (words.isEmpty) return true; // empty (middle) = OK
+      return words.any((word) => digiParts.contains(word));
     }
 
-    // Agar DigiLocker mein zyada words hain (middle name extra),
-    // to check karo ki local ke saare words digi mein maujood hain
-    if (digiParts.length > localParts.length) {
-      return localParts.every((part) => digiParts.contains(part));
+    // First — zaroori
+    if (localFirstName.trim().isEmpty) return false;
+    if (!fieldHasAtLeastOneMatch(localFirstName)) return false;
+
+    // Middle — empty OK
+    if (localMiddleName.trim().isNotEmpty &&
+        !fieldHasAtLeastOneMatch(localMiddleName)) {
+      return false;
     }
 
-    // Agar local mein zyada words hain
-    return digiParts.every((part) => localParts.contains(part));
+    // Last — zaroori
+    if (localLastName.trim().isEmpty) return false;
+    if (!fieldHasAtLeastOneMatch(localLastName)) return false;
+
+    return true;
   }
 
   /// Converts "Male" / "Female" / "M" / "F" → "M" or "F"

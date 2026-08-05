@@ -437,7 +437,7 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateProfileModelForBasicInfo() async {
+  Future<void> updateProfileModelForBasicInfo() async {
     if (_profile == null) return;
 
     final updatedUserRequest = UserRequest(

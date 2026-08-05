@@ -4,10 +4,15 @@ import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/screen/digi_locker/digilocker_one.dart';
 import 'package:job_circle/src/screen/digi_locker/digilocker_verified_page.dart';
+import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
+import 'package:job_circle/src/screen/referal_program/bank_detail_page.dart';
+import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
+import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class SettingHomePage extends StatelessWidget {
   final ProfileModel profile;
@@ -255,6 +260,16 @@ class SettingHomePage extends StatelessWidget {
                 }, colors);
               },
             ),
+            _buildSettingsTile('My Banking Detail', () {
+              // NavigationService.push(SelfieCaptureScreen());
+               NavigationService.push(
+                BankingDetails(
+                  name: "${profile.firstName} ${profile.lastName}",
+                  profilePic: profile.profilePic.toString(),
+                  gender: profile.gender.toString(),
+                ),
+              );
+            }, colors),
             Divider(thickness: 10, color: colors.bottomsheerCard1Color),
             _buildHeader('Display', colors),
             _buildSettingsTile('Dark mode', () {
@@ -269,7 +284,16 @@ class SettingHomePage extends StatelessWidget {
             }, colors),
             Divider(thickness: 10, color: colors.bottomsheerCard1Color),
             _buildHeader('Account management', colors),
-            _buildSettingsTile('Delete Account', () {
+            _buildSettingsTile('Logout', () async {
+              // Clear Shared Preferences and navigate to Login Page
+              final client = StreamChat.of(context).client;
+              // 1. Disconnect Stream
+              await client.disconnectUser();
+              SharedPrefsHelper.clearAllPreferences();
+              await CacheClearAppVersionService.clearCache();
+              NavigationService.pushAndRemoveUntil(LoginPage());
+            }, colors),
+            _buildSettingsTile('Deactivate Account', () {
               // Navigate to Account Management Settings
             }, colors),
           ],

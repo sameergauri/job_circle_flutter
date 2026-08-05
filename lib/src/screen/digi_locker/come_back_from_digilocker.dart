@@ -4,6 +4,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/digi_locker/digilocker_status_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
+import 'package:job_circle/src/screen/digi_locker/selfi_capture_screen.dart';
 import 'package:job_circle/src/screen/user_profile/user_profile.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -274,8 +275,173 @@ class ComeBackFromDigiLocker extends StatelessWidget {
       ),
     );
   }
-
   Future<void> verifyAndNavigate(BuildContext context) async {
+    final colors = context.appColors;
+    final digilockerProvider = context.read<DigilockerProvider>();
+    final userProvider = context.read<ProfileProvider>();
+
+    try {
+      // 1. Selfie screen open karo
+      final String? selfiePath = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(builder: (_) => const SelfieCaptureScreen()),
+      );
+
+      if (selfiePath == null || selfiePath.isEmpty) return; // user cancelled
+
+      // 2. Loading
+      if (!context.mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // 3. DigiLocker + Profile data fetch
+      await digilockerProvider.fetchDigilockerStatus();
+      await userProvider.fetchProfile();
+
+      final localFirstName = userProvider.profile!.firstName ?? '';
+      final localLastName = userProvider.profile!.lastName ?? '';
+      final localMiddleName = userProvider.profile!.middleName ?? '';
+      final localDob = userProvider.profile!.dob ?? '';
+      final localGender = userProvider.profile!.gender ?? '';
+
+      // 4. Full verification (info + face >= 90%)
+      final isVerified = await digilockerProvider.verifyFully(
+        localFirstName: localFirstName,
+        localLastName: localLastName,
+        localMiddleName: localMiddleName,
+        localDob: localDob,
+        localGender: localGender,
+        selfiePath: selfiePath,
+      );
+
+      if (context.mounted) Navigator.pop(context); // loading band
+
+      if (!context.mounted) return;
+
+      // 5. Result dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return PopScope(
+            canPop: false,
+            child: Dialog(
+              backgroundColor: colors.bottomsheetbgColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: isVerified
+                            ? Constants.borderColor
+                            : const Color(0xFFFFEBEE),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isVerified
+                            ? Icons.verified_rounded
+                            : Icons.cancel_rounded,
+                        color: isVerified
+                            ? colors.darkBlue
+                            : const Color(0xFFD32F2F),
+                        size: 44,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      isVerified
+                          ? "Verified Successfully"
+                          : "Verification Failed",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: isVerified
+                            ? colors.darkBlue
+                            : const Color(0xFFD32F2F),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      isVerified
+                          ? "Your details and face matched with DigiLocker.\nYou are now verified."
+                          : "Your details or face did not match with DigiLocker.\nPlease try again.",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colors.subTitleColor,
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (isVerified) {
+                            final success = await digilockerProvider
+                                .updateVerifiedStatus(isVerified: true);
+                            if (success) {
+                              await userProvider.fetchProfile();
+                            }
+                          } else {
+                            await digilockerProvider.deleteDigilockerData();
+                            await userProvider.fetchProfile();
+                          }
+                          if (dialogContext.mounted) {
+                            NavigationService.pop(); // dialog
+                            NavigationService.pop(); // page
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.darkBlue,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          "OK",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      if (context.mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
+/*   Future<void> verifyAndNavigate(BuildContext context) async {
     final colors = context.appColors;
     final digilockerProvider = context.read<DigilockerProvider>();
     final userProvider = context
@@ -451,4 +617,4 @@ class ComeBackFromDigiLocker extends StatelessWidget {
       }
     }
   }
-}
+ */}

@@ -182,3 +182,31 @@ Future<bool> updateVerifiedStatusAPI({required bool isVerified}) async {
     throw Exception('Error updating verified status: $e');
   }
 }
+
+Future<Map<String, dynamic>> compareFacesAPI({
+  required String digilockerPhotoUrl,
+  required String selfiePath,
+}) async {
+  final uri = Uri.parse(
+    '${GlobalConstants.facecomparison_url}'
+    '?digilockerPhotoUrl=${Uri.encodeComponent(digilockerPhotoUrl)}',
+  );
+
+  final request = http.MultipartRequest('POST', uri);
+  request.files.add(await http.MultipartFile.fromPath('selfie', selfiePath));
+
+  final streamed = await request.send();
+  final response = await http.Response.fromStream(streamed);
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    final result = data['resultData'] ?? data;
+    return {
+      'matched': result['matched'] == true,
+      'similarity': (result['similarity'] ?? 0).toDouble(),
+      'message': result['message'] ?? '',
+    };
+  } else {
+    throw Exception('Face compare failed: ${response.body}');
+  }
+}

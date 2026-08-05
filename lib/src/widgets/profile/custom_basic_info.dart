@@ -9,7 +9,6 @@ import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart'
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/utils/utils.dart';
-import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_basic_info_edit.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -211,12 +210,14 @@ class CustomBasicInfoContainer extends StatelessWidget {
                             color: colors.headingColor,
                           ),
                           if (profile.isUserVerified == true)
-                            Icon(
-                              Icons.verified,
-                              color: Constants.darkBlue,
-                              size: 18,
+                            Padding(
+                              padding: const EdgeInsets.only(left: 5),
+                              child: Image.asset(
+                                CustomAssetUrl.verifyIcon,
+                                height: 18,
+                              ),
                             ),
-                          if (profile.isUserVerified != true ||
+                          /*  if (profile.isUserVerified != true ||
                               profile.isUserVerified == null)
                             Padding(
                               padding: const EdgeInsets.only(left: 8.0),
@@ -224,7 +225,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                                 title: "Verify",
                                 onTap: () {},
                               ),
-                            ),
+                            ), */
                         ],
                       ),
                     if (subHeadlineText.isNotEmpty) ...[

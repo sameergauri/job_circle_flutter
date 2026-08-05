@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/digi_locker/digilocker_status_provider.dart';
@@ -41,12 +42,12 @@ class _DigiLockerVerifiedPageState extends State<DigiLockerVerifiedPage> {
           fontWeight: FontWeight.w600,
           color: colors.headingColor,
         ),
-        actions: [
+        /*  actions: [
           IconButton(
             icon: Icon(Icons.help_outline, color: colors.headingColor),
             onPressed: () {},
           ),
-        ],
+        ], */
       ),
       body: Consumer<DigilockerProvider>(
         builder: (context, provider, _) {
@@ -157,60 +158,66 @@ class _DigiLockerVerifiedPageState extends State<DigiLockerVerifiedPage> {
                       ),
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      customText(
-                        title: 'Identity',
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          customText(
+                            title: 'Identity',
 
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: colors.headingColor,
-                      ),
-                      const SizedBox(height: 8),
-                      customText(
-                        title: 'Verified by DigiLocker',
-                        fontSize: 12,
-                        color: colors.headingColor,
-                      ),
-                      const SizedBox(height: 2),
-                      customText(
-                        title: 'Government ID: IND Government ID',
-                        fontSize: 12,
-                        color: colors.headingColor,
-                      ),
-                      const SizedBox(height: 2),
-                      customText(
-                        title:
-                            'Verification Date: ${formatVerifiedDate(data.verifiedAt)}',
-                        fontSize: 12,
-                        color: colors.headingColor,
-                      ),
-                      const SizedBox(height: 14),
-                      OutlinedButton(
-                        onPressed: () => _confirmDelete(context, provider),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 8,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: colors.headingColor,
                           ),
-                          side: BorderSide(
-                            color: (colors.subTitleColor ?? Colors.grey)
-                                .withValues(alpha: 0.6),
+                          const SizedBox(height: 8),
+                          customText(
+                            title: 'Verified by DigiLocker',
+                            fontSize: 12,
+                            color: colors.headingColor,
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                          const SizedBox(height: 2),
+                          customText(
+                            title: 'Government ID: IND Government ID',
+                            fontSize: 12,
+                            color: colors.headingColor,
                           ),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: customText(
-                          title: 'Delete',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: colors.headingColor,
-                        ),
+                          const SizedBox(height: 2),
+                          customText(
+                            title:
+                                'Verification Date: ${formatVerifiedDate(data.verifiedAt)}',
+                            fontSize: 12,
+                            color: colors.headingColor,
+                          ),
+                          const SizedBox(height: 14),
+                          OutlinedButton(
+                            onPressed: () => _confirmDelete(context, provider),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 8,
+                              ),
+                              side: BorderSide(
+                                color: (colors.subTitleColor ?? Colors.grey)
+                                    .withValues(alpha: 0.6),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: customText(
+                              title: 'Delete',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: colors.headingColor,
+                            ),
+                          ),
+                        ],
                       ),
+                      Image.asset(CustomAssetUrl.verifyIcon, height: 60),
                     ],
                   ),
                 ),
