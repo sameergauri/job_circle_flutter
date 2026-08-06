@@ -15,6 +15,10 @@ class FaqItem {
   final String appType;
   final String question;
   final String answer;
+  final int likeCount;
+  final int dislikeCount;
+  final bool userLiked;
+  final bool userDisliked;
 
   FaqItem({
     required this.id,
@@ -22,6 +26,10 @@ class FaqItem {
     required this.appType,
     required this.question,
     required this.answer,
+    required this.dislikeCount,
+    required this.likeCount,
+    required this.userDisliked,
+    required this.userLiked,
   });
 
   factory FaqItem.fromJson(Map<String, dynamic> json) {
@@ -31,6 +39,33 @@ class FaqItem {
       appType: json['appType'] ?? '',
       question: json['question'] ?? '',
       answer: json['answer'] ?? '',
+      dislikeCount: json['dislikeCount'],
+      likeCount: json['likeCount'],
+      userDisliked: json['userDisliked'],
+      userLiked: json['userLiked'],
+    );
+  }
+  FaqItem copyWith({
+    int? id,
+    FaqCategory? category,
+    String? appType,
+    String? question,
+    String? answer,
+    int? likeCount,
+    int? dislikeCount,
+    bool? userLiked,
+    bool? userDisliked,
+  }) {
+    return FaqItem(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      appType: appType ?? this.appType,
+      question: question ?? this.question,
+      answer: answer ?? this.answer,
+      likeCount: likeCount ?? this.likeCount,
+      dislikeCount: dislikeCount ?? this.dislikeCount,
+      userLiked: userLiked ?? this.userLiked,
+      userDisliked: userDisliked ?? this.userDisliked,
     );
   }
 }

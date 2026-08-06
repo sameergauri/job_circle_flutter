@@ -33,7 +33,6 @@ class CustomInvoiveDetailCard extends StatelessWidget {
     String readableAccount = CryptoHelper.decryptECB(
       base64CipherText: invoice.accountNumber.toString(),
     );
-
     String readableIfsc = CryptoHelper.decryptECB(
       base64CipherText: invoice.ifscCode.toString(),
     );

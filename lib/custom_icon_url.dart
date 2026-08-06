@@ -167,6 +167,8 @@ class CustomIconUrl {
       'https://cdn-icons-png.flaticon.com/128/17697/17697837.png';
   static const mailicon =
       'https://cdn-icons-png.flaticon.com/128/9795/9795321.png';
+  static const writeToUsIcon =
+      'https://cdn-icons-png.flaticon.com/128/10484/10484796.png';
   static const websiteicon =
       'https://cdn-icons-png.flaticon.com/128/12436/12436500.png';
   static const menuicon =

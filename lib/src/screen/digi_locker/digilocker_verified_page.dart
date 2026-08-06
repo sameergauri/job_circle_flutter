@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/model/digi_locker/digilocker_status_model.dart';
 import 'package:job_circle/src/provider/digi_locker/digilocker_status_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -39,7 +40,7 @@ class _DigiLockerVerifiedPageState extends State<DigiLockerVerifiedPage> {
         title: customText(
           title: 'Verifications',
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: colors.headingColor,
         ),
         /*  actions: [
@@ -94,7 +95,19 @@ class _DigiLockerVerifiedPageState extends State<DigiLockerVerifiedPage> {
             );
           }
 
-          final data = provider.statusData?.resultData;
+          final allList = provider.statusData?.dataList ?? [];
+          final activeList = allList.where((e) => e.active).toList();
+          final inactiveList = allList.where((e) => !e.active).toList();
+
+          if (allList.isEmpty) {
+            return Center(
+              child: customText(
+                title: 'No verification data found.',
+                color: colors.subTitleColor,
+                fontSize: 15,
+              ),
+            );
+          }
 
           String formatVerifiedDate(String value) {
             if (value.isEmpty) return '—';
@@ -121,110 +134,192 @@ class _DigiLockerVerifiedPageState extends State<DigiLockerVerifiedPage> {
             }
           }
 
-          if (data == null) {
-            return Center(
-              child: customText(
-                title: 'No verification data found.',
-                color: colors.subTitleColor,
-                fontSize: 15,
-              ),
-            );
-          }
-
-          return Padding(
+          return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 customText(
                   title:
-                      'These are your verifications. You can delete them at any time. ',
+                      'These are your verifications. You can delete them at any time.',
                   color: colors.headingColor,
                   fontSize: 12,
                 ),
-                // ── Top description ────────────────────────────────────
                 const SizedBox(height: 16),
 
-                // ── Verification Card ──────────────────────────────────
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colors.bottomsheetbgColor,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: (colors.subTitleColor ?? Colors.grey).withValues(
-                        alpha: 0.3,
+                // ========== ACTIVE ==========
+                ...activeList.map(
+                  (data) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildVerificationCard(
+                      context: context,
+                      colors: colors,
+                      data: data,
+                      isActive: true,
+                      formatVerifiedDate: formatVerifiedDate,
+                      onDelete: () => _confirmDelete(context, provider),
+                    ),
+                  ),
+                ),
+
+                // ========== INACTIVE ==========
+                if (inactiveList.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  customText(
+                    title: 'Previous verifications',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.subTitleColor,
+                  ),
+                  const SizedBox(height: 10),
+                  ...inactiveList.map(
+                    (data) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _buildVerificationCard(
+                        context: context,
+                        colors: colors,
+                        data: data,
+                        isActive: false,
+                        formatVerifiedDate: formatVerifiedDate,
+                        onDelete: null, // inactive pe delete mat dikhao
                       ),
                     ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          customText(
-                            title: 'Identity',
-
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: colors.headingColor,
-                          ),
-                          const SizedBox(height: 8),
-                          customText(
-                            title: 'Verified by DigiLocker',
-                            fontSize: 12,
-                            color: colors.headingColor,
-                          ),
-                          const SizedBox(height: 2),
-                          customText(
-                            title: 'Government ID: IND Government ID',
-                            fontSize: 12,
-                            color: colors.headingColor,
-                          ),
-                          const SizedBox(height: 2),
-                          customText(
-                            title:
-                                'Verification Date: ${formatVerifiedDate(data.verifiedAt)}',
-                            fontSize: 12,
-                            color: colors.headingColor,
-                          ),
-                          const SizedBox(height: 14),
-                          OutlinedButton(
-                            onPressed: () => _confirmDelete(context, provider),
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 8,
-                              ),
-                              side: BorderSide(
-                                color: (colors.subTitleColor ?? Colors.grey)
-                                    .withValues(alpha: 0.6),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: customText(
-                              title: 'Delete',
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: colors.headingColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Image.asset(CustomAssetUrl.verifyIcon, height: 60),
-                    ],
-                  ),
-                ),
+                ],
               ],
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildVerificationCard({
+    required BuildContext context,
+    required AppColors colors,
+    required ResultData data,
+    required bool isActive,
+    required String Function(String) formatVerifiedDate,
+    required VoidCallback? onDelete,
+  }) {
+    final dull = !isActive;
+
+    return Opacity(
+      opacity: dull ? 0.55 : 1.0,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colors.bottomsheetbgColor,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: (colors.subTitleColor ?? Colors.grey).withValues(
+              alpha: dull ? 0.15 : 0.3,
+            ),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      customText(
+                        title: 'Identity',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: colors.headingColor,
+                      ),
+                      if (!isActive) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: customText(
+                            title: 'Inactive',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  customText(
+                    title: 'Verified by DigiLocker',
+                    fontSize: 12,
+                    color: colors.headingColor,
+                  ),
+                  const SizedBox(height: 2),
+                  customText(
+                    title: 'Government ID: IND Government ID',
+                    fontSize: 12,
+                    color: colors.headingColor,
+                  ),
+                  const SizedBox(height: 2),
+                  customText(
+                    title:
+                        'Verification Date: ${formatVerifiedDate(data.verifiedAt)}',
+                    fontSize: 12,
+                    color: colors.headingColor,
+                  ),
+                  if (dull && data.deletedAt.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    customText(
+                      title:
+                          'Deleted on: ${formatVerifiedDate(data.deletedAt)}',
+                      fontSize: 11,
+                      color: colors.subTitleColor,
+                    ),
+                  ],
+                  if (isActive && onDelete != null) ...[
+                    const SizedBox(height: 14),
+                    OutlinedButton(
+                      onPressed: onDelete,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 8,
+                        ),
+                        side: BorderSide(
+                          color: (colors.subTitleColor ?? Colors.grey)
+                              .withValues(alpha: 0.6),
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: customText(
+                        title: 'Delete',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: colors.headingColor,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (!dull)
+              Image.asset(
+                CustomAssetUrl.verifyIcon,
+                height: 60,
+                colorBlendMode: dull ? BlendMode.saturation : null,
+              ),
+          ],
+        ),
       ),
     );
   }

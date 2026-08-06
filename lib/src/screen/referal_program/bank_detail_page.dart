@@ -318,6 +318,7 @@ class _BankingDetailsState extends State<BankingDetails> {
         onPressed: () {
           NavigationService.push(
             CustomPDFViewerDialog(
+              title: "Cancel Cheque",
               isFromAts: true,
               pdfUrl:
                   "${GlobalConstants.Image_url}${provider.cancelChequePath}",

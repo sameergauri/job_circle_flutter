@@ -194,7 +194,7 @@ class CustomDrawer extends StatelessWidget {
                 ), */
               ],
             ),
-            CustomListTile(
+            /* CustomListTile(
               contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
@@ -214,7 +214,7 @@ class CustomDrawer extends StatelessWidget {
                 await launchUrl(Uri.parse("mailto:support@jobcircle.co.in?"));
                 onClose();
               },
-            ),
+            ), */
             CustomListTile(
               contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,

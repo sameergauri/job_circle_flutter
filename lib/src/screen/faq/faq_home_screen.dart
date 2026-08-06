@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/model/faq/faq_model.dart';
 import 'package:job_circle/src/provider/faq/faq_provider.dart';
+import 'package:job_circle/src/screen/faq/faq_reaction_button.dart';
+import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_expansion_list_tile.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FaqScreen extends StatefulWidget {
   const FaqScreen({super.key});
@@ -57,6 +61,17 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: colors.bgColor,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Constants.borderColor,
+        onPressed: () async {
+          await launchUrl(Uri.parse("mailto:support@jobcircle.co.in?"));
+        },
+        child: CustomNetworkImage(
+          imageUrl: CustomIconUrl.writeToUsIcon,
+          defaultIcon: Icons.room_preferences_sharp,
+          color: colors.darkBlue,
+        ),
+      ),
       appBar: AppBar(
         titleSpacing: 0,
         backgroundColor: colors.appbarColor,
@@ -183,7 +198,6 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
                           // Count FAQs per category (filtered by search)
                           final categoryCount = provider
                               .filteredCountForCategory(category);
-
                           return Tab(
                             child: customText(
                               title: '$category ($categoryCount)',
@@ -199,9 +213,7 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
                     },
                   ),
                 ),
-
               const Divider(height: 1),
-
               // TabBarView displaying FAQ content per tab
               if (provider.categories.isNotEmpty && _tabController != null)
                 Expanded(
@@ -221,11 +233,13 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
                       }
 
                       return ListView.builder(
+                        physics: BouncingScrollPhysics(),
                         padding: const EdgeInsets.all(12),
                         itemCount: faqs.length,
                         itemBuilder: (context, index) {
                           final faq = faqs[index];
                           return _FaqCard(
+                            questionNo: "Q${index + 1})",
                             key: ValueKey(
                               '${faq.id}_${_expandedFaqId == faq.id}',
                             ),
@@ -237,6 +251,7 @@ class _FaqScreenState extends State<FaqScreen> with TickerProviderStateMixin {
                                 _expandedFaqId = expanded ? faq.id : null;
                               });
                             },
+                            provider: provider,
                           );
                         },
                       );
@@ -256,6 +271,8 @@ class _FaqCard extends StatelessWidget {
   final AppColors colors;
   final bool isExpanded;
   final ValueChanged<bool> onExpansionChanged;
+  final String questionNo;
+  final FaqProvider provider;
 
   const _FaqCard({
     super.key,
@@ -263,6 +280,8 @@ class _FaqCard extends StatelessWidget {
     required this.colors,
     required this.isExpanded,
     required this.onExpansionChanged,
+    required this.questionNo,
+    required this.provider,
   });
 
   @override
@@ -287,9 +306,9 @@ class _FaqCard extends StatelessWidget {
           onExpansionChanged: onExpansionChanged,
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           title: customText(
-            title: faq.question,
+            title: "$questionNo ${faq.question}",
             fontWeight: FontWeight.w700,
-            fontSize: 14,
+            fontSize: 12,
             color: colors.textPrimary,
           ),
           children: [
@@ -309,6 +328,17 @@ class _FaqCard extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+            FaqReactionButtons(
+              faq: faq,
+              isLoading: provider.reactingFaqId == faq.id,
+              onReact: ({required dislike, required like}) {
+                provider.reactToFaq(
+                  faqId: faq.id,
+                  like: like,
+                  dislike: dislike,
+                );
+              },
             ),
           ],
         ),

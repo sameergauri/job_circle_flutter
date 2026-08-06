@@ -1,32 +1,56 @@
-// digilocker_status_model.dart
 class DigilockerStatusModel {
   final String resultKey;
-  final ResultData? resultData;
+  final List<ResultData> dataList;
   final String code;
   final String errorMessage;
 
   DigilockerStatusModel({
     required this.resultKey,
-    this.resultData,
+    required this.dataList,
     required this.code,
     required this.errorMessage,
   });
 
+  /// Active verification (active == true)
+  ResultData? get activeData {
+    try {
+      return dataList.firstWhere((e) => e.active);
+    } catch (_) {
+      return dataList.isNotEmpty ? dataList.first : null;
+    }
+  }
+
+  /// Backward compatible — active item return karega
+  ResultData? get resultData => activeData;
+
   factory DigilockerStatusModel.fromJson(Map<String, dynamic> json) {
+    final List<ResultData> list = [];
+
+    final raw = json['resultData'];
+
+    if (raw is List) {
+      for (final item in raw) {
+        if (item is Map<String, dynamic>) {
+          list.add(ResultData.fromJson(item));
+        }
+      }
+    } else if (raw is Map<String, dynamic>) {
+      // purana single-object format (safety)
+      list.add(ResultData.fromJson(raw));
+    }
+
     return DigilockerStatusModel(
-      resultKey: json['resultKey'] ?? '',
-      resultData: json['resultData'] != null
-          ? ResultData.fromJson(json['resultData'])
-          : null,
-      code: json['code'] ?? '',
-      errorMessage: json['errorMessage'] ?? '',
+      resultKey: json['resultKey']?.toString() ?? '',
+      dataList: list,
+      code: json['code']?.toString() ?? '',
+      errorMessage: json['errorMessage']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'resultKey': resultKey,
-      'resultData': resultData?.toJson(),
+      'resultData': dataList.map((e) => e.toJson()).toList(),
       'code': code,
       'errorMessage': errorMessage,
     };
@@ -44,6 +68,8 @@ class ResultData {
   final String verifiedAt;
   final String photoUrl;
   final String mobile;
+  final String deletedAt;
+  final bool active;
 
   ResultData({
     required this.userId,
@@ -56,20 +82,24 @@ class ResultData {
     required this.verifiedAt,
     required this.photoUrl,
     required this.mobile,
+    required this.active,
+    required this.deletedAt,
   });
 
   factory ResultData.fromJson(Map<String, dynamic> json) {
     return ResultData(
       userId: json['userId']?.toString() ?? '',
-      status: json['status'] ?? '',
-      name: json['name'] ?? '',
-      dob: json['dob'] ?? '',
-      gender: json['gender'] ?? '',
-      documentType: json['documentType'] ?? '',
-      documentNumber: json['documentNumber'] ?? '',
-      verifiedAt: json['verifiedAt'] ?? '',
-      photoUrl: json['photoUrl'] ?? '',
-      mobile: json['mobile'] ?? '',
+      status: json['status']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      dob: json['dob']?.toString() ?? '',
+      gender: json['gender']?.toString() ?? '',
+      documentType: json['documentType']?.toString() ?? '',
+      documentNumber: json['documentNumber']?.toString() ?? '',
+      verifiedAt: json['verifiedAt']?.toString() ?? '',
+      photoUrl: json['photoUrl']?.toString() ?? '',
+      mobile: json['mobile']?.toString() ?? '',
+      active: json['active'] == true,
+      deletedAt: json['deletedAt']?.toString() ?? '',
     );
   }
 
@@ -85,6 +115,8 @@ class ResultData {
       'verifiedAt': verifiedAt,
       'photoUrl': photoUrl,
       'mobile': mobile,
+      'active': active,
+      'deletedAt': deletedAt,
     };
   }
 }

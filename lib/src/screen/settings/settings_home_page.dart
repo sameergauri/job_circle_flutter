@@ -262,7 +262,7 @@ class SettingHomePage extends StatelessWidget {
             ),
             _buildSettingsTile('My Banking Detail', () {
               // NavigationService.push(SelfieCaptureScreen());
-               NavigationService.push(
+              NavigationService.push(
                 BankingDetails(
                   name: "${profile.firstName} ${profile.lastName}",
                   profilePic: profile.profilePic.toString(),

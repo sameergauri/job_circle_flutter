@@ -215,6 +215,7 @@ class CustomBasicInfoContainer extends StatelessWidget {
                               child: Image.asset(
                                 CustomAssetUrl.verifyIcon,
                                 height: 18,
+                                color: colors.darkBlue,
                               ),
                             ),
                           /*  if (profile.isUserVerified != true ||
