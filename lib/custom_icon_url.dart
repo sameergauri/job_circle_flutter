@@ -306,4 +306,5 @@ class CustomAssetUrl {
   static const playstoreicon = '$_baseurl/playstoreicon.png';
   static const shareIcon = '$_baseurl/sharelogo.png';
   static const verifyIcon = '$_baseurl/verify_icon.png';
+  static const shareIconDarkMode = '$_baseurl/sharelogo1.png';
 }

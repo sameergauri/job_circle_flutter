@@ -118,9 +118,12 @@ class _JobDetailPageState extends State<JobDetailPage> {
                               }
                             },
                       icon: Image.asset(
-                        CustomAssetUrl.shareIcon,
+                        Theme.of(context).brightness == Brightness.light
+                            ? CustomAssetUrl.shareIcon
+                            : CustomAssetUrl.shareIconDarkMode,
                         height: 50,
                         width: 50,
+                        // color: Colors.white,
                       ),
                     ),
                 ],
