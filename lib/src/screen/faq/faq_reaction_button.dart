@@ -28,6 +28,7 @@ class FaqReactionButtons extends StatelessWidget {
             title: "Was this helpfull?",
             fontSize: 11,
             fontStyle: FontStyle.italic,
+            color: colors.subTitleColor,
           ),
           SizedBox(width: 10),
           // LIKE BUTTON
