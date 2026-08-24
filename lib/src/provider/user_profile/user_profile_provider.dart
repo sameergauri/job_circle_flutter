@@ -1992,14 +1992,16 @@ class ProfileProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchProfile() async {
+  Future<void> fetchProfile({int? userid}) async {
+    int selfId = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     if (_isFetching) return;
     _isFetching = true;
     _isLoading = true;
     notifyListeners();
-
     try {
-      _profile = await UserServices.getUserDetailById();
+      _profile = userid != null
+          ? await UserServices.getUserDetailById(userid)
+          : await UserServices.getUserDetailById(selfId);
       if (_profile != null) {
         assignDataFromModelToController();
         assignSummaryToController();

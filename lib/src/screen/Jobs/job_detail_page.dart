@@ -11,7 +11,10 @@ import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_detail_page_model.dart';
+import 'package:job_circle/src/model/location_model.dart';
 import 'package:job_circle/src/provider/add_resume/add_resume_provider.dart';
+import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
+import 'package:job_circle/src/provider/business_job/screening_question_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_detail_provider.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_container_for_job_benefits.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_container_for_job_elegibility.dart';
@@ -20,6 +23,7 @@ import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_job_ov
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_recruiter_card.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_referal_program_card.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/view_container_for_skills.dart';
+import 'package:job_circle/src/screen/business_job/screening_question/screening_question_card.dart';
 import 'package:job_circle/src/screen/screening_question/Screening_question_page.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
@@ -27,6 +31,7 @@ import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
+import 'package:job_circle/src/widgets/custom_widget_for_job_post/view_container_for_cerAnd_benefits.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_add_resume.dart';
 import 'package:job_circle/src/widgets/sharecode/share_job_card_landscape.dart';
 import 'package:job_circle/src/widgets/sharecode/share_job_card_square.dart';
@@ -56,13 +61,40 @@ class _JobDetailPageState extends State<JobDetailPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch job details once the widget is mounted
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<JobDetailProvider>(context, listen: false);
-      provider.clearJobDetails();
-      provider.fetchJobDetails(widget.jobId);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final jobDetailProvider = Provider.of<JobDetailProvider>(
+        context,
+        listen: false,
+      );
+      final businessJobProvider = Provider.of<BusinessJobProvider>(
+        context,
+        listen: false,
+      );
+      final screeningQuestionProvider = Provider.of<ScreeningQuestionProvider>(
+        context,
+        listen: false,
+      );
+
+      if (widget.fromWhere == FromWhere.myJobs) {
+        jobDetailProvider.clearJobDetails();
+        // 1. Await fetching business job details
+        await businessJobProvider.fetchAndLoadJobDetails(jobId: widget.jobId);
+
+        // 2. Load screening questions after data arrives
+        if (mounted && businessJobProvider.jobPost.screeningQuestions != null) {
+          screeningQuestionProvider.loadFromJobDetail(
+            businessJobProvider.jobPost.screeningQuestions!,
+          );
+        }
+      } else {
+        // Home page job seeker flow
+        jobDetailProvider.clearJobDetails();
+        await jobDetailProvider.fetchJobDetails(widget.jobId);
+      }
     });
   }
+
+  int _selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -138,8 +170,178 @@ class _JobDetailPageState extends State<JobDetailPage> {
                   color: colors.headingColor,
                 ),
               ),
-              body: _buildBody(provider, colors),
+              body: widget.fromWhere == FromWhere.myJobs
+                  ? _buildMyJobDetailPage()
+                  : _buildBody(provider, colors),
             ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildJobDetailTabBar(AppColors colors) {
+    return Row(
+      children: [
+        _buildTabItem('Job Description', 0, colors),
+        _buildTabItem('Screening', 1, colors),
+      ],
+    );
+  }
+
+  Widget _buildTabItem(String label, int tabIndex, AppColors colors) {
+    final isSelected = _selectedTab == tabIndex;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedTab = tabIndex),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: isSelected ? Constants.orange : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: customText(
+            title: label,
+            textAlign: TextAlign.center,
+            color: isSelected ? colors.headingColor : Constants.subtitleclr,
+            fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMyJobDetailPage() {
+    final colors = context.appColors;
+    return Consumer<BusinessJobProvider>(
+      builder: (context, provider, child) {
+        final hasScreening =
+            provider.jobPost.screeningQuestions != null &&
+            provider.jobPost.screeningQuestions!.isNotEmpty;
+        if (provider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: Constants.darkBlue),
+          );
+        }
+        final job = provider.jobPost;
+        final screeningQuestions = provider.jobPost.screeningQuestions;
+
+        final jobDescriptionContent = SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10, top: 1),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomJobHeadline(
+                  jobHeadline: job.roleForBusinessHiring.toString(),
+                  experience: _experienceText(provider),
+                  salary: formatSalaryText(
+                    min: job.minSalary,
+                    max: job.maxSalary,
+                    perMonth: job.perMonth!,
+                  ),
+                  location: _locationText(provider),
+                  empType: job.empType.toString(),
+                  companyIcon: '',
+                  noVacancy: job.noOfVacancy.toString(),
+                ),
+                CustomJobOverview(
+                  education: job.qualifications.toString(),
+                  shifttime: job.shiftTime.toString(),
+                  weekoff: job.weekOff.toString(),
+                  language: job.languageRequired!.isNotEmpty
+                      ? job.languageRequired!
+                      : [],
+                ),
+                if (job.jobBenifits!.isNotEmpty)
+                  ViewCerBenefitsForJobPost(
+                    job: const [],
+                    title: "Job Benefits",
+                    type: ConListType.JobBenefits,
+                    benefits: job.jobBenifits!,
+                  ),
+                if (job.certification != null && job.certification!.isNotEmpty)
+                  ViewCerBenefitsForJobPost(
+                    job: job.certification!,
+                    title: "Certificates",
+                    type: ConListType.Certificate,
+                    benefits: const [],
+                  ),
+                if (job.keyResponsibities != null &&
+                    job.keyResponsibities!.isNotEmpty)
+                  CustomContainerForEligibility(
+                    heading: "Key Responsibility",
+                    stringList: job.keyResponsibities,
+                    isList: true,
+                  ),
+                if ((job.eligibility != null && job.eligibility!.isNotEmpty) ||
+                    (job.eligibility2 != null && job.eligibility2!.isNotEmpty))
+                  CustomContainerForEligibility(
+                    heading: "Eligibility",
+                    stringList: job.eligibility! + job.eligibility2!,
+                    isList: true,
+                  ),
+                if (job.boundryLimits != null && job.boundryLimits!.isNotEmpty)
+                  CustomContainerForEligibility(
+                    heading: "Boundary Limits",
+                    stringList: job.boundryLimits!,
+                    isList: true,
+                  ),
+                if (job.additionalDetails != null &&
+                    job.additionalDetails!.isNotEmpty)
+                  CustomContainerForEligibility(
+                    heading: "Additional Detail",
+                    stringList: job.additionalDetails,
+                    isList: true,
+                  ),
+                ViewConatinerForSkills(
+                  skills: job.skills!,
+                  title: "Skills",
+                  valueColor: colors.jobdetailGreyColor!,
+                ),
+              ],
+            ),
+          ),
+        );
+
+        final screeningContent = SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              ...screeningQuestions!.asMap().entries.map(
+                (entry) => ScreeningQuestionCard(
+                  question: entry.value,
+                  index: entry.key + 1,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+
+        return Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (hasScreening) _buildJobDetailTabBar(colors),
+                Expanded(
+                  child: hasScreening && _selectedTab == 1
+                      ? screeningContent
+                      : jobDescriptionContent,
+                ),
+              ],
+            ),
+            if (provider.isLoading) CustomLoadingIndicator(), //Loading
           ],
         );
       },
@@ -175,7 +377,9 @@ class _JobDetailPageState extends State<JobDetailPage> {
               children: [
                 CustomJobHeadline(
                   jobHeadline: job.jobHeadline.toString(),
-                  experience: job.requiredExperience.toString(),
+                  experience: job.postedByType == "JOBSEEKER"
+                      ? job.requiredExperience!
+                      : job.requiredExperience!,
                   salary: formatSalaryText(
                     min: job.minCtc,
                     max: job.maxCtc,
@@ -350,16 +554,37 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
   }
 
+  String _locationText(BusinessJobProvider provider) {
+    final List<LocationData> locations = provider.isHybrid
+        ? provider.jobLocationListHybrid
+        : provider.isOnsite
+        ? provider.jobLocationListOnsite
+        : provider.jobLocationListRemote;
+
+    if (locations.isEmpty) return "";
+
+    return locations
+        .map((location) {
+          final text = location.formateData ?? "";
+          return "${text.split(',')[0].trim()} ${provider.isRemote
+              ? "(Remote)"
+              : provider.isOnsite
+              ? "(OnSite)"
+              : "(Hybrid)"}";
+        })
+        .where((text) => text.isNotEmpty)
+        .join(", ");
+  }
+
   String formatSalaryText({
     required dynamic min,
     required dynamic max,
-    required String perMonth, // "1" for Monthly, "0" for Yearly
+    required String perMonth,
   }) {
     double minVal = double.tryParse(min.toString()) ?? 0;
     double maxVal = double.tryParse(max.toString()) ?? 0;
     bool isMonthly = perMonth == "1";
 
-    // Number format karne ka logic
     String formatNumber(double value) {
       if (value == 0) return "0";
 
@@ -368,27 +593,19 @@ class _JobDetailPageState extends State<JobDetailPage> {
 
       if (isMonthly) {
         if (value >= 1000) {
-          result = value / 1000; // 1500 => 1.5
-          addK = true; // Monthly me 'k' lagana hai
+          result = value / 1000;
+          addK = true;
         } else {
-          return value
-              .toInt()
-              .toString(); // Agar 1000 se kam hai to direct return
+          return value.toInt().toString();
         }
       } else {
-        // Yearly ke liye 1 Lakh se divide
-        result = value / 100000; // 300000 => 3.0
+        result = value / 100000;
       }
 
-      // MAIN LOGIC: Point hatane wala
       String finalString;
-
-      // Check karein ki result poora number hai kya (Jaise 3.0, 5.0)
       if (result % 1 == 0) {
-        finalString = result.toInt().toString(); // 3.0 => "3"
+        finalString = result.toInt().toString();
       } else {
-        // Agar decimal hai (Jaise 1.5, 2.53)
-        // toStringAsFixed(2) "1.50" dega, regex us extra 0 ko hata dega
         finalString = result
             .toStringAsFixed(2)
             .replaceAll(RegExp(r"([.]*0)(?!.*\d)"), "");
@@ -400,13 +617,35 @@ class _JobDetailPageState extends State<JobDetailPage> {
     String minStr = formatNumber(minVal);
     String suffix = isMonthly ? "Per Month" : "LPA";
 
-    // Agar Max Salary 0 hai ya Min aur Max same hai
     if (maxVal == 0 || maxVal == minVal) {
       return "$minStr $suffix";
     }
 
     String maxStr = formatNumber(maxVal);
     return "$minStr - $maxStr $suffix";
+  }
+
+  String _experienceText(BusinessJobProvider provider) {
+    switch (provider.experienceRequired) {
+      case "FRESHER":
+        return "Fresher can apply";
+      case "SIX_MONTHS":
+        return "6 month or above";
+      case "OTHERS":
+        final min = provider.minYearController.text.trim();
+        final max = provider.maxYearController.text.trim();
+        if (max.isEmpty) {
+          if (provider.isAndAbove) {
+            final minNum = int.tryParse(min) ?? 0;
+            final yearWord = minNum == 1 ? "Year" : "Years";
+            return min.isEmpty ? "" : "$min $yearWord and above";
+          }
+          return min.isEmpty ? "" : "$min yrs";
+        }
+        return "$min - $max yrs";
+      default:
+        return "";
+    }
   }
 
   /*  String formatSalary(String? raw) {

@@ -45,6 +45,7 @@ class JobDetailPageModel {
   final String? locationWithWorkType;
   final int? active;
   final String? jobSummary;
+  final String? postedByType;
 
   JobDetailPageModel({
     this.id,
@@ -91,6 +92,7 @@ class JobDetailPageModel {
     this.locationWithWorkType,
     this.active,
     this.jobSummary,
+    this.postedByType
   });
 
   factory JobDetailPageModel.fromJson(Map<String, dynamic> json) {
@@ -121,9 +123,11 @@ class JobDetailPageModel {
       eligibility: List<String>.from(json['eligibility'] ?? []),
       eligibility2: List<String>.from(json['eligibility2'] ?? []),
       certifications: (json['certifications'] as List<dynamic>? ?? [])
-          .map((e) => e is Map
-            ? CertificateModel.fromJson(e as Map<String, dynamic>)
-            : CertificateModel(value: e.toString()))
+          .map(
+            (e) => e is Map
+                ? CertificateModel.fromJson(e as Map<String, dynamic>)
+                : CertificateModel(value: e.toString()),
+          )
           .where((c) => (c.value ?? '').isNotEmpty)
           .toList(),
       skills: List<String>.from(json['skills'] ?? []),
@@ -146,6 +150,7 @@ class JobDetailPageModel {
       locationWithWorkType: json['locationWithWorkType'],
       active: json['active'],
       jobSummary: json['jobSummary'],
+      postedByType: json['postedByType']
     );
   }
 }
@@ -311,5 +316,89 @@ class CertificateModel {
       value: json['value'],
       mandatory: json['mandatory'],
     );
+  }
+}
+
+// ── 🛠️ SUB-MODEL FOR SCREENING QUESTIONS ─────────────────────────────────────
+class ScreeningQuestion {
+  final bool? allowToLead;
+  final List<String>? correctOptions;
+  final String? optionA;
+  final String? optionB;
+  final String? optionC;
+  final String? optionD;
+  final String? optionE;
+  final String? optionF;
+  final String? optionG;
+  final String? optionH;
+  final int? orderNumber;
+  final String? questionCategory;
+  final String? questionText;
+  final String? questionType;
+  final bool? required;
+  final double? numericOption;
+
+  ScreeningQuestion({
+    this.allowToLead,
+    this.correctOptions,
+    this.optionA,
+    this.optionB,
+    this.optionC,
+    this.optionD,
+    this.optionE,
+    this.optionF,
+    this.optionG,
+    this.optionH,
+    this.orderNumber,
+    this.questionCategory,
+    this.questionText,
+    this.questionType,
+    this.required,
+    this.numericOption,
+  });
+
+  factory ScreeningQuestion.fromJson(Map<String, dynamic> json) {
+    return ScreeningQuestion(
+      allowToLead: json['allowToLead'],
+      correctOptions: (json['correctOptions'] as List<dynamic>?)
+          ?.cast<String>(),
+      optionA: json['optionA'],
+      optionB: json['optionB'],
+      optionC: json['optionC'],
+      optionD: json['optionD'],
+      optionE: json['optionE'],
+      optionF: json['optionF'],
+      optionG: json['optionG'],
+      optionH: json['optionH'],
+      orderNumber: json['orderNumber'],
+      questionCategory: json['questionCategory'],
+      questionText: json['questionText'],
+      questionType: json['questionType'],
+      required: json['required'],
+      numericOption: json['numericOption'] != null
+          ? (json['numericOption'] as num).toDouble()
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'allowToLead': allowToLead,
+      'correctOptions': correctOptions,
+      'optionA': optionA,
+      'optionB': optionB,
+      'optionC': optionC,
+      'optionD': optionD,
+      'optionE': optionE,
+      'optionF': optionF,
+      'optionG': optionG,
+      'optionH': optionH,
+      'orderNumber': orderNumber,
+      'questionCategory': questionCategory,
+      'questionText': questionText,
+      'questionType': questionType,
+      'required': required,
+      'numericOption': numericOption,
+    };
   }
 }

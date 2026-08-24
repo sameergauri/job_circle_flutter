@@ -4,6 +4,13 @@ import 'package:job_circle/src/provider/app_theme_provider.dart/app_theme_provid
 import 'package:job_circle/src/provider/ats/ats_applied_job_page_provider.dart';
 import 'package:job_circle/src/provider/ats/ats_referal_job_page_provider.dart';
 import 'package:job_circle/src/provider/bank_text_field_provider.dart';
+import 'package:job_circle/src/provider/business_ats/business_ats_provider.dart';
+import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
+import 'package:job_circle/src/provider/business_job/master_screening_question_provider.dart';
+import 'package:job_circle/src/provider/business_job/screening_question_provider.dart';
+import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
+import 'package:job_circle/src/provider/business_page/company_member_provider.dart';
+import 'package:job_circle/src/provider/business_page/custom_suggestion_textfield_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/digi_locker/digilocker_status_provider.dart';
 import 'package:job_circle/src/provider/faq/faq_provider.dart';
@@ -41,6 +48,17 @@ class ProviderScop {
         ChangeNotifierProvider(create: (_) => InvoiceProvider()),
         ChangeNotifierProvider(create: (_) => FaqProvider()),
         ChangeNotifierProvider(create: (_) => DigilockerProvider()),
+        ChangeNotifierProvider(create: (_) => BusinessCompanyProvider()),
+        ChangeNotifierProvider(
+          create: (_) => BusinessCompanySuggestionProvider(),
+        ),
+        ChangeNotifierProvider(create: (_) => BusinessJobProvider()),
+        ChangeNotifierProvider(create: (_) => ScreeningQuestionProvider()),
+        ChangeNotifierProvider(
+          create: (_) => MasterScreeningQuestionProvider(),
+        ),
+        ChangeNotifierProvider(create: (_) => AtsProvider()),
+        ChangeNotifierProvider(create: (_) => CompanyMembershipProvider()),
       ],
       child: child,
     );

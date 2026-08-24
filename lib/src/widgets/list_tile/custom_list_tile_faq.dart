@@ -40,6 +40,10 @@ class CustomListTile extends StatelessWidget {
   final Color backgroundColor;
   final BorderRadius? borderRadius;
 
+  static const EdgeInsetsGeometry _defaultContentPadding = EdgeInsets.only(
+    left: 5,
+  );
+
   const CustomListTile({
     super.key,
     this.leading,
@@ -58,7 +62,7 @@ class CustomListTile extends StatelessWidget {
     this.titleTextStyle,
     this.subtitleTextStyle,
     this.leadingAndTrailingTextStyle,
-    this.contentPadding = EdgeInsets.zero,
+    this.contentPadding = _defaultContentPadding,
     this.enabled = true,
     this.onTap,
     this.onLongPress,

@@ -58,6 +58,9 @@ class CustomToggleButton extends StatelessWidget {
   final VoidCallback onTap;
   final bool isSelect;
   final bool isForTab;
+  final Color? selectedColor;
+  final Color? selectedBorderColor;
+  final Color? titleColor;
 
   const CustomToggleButton({
     super.key,
@@ -65,6 +68,9 @@ class CustomToggleButton extends StatelessWidget {
     required this.onTap,
     this.isSelect = false, // Default value for isSelect
     this.isForTab = false,
+    this.selectedColor,
+    this.selectedBorderColor,
+    this.titleColor,
   });
 
   @override
@@ -79,12 +85,12 @@ class CustomToggleButton extends StatelessWidget {
           margin: const EdgeInsets.only(top: 5, bottom: 5, right: 10),
           decoration: BoxDecoration(
             color: isSelect
-                ? colors.selectedTabColor!
+                ? (selectedColor ?? colors.selectedTabColor!)
                 : colors.unSelectedTabColor!,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelect
-                  ? colors.selectedTabBorderColor!
+                  ? (selectedBorderColor ?? colors.selectedTabBorderColor!)
                   : colors.unSelectedTabBorderColor!,
             ),
           ),
@@ -92,9 +98,11 @@ class CustomToggleButton extends StatelessWidget {
             child: customText(
               title: title,
               fontWeight: isSelect ? FontWeight.bold : FontWeight.normal,
-              color: isSelect
-                  ? colors.selectedTabTextColor
-                  : colors.unSelectedTabTextColor,
+              color:
+                  titleColor ??
+                  (isSelect
+                      ? colors.selectedTabTextColor
+                      : colors.unSelectedTabTextColor),
               fontSize: 12,
               softwrap: isForTab ? false : null,
               overflow: isForTab ? TextOverflow.visible : null,
@@ -162,17 +170,14 @@ class CustomGenderButton extends StatelessWidget {
   }
 }
 
-
 class CustomSelectedSkillButton extends StatelessWidget {
   final String title;
   final VoidCallback onTap;
- 
 
   const CustomSelectedSkillButton({
     super.key,
     required this.title,
     required this.onTap,
- 
   });
 
   @override
@@ -188,14 +193,12 @@ class CustomSelectedSkillButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: colors.appbarColor,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: colors.appbarColor!
-            ),
+            border: Border.all(color: colors.appbarColor!),
           ),
           child: Center(
             child: customText(
               title: title,
-              fontWeight:  FontWeight.bold,
+              fontWeight: FontWeight.bold,
               color: colors.headingColor,
               fontSize: 12,
             ),

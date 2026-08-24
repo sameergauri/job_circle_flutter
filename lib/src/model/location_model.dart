@@ -68,10 +68,23 @@ class ExtraTeamModel {
 class CertificateModel {
   final int? id;
   final String? value;
+  final int? mandatory;
 
-  CertificateModel({this.id, this.value});
+  CertificateModel({this.id, this.value, this.mandatory});
 
   factory CertificateModel.fromJson(Map<String, dynamic> json) {
-    return CertificateModel(id: json['id'], value: json['value']);
+    return CertificateModel(
+      id: json['id'],
+      value: json['value'],
+      mandatory: json['mandatory'],
+    );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'value': value,
+      'mandatory':
+          mandatory, // API par payload bhete waqt wahi exact 'mandatory' key banayega
+    };
   }
 }

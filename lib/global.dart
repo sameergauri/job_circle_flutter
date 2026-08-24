@@ -9,10 +9,10 @@ class GlobalConstants {
       ?
         //TODO:: For App
         // ec2
-        "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
-      // local
-      // "192.168.1.103:8081"
-      // "192.168.1.102:9090"
+        // "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
+        // local
+        // "192.168.1.103:8081"
+        "192.168.1.102:9090"
       //TODO:: For Website......
       : "api.jobcircle.co.in";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
@@ -26,6 +26,28 @@ class GlobalConstants {
       : "http://$API_Host_one";
   // For App
   // static const _baseurl = "http://$API_Host_one";
+  //
+  //
+  // TODO:: Business ATS
+  //
+  static const fetchBusinessATSData =
+      '$_baseurl/api/v1/jobseeker/ats-data?userId=';
+  static const updateatsurl = "$_baseurl/leads/v1/updateLeads?id=";
+  //
+  //
+  //
+  // TODO:: Business Api's
+  //
+  static const fetchcompanyForHome =
+      '$_baseurl/api/v1/jobseeker/company/my-companies?userId=';
+  static const createcompanyForHome =
+      '$_baseurl/api/v1/jobseeker/company?userId=';
+  static const fetchApproveCompany =
+      '$_baseurl/api/v1/jobseeker/company/approved';
+  static const jobPostApiUrl = '$_baseurl/api/v1/jobseeker/jobs';
+  static const jobUpdateApiUrl = '$_baseurl/api/v1/jobseeker/jobs/';
+  static const company_member_url =
+      '$_baseurl/api/v1/jobseeker/company/membership-summary?userId=';
   //
   //
   // TODO:: DigiLocker
@@ -45,6 +67,8 @@ class GlobalConstants {
       '$_baseurl/jobs/v1/generateJobResponsibilityUsingGPT';
   static const genereteSummaryUsingAI =
       '$_baseurl/api/v1/users/generateProfileSummery?userId=';
+  static const generateSummaryUsingAiUrl =
+      '$_baseurl/jobs/v1/generateJobSummary';
   //
   //
   //TODO:: Parse resume
@@ -79,6 +103,8 @@ class GlobalConstants {
   static const getAllJobsUrl = '$_jobbaseUrl/getAllJobs';
   static const getJobDetailUrl = '$_jobbaseUrl/getJobDetailsByJobId?';
   static const recomendedJobUrl = '$_baseurl/api/v1/recommendations/users/';
+  static const fetchbusinessJobDetailUrl = '$_baseurl/api/v1/jobseeker/jobs/';
+  static const closeJob = "$_baseurl/api/jobs/v1/closed?id=";
   //
   //
   //TODO:: Lead
@@ -165,4 +191,11 @@ class GlobalConstants {
   //  TODO:: faq..
   //
   static const faqurl = '$_baseurl/api/faq';
+
+  // TODO:: question fetch for suggestion
+  //
+  static const questionfetchforsuggestion =
+      "$_baseurl/api/question-bank/v1/getAll?employeeId=";
+  static const getMasterQuestionForScreening =
+      "$_baseurl/api/master-screening-question/v1/getAll";
 }

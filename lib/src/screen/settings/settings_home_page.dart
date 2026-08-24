@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
+import 'package:job_circle/src/screen/business_page/business_home_page.dart';
 import 'package:job_circle/src/screen/digi_locker/digilocker_one.dart';
 import 'package:job_circle/src/screen/digi_locker/digilocker_verified_page.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
@@ -269,6 +270,11 @@ class SettingHomePage extends StatelessWidget {
                   gender: profile.gender.toString(),
                 ),
               );
+            }, colors),
+            Divider(thickness: 10, color: colors.bottomsheerCard1Color),
+            _buildHeader('Business', colors),
+            _buildSettingsTile('Business Page', () {
+              NavigationService.push(BusinessHomePage());
             }, colors),
             Divider(thickness: 10, color: colors.bottomsheerCard1Color),
             _buildHeader('Display', colors),

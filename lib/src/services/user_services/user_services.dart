@@ -10,8 +10,8 @@ import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class UserServices {
-  static Future<ProfileModel> getUserDetailById() async {
-    var userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+  static Future<ProfileModel> getUserDetailById(int userid) async {
+   
 
     final response = await http.get(
       Uri.parse("${GlobalConstants.getUserDetailUsinguid}$userid"),

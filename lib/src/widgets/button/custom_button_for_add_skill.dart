@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -10,6 +9,7 @@ class CustomAddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return InkWell(
       onTap: () {
         onTab();
@@ -19,7 +19,7 @@ class CustomAddButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
+          color: colors.headingColor,
           boxShadow: [
             BoxShadow(
               offset: const Offset(1, 1),

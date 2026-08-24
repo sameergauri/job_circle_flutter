@@ -5,14 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
+import 'package:job_circle/src/provider/business_page/company_member_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
+import 'package:job_circle/src/screen/business_page/business_home_page.dart';
+import 'package:job_circle/src/screen/business_page/create_company/create_company_page.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
 import 'package:job_circle/src/screen/referal_program/payment_status_home_page.dart';
 import 'package:job_circle/src/screen/user_profile/user_profile.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_expansion_list_tile.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
@@ -21,7 +27,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends StatefulWidget {
   final VoidCallback onClose;
   final GlobalKey<ScaffoldState> scaffoldKey; // Callback to close drawer
 
@@ -30,6 +36,24 @@ class CustomDrawer extends StatelessWidget {
     super.key,
     required this.scaffoldKey,
   });
+
+  @override
+  State<CustomDrawer> createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final int userId = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+      if (userId != 0) {
+        context.read<CompanyMembershipProvider>().fetchMembershipSummary(
+          userId: userId,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +86,7 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      scaffoldKey.currentState!.closeDrawer();
+                      widget.scaffoldKey.currentState!.closeDrawer();
                       NavigationService.push(UserProfile());
                     },
                     child: CircleAvatar(
@@ -98,7 +122,10 @@ class CustomDrawer extends StatelessWidget {
                 ],
               ),
             ),
-            CareerPreferenceToggle(onClose: onClose, scaffoldKey: scaffoldKey),
+            CareerPreferenceToggle(
+              onClose: widget.onClose,
+              scaffoldKey: widget.scaffoldKey,
+            ),
             CustomExpansionTile(
               dense: true,
               textColor: Constants.darkBlue,
@@ -140,7 +167,7 @@ class CustomDrawer extends StatelessWidget {
                   onTap: () {
                     NavigationService.push(JoinersHomePage());
 
-                    onClose();
+                    widget.onClose();
                   },
                 ),
                 CustomListTile(
@@ -162,7 +189,7 @@ class CustomDrawer extends StatelessWidget {
                   onTap: () {
                     NavigationService.push(PaymentStatusHomePage());
 
-                    onClose();
+                    widget.onClose();
                   },
                 ),
                 /*  CustomListTile(
@@ -233,7 +260,7 @@ class CustomDrawer extends StatelessWidget {
               ),
               onTap: () {
                 shareApp();
-                onClose();
+                widget.onClose();
               },
             ),
             CustomListTile(
@@ -254,7 +281,78 @@ class CustomDrawer extends StatelessWidget {
               ),
               onTap: () async {
                 NavigationService.push(FaqScreen());
-                onClose();
+                widget.onClose();
+              },
+            ),
+            // --- Conditional Job Post / Manage Company Buttons ---
+            Consumer<CompanyMembershipProvider>(
+              builder: (context, membershipProvider, _) {
+                final memberships = membershipProvider.memberships;
+                final bool hasNoCompany = memberships.isEmpty;
+                final bool isOwner = memberships.any(
+                  (m) => m.memberRole?.toUpperCase() == 'OWNER',
+                );
+
+                return Column(
+                  children: [
+                    // 1. Show 'Job Post' ONLY if user belongs to NO company
+                    if (hasNoCompany)
+                      CustomListTile(
+                        contentPadding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                        ),
+                        dense: true,
+                        minLeadingWidth: 0.0,
+                        minVerticalPadding: 5.1,
+                        leading: CustomNetworkImage(
+                          imageUrl: CustomIconUrl.addcrpficon,
+                          defaultIcon: Icons.room_preferences_sharp,
+                          color: colors.subtitleTextColor,
+                        ),
+                        title: customText(
+                          title: 'Job Post',
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                          color: colors.subtitleTextColor,
+                        ),
+                        onTap: () {
+                          context.read<BusinessCompanyProvider>().resetForm();
+                          NavigationService.push(CreateCompanyPage(forNewJob: ForNewJob.NEW));
+                          /* NavigationService.push(
+                            JobPostMasterScreen(isEdit: false),
+                          ); */
+                          widget.onClose();
+                        },
+                      ),
+                    // 2. Show 'Manage Company' ONLY if user is an OWNER
+                    if (isOwner)
+                      CustomListTile(
+                        contentPadding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                        ),
+                        dense: true,
+                        minLeadingWidth: 0.0,
+                        minVerticalPadding: 5.1,
+                        leading: CustomNetworkImage(
+                          imageUrl: CustomIconUrl.websiteicon,
+                          defaultIcon: Icons.business_outlined,
+                          color: colors.subtitleTextColor,
+                        ),
+                        title: customText(
+                          title: 'Manage Company',
+                          fontSize: 12,
+                          fontWeight: FontWeight.normal,
+                          color: colors.subtitleTextColor,
+                        ),
+                        onTap: () {
+                          NavigationService.push(BusinessHomePage());
+                          widget.onClose();
+                        },
+                      ),
+                  ],
+                );
               },
             ),
             /* CustomListTile(

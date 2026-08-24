@@ -55,3 +55,19 @@ class ProfileSummaryModel {
   }
 }
 
+class JobSummaryAiModel {
+  final bool? success;
+  final String? summary;
+  final String? message;
+
+  JobSummaryAiModel({this.success, this.summary, this.message});
+
+  factory JobSummaryAiModel.fromJson(Map<String, dynamic> json) {
+    return JobSummaryAiModel(
+      success: json['success'] ?? false,
+      summary: json['summary'] ?? "",
+      message: json['message'] ?? "",
+    );
+  }
+}
+

@@ -11,6 +11,7 @@ import 'package:job_circle/src/model/location_model.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/button/custom_button.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
+import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 
@@ -253,7 +254,10 @@ class _CustomPopUpForLocationState extends State<CustomPopUpForLocation> {
                                         color: backgroundColor,
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: ListTile(
+                                      child: CustomListTile(
+                                        contentPadding: EdgeInsets.only(
+                                          left: 10,
+                                        ),
                                         title: customText(
                                           title: item.formateData!,
                                           fontSize: 12,

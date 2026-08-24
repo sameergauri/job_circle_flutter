@@ -13,6 +13,8 @@ import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
+import 'package:job_circle/src/screen/business_ats/business_ats_home_screen.dart';
+import 'package:job_circle/src/screen/business_job/Job_post_master_page.dart';
 import 'package:job_circle/src/screen/chat/chat_list_screen.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
@@ -36,6 +38,13 @@ class JobHomePage extends StatefulWidget {
 
 class _JobHomePageState extends State<JobHomePage> {
   String selectedTab = '';
+  String selectedMyJobSubTab = 'Active';
+  static const List<String> myJobSubTabs = [
+    'Active',
+    'Pending',
+    'Close',
+    'Rejected',
+  ];
   String? selectedCity;
   bool showCityDropdown = false;
 
@@ -77,6 +86,11 @@ class _JobHomePageState extends State<JobHomePage> {
   void toggleTab(String tab) {
     setState(() {
       selectedTab = selectedTab == tab ? '' : tab;
+      if (selectedTab == 'My Jobs') {
+        final jobs = Provider.of<JobProvider>(context, listen: false).jobs;
+        final available = getAvailableMyJobSubTabs(jobs);
+        selectedMyJobSubTab = available.isNotEmpty ? available.first : 'Active';
+      }
     });
     if (selectedTab == "Recommended Jobs") {
       final provider = Provider.of<JobProvider>(context, listen: false);
@@ -86,19 +100,39 @@ class _JobHomePageState extends State<JobHomePage> {
     }
   }
 
+  // Helper check to identify if a job was posted by the current logged-in user
+  bool isMyPostedJob(JobContent job) {
+    final currentUserId = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
+    return job.postedByType != null &&
+        job.postedByType == "JOBSEEKER" &&
+        job.spoc == currentUserId;
+  }
+
   List<JobContent> filterJobs(List<JobContent> jobs) {
-    if (selectedTab.isEmpty) return jobs;
+    // 1. If "My Jobs" tab is selected, show ONLY jobs posted by the current user,
+    // further filtered by the selected status sub-tab (string-only match on jobStatus)
+    if (selectedTab == 'My Jobs') {
+      return jobs
+          .where((job) => isMyPostedJob(job) && matchesMyJobSubTab(job))
+          .toSet()
+          .toList();
+    }
+
+    // 2. For all other tabs (and when no tab is selected), filter out your own posted jobs
+    final otherUsersJobs = jobs.where((job) => !isMyPostedJob(job)).toList();
+
+    if (selectedTab.isEmpty) {
+      return otherUsersJobs;
+    }
 
     switch (selectedTab) {
       case 'TRP':
-        return jobs
-            .where(
-              (job) => (job.activePayouts != null && job.activePayouts == 1),
-            )
+        return otherUsersJobs
+            .where((job) => job.activePayouts != null && job.activePayouts == 1)
             .toSet()
             .toList();
       case 'Fresher':
-        return jobs
+        return otherUsersJobs
             .where(
               (job) =>
                   job.experienceRequired?.toLowerCase().contains('fresher') ??
@@ -107,7 +141,7 @@ class _JobHomePageState extends State<JobHomePage> {
             .toSet()
             .toList();
       case 'Linguistic':
-        return jobs
+        return otherUsersJobs
             .where(
               (job) =>
                   job.languages != null &&
@@ -117,19 +151,61 @@ class _JobHomePageState extends State<JobHomePage> {
             .toSet()
             .toList();
       case 'Leadership':
-        return jobs
+        return otherUsersJobs
             .where((job) => job.level_of_hiring == "Leader")
             .toSet()
             .toList();
       case 'Saved':
-        return jobs.where((job) => job.isFavorite == true).toSet().toList();
+        return otherUsersJobs
+            .where((job) => job.isFavorite == true)
+            .toSet()
+            .toList();
       default:
-        return jobs;
+        return otherUsersJobs;
     }
   }
 
+  // String-only status match (no boolean flags like isPending/isRejected)
+  bool matchesSubTabStatus(JobContent job, String subTab) {
+    final status = job.jobStatus?.toUpperCase();
+    switch (subTab) {
+      case 'Active':
+        return status == 'ACTIVE' || status == 'APPROVED';
+      case 'Pending':
+        return status == 'PENDING';
+      case 'Close':
+        return status == 'CLOSED' || status == 'CLOSE';
+      case 'Rejected':
+        return status == 'REJECTED';
+      default:
+        return true;
+    }
+  }
+
+  bool matchesMyJobSubTab(JobContent job) =>
+      matchesSubTabStatus(job, selectedMyJobSubTab);
+
+  // Only the status sub-tabs that actually have at least one matching job
+  List<String> getAvailableMyJobSubTabs(List<JobContent> jobs) {
+    final myJobs = jobs.where(isMyPostedJob).toList();
+    return myJobSubTabs
+        .where(
+          (subTab) => myJobs.any((job) => matchesSubTabStatus(job, subTab)),
+        )
+        .toList();
+  }
+
   List<String> getAvailableTabs(List<JobContent> jobs) {
+    int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     final tabs = <String>[];
+    if (jobs.any(
+      (job) =>
+          (job.postedByType != null &&
+          job.postedByType == "JOBSEEKER" &&
+          job.spoc == userid),
+    )) {
+      tabs.add("My Jobs");
+    }
     if (jobs.any(
       (job) => (job.activePayouts != null && job.activePayouts == 1),
     )) {
@@ -175,17 +251,25 @@ class _JobHomePageState extends State<JobHomePage> {
                 jobProvider.recommendedJob!.data != null
             ? ["Recommended Jobs", ...getAvailableTabs(jobs)]
             : getAvailableTabs(jobs);
+        final availableMyJobSubTabs = getAvailableMyJobSubTabs(jobs);
         return Stack(
           children: [
             Scaffold(
-              /*  floatingActionButton: FloatingActionButton(
-                onPressed: () {
-                  CustomBottomSheet.showCustomBottomSheetForAppTheme(
-                    context: context,
-                  );
-                },
-                child: Icon(Icons.color_lens),
-              ), */
+              floatingActionButton: selectedTab == "My Jobs"
+                  ? FloatingActionButton(
+                      backgroundColor: customColors.appbarColor,
+                      onPressed: () {
+                        NavigationService.push(
+                          JobPostMasterScreen(
+                            //jobId: job.id,
+                            isEdit: false,
+                            //existingJob: businessJobProvider.jobPost,
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.add, color: customColors.headingColor),
+                    )
+                  : SizedBox.shrink(),
               backgroundColor: customColors.bgColor,
               appBar: AppBar(
                 elevation: 0,
@@ -334,12 +418,48 @@ class _JobHomePageState extends State<JobHomePage> {
                               mainAxisAlignment: MainAxisAlignment.start,
                               // 2. Row use kiya taaki items natural width le sakein
                               children: availableTabs.map((tab) {
+                                final isMyJobsTab = tab == 'My Jobs';
                                 return CustomToggleButton(
+                                  titleColor:
+                                      (isMyJobsTab && selectedTab == tab)
+                                      ? Constants.white
+                                      : null,
                                   isForTab: true,
                                   isSelect: selectedTab == tab,
                                   title: tab,
+                                  selectedColor: isMyJobsTab
+                                      ? Constants.orange
+                                      : null,
+                                  selectedBorderColor: isMyJobsTab
+                                      ? Constants.orange
+                                      : null,
                                   onTap: () {
                                     toggleTab(tab);
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      if (selectedTab == 'My Jobs' &&
+                          availableMyJobSubTabs.isNotEmpty)
+                        SizedBox(
+                          height: 36,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: availableMyJobSubTabs.map((subTab) {
+                                return CustomToggleButton(
+                                  isForTab: true,
+                                  isSelect: selectedMyJobSubTab == subTab,
+                                  title: subTab,
+                                  onTap: () {
+                                    setState(() {
+                                      selectedMyJobSubTab = subTab;
+                                    });
                                   },
                                 );
                               }).toList(),
@@ -404,13 +524,15 @@ class _JobHomePageState extends State<JobHomePage> {
                 children: [
                   InkWell(
                     onTap: () {
-                      NavigationService.push(
-                        JobDetailPage(
-                          resume: userData!.cv_link,
-                          jobId: job.id!,
-                          fromWhere: FromWhere.homePage,
-                        ),
-                      );
+                      selectedTab == "My Jobs"
+                          ? NavigationService.push(BusinessAtsHomeScreen())
+                          : NavigationService.push(
+                              JobDetailPage(
+                                resume: userData!.cv_link,
+                                jobId: job.id!,
+                                fromWhere: FromWhere.homePage,
+                              ),
+                            );
                     },
                     child: CustomJobCard(
                       job: job,
@@ -422,6 +544,7 @@ class _JobHomePageState extends State<JobHomePage> {
                           });
                         }
                       },
+                      isMyJob: selectedTab == "My Jobs" ? true : false,
                     ),
                   ),
                   if (index != filteredJobs.length - 1)

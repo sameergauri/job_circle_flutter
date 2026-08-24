@@ -104,6 +104,21 @@ class JobContent {
   final String? locationWithWorkType;
   final bool? jobPreferenceMatch;
   final int? activePayouts;
+  final String? job_updated_on;
+  //
+  final String? postedByType;
+  final String? hiringFor;
+  final bool? showHiringForToCandidate;
+  final int? businessCompanyId;
+  final String? functionalAreaForBusinessHiring;
+  final String? roleForBusinessHiring;
+  final String? reasonNotShowHiringFor;
+  final String? businessCompanyName;
+  final String? businessCompanyIcon;
+  final String? businessCompanyCity;
+  final String? businessCompanyIndustry;
+  final int? spoc;
+  final String? jobStatus;
 
   const JobContent({
     this.jobPostType,
@@ -130,6 +145,20 @@ class JobContent {
     this.locationWithWorkType,
     this.jobPreferenceMatch,
     this.activePayouts,
+    this.postedByType,
+    this.hiringFor,
+    this.showHiringForToCandidate,
+    this.businessCompanyId,
+    this.functionalAreaForBusinessHiring,
+    this.roleForBusinessHiring,
+    this.reasonNotShowHiringFor,
+    this.businessCompanyName,
+    this.businessCompanyIcon,
+    this.businessCompanyCity,
+    this.businessCompanyIndustry,
+    this.spoc,
+    this.job_updated_on,
+    this.jobStatus,
   });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
@@ -158,6 +187,20 @@ class JobContent {
       locationWithWorkType: json['locationWithWorkType'],
       jobPreferenceMatch: json['jobPreferenceMatch'],
       activePayouts: json['activePayouts'],
+      postedByType: json['postedByType'],
+      hiringFor: json['hiringFor'],
+      showHiringForToCandidate: json['showHiringForToCandidate'],
+      businessCompanyId: json['businessCompanyId'],
+      functionalAreaForBusinessHiring: json['functionalAreaForBusinessHiring'],
+      roleForBusinessHiring: json['roleForBusinessHiring'],
+      reasonNotShowHiringFor: json['reasonNotShowHiringFor'],
+      businessCompanyName: json['businessCompanyName'],
+      businessCompanyIcon: json['businessCompanyIcon'],
+      businessCompanyCity: json['businessCompanyCity'],
+      businessCompanyIndustry: json['businessCompanyIndustry'],
+      spoc: json['spoc'],
+      job_updated_on: json['job_updated_on'],
+      jobStatus: json['jobStatus'],
     );
   }
 
@@ -186,6 +229,20 @@ class JobContent {
     String? locationWithWorkType,
     bool? jobPreferenceMatch,
     int? activePayouts,
+    String? postedByType,
+    String? hiringFor,
+    bool? showHiringForToCandidate,
+    int? businessCompanyId,
+    String? functionalAreaForBusinessHiring,
+    String? roleForBusinessHiring,
+    String? reasonNotShowHiringFor,
+    String? businessCompanyName,
+    String? businessCompanyIcon,
+    String? businessCompanyCity,
+    String? businessCompanyIndustry,
+    String? job_updated_on,
+    int? spoc,
+    String? jobStatus,
   }) {
     return JobContent(
       jobPostType: jobPostType ?? this.jobPostType,
@@ -212,6 +269,26 @@ class JobContent {
       locationWithWorkType: locationWithWorkType ?? this.locationWithWorkType,
       jobPreferenceMatch: jobPreferenceMatch ?? this.jobPreferenceMatch,
       activePayouts: activePayouts ?? this.activePayouts,
+      postedByType: postedByType ?? this.postedByType,
+      hiringFor: hiringFor ?? this.hiringFor,
+      showHiringForToCandidate:
+          showHiringForToCandidate ?? this.showHiringForToCandidate,
+      businessCompanyId: businessCompanyId ?? this.businessCompanyId,
+      functionalAreaForBusinessHiring:
+          functionalAreaForBusinessHiring ??
+          this.functionalAreaForBusinessHiring,
+      roleForBusinessHiring:
+          roleForBusinessHiring ?? this.roleForBusinessHiring,
+      reasonNotShowHiringFor:
+          reasonNotShowHiringFor ?? this.reasonNotShowHiringFor,
+      businessCompanyName: businessCompanyName ?? this.businessCompanyName,
+      businessCompanyIcon: businessCompanyIcon ?? this.businessCompanyIcon,
+      businessCompanyCity: businessCompanyCity ?? this.businessCompanyCity,
+      businessCompanyIndustry:
+          businessCompanyIndustry ?? this.businessCompanyIndustry,
+      spoc: spoc ?? this.spoc,
+      job_updated_on: job_updated_on ?? this.job_updated_on,
+      jobStatus: jobStatus ?? this.jobStatus
     );
   }
 }

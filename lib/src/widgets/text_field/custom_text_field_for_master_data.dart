@@ -7,6 +7,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 
@@ -153,7 +154,8 @@ class _CustomTextFieldForMasterDataState
               color: backgroundColor,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: ListTile(
+            child: CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10),
               title: customText(
                 //  monst: true,
                 title: suggestion.toString(),
@@ -193,7 +195,7 @@ class _CustomTextFieldForMasterDataState
                   color: colors.bottomsheetbgColor,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: ListTile(
+                child: CustomListTile(
                   title: customText(
                     monst: true,
                     fontSize: 12,

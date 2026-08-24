@@ -10,9 +10,15 @@ import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/model/job_model/recommend_job_model.dart';
+import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
+import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
+import 'package:job_circle/src/screen/business_job/Job_post_master_page.dart';
+import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
+import 'package:job_circle/src/widgets/dialogue/custom_dialogue_for_confirmation.dart';
+import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 
@@ -20,12 +26,14 @@ class CustomJobCard extends StatelessWidget {
   final JobContent job;
   final List<String> skills;
   final VoidCallback? onLastFavoriteRemoved;
+  final bool isMyJob;
 
   const CustomJobCard({
     super.key,
     required this.job,
     required this.skills,
     this.onLastFavoriteRemoved,
+    required this.isMyJob,
   });
 
   @override
@@ -38,224 +46,445 @@ class CustomJobCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (job.jobPostType != null &&
-              (job.jobPostType == 2 || job.jobPostType == 3))
-            Container(
-              margin: const EdgeInsets.only(bottom: 5),
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                gradient: LinearGradient(
-                  colors: [
-                    Constants.darkBlue,
-                    Constants.darkBlue.withValues(alpha: 0.04),
-                  ],
+          if (isMyJob) ...[
+            CustomListTile(
+              trailing: PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: colors.subTitleColor),
+                color: colors
+                    .appbarColor, // Light blueish background from the image
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Image.network(
-                    CustomIconUrl.skillicon,
-                    width: 16,
-                    height: 16,
-                    fit: BoxFit.contain,
-                    color: Constants.white,
+                onSelected: (String value) {
+                  switch (value) {
+                    case 'post_banner':
+                      // Handle Post Banner
+                      break;
+                    case 'preview':
+                      // Handle Preview
+                      break;
+                    case 'close':
+                      // Handle Close
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) => [
+                  PopupMenuItem<String>(
+                    onTap: () {},
+                    value: 'post_banner',
+                    height: 38,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.share_outlined,
+                          size: 18,
+                          color: colors.headingColor,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Post Banner',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.headingColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 5),
-                  const customText(
-                    title: "Premium Hiring",
-                    color: Constants.white,
-                    fontWeight: FontWeight.bold,
+                  PopupMenuItem<String>(
+                    onTap: () {
+                      NavigationService.push(
+                        JobDetailPage(
+                          jobId: job.id!,
+                          fromWhere: FromWhere.myJobs,
+                          resume: '',
+                        ),
+                      );
+                    },
+                    value: 'preview',
+                    height: 38,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.remove_red_eye_outlined,
+                          size: 18,
+                          color: colors.headingColor,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Preview',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.headingColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    onTap: () async {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          final jobprovider = context.read<JobProvider>();
+                          final jobPostProvider = context
+                              .read<BusinessJobProvider>();
+                          return CustomDialogForConfirmation(
+                            title: "Hiring Close",
+                            subtitle:
+                                "Closing this job will stop receiving new applicants.",
+                            button1text: "Yes",
+                            button2text: "No",
+                            onlysinglebutton: false,
+                            onYes: () async {
+                              try {
+                                await jobPostProvider.closeJob(
+                                  job.id!,
+                                  context,
+                                );
+                                await jobprovider.fetchJobs(
+                                  isRefresh: true,
+                                  applyCityFilter: false,
+                                );
+                              } catch (e) {
+                                // Show an error message
+                              }
+                            },
+                          );
+                        },
+                      );
+                    },
+                    value: 'close Job',
+                    height: 38,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.block_outlined,
+                          size: 18,
+                          color: colors.headingColor,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Close Job',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.headingColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    onTap: () async {
+                      final businessJobProvider =
+                          Provider.of<BusinessJobProvider>(
+                            context,
+                            listen: false,
+                          );
+                      await businessJobProvider.fetchAndLoadJobDetails(
+                        jobId: job.id!,
+                      );
+                      NavigationService.push(
+                        JobPostMasterScreen(
+                          jobId: job.id,
+                          isEdit: true,
+                          existingJob: businessJobProvider.jobPost,
+                        ),
+                      );
+                    },
+                    value: 'Edit Job',
+                    height: 38,
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: 18, color: colors.headingColor),
+                        SizedBox(width: 12),
+                        Text(
+                          'Edit Job',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.headingColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              title: customText(
+                title: job.roleForBusinessHiring!,
+                fontWeight: FontWeight.w700,
+                maxlines: 2,
+                overflow: TextOverflow.ellipsis,
+                fontSize: job.roleForBusinessHiring != null
+                    ? job.roleForBusinessHiring!.length < 30
+                          ? 16
+                          : 14
+                    : 14,
+                color: colors.textPrimary,
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  customText(
+                    title: job.businessCompanyCity!,
+                    fontSize: 12,
+                    color: colors.headingColor,
+                  ),
+                  customText(
+                    title: 'No application available yet',
+                    fontSize: 12,
+                    color: colors.subTitleColor,
                   ),
                 ],
               ),
             ),
-          ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            leading: Container(
-              padding: const EdgeInsets.all(4),
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                color: Constants.lightdull,
-                border: Border.all(color: colors.textColor!),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child:
-                  job.companyIcon != null &&
-                      job.companyIcon != "" &&
-                      job.companyIcon != " "
-                  ? CustomNetworkImage(
-                      imageUrl:
-                          "${GlobalConstants.Image_url}${job.companyIcon}",
-                      defaultIcon: Icons.home,
-                    )
-                  : Image.network(
-                      CustomIconUrl.companyicon,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                customText(
+                  title: job.job_updated_on!,
+                  color: colors.headingColor,
+                ),
+                SizedBox(width: 10),
+                InkWell(
+                  onTap: () {},
+                  child: Icon(
+                    Icons.error_outline_outlined,
+                    color: colors.darkBlue,
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+            if (job.jobPostType != null &&
+                (job.jobPostType == 2 || job.jobPostType == 3))
+              Container(
+                margin: const EdgeInsets.only(bottom: 5),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 5,
+                  horizontal: 10,
+                ),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    colors: [
+                      Constants.darkBlue,
+                      Constants.darkBlue.withValues(alpha: 0.04),
+                    ],
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Image.network(
+                      CustomIconUrl.skillicon,
+                      width: 16,
+                      height: 16,
                       fit: BoxFit.contain,
-                      color: colors.unselectedNavTabIconColor,
+                      color: Constants.white,
                     ),
-            ),
-            title: customText(
-              title: job.jobHeadline ?? '',
-              fontWeight: FontWeight.w700,
-              maxlines: 2,
-              overflow: TextOverflow.ellipsis,
-              fontSize: job.jobHeadline != null
-                  ? job.jobHeadline!.length < 30
-                        ? 16
-                        : 14
-                  : 14,
-              color: colors.textPrimary,
-            ),
-            trailing: ValueListenableBuilder<bool>(
-              valueListenable: isLoading,
-              builder: (context, loading, child) {
-                return loading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Constants.darkBlue,
-                        ),
+                    const SizedBox(width: 5),
+                    const customText(
+                      title: "Premium Hiring",
+                      color: Constants.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ],
+                ),
+              ),
+            CustomListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Container(
+                padding: const EdgeInsets.all(4),
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Constants.lightdull,
+                  border: Border.all(color: colors.textColor!),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child:
+                    job.companyIcon != null &&
+                        job.companyIcon != "" &&
+                        job.companyIcon != " "
+                    ? CustomNetworkImage(
+                        imageUrl:
+                            "${GlobalConstants.Image_url}${job.companyIcon}",
+                        defaultIcon: Icons.home,
                       )
-                    : InkWell(
-                        onTap: () async {
-                          int userId = SharedPrefsHelper.getInt(
-                            ESharedPreferences.user_id,
-                          );
-
-                          if (userId != null) {
-                            if (job.id == null ||
-                                (job.isFavorite == true &&
-                                    job.favJobId == null)) {
-                              CustomSnackbar.show("Invalid JobData", true);
-                              return;
-                            }
-
-                            isLoading.value = true;
-                            bool success;
-                            String actionMessage;
-
-                            final jobProvider = Provider.of<JobProvider>(
-                              context,
-                              listen: false,
+                    : Image.network(
+                        CustomIconUrl.companyicon,
+                        fit: BoxFit.contain,
+                        color: colors.unselectedNavTabIconColor,
+                      ),
+              ),
+              title: customText(
+                title: job.jobHeadline ?? '',
+                fontWeight: FontWeight.w700,
+                maxlines: 2,
+                overflow: TextOverflow.ellipsis,
+                fontSize: job.jobHeadline != null
+                    ? job.jobHeadline!.length < 30
+                          ? 16
+                          : 14
+                    : 14,
+                color: colors.textPrimary,
+              ),
+              trailing: ValueListenableBuilder<bool>(
+                valueListenable: isLoading,
+                builder: (context, loading, child) {
+                  return loading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Constants.darkBlue,
+                          ),
+                        )
+                      : InkWell(
+                          onTap: () async {
+                            int userId = SharedPrefsHelper.getInt(
+                              ESharedPreferences.user_id,
                             );
 
-                            if (job.isFavorite == true) {
-                              final result = await jobProvider
-                                  .removeFavoriteJob(favId: job.favJobId ?? 0);
-
-                              success = result['success'] as bool;
-                              final wasLastSavedJob =
-                                  result['wasLastSavedJob'] as bool;
-
-                              actionMessage = success
-                                  ? "Job removed from favorites"
-                                  : "Failed to remove job from favorites";
-
-                              if (wasLastSavedJob &&
-                                  onLastFavoriteRemoved != null) {
-                                onLastFavoriteRemoved!();
+                            if (userId != null) {
+                              if (job.id == null ||
+                                  (job.isFavorite == true &&
+                                      job.favJobId == null)) {
+                                CustomSnackbar.show("Invalid JobData", true);
+                                return;
                               }
-                            } else {
-                              success = await jobProvider.saveFavoriteJob(
-                                userId: int.parse(userId.toString()),
-                                jobId: job.id ?? 0,
-                              );
-                              actionMessage = success
-                                  ? "Job saved to favorites"
-                                  : "Failed to save job to favorites";
-                            }
 
-                            isLoading.value = false;
-                            /* if (success) {
+                              isLoading.value = true;
+                              bool success;
+                              String actionMessage;
+
+                              final jobProvider = Provider.of<JobProvider>(
+                                context,
+                                listen: false,
+                              );
+
+                              if (job.isFavorite == true) {
+                                final result = await jobProvider
+                                    .removeFavoriteJob(
+                                      favId: job.favJobId ?? 0,
+                                    );
+
+                                success = result['success'] as bool;
+                                final wasLastSavedJob =
+                                    result['wasLastSavedJob'] as bool;
+
+                                actionMessage = success
+                                    ? "Job removed from favorites"
+                                    : "Failed to remove job from favorites";
+
+                                if (wasLastSavedJob &&
+                                    onLastFavoriteRemoved != null) {
+                                  onLastFavoriteRemoved!();
+                                }
+                              } else {
+                                success = await jobProvider.saveFavoriteJob(
+                                  userId: int.parse(userId.toString()),
+                                  jobId: job.id ?? 0,
+                                );
+                                actionMessage = success
+                                    ? "Job saved to favorites"
+                                    : "Failed to save job to favorites";
+                              }
+
+                              isLoading.value = false;
+                              /* if (success) {
                               CustomSnackbar.show(actionMessage, false);
                             } */
-                          }
-                        },
-                        child: CustomNetworkImage(
-                          height: 20,
-                          width: 20,
-                          color: job.isFavorite == true
-                              ? Constants.darkBlue
-                              : Constants.subtitleclr,
-                          imageUrl: job.isFavorite == true
-                              ? CustomIconUrl.savedicon
-                              : CustomIconUrl.saveicon,
-                          defaultIcon: job.isFavorite == true
-                              ? Icons.bookmark_outlined
-                              : Icons.bookmark_border_outlined,
-                        ),
-                      );
-              },
+                            }
+                          },
+                          child: CustomNetworkImage(
+                            height: 20,
+                            width: 20,
+                            color: job.isFavorite == true
+                                ? Constants.darkBlue
+                                : Constants.subtitleclr,
+                            imageUrl: job.isFavorite == true
+                                ? CustomIconUrl.savedicon
+                                : CustomIconUrl.saveicon,
+                            defaultIcon: job.isFavorite == true
+                                ? Icons.bookmark_outlined
+                                : Icons.bookmark_border_outlined,
+                          ),
+                        );
+                },
+              ),
             ),
-          ),
-          const SizedBox(height: 5),
-          _buildInfoRow(
-            Icons.work_outline_outlined,
-            formatExperience(
-              job.experienceRequired.toString().replaceAll('Years', 'yrs'),
+            const SizedBox(height: 5),
+            _buildInfoRow(
+              Icons.work_outline_outlined,
+              formatExperience(
+                job.experienceRequired.toString().replaceAll('Years', 'yrs'),
+              ),
             ),
-          ),
-          const SizedBox(height: 5),
-          _buildInfoRow(Icons.currency_rupee, _formatSalary(job.salaryRange)),
-          const SizedBox(height: 5),
-          _buildInfoRow(
-            Icons.location_on_outlined,
-            job.locationWithWorkType ?? '',
-          ),
-          const SizedBox(height: 5),
-          if (job.languages != null && job.languages != "[]") ...[
-            Builder(
-              builder: (context) {
-                List<String> languages = List<String>.from(
-                  jsonDecode(job.languages!),
-                );
-                List<String> filteredLanguages = languages
-                    .map((e) => e.trim())
-                    .where(
-                      (lang) => ![
-                        "english",
-                        "hindi",
-                        "marathi",
-                      ].contains(lang.toLowerCase()),
-                    )
-                    .toList();
-                if (filteredLanguages.isNotEmpty) {
-                  return _buildLanguageRow(filteredLanguages);
-                }
-                return const SizedBox.shrink();
-              },
+            const SizedBox(height: 5),
+            _buildInfoRow(Icons.currency_rupee, _formatSalary(job.salaryRange)),
+            const SizedBox(height: 5),
+            _buildInfoRow(
+              Icons.location_on_outlined,
+              job.locationWithWorkType ?? '',
+            ),
+            const SizedBox(height: 5),
+            if (job.languages != null && job.languages != "[]") ...[
+              Builder(
+                builder: (context) {
+                  List<String> languages = List<String>.from(
+                    jsonDecode(job.languages!),
+                  );
+                  List<String> filteredLanguages = languages
+                      .map((e) => e.trim())
+                      .where(
+                        (lang) => ![
+                          "english",
+                          "hindi",
+                          "marathi",
+                        ].contains(lang.toLowerCase()),
+                      )
+                      .toList();
+                  if (filteredLanguages.isNotEmpty) {
+                    return _buildLanguageRow(filteredLanguages);
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
+            const SizedBox(height: 10),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              alignment: WrapAlignment.start,
+              children: [
+                customText(title: "Skills : ", color: colors.textPrimary),
+                ...skills.take(10).toList().asMap().entries.map((entry) {
+                  final skillIndex = entry.key;
+                  final value = entry.value;
+                  final isLast = skillIndex == skills.take(10).length - 1;
+                  return customText(
+                    title: isLast
+                        ? value + (skills.length > 10 ? '...' : '.')
+                        : '$value, ',
+                    overflow: TextOverflow.ellipsis,
+                    fontStyle: FontStyle.italic,
+                    softwrap: true,
+                    color: Constants.subtitleclr,
+                  );
+                }),
+              ],
             ),
           ],
-          const SizedBox(height: 10),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            alignment: WrapAlignment.start,
-            children: [
-              customText(title: "Skills : ", color: colors.textPrimary),
-              ...skills.take(10).toList().asMap().entries.map((entry) {
-                final skillIndex = entry.key;
-                final value = entry.value;
-                final isLast = skillIndex == skills.take(10).length - 1;
-                return customText(
-                  title: isLast
-                      ? value + (skills.length > 10 ? '...' : '.')
-                      : '$value, ',
-                  overflow: TextOverflow.ellipsis,
-                  fontStyle: FontStyle.italic,
-                  softwrap: true,
-                  color: Constants.subtitleclr,
-                );
-              }),
-            ],
-          ),
         ],
       ),
     );

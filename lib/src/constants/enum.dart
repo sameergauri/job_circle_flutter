@@ -67,7 +67,7 @@ enum EUserType {
   final num value;
 }
 
-enum FromWhere { homePage, appliedPage, referalPage }
+enum FromWhere { homePage, appliedPage, referalPage, myJobs }
 
 enum InvoiceTab { invoicesent, validation, paid, reject, incorrect }
 
@@ -82,7 +82,7 @@ enum FromEditOrAdd { edit, add }
 enum PrefTextFieldType { Industry, JobRole, WorkMode, ShiftTime, Location }
 
 enum QuestionType {
-    SINGLE_SELECT,MULTIPLE_SELECT,NUMERIC
+    SINGLE_SELECT,MULTIPLE_SELECT,NUMERIC, YES_NO
 }
 
 enum JobDetailType {
@@ -97,3 +97,11 @@ enum JobDetailType {
 enum ConListType{
   JobBenefits, Certificate
 }
+
+enum CompanyType { DIRECT_EMPLOYER, CONSULTANT_STAFFING, RECRUITER_TA }
+
+enum MemberRole { OWNER, RECRUITER }
+
+enum OrganizationType { PROPRIETORSHIP, PARTNERSHIP, PVT_LTD, PUBLIC_LTD }
+
+enum ForNewJob {NEW, OLD}
