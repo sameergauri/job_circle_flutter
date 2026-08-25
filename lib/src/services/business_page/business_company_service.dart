@@ -45,9 +45,7 @@ class BusinessCompanyService {
     final url = isEdit
         ? '${GlobalConstants.createcompanyForHome}$userId?companyId=$companyId'
         : '${GlobalConstants.createcompanyForHome}$userId';
-
     final uri = Uri.parse(url);
-
     try {
       final response = isEdit
           ? await http.put(
@@ -60,7 +58,6 @@ class BusinessCompanyService {
               headers: {'Content-Type': 'application/json'},
               body: json.encode(body),
             );
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['resultKey'] == 'SUCCESS') {

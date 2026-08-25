@@ -49,23 +49,32 @@ class CustomBottomSheet {
                         ),
                       ),
                       SizedBox(height: 10),
-                      RadioListTile<ThemeMode>(
-                        title: const Text("Light Mode"),
-                        value: ThemeMode.light,
-                        groupValue: themeProvider.themeMode,
-                        onChanged: (mode) => themeProvider.setTheme(mode!),
+                      Material(
+                        color: Colors.transparent,
+                        child: RadioListTile<ThemeMode>(
+                          title: const Text("Light Mode"),
+                          value: ThemeMode.light,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (mode) => themeProvider.setTheme(mode!),
+                        ),
                       ),
-                      RadioListTile<ThemeMode>(
-                        title: const Text("Dark Mode"),
-                        value: ThemeMode.dark,
-                        groupValue: themeProvider.themeMode,
-                        onChanged: (mode) => themeProvider.setTheme(mode!),
+                      Material(
+                        color: Colors.transparent,
+                        child: RadioListTile<ThemeMode>(
+                          title: const Text("Dark Mode"),
+                          value: ThemeMode.dark,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (mode) => themeProvider.setTheme(mode!),
+                        ),
                       ),
-                      RadioListTile<ThemeMode>(
-                        title: const Text("System Default"),
-                        value: ThemeMode.system,
-                        groupValue: themeProvider.themeMode,
-                        onChanged: (mode) => themeProvider.setTheme(mode!),
+                      Material(
+                        color: Colors.transparent,
+                        child: RadioListTile<ThemeMode>(
+                          title: const Text("System Default"),
+                          value: ThemeMode.system,
+                          groupValue: themeProvider.themeMode,
+                          onChanged: (mode) => themeProvider.setTheme(mode!),
+                        ),
                       ),
                     ],
                   );

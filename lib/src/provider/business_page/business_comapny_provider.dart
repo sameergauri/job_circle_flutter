@@ -268,6 +268,9 @@ class BusinessCompanyProvider extends ChangeNotifier {
       'isNoDomainEmail': _isNoDomainEmail,
       'companyType': _companyType,
       'documentType': _selectedDocumentType,
+      'companyName': _editingCompanyId != null && _editingCompanyId != 0
+          ? null
+          : suggestionSelectedFirmController.text,
       if (_memberRole == 'OWNER') ...{
         'firmLegalName': firmLegalNameController.text.trim(),
         'brandName': brandNameController.text.trim(),

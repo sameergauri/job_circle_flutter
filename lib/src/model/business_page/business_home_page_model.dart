@@ -60,6 +60,7 @@ class BusinessCompany {
   final String? documentUrl;
   final String? approvalStatus;
   final String? joinedAt;
+ 
 
   BusinessCompany({
     required this.id,

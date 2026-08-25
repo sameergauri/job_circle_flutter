@@ -230,11 +230,12 @@ class CustomJobCard extends StatelessWidget {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  customText(
-                    title: job.businessCompanyCity!,
-                    fontSize: 12,
-                    color: colors.headingColor,
-                  ),
+                  if (job.businessCompanyCity != null)
+                    customText(
+                      title: job.businessCompanyCity!,
+                      fontSize: 12,
+                      color: colors.headingColor,
+                    ),
                   customText(
                     title: 'No application available yet',
                     fontSize: 12,

@@ -10,6 +10,19 @@ import 'package:job_circle/src/services/business_job/business_job_service.dart';
 class BusinessJobProvider extends ChangeNotifier {
   final BusinessJobService _service = BusinessJobService();
 
+
+  String selectedReasonOption = '';
+
+  void selectReasonNotShowOption(String option) {
+    selectedReasonOption = option;
+    if (option != "Other") {
+      reasonForNotshowToCandidate.text = option;
+    } else {
+      reasonForNotshowToCandidate.clear();
+    }
+    notifyListeners();
+  }
+
   // ====================================================================
   // ========================== Close Job ===============================
   // ====================================================================
@@ -1007,6 +1020,7 @@ class BusinessJobProvider extends ChangeNotifier {
     englishCommsRating = '';
     genderPreference = '';
     experienceRequired = '';
+    selectedReasonOption = '';
     _selectedCompanyId = 0;
 
     isPerMonth = true;

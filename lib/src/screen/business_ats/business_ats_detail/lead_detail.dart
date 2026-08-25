@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/model/business_ats/business_ats_model.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -10,8 +9,9 @@ class LeadDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
-      backgroundColor: Constants.white,
+      backgroundColor: colors.bgColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Column(
@@ -20,15 +20,16 @@ class LeadDetail extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 5),
               child: Row(
                 children: [
-                  const customText(
+                  customText(
                     title: "Lead ID : ",
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
+                    color: colors.headingColor,
                   ),
                   customText(
                     title: applicant.leadId.toString(),
                     fontSize: 14,
-                    color: Constants.subtitleclr,
+                    color: colors.subTitleColor,
                   ),
                 ],
               ),
@@ -37,10 +38,11 @@ class LeadDetail extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 5),
               child: Row(
                 children: [
-                  const customText(
+                  customText(
                     title: "Lead Generation Date : ",
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
+                    color: colors.headingColor,
                   ),
                   customText(
                     title: /*  applicant.dol != null
@@ -50,7 +52,7 @@ class LeadDetail extends StatelessWidget {
                         ? applicant.dolFormatted!
                         : "Not Available",
                     fontSize: 14,
-                    color: Constants.subtitleclr,
+                    color: colors.subTitleColor,
                   ),
                 ],
               ),
@@ -59,10 +61,11 @@ class LeadDetail extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 5),
               child: Row(
                 children: [
-                  const customText(
+                  customText(
                     title: "Last Update at : ",
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
+                    color: colors.headingColor,
                   ),
                   customText(
                     title: /*  applicant.dol != null
@@ -72,7 +75,7 @@ class LeadDetail extends StatelessWidget {
                         ? applicant.dotFormatted!
                         : "Not Available",
                     fontSize: 14,
-                    color: Constants.subtitleclr,
+                    color: colors.subTitleColor,
                   ),
                 ],
               ),

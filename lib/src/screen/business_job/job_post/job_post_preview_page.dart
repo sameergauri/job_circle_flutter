@@ -12,6 +12,7 @@ import 'package:job_circle/src/model/job_model/job_detail_page_model.dart'
 import 'package:job_circle/src/model/location_model.dart';
 import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
 import 'package:job_circle/src/provider/business_job/screening_question_provider.dart';
+import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_container_for_job_elegibility.dart';
 import 'package:job_circle/src/screen/Jobs/custom_job_detail_cards/custom_job_headline.dart';
@@ -29,7 +30,11 @@ import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
 
 class JobPostPreviewPage extends StatefulWidget {
-  const JobPostPreviewPage({super.key});
+  // When NEW: the company hasn't been created yet — "Post Job" here must
+  // create the company first, then post the job under it, together.
+  final ForNewJob forNewJob;
+
+  const JobPostPreviewPage({super.key, this.forNewJob = ForNewJob.OLD});
 
   @override
   State<JobPostPreviewPage> createState() => _JobPostPreviewPageState();
@@ -37,6 +42,7 @@ class JobPostPreviewPage extends StatefulWidget {
 
 class _JobPostPreviewPageState extends State<JobPostPreviewPage> {
   int _postSelectedTab = 0;
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -68,35 +74,78 @@ class _JobPostPreviewPageState extends State<JobPostPreviewPage> {
                 child: CustomButtonForSave(
                   title: provider.isEditMode ? "Update Job" : "Post Job",
                   onTap: () async {
-                    int userid = SharedPrefsHelper.getInt(
-                      ESharedPreferences.user_id,
-                    );
-                    final jobProvider = context.read<JobProvider>();
-                    final scq = context.read<ScreeningQuestionProvider>();
-                    final success = await provider.submitFinalJob(
-                      userId: userid,
-                      ScreeningQuestion: convertToScreeningQuestions(
-                        tempQuestions: scq.savedQuestions,
-                        forJobDetail: true,
-                      ),
-                    );
-                    if (success) {
-                      CustomSnackbar.show(
-                        provider.isEditMode
-                            ? "Job updated successfully!"
-                            : "Job posted successfully! Pending admin approval.",
-                        false,
+                    // Guard against double-tap: the company-creation phase of
+                    // the combined flow isn't covered by provider.isLoading
+                    // (that's BusinessJobProvider, not BusinessCompanyProvider),
+                    // so without this the button stays tappable mid-submit.
+                    if (_isSubmitting) return;
+                    setState(() => _isSubmitting = true);
+                    try {
+                      int userid = SharedPrefsHelper.getInt(
+                        ESharedPreferences.user_id,
                       );
-                      await jobProvider.fetchJobs(
-                        isRefresh: true,
-                        applyCityFilter: false,
+                      final jobProvider = context.read<JobProvider>();
+                      final scq = context.read<ScreeningQuestionProvider>();
+
+                      if (widget.forNewJob == ForNewJob.NEW) {
+                        final companyProvider = context
+                            .read<BusinessCompanyProvider>();
+                        final beforeIds = companyProvider.companies
+                            .map((c) => c.id)
+                            .toSet();
+                        final companySuccess = await companyProvider
+                            .submitCompanyForm(userId: userid);
+                        if (!context.mounted) return;
+                        if (!companySuccess) {
+                          CustomSnackbar.show(
+                            "Getting error while creating company.",
+                            true,
+                          );
+                          return;
+                        }
+                        final newCompany = companyProvider.companies
+                            .firstWhere(
+                              (c) => !beforeIds.contains(c.id),
+                              orElse: () => companyProvider.companies.first,
+                            );
+                        provider.setSelectedCompanyId(newCompany.id);
+                      }
+
+                      final success = await provider.submitFinalJob(
+                        userId: userid,
+                        ScreeningQuestion: convertToScreeningQuestions(
+                          tempQuestions: scq.savedQuestions,
+                          forJobDetail: true,
+                        ),
                       );
-                      NavigationService.pop();
-                    } else {
-                      CustomSnackbar.show(
-                        "Getting error while job post.",
-                        true,
-                      );
+                      if (success) {
+                        CustomSnackbar.show(
+                          provider.isEditMode
+                              ? "Job updated successfully!"
+                              : "Job posted successfully! Pending admin approval.",
+                          false,
+                        );
+                        await jobProvider.fetchJobs(
+                          isRefresh: true,
+                          applyCityFilter: false,
+                        );
+                        if (!context.mounted) return;
+                        if (widget.forNewJob == ForNewJob.NEW) {
+                          Navigator.popUntil(
+                            context,
+                            (route) => route.isFirst,
+                          );
+                        } else {
+                          NavigationService.pop();
+                        }
+                      } else {
+                        CustomSnackbar.show(
+                          "Getting error while job post.",
+                          true,
+                        );
+                      }
+                    } finally {
+                      if (mounted) setState(() => _isSubmitting = false);
                     }
                   },
                 ),
@@ -137,7 +186,8 @@ class _JobPostPreviewPageState extends State<JobPostPreviewPage> {
                 ],
               ),
             ),
-            if (provider.isLoading) const CustomLoadingIndicator(),
+            if (provider.isLoading || _isSubmitting)
+              const CustomLoadingIndicator(),
           ],
         );
       },

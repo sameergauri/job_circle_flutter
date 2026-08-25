@@ -33,7 +33,7 @@ class _BusinessHomePageState extends State<BusinessHomePage> {
       appBar: AppBar(
         backgroundColor: colors.appbarColor,
         title: customText(
-          title: 'My Companies',
+          title: 'Business Pages',
           fontSize: 18,
           color: colors.headingColor,
         ),
@@ -45,7 +45,9 @@ class _BusinessHomePageState extends State<BusinessHomePage> {
               context.read<BusinessCompanyProvider>().resetForm();
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => CreateCompanyPage(forNewJob: ForNewJob.OLD,)),
+                MaterialPageRoute(
+                  builder: (_) => CreateCompanyPage(forNewJob: ForNewJob.OLD),
+                ),
               ).then((_) {
                 // Refresh after coming back
                 context.read<BusinessCompanyProvider>().loadMyCompanies();
@@ -111,7 +113,10 @@ class _BusinessHomePageState extends State<BusinessHomePage> {
                       context.read<BusinessCompanyProvider>().resetForm();
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => CreateCompanyPage(forNewJob: ForNewJob.OLD)),
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              CreateCompanyPage(forNewJob: ForNewJob.OLD),
+                        ),
                       );
                     },
                     icon: const Icon(Icons.add),

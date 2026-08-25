@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/business_ats/business_ats_model.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -9,6 +10,7 @@ class ScreeningQuestionAnswer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     final screening = applicantData.screeningAnswers;
     final answers = screening?.answers ?? [];
 
@@ -24,7 +26,7 @@ class ScreeningQuestionAnswer extends StatelessWidget {
     final int total = screening.totalQuestions ?? answers.length;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: colors.bgColor,
       body: CustomScrollView(
         slivers: [
           // 1. Top Score Summary Banner
@@ -60,21 +62,18 @@ class ScreeningQuestionAnswer extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Screening Assessment",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        const customText(
+                          title: "Screening Assessment style: TextStyle",
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          "Correct answers: $score out of $total",
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 14,
-                          ),
+                        customText(
+                          title: "Correct answers: $score out of $total",
+
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 12,
                         ),
                       ],
                     ),
@@ -136,7 +135,7 @@ class ScreeningQuestionAnswer extends StatelessWidget {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colors.bottomsheetbgColor,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: Colors.grey.shade200),
                     boxShadow: [
@@ -160,6 +159,7 @@ class ScreeningQuestionAnswer extends StatelessWidget {
                               currentAnswer.questionText ??
                               "Missing Question Statement",
                           fontWeight: FontWeight.bold,
+                          color: colors.headingColor,
                         ),
                       ),
 
@@ -170,6 +170,7 @@ class ScreeningQuestionAnswer extends StatelessWidget {
                           contents: _getOptionList(currentAnswer),
                           isSuccessColor: correct,
                           questionType: mappedType,
+                          colors: colors,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -204,6 +205,7 @@ class ScreeningQuestionAnswer extends StatelessWidget {
     required List<String> contents,
     required bool? isSuccessColor,
     required QuestionType questionType,
+    required AppColors colors,
   }) {
     Color bg = Colors.grey.shade100;
     Color border = Colors.grey.shade200;
@@ -216,7 +218,6 @@ class ScreeningQuestionAnswer extends StatelessWidget {
       border = isSuccessColor ? Colors.green.shade100 : Colors.red.shade100;
       textColor = isSuccessColor ? Colors.green.shade900 : Colors.red.shade900;
     }
-
     // Generator function for standard row row layouts
     Widget rowContainer(String itemText) {
       return Container(
@@ -232,13 +233,12 @@ class ScreeningQuestionAnswer extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Expanded(
-              child: Text(
-                itemText,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
+              child: customText(
+                title: itemText,
+
+                color: colors.headingColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
             Container(

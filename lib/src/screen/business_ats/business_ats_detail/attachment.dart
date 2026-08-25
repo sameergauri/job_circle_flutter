@@ -18,8 +18,9 @@ class AtsAttachment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.appColors;
     return Scaffold(
-      backgroundColor: Constants.white,
+      backgroundColor: colors.bgColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
         child: Column(

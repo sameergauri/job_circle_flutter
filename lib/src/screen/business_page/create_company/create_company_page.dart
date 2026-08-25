@@ -10,6 +10,7 @@ import 'package:job_circle/src/screen/business_page/create_company/page3_registe
 import 'package:job_circle/src/screen/business_page/create_company/page4_identity_verification.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page5_documents.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page6_decleration.dart';
+import 'package:job_circle/src/screen/business_job/Job_post_master_page.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
@@ -119,6 +120,14 @@ class CreateCompanyPage extends StatelessWidget {
   ) {
     final currentIndex = provider.currentPageIndex;
 
+    final bool isForNewJob = forNewJob == ForNewJob.NEW;
+    // For the combined "post job for a new company" flow, Identity
+    // Verification, Documents and Declaration (indexes 3, 4, 5) all move to
+    // after the job-post form — so Registered Office (OWNER) / Role
+    // Selection (non-OWNER) becomes the last step shown here.
+    final bool isLastStepForNewJob =
+        isForNewJob && _isLastStepBeforeJobPost(currentIndex, provider.memberRole);
+
     // Default title mapping for pages
     String buttonTitle = 'Save & Continue';
     if (currentIndex == 0) {
@@ -126,7 +135,12 @@ class CreateCompanyPage extends StatelessWidget {
     } else if (currentIndex == 3 || currentIndex == 4) {
       buttonTitle = 'Submit';
     } else if (currentIndex == 5) {
-      buttonTitle = provider.isEditMode ? 'Update Company' : 'I Agree';
+      buttonTitle = isForNewJob
+          ? 'Continue'
+          : (provider.isEditMode ? 'Update Company' : 'I Agree');
+    }
+    if (isLastStepForNewJob) {
+      buttonTitle = 'Continue';
     }
 
     return CustomButtonForSave(
@@ -134,6 +148,15 @@ class CreateCompanyPage extends StatelessWidget {
       title: buttonTitle,
       // isLoading: provider.isCreating,
       onTap: () async {
+        if (isLastStepForNewJob) {
+          // Company isn't created yet here — Identity Verification,
+          // Documents and Declaration are collected after the job-post form,
+          // and everything gets created together when "Post Job" is tapped.
+          NavigationService.push(
+            JobPostMasterScreen(forNewJob: ForNewJob.NEW),
+          );
+          return;
+        }
         // Final Page logic
         if (currentIndex == 5) {
           int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
@@ -161,5 +184,14 @@ class CreateCompanyPage extends StatelessWidget {
         }
       },
     );
+  }
+
+  // NEW flow only: after this step, control passes into JobPostMasterScreen
+  // (Identity Verification / Documents / Declaration are asked there instead).
+  bool _isLastStepBeforeJobPost(int currentIndex, String? memberRole) {
+    if (memberRole == 'OWNER') {
+      return currentIndex == 2; // after Registered Office
+    }
+    return currentIndex == 0; // right after role selection
   }
 }
