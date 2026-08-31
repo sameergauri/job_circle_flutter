@@ -9,10 +9,10 @@ class GlobalConstants {
       ?
         //TODO:: For App
         // ec2
-        // "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
+        "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
         // local
         // "192.168.1.103:8081"
-        "192.168.1.102:9090"
+        // "192.168.1.102:9090"
       //TODO:: For Website......
       : "api.jobcircle.co.in";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";

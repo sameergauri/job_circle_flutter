@@ -503,7 +503,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                       bottom: kToolbarHeight / 2,
                     ),
                     child: customText(
-                      title: 'Version 1.1.16',
+                      title: 'Version 1.1.18',
                       fontSize: 10,
                       fontWeight: FontWeight.normal,
                       fontStyle: FontStyle.italic,
