@@ -6,12 +6,9 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
-import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
 import 'package:job_circle/src/provider/business_page/company_member_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
-import 'package:job_circle/src/screen/business_page/business_home_page.dart';
-import 'package:job_circle/src/screen/business_page/create_company/create_company_page.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
@@ -285,7 +282,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               },
             ),
             // --- Conditional Job Post / Manage Company Buttons ---
-            Consumer<CompanyMembershipProvider>(
+            /* Consumer<CompanyMembershipProvider>(
               builder: (context, membershipProvider, _) {
                 final memberships = membershipProvider.memberships;
                 final bool hasNoCompany = memberships.isEmpty;
@@ -356,7 +353,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ],
                 );
               },
-            ),
+            ), */
             /*   CustomListTile(
               contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
@@ -374,7 +371,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
               ),
               onTap: () async {
                 NavigationService.push(
-                  JobPostStartPageForConsultancy(isEdit: false),
+                  JobPostStartPageForConsultancy(
+                    isEdit: false,
+                    isConsultancy: true,
+                  ),
                 );
                 widget.onClose();
               },

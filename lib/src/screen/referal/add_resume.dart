@@ -248,8 +248,16 @@ class _AddResumeState extends State<AddResume> {
                               color: colors.headingColor,
                             ),
                             CustomTextFieldforAll(
-                              isPrimaryNumber: true,
-                              isDisabled: false,
+                              isPrimaryNumber:
+                                  provider.contactnumber.text != null &&
+                                      provider.contactnumber.text != ""
+                                  ? true
+                                  : false,
+                              isDisabled:
+                                  provider.contactnumber.text != null &&
+                                      provider.contactnumber.text != ''
+                                  ? false
+                                  : true,
                               maxLength: 10,
                               isNumber: true,
                               controller: provider.contactnumber,

@@ -9,8 +9,11 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/model/business_page/business_home_page_model.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
+import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
+import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
 import 'package:job_circle/src/screen/business_ats/business_ats_home_screen.dart';
@@ -81,6 +84,103 @@ class _JobHomePageState extends State<JobHomePage> {
       '',
     );
     Provider.of<JobProvider>(context, listen: false).updateCityFilter(null);
+  }
+
+  /// "My Jobs" tab's floating action button: pick which approved company to
+  /// post this job under (skip the picker when there's only one), then carry
+  /// that company's industry/consultancy status into the job-post form.
+  Future<void> _handlePostJobTap(BuildContext context) async {
+    final companyProvider = Provider.of<BusinessCompanyProvider>(
+      context,
+      listen: false,
+    );
+    await companyProvider.loadMyCompanies();
+    final approvedCompanies = companyProvider.companies
+        .where((c) => c.isApproved)
+        .toList();
+
+    if (approvedCompanies.isEmpty) {
+      NavigationService.push(JobPostMasterScreen(isEdit: false));
+      return;
+    }
+
+    BusinessCompany? selectedCompany;
+    if (approvedCompanies.length == 1) {
+      selectedCompany = approvedCompanies.first;
+    } else {
+      if (!context.mounted) return;
+      selectedCompany = await _showCompanyPickerMenu(context, approvedCompanies);
+    }
+
+    if (selectedCompany == null) return;
+
+    final jobProvider = Provider.of<BusinessJobProvider>(
+      context,
+      listen: false,
+    );
+    jobProvider.setSelectedCompanyId(selectedCompany.id);
+    jobProvider.industryController.text = selectedCompany.industryType ?? '';
+    jobProvider.suggestionSelectedFirmController.text =
+        selectedCompany.companyName;
+
+    final hasIndustry = (selectedCompany.industryType ?? '').trim().isNotEmpty;
+    final isConsultancyCompany = selectedCompany.companyType == 'CONSULTANT';
+
+    if (!context.mounted) return;
+    NavigationService.push(
+      JobPostMasterScreen(
+        isEdit: false,
+        hideIndustryFieldOnStep1: hasIndustry,
+        showHiringForOnStep1: isConsultancyCompany,
+      ),
+    );
+  }
+
+  Future<BusinessCompany?> _showCompanyPickerMenu(
+    BuildContext context,
+    List<BusinessCompany> companies,
+  ) {
+    final colors = context.appColors;
+    final size = MediaQuery.of(context).size;
+    return showMenu<BusinessCompany>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        size.width - 16,
+        size.height - 160,
+        16,
+        16,
+      ),
+      color: colors.appbarColor,
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      items: companies.map((company) {
+        return PopupMenuItem<BusinessCompany>(
+          value: company,
+          height: 38,
+          child: Row(
+            children: [
+              Icon(
+                Icons.business_outlined,
+                size: 18,
+                color: colors.headingColor,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  company.companyName,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: colors.headingColor,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
 
   void toggleTab(String tab) {
@@ -258,15 +358,7 @@ class _JobHomePageState extends State<JobHomePage> {
               floatingActionButton: selectedTab == "My Jobs"
                   ? FloatingActionButton(
                       backgroundColor: customColors.appbarColor,
-                      onPressed: () {
-                        NavigationService.push(
-                          JobPostMasterScreen(
-                            //jobId: job.id,
-                            isEdit: false,
-                            //existingJob: businessJobProvider.jobPost,
-                          ),
-                        );
-                      },
+                      onPressed: () => _handlePostJobTap(context),
                       child: Icon(Icons.add, color: customColors.headingColor),
                     )
                   : SizedBox.shrink(),

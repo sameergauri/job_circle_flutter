@@ -215,6 +215,30 @@ class CustomJobCard extends StatelessWidget {
                   ),
                 ],
               ),
+              leading: Container(
+                padding: const EdgeInsets.all(4),
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Constants.lightdull,
+                  border: Border.all(color: colors.textColor!),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child:
+                    job.companyIcon != null &&
+                        job.companyIcon != "" &&
+                        job.companyIcon != " "
+                    ? CustomNetworkImage(
+                        imageUrl:
+                            "${GlobalConstants.Image_url}${job.companyIcon}",
+                        defaultIcon: Icons.home,
+                      )
+                    : Image.network(
+                        CustomIconUrl.companyicon,
+                        fit: BoxFit.contain,
+                        color: colors.unselectedNavTabIconColor,
+                      ),
+              ),
               title: customText(
                 title: job.roleForBusinessHiring!,
                 fontWeight: FontWeight.w700,
@@ -230,9 +254,9 @@ class CustomJobCard extends StatelessWidget {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (job.businessCompanyCity != null)
+                  if (job.location != null)
                     customText(
-                      title: job.businessCompanyCity!,
+                      title: job.location!,
                       fontSize: 12,
                       color: colors.headingColor,
                     ),

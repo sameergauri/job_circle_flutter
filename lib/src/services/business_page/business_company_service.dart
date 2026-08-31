@@ -36,16 +36,17 @@ class BusinessCompanyService {
   }
 
   /// Create / Update Company Payload Endpoint
-  Future<bool> saveCompanyPayload({
+ Future<int?> saveCompanyPayload({
     required int userId,
     required Map<String, dynamic> body,
     int? companyId,
   }) async {
-    final isEdit = companyId != null;
+    final isEdit = companyId != null && companyId != 0;
     final url = isEdit
         ? '${GlobalConstants.createcompanyForHome}$userId?companyId=$companyId'
         : '${GlobalConstants.createcompanyForHome}$userId';
     final uri = Uri.parse(url);
+
     try {
       final response = isEdit
           ? await http.put(
@@ -58,10 +59,18 @@ class BusinessCompanyService {
               headers: {'Content-Type': 'application/json'},
               body: json.encode(body),
             );
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['resultKey'] == 'SUCCESS') {
-          return true;
+          // Extracts ID from resultData (handles int ID or nested object)
+          final resultData = jsonResponse['resultData'];
+          if (resultData is Map && resultData['id'] != null) {
+            return int.tryParse(resultData['id'].toString());
+          } else if (resultData is int) {
+            return resultData;
+          }
+          return companyId ?? 1; // Fallback success indicator
         } else {
           throw Exception(jsonResponse['errorMessage'] ?? 'Operation failed');
         }

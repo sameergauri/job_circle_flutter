@@ -805,6 +805,10 @@ class BusinessJobProvider extends ChangeNotifier {
       CustomSnackbar.show("Enter Hiring for", true);
       return false;
     }
+    if (industryController.text.isEmpty) {
+      CustomSnackbar.show("Enter Job Industry", true);
+      return false;
+    }
     if (_shouldShowToCandidate && reasonForNotshowToCandidate.text.isEmpty) {
       CustomSnackbar.show("Enter reason for not show to the candidate", true);
       return false;
@@ -833,10 +837,10 @@ class BusinessJobProvider extends ChangeNotifier {
       CustomSnackbar.show("Enter functional area", true);
       return false;
     }
-    if (industryController.text.isEmpty) {
+    /*  if (industryController.text.isEmpty) {
       CustomSnackbar.show("Enter Job Industry", true);
       return false;
-    }
+    } */
     if (jobHeadlineController.text.isEmpty) {
       CustomSnackbar.show("Enter Job Headline", true);
       return false;

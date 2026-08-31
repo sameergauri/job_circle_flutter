@@ -73,53 +73,101 @@ class _JobPostPreviewPageState extends State<JobPostPreviewPage> {
               bottomNavigationBar: SafeArea(
                 child: CustomButtonForSave(
                   title: provider.isEditMode ? "Update Job" : "Post Job",
+                  // lib/src/screen/business_job/job_post/job_post_preview_page.dart (Snippet of Submit Logic)
+
+                  // Inside _JobPostPreviewPageState onTap handler:
                   onTap: () async {
-                    // Guard against double-tap: the company-creation phase of
-                    // the combined flow isn't covered by provider.isLoading
-                    // (that's BusinessJobProvider, not BusinessCompanyProvider),
-                    // so without this the button stays tappable mid-submit.
                     if (_isSubmitting) return;
                     setState(() => _isSubmitting = true);
                     try {
-                      int userid = SharedPrefsHelper.getInt(
+                      final int userId = SharedPrefsHelper.getInt(
                         ESharedPreferences.user_id,
                       );
                       final jobProvider = context.read<JobProvider>();
                       final scq = context.read<ScreeningQuestionProvider>();
+                      final companyProvider = context
+                          .read<BusinessCompanyProvider>();
 
                       if (widget.forNewJob == ForNewJob.NEW) {
-                        final companyProvider = context
-                            .read<BusinessCompanyProvider>();
-                        // Captured before submitCompanyForm, since a
-                        // successful submit resets the company form (which
-                        // would clear this back to null).
-                        final selectedCompanyId =
+                        final isDirectOwner =
+                            companyProvider.companyType == 'DIRECT_EMPLOYER' &&
+                            companyProvider.memberRole == 'OWNER';
+                        final isConsultancyOwner =
+                            companyProvider.companyType == 'CONSULTANT' &&
+                            companyProvider.memberRole == 'OWNER';
+                        final isDirectRecruiter =
+                            companyProvider.companyType == 'DIRECT_EMPLOYER' &&
+                            companyProvider.memberRole == 'RECRUITER';
+                        final isConsultancyRecruiter =
+                            companyProvider.companyType == 'CONSULTANT' &&
+                            companyProvider.memberRole == 'RECRUITER';
+
+                        int? finalCompanyId =
                             companyProvider.suggestedCompanyId;
-                        final companySuccess = await companyProvider
-                            .submitCompanyForm(userId: userid);
-                        if (!context.mounted) return;
-                        if (!companySuccess) {
-                          CustomSnackbar.show(
-                            "Getting error while creating company.",
-                            true,
-                          );
-                          return;
+
+                        // Determine if a new company record needs to be created on backend
+                        // (Whenever user didn't pick an existing company from suggestions)
+                        if (finalCompanyId == null || finalCompanyId == 0) {
+                          String? companyNameOverride;
+                          String? industryOverride;
+
+                          if (isDirectRecruiter) {
+                            companyNameOverride = companyProvider
+                                .suggestionSelectedFirmController
+                                .text
+                                .trim();
+                            industryOverride = provider.industryController.text
+                                .trim();
+                          } else if (isDirectOwner) {
+                            industryOverride = companyProvider
+                                .industryController
+                                .text
+                                .trim();
+                            // Ensure job post has the owner's industry
+                            provider.industryController.text = industryOverride;
+                          } else if (isConsultancyOwner) {
+                            industryOverride = companyProvider
+                                .industryController
+                                .text
+                                .trim();
+                          } else if (isConsultancyRecruiter) {
+                            companyNameOverride = companyProvider
+                                .suggestionSelectedFirmController
+                                .text
+                                .trim();
+                          }
+
+                          final createdCompanyId = await companyProvider
+                              .submitCompanyForm(
+                                userId: userId,
+                                companyNameOverride: companyNameOverride,
+                                industryTypeOverride: industryOverride,
+                              );
+
+                          if (!context.mounted) return;
+                          if (createdCompanyId == null) {
+                            CustomSnackbar.show(
+                              "Error creating company profile.",
+                              true,
+                            );
+                            return;
+                          }
+                          finalCompanyId = createdCompanyId;
                         }
-                        // Only link the job to a company if one was actually
-                        // picked from suggestions on Identity Verification —
-                        // a custom-typed name posts the job without one.
-                        if (selectedCompanyId != null) {
-                          provider.setSelectedCompanyId(selectedCompanyId);
-                        }
+
+                        // Link final company ID to the job post
+                        provider.setSelectedCompanyId(finalCompanyId);
                       }
 
+                      // Submit Final Job Post
                       final success = await provider.submitFinalJob(
-                        userId: userid,
+                        userId: userId,
                         ScreeningQuestion: convertToScreeningQuestions(
                           tempQuestions: scq.savedQuestions,
                           forJobDetail: true,
                         ),
                       );
+
                       if (success) {
                         CustomSnackbar.show(
                           provider.isEditMode
@@ -133,23 +181,20 @@ class _JobPostPreviewPageState extends State<JobPostPreviewPage> {
                         );
                         if (!context.mounted) return;
                         if (widget.forNewJob == ForNewJob.NEW) {
-                          Navigator.popUntil(
-                            context,
-                            (route) => route.isFirst,
-                          );
+                          Navigator.popUntil(context, (route) => route.isFirst);
                         } else {
-                          NavigationService.pop();
+                          Navigator.pop(context);
                         }
                       } else {
                         CustomSnackbar.show(
-                          "Getting error while job post.",
+                          "Getting error while posting job.",
                           true,
                         );
                       }
                     } finally {
                       if (mounted) setState(() => _isSubmitting = false);
                     }
-                  },
+                  }
                 ),
               ),
               appBar: AppBar(

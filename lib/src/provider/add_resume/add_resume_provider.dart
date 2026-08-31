@@ -257,25 +257,46 @@ class ReferResumeProvider with ChangeNotifier {
         );
       }
     } catch (e) {
-      await showDialog(
-        barrierDismissible: false,
-        context: context,
-        builder: (_) => CustomDialogForConfirmation(
-          title: 'Error',
-          subtitle:
-              e.toString().contains(
-                    "Mobile number in CV does not match the provided mobile number",
-                  ) ||
-                  e.toString().contains("Mobile number")
-              ? "Mobile number in Resume does not match the number you entered."
-              : "Something went wrong try again",
-          button1text: 'Ok',
-          onlysinglebutton: true,
-          onYes: () {
-            NavigationService.pop();
-          },
-        ),
-      );
+      //TODO: temperory sollution
+      if (e.toString().contains(
+        "❌ Exception while calling API: Exception: Could not extract text from file: PDFGallery_20260822_194049.pdf. File may be corrupte",
+      )) {
+        setResume(cvLink);
+        // contactnumber.text = userNumber.toString();
+        NavigationService.push(
+          AddResume(
+            company_id: companyId,
+            jobId: jobId,
+            spocId: spocId,
+            company_name: companyName,
+            role: role,
+            process: process,
+            nature_of_work: natureOfWork,
+            userNumber: userNumber,
+            payoutDetails: payoutDetails,
+          ),
+        );
+      } else {
+        await showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (_) => CustomDialogForConfirmation(
+            title: 'Error',
+            subtitle:
+                e.toString().contains(
+                      "Mobile number in CV does not match the provided mobile number",
+                    ) ||
+                    e.toString().contains("Mobile number")
+                ? "Mobile number in Resume does not match the number you entered."
+                : "Something went wrong try again",
+            button1text: 'Ok',
+            onlysinglebutton: true,
+            onYes: () {
+              NavigationService.pop();
+            },
+          ),
+        );
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

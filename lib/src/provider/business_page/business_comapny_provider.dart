@@ -156,7 +156,7 @@ class BusinessCompanyProvider extends ChangeNotifier {
   // ----------------------------------------------------
   // DUMMY PHONE API METHODS
   // ----------------------------------------------------
- Future<String?> sendPhoneOtp(String userName) async {
+  Future<String?> sendPhoneOtp(String userName) async {
     final phoneStr = newContactController.text.trim();
     if (phoneStr.length != 10) {
       return "Please enter a valid 10-digit mobile number.";
@@ -612,10 +612,32 @@ class BusinessCompanyProvider extends ChangeNotifier {
   }
 
   /// Submit Form
-  Future<bool> submitCompanyForm({required int userId}) async {
+  // industryTypeOverride: for Direct-Employer-Recruiter's first-time job-post
+  // flow, where industry is collected on the job-post start page and must
+  // also reach the company payload — normally 'industryType' only goes in
+  // for OWNER below. Omit for every other caller to keep existing behaviour.
+// Inside BusinessCompanyProvider (lib/src/provider/business_page/business_comapny_provider.dart)
+
+  Future<int?> submitCompanyForm({
+    required int userId,
+    String? industryTypeOverride,
+    String? companyNameOverride,
+  }) async {
     _isCreating = true;
     _errorMessage = null;
     notifyListeners();
+
+    final finalIndustry =
+        (industryTypeOverride != null && industryTypeOverride.isNotEmpty)
+        ? industryTypeOverride
+        : industryController.text.trim();
+
+    final finalCompanyName =
+        (companyNameOverride != null && companyNameOverride.isNotEmpty)
+        ? companyNameOverride
+        : (_editingCompanyId != null && _editingCompanyId != 0
+              ? null
+              : suggestionSelectedFirmController.text.trim());
 
     final payload = {
       'memberRole': _memberRole,
@@ -626,9 +648,8 @@ class BusinessCompanyProvider extends ChangeNotifier {
       'isNoDomainEmail': _isNoDomainEmail,
       'companyType': _companyType,
       'documentType': _selectedDocumentType,
-      'companyName': _editingCompanyId != null && _editingCompanyId != 0
-          ? null
-          : suggestionSelectedFirmController.text,
+      'industryType': finalIndustry,
+      'companyName': finalCompanyName,
       if (_memberRole == 'OWNER') ...{
         'firmLegalName': firmLegalNameController.text.trim(),
         'brandName': brandNameController.text.trim(),
@@ -636,7 +657,7 @@ class BusinessCompanyProvider extends ChangeNotifier {
         'companyCode': companyCodeController.text.trim(),
         'website': websiteController.text.trim(),
         'organizationType': _organizationType,
-        'industryType': industryController.text.trim(),
+        'industryType': finalIndustry,
         'aboutCompany': aboutCompanyController.text.trim(),
         'incorporationYear': incorporationYearController.text.trim(),
         'companySize': companySizeController.text.trim(),
@@ -655,21 +676,21 @@ class BusinessCompanyProvider extends ChangeNotifier {
     };
 
     try {
-      final success = await _service.saveCompanyPayload(
+      final createdId = await _service.saveCompanyPayload(
         userId: userId,
         body: payload,
         companyId: _editingCompanyId,
       );
 
-      if (success) {
+      if (createdId != null) {
         await loadMyCompanies();
-        resetForm();
+        return createdId;
       }
-      return success;
+      return null;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       notifyListeners();
-      return false;
+      return null;
     } finally {
       _isCreating = false;
       notifyListeners();

@@ -30,6 +30,10 @@ class JobPostMasterScreen extends StatefulWidget {
   // Identity Verification is shown after all job-post form steps and the
   // final "Post Job" submits both the company and the job together.
   final ForNewJob forNewJob;
+  // Old-flow only ("My Jobs" floating action button, existing company):
+  // pre-selected company's industry/consultancy status changes step 1.
+  final bool hideIndustryFieldOnStep1;
+  final bool showHiringForOnStep1;
 
   const JobPostMasterScreen({
     super.key,
@@ -37,6 +41,8 @@ class JobPostMasterScreen extends StatefulWidget {
     this.jobId,
     this.existingJob,
     this.forNewJob = ForNewJob.OLD,
+    this.hideIndustryFieldOnStep1 = false,
+    this.showHiringForOnStep1 = false,
   });
 
   @override
@@ -44,10 +50,12 @@ class JobPostMasterScreen extends StatefulWidget {
 }
 
 class _JobPostMasterScreenState extends State<JobPostMasterScreen> {
-  // True only for the combined "new company" flow when the user picked
-  // Consultancy — that's the one case with an extra step 0 before the normal
-  // job-post form. Every other flow still starts (and bottoms out) at step 1.
+  // True whenever this instance has a step 0 before the normal job-post
+  // form — every combined new-company scenario except Direct-Employer-Owner
+  // (who already gave their industry on the Company Profile page).
   bool _hasStepZero = false;
+  // Consultancy vs Direct-Employer, for the combined new-company flow only.
+  bool _isConsultancy = false;
 
   @override
   void initState() {
@@ -59,13 +67,26 @@ class _JobPostMasterScreenState extends State<JobPostMasterScreen> {
         existingJob: widget.existingJob,
         jobId: widget.jobId,
       );
-      final isConsultancy =
-          widget.forNewJob == ForNewJob.NEW &&
-          context.read<BusinessCompanyProvider>().companyType == 'CONSULTANT';
-      if (isConsultancy) {
-        setState(() => _hasStepZero = true);
-        jobProvider.setStep(0);
+      if (widget.forNewJob != ForNewJob.NEW) return;
+
+      final companyProvider = context.read<BusinessCompanyProvider>();
+      final isOwner = companyProvider.memberRole == 'OWNER';
+      final isConsultancy = companyProvider.companyType == 'CONSULTANT';
+
+      if (isOwner && !isConsultancy) {
+        // Direct-Employer-Owner: no step 0 — the job's industry comes
+        // straight from the Company Profile page's Industry field instead
+        // of being asked again on the (removed) job-post Industry field.
+        jobProvider.industryController.text =
+            companyProvider.industryController.text;
+        return;
       }
+
+      setState(() {
+        _hasStepZero = true;
+        _isConsultancy = isConsultancy;
+      });
+      jobProvider.setStep(0);
     });
   }
 
@@ -110,9 +131,15 @@ class _JobPostMasterScreenState extends State<JobPostMasterScreen> {
     if (widget.forNewJob == ForNewJob.NEW) {
       switch (step) {
         case 0:
-          return JobPostStartPageForConsultancy(isEdit: provider.isEditMode);
+          return JobPostStartPageForConsultancy(
+            isEdit: provider.isEditMode,
+            isConsultancy: _isConsultancy,
+          );
         case 1:
-          return JobPostPageOne(isEdit: provider.isEditMode);
+          return JobPostPageOne(
+            isEdit: provider.isEditMode,
+            hideIndustryField: true,
+          );
         case 2:
           return const JobPostPageTwo();
         case 3:
@@ -129,7 +156,7 @@ class _JobPostMasterScreenState extends State<JobPostMasterScreen> {
           return JobPostCompanyStepScaffold(
             title: "Identity Verification",
             onContinue: () => provider.setStep(9),
-            child: const Page4IdentityVerification(),
+            child: const Page4IdentityVerification(isForNewJobFlow: true),
           );
         case 9:
           return JobPostCompanyStepScaffold(
@@ -153,7 +180,11 @@ class _JobPostMasterScreenState extends State<JobPostMasterScreen> {
 
     switch (step) {
       case 1:
-        return JobPostPageOne(isEdit: provider.isEditMode);
+        return JobPostPageOne(
+          isEdit: provider.isEditMode,
+          hideIndustryField: widget.hideIndustryFieldOnStep1,
+          showHiringForField: widget.showHiringForOnStep1,
+        );
       case 2:
         return const JobPostPageTwo();
       case 3:

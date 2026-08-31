@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_check_box_row.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_popup_for_location.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
@@ -14,8 +16,20 @@ import 'package:provider/provider.dart';
 
 class JobPostPageOne extends StatelessWidget {
   final bool isEdit;
+  // True in the combined first-time job-post flow, where industry is
+  // collected elsewhere (Company Profile page or job-post start page) and
+  // shared into the payload instead of being asked here again.
+  final bool hideIndustryField;
+  // True when posting via the "My Jobs" floating action button for an
+  // existing Consultancy company — asks which client this job is for.
+  final bool showHiringForField;
 
-  const JobPostPageOne({super.key, required this.isEdit});
+  const JobPostPageOne({
+    super.key,
+    required this.isEdit,
+    this.hideIndustryField = false,
+    this.showHiringForField = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,24 +67,7 @@ class JobPostPageOne extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        //============= If Job posted from somewhere else ======================//
-                       /*  if (0 == 0) ...[
-                          const contentHeading(title: "Company Name*"),
-                          CustomTextFieldForBusinessCompany(
-                            // focusNode: provider.selectedFirmFocusNode,
-                            controller:
-                                provider.suggestionSelectedFirmController,
-                            hintText: "Company name",
-                            title: "Company / Agency Name*",
-                            onIdSelected: (p0) {
-                              provider.setSelectedCompanyId(p0);
-                            },
-                            onChanged: (p0) {},
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                        //============= if user is from consultancy =============================//
-                        if (0 == 0) ...[
+                        if (showHiringForField) ...[
                           const contentHeading(title: "Hiring For*"),
                           CustomTextFieldforAll(
                             hint: "Hiring For",
@@ -97,7 +94,7 @@ class JobPostPageOne extends StatelessWidget {
                             ),
                           ],
                           SizedBox(height: 10),
-                        ], */
+                        ],
                         const contentHeading(title: "Role*"),
                         CustomTextFieldForMasterData(
                           controller: provider.roleForBusinessHiiringController,
@@ -123,15 +120,17 @@ class JobPostPageOne extends StatelessWidget {
                           controller: provider.jobHeadlineController,
                           maxLength: 60,
                         ),
-                        const SizedBox(height: 10),
-                        contentHeading(title: "Industry*"),
-                        CustomTextFieldForMasterData(
-                          contextIn: context,
-                          controller: provider.industryController,
-                          hintText: "Type to search",
-                          name: "industry",
-                          title: "Industry",
-                        ),
+                        if (!hideIndustryField) ...[
+                          const SizedBox(height: 10),
+                          contentHeading(title: "Industry*"),
+                          CustomTextFieldForMasterData(
+                            contextIn: context,
+                            controller: provider.industryController,
+                            hintText: "Type to search",
+                            name: "industry",
+                            title: "Industry",
+                          ),
+                        ],
                         const SizedBox(height: 10),
                         contentHeading(title: "Number of vacancies*"),
                         CustomTextFieldforAll(
@@ -373,7 +372,10 @@ class JobPostPageOne extends StatelessWidget {
             child: CustomButtonForSave(
               title: "Save & Continue",
               onTap: () {
-                // provider.setStep(2);
+                if (showHiringForField && provider.hiringFor.text.trim().isEmpty) {
+                  CustomSnackbar.show("Enter Hiring For", true);
+                  return;
+                }
                 if (provider.validateAndSavePage1()) {
                   provider.setStep(2);
                 }

@@ -12,7 +12,16 @@ import 'package:job_circle/src/widgets/text_field/custom_textfield_for_business_
 import 'package:provider/provider.dart';
 
 class Page4IdentityVerification extends StatefulWidget {
-  const Page4IdentityVerification({super.key});
+  // True only when reached via the combined "first-time job post" flow
+  // (Job_post_master_page.dart's step 8) — refines which role/company-type
+  // combinations need the Company Name field. Defaults to false so the
+  // standalone Create Company flow keeps its original, simpler rule.
+  final bool isForNewJobFlow;
+
+  const Page4IdentityVerification({
+    super.key,
+    this.isForNewJobFlow = false,
+  });
 
   @override
   State<Page4IdentityVerification> createState() =>
@@ -279,7 +288,14 @@ class _Page4IdentityVerificationState extends State<Page4IdentityVerification> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (provider.memberRole != "OWNER") ...[
+          // In the combined new-job-post flow, shown only for a Consultancy
+          // Recruiter — a Direct-Employer Recruiter already names their
+          // company on the job-post start page. Standalone Create Company
+          // flow keeps its original rule (any non-owner).
+          if (widget.isForNewJobFlow
+              ? (provider.companyType == 'CONSULTANT' &&
+                    provider.memberRole == 'RECRUITER')
+              : provider.memberRole != 'OWNER') ...[
             customText(
               title: "Your Company / Agency Name*",
               color: colors.headingColor,

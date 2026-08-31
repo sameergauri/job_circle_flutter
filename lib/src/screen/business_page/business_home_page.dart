@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/business_page/business_home_page_model.dart';
 import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
@@ -167,8 +168,15 @@ class _CompanyCard extends StatelessWidget {
     final colors = context.appColors;
     return InkWell(
       onTap: () {
-        provider.initFormForEdit(company);
-        NavigationService.push(CreateCompanyPage(forNewJob: ForNewJob.OLD));
+        if (company.memberRole == "OWNER") {
+          provider.initFormForEdit(company);
+          NavigationService.push(CreateCompanyPage(forNewJob: ForNewJob.OLD));
+        } else {
+          CustomSnackbar.show(
+            "You don't have permission to edit this company",
+            true,
+          );
+        }
       },
       child: Container(
         decoration: BoxDecoration(

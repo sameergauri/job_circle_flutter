@@ -6,10 +6,14 @@ import 'package:intl/intl.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/business_ats/business_ats_model.dart';
 import 'package:job_circle/src/model/business_ats/update_ats_model.dart';
+import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
 import 'package:job_circle/src/provider/business_ats/business_ats_provider.dart';
+import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/utils/date_picker/custom_date_picker.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/button/custom_call_sms_new_button.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_diaogue_for_non_contactable.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
@@ -52,6 +56,8 @@ class CustomBottomShheetForAts {
     }
 
     final colors = context.appColors;
+
+    final jobprovider = context.read<JobProvider>();
 
     return showModalBottomSheet(
       barrierColor: colors.headingColor!.withValues(alpha: 0.3),
@@ -325,8 +331,25 @@ class CustomBottomShheetForAts {
                           );
                         },
                       ),
+                      if (applicantData.statusId != 6 ||
+                          applicantData.statusId != 2)
+                        CustomListTileForBottomSheet(
+                          subtitle:
+                              'Move the candidate to another suitable apportunity.',
+                          title: "Switch / Change Role",
+                          imgurl: CustomIconUrl.callicon,
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showJobSelectionBottomSheet(
+                              context,
+                              atsprovider,
+                              applicantData,
+                              jobprovider.jobs,
+                            );
+                          },
+                        ),
                       CustomListTileForBottomSheet(
-                        subtitle: "Add a note or comment about this candidate",
+                        subtitle: "Add a note or comment about this candidate",
                         title: "Add note",
                         imgurl: CustomIconUrl.addnotecon,
                         onTap: () {
@@ -503,6 +526,22 @@ class CustomBottomShheetForAts {
                           );
                         },
                       ),
+                      if (applicantData.statusId != 9)
+                        CustomListTileForBottomSheet(
+                          subtitle:
+                              'Move the candidate to another suitable apportunity.',
+                          title: "Switch / Change Role",
+                          imgurl: CustomIconUrl.callicon,
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showJobSelectionBottomSheet(
+                              context,
+                              atsprovider,
+                              applicantData,
+                              jobprovider.jobs,
+                            );
+                          },
+                        ),
                       CustomListTileForBottomSheet(
                         subtitle: "Add a note or comment about this candidate.",
                         title: "Add note",
@@ -578,6 +617,21 @@ class CustomBottomShheetForAts {
                             }
                           },
                         ),
+                      CustomListTileForBottomSheet(
+                        subtitle:
+                            'Move the candidate to another suitable apportunity.',
+                        title: "Switch / Change Role",
+                        imgurl: CustomIconUrl.callicon,
+                        onTap: () {
+                          Navigator.pop(context);
+                          _showJobSelectionBottomSheet(
+                            context,
+                            atsprovider,
+                            applicantData,
+                            jobprovider.jobs,
+                          );
+                        },
+                      ),
                       CustomListTileForBottomSheet(
                         subtitle: "Add a note or comment about this candidate.",
                         title: "Add note",
@@ -928,6 +982,158 @@ class CustomBottomShheetForAts {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  /// Second bottom sheet for "Switch / Change Role": pick which of the
+  /// candidate-user's own jobseeker-posted jobs to move this lead to.
+  static void _showJobSelectionBottomSheet(
+    BuildContext context,
+    AtsProvider atsprovider,
+    AtsApplicant applicantData,
+    List<JobContent> allJobs,
+  ) {
+    final colors = context.appColors;
+    final int currentUserId = SharedPrefsHelper.getInt(
+      ESharedPreferences.user_id,
+    );
+    final jobs = allJobs
+        .where(
+          (job) =>
+              job.spoc == currentUserId &&
+              job.postedByType != null &&
+              job.postedByType == "JOBSEEKER",
+        )
+        .toList();
+
+    int? selectedJobId;
+
+    showModalBottomSheet(
+      barrierColor: colors.headingColor!.withValues(alpha: 0.3),
+      backgroundColor: Colors.transparent,
+      elevation: 1,
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+              ),
+              decoration: BoxDecoration(
+                color: colors.bottomsheetbgColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      customText(
+                        title: "Select Job",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: colors.darkBlue,
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: Icon(
+                          Icons.cancel_outlined,
+                          color: colors.headingColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Flexible(
+                    child: jobs.isEmpty
+                        ? Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: customText(
+                              title: "No jobs found",
+                              color: colors.subTitleColor,
+                            ),
+                          )
+                        : ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: jobs.length,
+                            separatorBuilder: (_, _) =>
+                                const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final job = jobs[index];
+                              final isSelected = selectedJobId == job.id;
+                              return Material(
+                                color: Colors.transparent,
+                                child: ListTile(
+                                  dense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  title: customText(
+                                    title:
+                                        job.jobHeadline != null &&
+                                            job.jobHeadline!.isNotEmpty
+                                        ? job.jobHeadline!
+                                        : (job.roleForBusinessHiring ?? 'Job'),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.headingColor,
+                                  ),
+                                  trailing: Icon(
+                                    isSelected
+                                        ? Icons.check_circle
+                                        : Icons.radio_button_unchecked,
+                                    color: isSelected
+                                        ? Constants.darkgreen
+                                        : colors.subTitleColor,
+                                  ),
+                                  onTap: () {
+                                    setModalState(() {
+                                      selectedJobId = job.id;
+                                    });
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  if (selectedJobId != null) ...[
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          UpdateAtsModel updateAtsModel = UpdateAtsModel(
+                            jobid: selectedJobId,
+                          );
+                          await atsprovider.updateLead(
+                            context,
+                            updateAtsModel,
+                            applicantData.leadId!,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colors.darkBlue,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text(
+                          "Done",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                ],
+              ),
+            );
+          },
         );
       },
     );

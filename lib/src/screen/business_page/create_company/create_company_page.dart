@@ -4,13 +4,13 @@ import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
+import 'package:job_circle/src/screen/business_job/Job_post_master_page.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page1_role_selection.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page2_business_detail.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page3_register_office.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page4_identity_verification.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page5_documents.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page6_decleration.dart';
-import 'package:job_circle/src/screen/business_job/Job_post_master_page.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
@@ -19,7 +19,7 @@ import 'package:provider/provider.dart';
 
 class CreateCompanyPage extends StatelessWidget {
   final ForNewJob forNewJob;
-  const CreateCompanyPage({super.key,required this.forNewJob});
+  const CreateCompanyPage({super.key, required this.forNewJob});
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +126,8 @@ class CreateCompanyPage extends StatelessWidget {
     // after the job-post form — so Registered Office (OWNER) / Role
     // Selection (non-OWNER) becomes the last step shown here.
     final bool isLastStepForNewJob =
-        isForNewJob && _isLastStepBeforeJobPost(currentIndex, provider.memberRole);
+        isForNewJob &&
+        _isLastStepBeforeJobPost(currentIndex, provider.memberRole);
 
     // Default title mapping for pages
     String buttonTitle = 'Save & Continue';
@@ -152,16 +153,14 @@ class CreateCompanyPage extends StatelessWidget {
           // Company isn't created yet here — Identity Verification,
           // Documents and Declaration are collected after the job-post form,
           // and everything gets created together when "Post Job" is tapped.
-          NavigationService.push(
-            JobPostMasterScreen(forNewJob: ForNewJob.NEW),
-          );
+          NavigationService.push(JobPostMasterScreen(forNewJob: ForNewJob.NEW));
           return;
         }
         // Final Page logic
         if (currentIndex == 5) {
           int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
           final success = await provider.submitCompanyForm(userId: userid);
-          if (context.mounted && success) {
+          if (context.mounted && success != null) {
             CustomSnackbar.show(
               provider.isEditMode
                   ? 'Company updated successfully!'
