@@ -90,9 +90,11 @@ class _JobPostPreviewPageState extends State<JobPostPreviewPage> {
                       if (widget.forNewJob == ForNewJob.NEW) {
                         final companyProvider = context
                             .read<BusinessCompanyProvider>();
-                        final beforeIds = companyProvider.companies
-                            .map((c) => c.id)
-                            .toSet();
+                        // Captured before submitCompanyForm, since a
+                        // successful submit resets the company form (which
+                        // would clear this back to null).
+                        final selectedCompanyId =
+                            companyProvider.suggestedCompanyId;
                         final companySuccess = await companyProvider
                             .submitCompanyForm(userId: userid);
                         if (!context.mounted) return;
@@ -103,12 +105,12 @@ class _JobPostPreviewPageState extends State<JobPostPreviewPage> {
                           );
                           return;
                         }
-                        final newCompany = companyProvider.companies
-                            .firstWhere(
-                              (c) => !beforeIds.contains(c.id),
-                              orElse: () => companyProvider.companies.first,
-                            );
-                        provider.setSelectedCompanyId(newCompany.id);
+                        // Only link the job to a company if one was actually
+                        // picked from suggestions on Identity Verification —
+                        // a custom-typed name posts the job without one.
+                        if (selectedCompanyId != null) {
+                          provider.setSelectedCompanyId(selectedCompanyId);
+                        }
                       }
 
                       final success = await provider.submitFinalJob(

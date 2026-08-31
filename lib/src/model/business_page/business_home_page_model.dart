@@ -60,7 +60,7 @@ class BusinessCompany {
   final String? documentUrl;
   final String? approvalStatus;
   final String? joinedAt;
- 
+  final bool? isEmailVerified;
 
   BusinessCompany({
     required this.id,
@@ -99,6 +99,7 @@ class BusinessCompany {
     this.documentUrl,
     this.approvalStatus,
     this.joinedAt,
+    this.isEmailVerified
   });
 
   factory BusinessCompany.fromJson(Map<String, dynamic> json) {
@@ -139,6 +140,7 @@ class BusinessCompany {
       documentUrl: json['documentUrl'],
       approvalStatus: json['approvalStatus'],
       joinedAt: json['joinedAt'],
+      isEmailVerified:json['isEmailVerified']
     );
   }
 
@@ -175,6 +177,7 @@ class BusinessCompany {
       'isNoDomainEmail': isNoDomainEmail,
       'documentType': documentType,
       'documentUrl': documentUrl,
+      'isEmailVerified': isEmailVerified,
     };
   }
 }

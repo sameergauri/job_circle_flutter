@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/model/business_page/business_home_page_model.dart';
 import 'package:job_circle/src/services/business_page/business_company_service.dart';
@@ -54,6 +56,355 @@ class BusinessCompanyProvider extends ChangeNotifier {
   final designationController = TextEditingController();
   final officialContactController = TextEditingController();
   final officialEmailController = TextEditingController();
+
+  //=======================================================================================
+  //============================= Phone Verification part =================================
+  //=======================================================================================
+
+  final TextEditingController newContactController = TextEditingController();
+  final TextEditingController phoneOtpController = TextEditingController();
+
+  final FocusNode newContactFocusNode = FocusNode();
+
+  bool _isPhoneVerified =
+      true; // Initially verified with the user's primary number
+  bool get isPhoneVerified => _isPhoneVerified;
+
+  bool _isPhoneOtpSending = false;
+  bool get isPhoneOtpSending => _isPhoneOtpSending;
+
+  bool _isPhoneOtpSent = false;
+  bool get isPhoneOtpSent => _isPhoneOtpSent;
+
+  bool _isPhoneOtpVerifying = false;
+  bool get isPhoneOtpVerifying => _isPhoneOtpVerifying;
+
+  // Phone Countdown Timer (60s or 300s)
+  Timer? _phoneTimer;
+  int _phoneSecondsRemaining = 60;
+  int get phoneSecondsRemaining => _phoneSecondsRemaining;
+
+  bool get canResendPhoneOtp => _isPhoneOtpSent && _phoneSecondsRemaining == 0;
+
+  String get formattedPhoneTimer {
+    final minutes = (_phoneSecondsRemaining ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_phoneSecondsRemaining % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  /// Call this on page init/first load to populate default verified number
+  void initUserContactNumber(String defaultMobile) {
+    if (officialContactController.text.isEmpty && defaultMobile.isNotEmpty) {
+      officialContactController.text = defaultMobile;
+      _isPhoneVerified = true;
+      notifyListeners();
+    }
+  }
+
+  void onNewContactChanged(String val) {
+    if (_isPhoneOtpSent) {
+      resetPhoneOtpState();
+    }
+    notifyListeners();
+  }
+
+  void onPhoneOtpChanged(String val) {
+    notifyListeners();
+  }
+
+  void startPhoneTimer() {
+    _phoneTimer?.cancel();
+    _phoneSecondsRemaining = 60;
+    _phoneTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_phoneSecondsRemaining > 0) {
+        _phoneSecondsRemaining--;
+        notifyListeners();
+      } else {
+        _phoneTimer?.cancel();
+        notifyListeners();
+      }
+    });
+  }
+
+  void stopPhoneTimer() {
+    _phoneTimer?.cancel();
+    _phoneTimer = null;
+    _phoneSecondsRemaining = 60;
+  }
+
+  void resetPhoneOtpState() {
+    stopPhoneTimer();
+    _isPhoneOtpSent = false;
+    phoneOtpController.clear();
+    notifyListeners();
+  }
+
+  void resetBottomSheetPhoneForm() {
+    stopPhoneTimer();
+    _isPhoneOtpSent = false;
+    _isPhoneOtpSending = false;
+    _isPhoneOtpVerifying = false;
+    newContactController.clear();
+    phoneOtpController.clear();
+    notifyListeners();
+    // Auto focus request for keyboard popup
+    Future.delayed(const Duration(milliseconds: 200), () {
+      newContactFocusNode.requestFocus();
+    });
+  }
+
+  // ----------------------------------------------------
+  // DUMMY PHONE API METHODS
+  // ----------------------------------------------------
+ Future<String?> sendPhoneOtp(String userName) async {
+    final phoneStr = newContactController.text.trim();
+    if (phoneStr.length != 10) {
+      return "Please enter a valid 10-digit mobile number.";
+    }
+
+    final mobileNumber = int.tryParse(phoneStr);
+    if (mobileNumber == null) {
+      return "Invalid mobile number format.";
+    }
+
+    _isPhoneOtpSending = true;
+    notifyListeners();
+
+    final success = await _service.sendMobileOtp(
+      mobile: mobileNumber,
+      userName: userName,
+    );
+
+    _isPhoneOtpSending = false;
+    if (success) {
+      _isPhoneOtpSent = true;
+      startPhoneTimer();
+      notifyListeners();
+      return null;
+    } else {
+      notifyListeners();
+      return "Failed to send Mobile OTP. Please try again.";
+    }
+  }
+
+  // Verify Mobile OTP
+  Future<bool> verifyPhoneOtp() async {
+    final phoneStr = newContactController.text.trim();
+    final otp = phoneOtpController.text.trim();
+
+    if (phoneStr.length != 10 || otp.length != 4) {
+      return false;
+    }
+
+    final mobileNumber = int.tryParse(phoneStr);
+    if (mobileNumber == null) return false;
+
+    _isPhoneOtpVerifying = true;
+    notifyListeners();
+
+    final success = await _service.verifyMobileOtp(
+      mobile: mobileNumber,
+      otp: otp,
+    );
+
+    _isPhoneOtpVerifying = false;
+    if (success) {
+      officialContactController.text = phoneStr;
+      _isPhoneVerified = true;
+      stopPhoneTimer();
+    }
+    notifyListeners();
+    return success;
+  }
+
+  //=======================================================================================
+
+  //=======================================================================================
+  //============================= Email Verification part =================================
+  //=======================================================================================
+
+  final TextEditingController emailOtpController = TextEditingController();
+
+  bool _isEmailSending = false;
+  bool get isEmailSending => _isEmailSending;
+
+  bool _isOtpSent = false;
+  bool get isOtpSent => _isOtpSent;
+
+  bool _isEmailVerifying = false;
+  bool get isEmailVerifying => _isEmailVerifying;
+
+  bool _isEmailVerified = false;
+  bool get isEmailVerified => _isEmailVerified;
+
+  void onOtpChanged(String value) {
+    notifyListeners();
+  }
+
+  void onEmailChanged(String value) {
+    if (_isOtpSent && !_isEmailVerified) {
+      resetEmailVerificationState();
+    }
+    notifyListeners(); // Ensures UI rebuilds as the user types or clears the text
+  }
+
+  // ==========================================
+  // 5-MINUTE COUNTDOWN TIMER (300 SECONDS)
+  // ==========================================
+  Timer? _timer;
+  int _secondsRemaining = 300;
+  int get secondsRemaining => _secondsRemaining;
+
+  bool get canResend => _isOtpSent && _secondsRemaining == 0;
+
+  String get formattedTimer {
+    final minutes = (_secondsRemaining ~/ 60).toString().padLeft(2, '0');
+    final seconds = (_secondsRemaining % 60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  void startTimer() {
+    _timer?.cancel();
+    _secondsRemaining = 300;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsRemaining > 0) {
+        _secondsRemaining--;
+        notifyListeners();
+      } else {
+        _timer?.cancel();
+        notifyListeners();
+      }
+    });
+  }
+
+  void stopTimer() {
+    _timer?.cancel();
+    _timer = null;
+    _secondsRemaining = 300;
+  }
+
+  void resetEmailVerificationState() {
+    stopTimer();
+    _isOtpSent = false;
+    _isEmailVerified = false;
+    emailOtpController.clear();
+    notifyListeners();
+  }
+
+  // Toggled when checkbox "I don't have a company domain Email ID" is changed
+  void toggleNoDomainEmail(bool value) {
+    _isNoDomainEmail = value;
+    if (value) {
+      stopTimer();
+      _isOtpSent = false;
+      _isEmailVerified = false;
+      officialEmailController.clear();
+      emailOtpController.clear();
+    }
+    notifyListeners();
+  }
+
+  // ==========================================
+  // API ACTIONS
+  // ==========================================
+  Future<String?> sendEmailOtp(String userName) async {
+    final email = officialEmailController.text.trim();
+
+    final validationError = validateOfficialEmail(email);
+    if (validationError != null) {
+      return validationError;
+    }
+
+    _isEmailSending = true;
+    notifyListeners();
+
+    final success = await _service.sendEmailOtp(
+      email: email,
+      userName: userName,
+    );
+
+    _isEmailSending = false;
+    if (success) {
+      _isOtpSent = true;
+      startTimer();
+      notifyListeners();
+      return null;
+    } else {
+      notifyListeners();
+      return "Failed to send OTP. Please try again.";
+    }
+  }
+
+  Future<bool> verifyEmailOtp() async {
+    final email = officialEmailController.text.trim();
+    final otp = emailOtpController.text.trim();
+    if (email.isEmpty || otp.isEmpty) return false;
+
+    _isEmailVerifying = true;
+    notifyListeners();
+
+    final success = await _service.verifyEmailOtp(email: email, otp: otp);
+    _isEmailVerifying = false;
+    if (success) {
+      _isEmailVerified = true;
+      stopTimer();
+    }
+    notifyListeners();
+    return success;
+  }
+
+  // ==========================================
+  // RESTRICTED DOMAINS VALIDATION
+  // ==========================================
+  final List<String> _blockedDomains = [
+    'gmail.com',
+    'yahoo.com',
+    'yahoo.in',
+    'yahoo.co.in',
+    'outlook.com',
+    'hotmail.com',
+    'live.com',
+    'icloud.com',
+    'rediffmail.com',
+    'zoho.com',
+    'yopmail.com',
+    'mail.com',
+    'protonmail.com',
+    'proton.me',
+    'aol.com',
+    'ymail.com',
+    'gmx.com',
+    'gmx.de',
+    'xmail.com',
+  ];
+
+  String? validateOfficialEmail(String email) {
+    final cleanEmail = email.trim().toLowerCase();
+
+    if (cleanEmail.isEmpty) {
+      return "Please enter an official email address.";
+    }
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(cleanEmail)) {
+      return "Please enter a valid email address.";
+    }
+
+    final parts = cleanEmail.split('@');
+    if (parts.length != 2) {
+      return "Invalid email format.";
+    }
+
+    final domain = parts[1];
+
+    if (!_isNoDomainEmail && _blockedDomains.contains(domain)) {
+      return "Please use your official company domain email (e.g., name@company.com), not a public email provider.";
+    }
+
+    return null;
+  }
+
+  //=======================================================================================
 
   // Getters
   List<BusinessCompany> get companies => _companies;
@@ -121,10 +472,10 @@ class BusinessCompanyProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleNoDomainEmail(bool value) {
+  /*  void toggleNoDomainEmail(bool value) {
     _isNoDomainEmail = value;
     notifyListeners();
-  }
+  } */
 
   void setSelectedDocumentType(String? docType) {
     _selectedDocumentType = docType;
@@ -207,6 +558,10 @@ class BusinessCompanyProvider extends ChangeNotifier {
     designationController.text = company.designation ?? '';
     officialContactController.text = company.officialContact ?? '';
     officialEmailController.text = company.officialEmail ?? '';
+    _isEmailVerified =
+        company.isEmailVerified != null && company.isEmailVerified == true
+        ? true
+        : false;
     _isNoDomainEmail = company.isNoDomainEmail;
     _selectedDocumentType = company.documentType;
 
@@ -251,6 +606,8 @@ class BusinessCompanyProvider extends ChangeNotifier {
     designationController.clear();
     officialContactController.clear();
     officialEmailController.clear();
+    _timer?.cancel();
+    emailOtpController.clear();
     notifyListeners();
   }
 
@@ -265,6 +622,7 @@ class BusinessCompanyProvider extends ChangeNotifier {
       'designation': designationController.text.trim(),
       'officialContact': officialContactController.text.trim(),
       'officialEmail': officialEmailController.text.trim(),
+      'isEmailVerified': _isEmailVerified,
       'isNoDomainEmail': _isNoDomainEmail,
       'companyType': _companyType,
       'documentType': _selectedDocumentType,
@@ -349,6 +707,10 @@ class BusinessCompanyProvider extends ChangeNotifier {
     industryFocusNode.dispose();
     selectedFirmFocusNode.dispose();
     suggestionSelectedFirmController.dispose();
+    _timer?.cancel();
+    officialEmailController.dispose();
+    emailOtpController.dispose();
+    newContactFocusNode.dispose();
     super.dispose();
   }
 }

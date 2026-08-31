@@ -10,7 +10,6 @@ import 'package:job_circle/src/services/business_job/business_job_service.dart';
 class BusinessJobProvider extends ChangeNotifier {
   final BusinessJobService _service = BusinessJobService();
 
-
   String selectedReasonOption = '';
 
   void selectReasonNotShowOption(String option) {
@@ -48,7 +47,6 @@ class BusinessJobProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   // ====================================================================
   // ======================= Fetch job detail ===========================
@@ -802,8 +800,20 @@ class BusinessJobProvider extends ChangeNotifier {
     }
   }
 
+  bool validateHringForPage() {
+    if (hiringFor.text.isEmpty) {
+      CustomSnackbar.show("Enter Hiring for", true);
+      return false;
+    }
+    if (_shouldShowToCandidate && reasonForNotshowToCandidate.text.isEmpty) {
+      CustomSnackbar.show("Enter reason for not show to the candidate", true);
+      return false;
+    }
+    return true;
+  }
+
   bool validateAndSavePage1() {
-    if (suggestionSelectedFirmController.text.isEmpty) {
+    /* if (suggestionSelectedFirmController.text.isEmpty) {
       CustomSnackbar.show("Enter Company Name", true);
       return false;
     }
@@ -814,7 +824,7 @@ class BusinessJobProvider extends ChangeNotifier {
     if (_shouldShowToCandidate && reasonForNotshowToCandidate.text.isEmpty) {
       CustomSnackbar.show("Enter reason for not show to the candidate", true);
       return false;
-    }
+    } */
     if (roleForBusinessHiiringController.text.isEmpty) {
       CustomSnackbar.show("Enter Job Role", true);
       return false;

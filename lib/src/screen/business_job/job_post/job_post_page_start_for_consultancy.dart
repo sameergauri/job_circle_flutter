@@ -7,6 +7,7 @@ import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_icon_button.dart';
 import 'package:job_circle/src/widgets/custom_title/content_heading.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
+import 'package:job_circle/src/widgets/text_field/custom_text_field_for_master_data.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 import 'package:job_circle/src/widgets/text_field/custom_textfield_for_business_company.dart';
 import 'package:provider/provider.dart';
@@ -167,6 +168,27 @@ class JobPostStartPageForConsultancy extends StatelessWidget {
                               ),
                             ],
                           ],
+                          const SizedBox(height: 10),
+                          const contentHeading(title: "Company Name*"),
+                          CustomTextFieldForBusinessCompany(
+                            // focusNode: provider.selectedFirmFocusNode,
+                            controller: provider.suggestionSelectedFirmController,
+                            hintText: "Company name",
+                            title: "Company / Agency Name*",
+                            onIdSelected: (p0) {
+                              provider.setSelectedCompanyId(p0);
+                            },
+                            onChanged: (p0) {},
+                          ),
+                          const SizedBox(height: 10),
+                          contentHeading(title: "Industry*"),
+                          CustomTextFieldForMasterData(
+                            contextIn: context,
+                            controller: provider.industryController,
+                            hintText: "Type to search",
+                            name: "industry",
+                            title: "Industry",
+                          ),
                         ],
                       ],
                     ),
@@ -176,9 +198,8 @@ class JobPostStartPageForConsultancy extends StatelessWidget {
             child: CustomButtonForSave(
               title: "Save & Continue",
               onTap: () {
-                // provider.setStep(2);
-                if (provider.validateAndSavePage1()) {
-                  provider.setStep(2);
+                if (provider.validateHringForPage()) {
+                  provider.setStep(1);
                 }
               },
             ),

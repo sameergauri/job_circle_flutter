@@ -72,4 +72,59 @@ class BusinessCompanyService {
       throw Exception('Network error: $e');
     }
   }
+  //===========================================================================================
+  //======================= Email & Mobile verification and validation apis ============================
+  //===========================================================================================
+
+  Future<bool> sendEmailOtp({
+    required String email,
+    required String userName,
+  }) async {
+    final url = Uri.parse(GlobalConstants.emailOTPUrl);
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "userName": userName}),
+    );
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<bool> verifyEmailOtp({required String email, required String otp}) async {
+    final url = Uri.parse(GlobalConstants.verifyEmailUrl);
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"email": email, "otp": otp}),
+    );
+    return response.statusCode == 200;
+  }
+  Future<bool> sendMobileOtp({
+    required int mobile,
+    required String userName,
+  }) async {
+    final url = Uri.parse(
+      GlobalConstants.mobileOTPUrl,
+    );
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"mobile": mobile, "userName": userName}),
+    );
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<bool> verifyMobileOtp({
+    required int mobile,
+    required String otp,
+  }) async {
+    final url = Uri.parse(
+      GlobalConstants.verifyMobileUrl,
+    );
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"mobile": mobile, "otp": otp}),
+    );
+    return response.statusCode == 200;
+  }
 }

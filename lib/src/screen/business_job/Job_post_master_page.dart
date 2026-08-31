@@ -5,6 +5,7 @@ import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/business_job/business_job_model.dart';
 import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
+import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
 import 'package:job_circle/src/screen/business_job/job_post/job_post_company_step_scaffold.dart';
 import 'package:job_circle/src/screen/business_job/job_post/job_post_page1.dart';
 import 'package:job_circle/src/screen/business_job/job_post/job_post_page2.dart';
@@ -13,6 +14,7 @@ import 'package:job_circle/src/screen/business_job/job_post/job_post_page4.dart'
 import 'package:job_circle/src/screen/business_job/job_post/job_post_page5.dart';
 import 'package:job_circle/src/screen/business_job/job_post/job_post_page6.dart';
 import 'package:job_circle/src/screen/business_job/job_post/job_post_page7.dart';
+import 'package:job_circle/src/screen/business_job/job_post/job_post_page_start_for_consultancy.dart';
 import 'package:job_circle/src/screen/business_job/job_post/job_post_preview_page.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page4_identity_verification.dart';
 import 'package:job_circle/src/screen/business_page/create_company/page5_documents.dart';
@@ -42,15 +44,28 @@ class JobPostMasterScreen extends StatefulWidget {
 }
 
 class _JobPostMasterScreenState extends State<JobPostMasterScreen> {
+  // True only for the combined "new company" flow when the user picked
+  // Consultancy — that's the one case with an extra step 0 before the normal
+  // job-post form. Every other flow still starts (and bottoms out) at step 1.
+  bool _hasStepZero = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BusinessJobProvider>().initJobForm(
+      final jobProvider = context.read<BusinessJobProvider>();
+      jobProvider.initJobForm(
         isEdit: widget.isEdit,
         existingJob: widget.existingJob,
         jobId: widget.jobId,
       );
+      final isConsultancy =
+          widget.forNewJob == ForNewJob.NEW &&
+          context.read<BusinessCompanyProvider>().companyType == 'CONSULTANT';
+      if (isConsultancy) {
+        setState(() => _hasStepZero = true);
+        jobProvider.setStep(0);
+      }
     });
   }
 
@@ -70,24 +85,32 @@ class _JobPostMasterScreenState extends State<JobPostMasterScreen> {
 
         return WillPopScope(
           onWillPop: () async {
-            // FIX: Allow step back until Step 1
-            if (provider.currentStep > 1) {
+            // FIX: Allow step back until Step 1 (Step 0 only exists for
+            // consultancy's extra pre-step in the combined new-company flow)
+            final minStep = _hasStepZero ? 0 : 1;
+            if (provider.currentStep > minStep) {
               provider.setStep(provider.currentStep - 1);
               return false;
             }
             return true;
           },
-          child: _buildCurrentStepView(provider.currentStep, provider),
+          child: _buildCurrentStepView(context, provider.currentStep, provider),
         );
       },
     );
   }
 
-  Widget _buildCurrentStepView(int step, BusinessJobProvider provider) {
+  Widget _buildCurrentStepView(
+    BuildContext context,
+    int step,
+    BusinessJobProvider provider,
+  ) {
     // Combined "post job for a new company" flow: Identity Verification is
     // inserted after all the normal job-post form steps, before the preview.
     if (widget.forNewJob == ForNewJob.NEW) {
       switch (step) {
+        case 0:
+          return JobPostStartPageForConsultancy(isEdit: provider.isEditMode);
         case 1:
           return JobPostPageOne(isEdit: provider.isEditMode);
         case 2:

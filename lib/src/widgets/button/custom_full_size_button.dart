@@ -61,6 +61,7 @@ class CustomToggleButton extends StatelessWidget {
   final Color? selectedColor;
   final Color? selectedBorderColor;
   final Color? titleColor;
+  final bool? rightPaddingDissable;
 
   const CustomToggleButton({
     super.key,
@@ -71,6 +72,7 @@ class CustomToggleButton extends StatelessWidget {
     this.selectedColor,
     this.selectedBorderColor,
     this.titleColor,
+    this.rightPaddingDissable
   });
 
   @override
@@ -82,7 +84,7 @@ class CustomToggleButton extends StatelessWidget {
         onTap: onTap,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
-          margin: const EdgeInsets.only(top: 5, bottom: 5, right: 10),
+          margin: rightPaddingDissable!=null&&rightPaddingDissable==true?EdgeInsets.only(top: 5, bottom: 5,): EdgeInsets.only(top: 5, bottom: 5, right: 10),
           decoration: BoxDecoration(
             color: isSelect
                 ? (selectedColor ?? colors.selectedTabColor!)

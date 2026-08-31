@@ -36,6 +36,14 @@ class GlobalConstants {
   //
   //
   //
+  // TODO:: email & mobile verification and validation
+  static const emailOTPUrl = '$_baseurl/api/v1/auth/email/send-otp';
+  static const verifyEmailUrl = '$_baseurl/api/v1/auth/email/verify-otp';
+  static const mobileOTPUrl = '$_baseurl/api/v1/auth/email/send-mobile-otp';
+  static const verifyMobileUrl =
+      '$_baseurl/api/v1/auth/email/verify-mobile-otp';
+  //
+  //
   // TODO:: Business Api's
   //
   static const fetchcompanyForHome =

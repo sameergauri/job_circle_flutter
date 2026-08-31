@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/constants/custom_check_box_row.dart';
 import 'package:job_circle/src/provider/business_job/business_job_provider.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_popup_for_location.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
@@ -11,7 +10,6 @@ import 'package:job_circle/src/widgets/custom_title/content_heading.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_field_for_master_data.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
-import 'package:job_circle/src/widgets/text_field/custom_textfield_for_business_company.dart';
 import 'package:provider/provider.dart';
 
 class JobPostPageOne extends StatelessWidget {
@@ -56,7 +54,7 @@ class JobPostPageOne extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         //============= If Job posted from somewhere else ======================//
-                        if (0 == 0) ...[
+                       /*  if (0 == 0) ...[
                           const contentHeading(title: "Company Name*"),
                           CustomTextFieldForBusinessCompany(
                             // focusNode: provider.selectedFirmFocusNode,
@@ -99,7 +97,7 @@ class JobPostPageOne extends StatelessWidget {
                             ),
                           ],
                           SizedBox(height: 10),
-                        ],
+                        ], */
                         const contentHeading(title: "Role*"),
                         CustomTextFieldForMasterData(
                           controller: provider.roleForBusinessHiiringController,

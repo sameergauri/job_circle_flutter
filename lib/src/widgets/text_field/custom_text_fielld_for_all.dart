@@ -200,3 +200,186 @@ class CustomTextFieldforAll extends StatelessWidget {
     );
   }
 }
+
+// ignore_for_file: use_full_hex_values_for_flutter_colors
+
+class CustomTextFieldForEmailverification extends StatelessWidget {
+  final String hint;
+  final bool? isGmail;
+  final bool isPrimaryNumber;
+  final int? maxLength;
+  final bool isNumber;
+  final bool? keyboardType;
+  final bool isDisabled;
+  final int? maxline;
+  final bool? isSearchBar;
+  final bool? isSearch;
+  final FocusNode? focusNode;
+  final Function(String)? onChanged;
+  final VoidCallback? onEditingComplete;
+  final Function(PointerDownEvent)? onTabOutside;
+  final Function(String)? onFieldSubmitted;
+  final TextEditingController controller;
+  final Function? onTab;
+  final bool? headline;
+  final bool? readonly;
+  final Widget? prefix;
+  final Widget? sufix;
+  final String? initialValue;
+
+  const CustomTextFieldForEmailverification({
+    super.key,
+    required this.controller,
+    required this.hint,
+    this.isGmail,
+    this.isPrimaryNumber = false,
+    this.maxLength,
+    this.isNumber = false,
+    this.keyboardType,
+    this.isDisabled = true,
+    this.readonly = false,
+    this.maxline,
+    this.onChanged,
+    this.onEditingComplete,
+    this.onFieldSubmitted,
+    this.onTabOutside,
+    this.onTab,
+    this.isSearchBar,
+    this.isSearch,
+    this.headline,
+    this.focusNode,
+    this.prefix,
+    this.sufix,
+    this.initialValue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.appColors;
+
+    // Get screen size using MediaQuery
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Calculate responsive font size (e.g., 2% of screen width)
+    final double fontSize = screenWidth * 0.035; // Adjust multiplier as needed
+
+    return SizedBox(
+      height: maxline != null && maxline! > 1
+          ? null // Adjust height for multiline text field
+          : MediaQuery.of(context).size.height /
+                24, // Default height for single line
+      child: TextFormField(
+        initialValue: initialValue,
+        readOnly: readonly!,
+        focusNode: focusNode,
+        onTap: () {
+          onTab != null ? onTab!() : null;
+        },
+        cursorColor: colors.headingColor,
+        onChanged: onChanged,
+        onFieldSubmitted: onFieldSubmitted,
+        onEditingComplete: onEditingComplete,
+        onTapOutside: onTabOutside,
+        maxLines: maxline ?? 1, // Default to 1 line if not specified
+        enabled: isDisabled,
+        inputFormatters: isNumber
+            ? <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly]
+            : (isGmail != null && isGmail!)
+            ? <TextInputFormatter>[
+                FilteringTextInputFormatter.singleLineFormatter,
+              ]
+            : <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+              ],
+        maxLength: maxLength,
+        keyboardType: isNumber ? TextInputType.phone : TextInputType.name,
+        textCapitalization: keyboardType == true
+            ? TextCapitalization.none
+            : TextCapitalization.sentences,
+        controller: controller,
+        style: isSearch != null && isSearch!
+            ? GoogleFonts.montserrat(
+                color: colors.textfieldTextColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              )
+            : GoogleFonts.montserrat(
+                color: colors.headingColor,
+                fontSize: fontSize, // Responsive font size
+                fontWeight: FontWeight.w500,
+              ),
+
+        decoration: InputDecoration(
+          suffix: sufix,
+          prefix: prefix,
+          contentPadding: EdgeInsets.symmetric(
+            vertical: maxline != null && maxline! > 1
+                ? screenHeight *
+                      0.015 // Adjust padding for multiline
+                : 8, // Default padding for single line
+            horizontal: 10, // Horizontal padding
+          ),
+          filled: isPrimaryNumber
+              ? true
+              : isSearch != null && isSearch!
+              ? true
+              : false,
+          fillColor: isPrimaryNumber
+              ? colors.bottomsheerCard1Color
+              : isSearch != null && isSearch!
+              ? Colors.transparent
+              : Colors.transparent,
+          counterText: headline != null && headline == true ? null : '',
+          border: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
+                ),
+          enabledBorder: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
+                ),
+          disabledBorder: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.bottomsheerCard1Color!),
+                ),
+          focusColor: const Color(0x0ff0eceb),
+          focusedBorder: isSearch != null && isSearch!
+              ? OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.grey),
+                )
+              : OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: colors.headingColor!),
+                ),
+          hintText: hint,
+          hintStyle: isSearchBar != null && isSearchBar != false
+              ? GoogleFonts.montserrat(
+                  color: Constants.subtitleclr,
+                  fontSize: fontSize * 0.9, // Slightly smaller hint text
+                )
+              : GoogleFonts.montserrat(
+                  color: Constants.subtitleclr,
+                  fontSize: fontSize, // Responsive hint font size
+                ),
+        ),
+      ),
+    );
+  }
+}
