@@ -45,7 +45,7 @@ class CacheClearAppVersionService {
             data['resultData']['version']; //TODO::: latest version is one previous version of the currenct app ...
 
         const String currentVersion =
-            '1.1.18'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
+            '1.1.19'; // Replace with your app's current version //TODO::: current version is same as pubspec.yaml file . with updated one which you gonna push on play store..
 
         if (_isNewer(latestVersion, currentVersion)) {
           // Display u  pdate notificationra
