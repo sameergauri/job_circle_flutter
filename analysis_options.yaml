@@ -11,6 +11,13 @@ analyzer:
   errors:
     duplicate_ignore: ignore
     invalid_use_of_protected_member: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
 include: package:flutter_lints/flutter.yaml
 
 linter:

@@ -18,7 +18,6 @@ import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/Jobs/job_detail_page.dart';
 import 'package:job_circle/src/screen/business_ats/business_ats_home_screen.dart';
 import 'package:job_circle/src/screen/business_job/Job_post_master_page.dart';
-import 'package:job_circle/src/screen/chat/chat_list_screen.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
@@ -28,7 +27,6 @@ import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_dynamic_text_field.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 import 'package:provider/provider.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class JobHomePage extends StatefulWidget {
   final GlobalKey<ScaffoldState>
@@ -404,17 +402,20 @@ class _JobHomePageState extends State<JobHomePage> {
                     ),
                   ),
                 ),
-                title: DynamicHintTextField(
-                  focusNode: jobProvider.searchBarFocusNode,
-                  isGmail: true,
-                  onChanged: (value) {
-                    jobProvider.updateSearchQuery(value);
-                  },
-                  controller: searchController,
-                  hint: 'Search Jobs by Designation, Process, or Company',
+                title: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: DynamicHintTextField(
+                    focusNode: jobProvider.searchBarFocusNode,
+                    isGmail: true,
+                    onChanged: (value) {
+                      jobProvider.updateSearchQuery(value);
+                    },
+                    controller: searchController,
+                    hint: 'Search Jobs by Designation, Process, or Company',
+                  ),
                 ),
                 actions: [
-                  IconButton(
+                 /*  IconButton(
                     onPressed: () {
                       NavigationService.push(ChatListScreen());
                     },
@@ -432,7 +433,7 @@ class _JobHomePageState extends State<JobHomePage> {
                         ),
                       ],
                     ),
-                  ),
+                  ), */
                 ],
                 /*  actions: [   //TODO:: Hide city selector
                   InkWell(

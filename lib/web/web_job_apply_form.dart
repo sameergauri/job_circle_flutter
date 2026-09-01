@@ -108,16 +108,15 @@ class _WebJobApplyFormPageState extends State<WebJobApplyFormPage> {
 
   // ─── CV pick → parse → upload ──────────────────────────────────────────────
   Future<void> _pickAndProcessCV() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
       withData: true,
     );
-    if (result == null || result.files.isEmpty) return;
+    if (result.isEmpty) return;
 
-    final file = result.files.first;
-    final Uint8List? bytes = file.bytes;
-    if (bytes == null) return;
+    final file = result.first;
+    final Uint8List bytes = await file.xFile.readAsBytes();
 
     setState(() {
       _isUploading = true;

@@ -4,19 +4,11 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   app_links
-  connectivity_plus
-  desktop_drop
-  file_selector_windows
   flutter_inappwebview_windows
-  gal
-  media_kit_video
   pdfx
   permission_handler_windows
   printing
-  record_windows
   share_plus
-  sqlite3_flutter_libs
-  thumblr_windows
   url_launcher_windows
 )
 

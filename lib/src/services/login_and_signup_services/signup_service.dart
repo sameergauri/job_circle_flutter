@@ -11,8 +11,6 @@ import 'package:job_circle/src/screen/home_page.dart';
 import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
-import 'package:job_circle/stream_config.dart';
-import 'package:stream_chat/stream_chat.dart';
 
 class SignupService {
   static Future<bool> saveUserData(
@@ -72,7 +70,7 @@ class SignupService {
         // ✅ 2. INTEGRATE STREAM CHAT (SAFE MODE)
         // ---------------------------------------------------------
         try {
-          final client = StreamConfig.client;
+        //  final client = StreamConfig.client;
 
           String userId = userData['mobile'].toString();
           String userName = userData['firstName'] ?? "User";
@@ -82,7 +80,7 @@ class SignupService {
               "https://ui-avatars.com/api/?name=$userName&background=random";
 
           // Disconnect if any stale connection exists
-          if (client.wsConnectionStatus == ConnectionStatus.connected) {
+         /*  if (client.wsConnectionStatus == ConnectionStatus.connected) {
             await client.disconnectUser();
           }
           await client.connectUser(
@@ -92,7 +90,7 @@ class SignupService {
               image: userImage, // 🔥 Setup default image immediately
             ),
             client.devToken(userId).rawValue,
-          );
+          ); */
         } catch (chatError) {
           // ⚠️ IMPORTANT: Catch chat errors silently.
           // Agar chat fail bhi hui, toh bhi Signup SUCCESS maana jayega.

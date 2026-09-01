@@ -13,7 +13,6 @@ import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_app_theme.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class SettingHomePage extends StatelessWidget {
   final ProfileModel profile;
@@ -292,9 +291,9 @@ class SettingHomePage extends StatelessWidget {
             _buildHeader('Account management', colors),
             _buildSettingsTile('Logout', () async {
               // Clear Shared Preferences and navigate to Login Page
-              final client = StreamChat.of(context).client;
+             // final client = StreamChat.of(context).client;
               // 1. Disconnect Stream
-              await client.disconnectUser();
+             // await client.disconnectUser();
               SharedPrefsHelper.clearAllPreferences();
               await CacheClearAppVersionService.clearCache();
               NavigationService.pushAndRemoveUntil(LoginPage());

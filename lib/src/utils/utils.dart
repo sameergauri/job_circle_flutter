@@ -15,9 +15,7 @@ import 'package:job_circle/src/screen/login_and_signup/signup/signup_resume_pars
 import 'package:job_circle/src/services/deeplink/deeplink_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
-import 'package:job_circle/stream_config.dart';
 import 'package:provider/provider.dart';
-import 'package:stream_chat/stream_chat.dart';
 
 class Utils {
   static final dynamic mimTypes = jsonDecode(
@@ -81,7 +79,7 @@ class Utils {
     bool isNew = msg.toLowerCase().contains("new user");
 
     // --- HELPER FUNCTION TO CONNECT CHAT SAFELY ---
-    Future<void> connectChatSafely() async {
+   /*  Future<void> connectChatSafely() async {
       try {
         final client = StreamConfig.client;
 
@@ -102,7 +100,7 @@ class Utils {
         print("⚠️ Chat Connection Failed: $e");
         // Error ignore kar rahe hain taaki App na ruke
       }
-    }
+    } */
     // ---------------------------------------------
 
     // --- HELPER FUNCTION FOR DEEP LINK ROUTING ---
@@ -164,7 +162,7 @@ class Utils {
           true,
         ); // to check that career preference is set or not
         // 🔴 Safe Connection Call for chat
-        await connectChatSafely();
+       // await connectChatSafely();
         // Navigate to Home Screen
         NavigationService.pushAndRemoveUntil(HomeScreen());
         // 2. Ab check karo aur deep link screen push karo
@@ -182,7 +180,7 @@ class Utils {
           true,
         ); // to check that career preference is set or not
         // 🔴 Safe Connection Call for chat
-        await connectChatSafely();
+       // await connectChatSafely();
         // Navigate to Home Screen
         NavigationService.pushAndRemoveUntil(HomeScreen());
       }

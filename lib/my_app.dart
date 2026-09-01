@@ -5,10 +5,8 @@ import 'package:job_circle/src/constants/theme_color_as_per_theme.dart';
 import 'package:job_circle/src/provider/app_theme_provider.dart/app_theme_provider.dart';
 import 'package:job_circle/src/screen/splash_screen.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
-import 'package:job_circle/stream_config.dart';
 import 'package:job_circle/web/web_job_apply_form.dart';
 import 'package:provider/provider.dart';
-import 'package:stream_chat_flutter/stream_chat_flutter.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -59,10 +57,7 @@ class MyApp extends StatelessWidget {
     final String extractedCode = _getWebShareCode();
     return MaterialApp(
       builder: (context, child) {
-        return StreamChat(
-          client: StreamConfig.client,
-          child: SafeArea(top: false, bottom: true, child: child!),
-        );
+        return SafeArea(top: false, bottom: true, child: child!);
       },
       scaffoldMessengerKey: scaffoldMessengerKey,
       navigatorKey: NavigationService.navigatorKey,
