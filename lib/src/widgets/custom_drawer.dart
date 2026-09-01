@@ -292,7 +292,6 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 final bool isOwner = memberships.any(
                   (m) => m.memberRole?.toUpperCase() == 'OWNER',
                 );
-
                 return Column(
                   children: [
                     // 1. Show 'Job Post' ONLY if user belongs to NO company
