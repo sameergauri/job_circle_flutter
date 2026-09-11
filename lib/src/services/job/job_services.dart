@@ -4,11 +4,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
-import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/job_model/job_filter_model.dart';
 import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
-import 'package:job_circle/src/model/job_model/recommend_job_model.dart';
-import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 
 class JobServices {
   Future<Map<String, dynamic>> fetchJobs({
@@ -136,69 +133,68 @@ class JobServices {
       return null;
     }
   } */
-  Future<RecommendJobModel?> fetchRecomendJob({
-    required int userId,
-    List<String>? locations, // e.g., ["Thane", "Mumbai"]
-    List<String>? industries, // e.g., ["Insurance", "BPO"]
-    List<String>? workTypes, // e.g., ["Hybrid", "Remote"]
-    String? salaryMin, // e.g., "100000"
-    String? salaryMax, // e.g., "200000"
+  // Nayi API se recommended job IDs fetch karne ka logic
+  Future<List<int>> fetchRecommendedJobIds({
+    required String userId,
+    int page = 0,
+    int size = 20,
+    int minScore = 30,
   }) async {
-    // 1. Base URL creation
-    // Result: .../api/v1/recommendations/users/1885/jobs
-    String baseUrl = "${GlobalConstants.recomendedJobUrl}$userId/jobs";
+    final queryParams = {
+      'userId': userId,
+      'page': page.toString(),
+      'size': size.toString(),
+      'minScore': minScore.toString(),
+    };
 
-    // 2. Prepare Query Parameters map
-    Map<String, String> queryParams = {};
+    // Note: GlobalConstants me base URL check kar lein
+    // e.g., 'http://localhost:9090/api/v1/recommendations/jobs' ya IP address
+    final uri = Uri.parse(
+      GlobalConstants.fetchNewRecmendJob,
+    ).replace(queryParameters: queryParams);
 
-    // Add Locations (Join with ", " if list is not empty)
-    if (locations != null && locations.isNotEmpty) {
-      queryParams['locations'] = locations.join(', ');
-    } else {
-      // Fallback: Use SharedPrefs if no specific location passed
-      var defaultLocation = SharedPrefsHelper.getString(
-        ESharedPreferences.user_selected_lcoation,
-      );
-      if (defaultLocation != null && defaultLocation.isNotEmpty) {
-        queryParams['locations'] = defaultLocation;
-      }
-    }
-
-    // Add Industries
-    if (industries != null && industries.isNotEmpty) {
-      queryParams['industries'] = industries.join(', ');
-    }
-
-    // Add Work Types
-    if (workTypes != null && workTypes.isNotEmpty) {
-      queryParams['workType'] = workTypes.join(', ');
-    }
-
-    // Add Salary Range (Format: "min - max")
-    if (salaryMin != null && salaryMax != null) {
-      queryParams['salaryRange'] = "$salaryMin - $salaryMax";
-    }
-
-    // 3. Create the Final URI
-    // Uri.parse handles the encoding (turning spaces into %20, commas into %2C)
-    final uri = Uri.parse(baseUrl).replace(queryParameters: queryParams);
-
-    print("🚀 Calling API: $uri"); // Debug print to verify the URL
+    print('Fetching recommended job IDs: $uri');
 
     try {
       final response = await http.get(uri);
-
       if (response.statusCode == 200 || response.statusCode == 201) {
         final jsonData = json.decode(response.body);
-        return RecommendJobModel.fromJson(jsonData);
+        final List content = jsonData['resultData']?['content'] ?? [];
+
+        // Response se saari jobId extract kar ke int list banana
+        final List<int> jobIds = content
+            .map<int?>((item) => item['jobId'] as int?)
+            .whereType<int>()
+            .toList();
+
+        return jobIds;
       } else {
-        print("❌ Failed to load data. Status code: ${response.statusCode}");
-        print("Response: ${response.body}");
-        return null;
+        print('Failed to fetch recommendations: ${response.statusCode}');
+        return [];
       }
     } catch (e) {
-      print("⚠️ Error fetching job recommendations: $e");
-      return null;
+      print('Error fetching recommended job IDs: $e');
+      return [];
+    }
+  }
+
+  // AI Settings check karne ka method
+  Future<bool> checkAiSettings() async {
+    final url = Uri.parse(GlobalConstants.checkAISettig);
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final jsonData = json.decode(response.body);
+        final bool isOverallEnabled =
+            jsonData['resultData']?['overAllEnable'] ?? false;
+        print('AI Settings overAllEnable: $isOverallEnabled');
+        return isOverallEnabled;
+      }
+      return false;
+    } catch (e) {
+      print('Error checking AI settings: $e');
+      return false;
     }
   }
 }

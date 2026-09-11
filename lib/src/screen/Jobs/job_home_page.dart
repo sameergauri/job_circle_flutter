@@ -190,9 +190,9 @@ class _JobHomePageState extends State<JobHomePage> {
         selectedMyJobSubTab = available.isNotEmpty ? available.first : 'Active';
       }
     });
-    if (selectedTab == "Recommended Jobs") {
+   if (selectedTab == "Recommended Jobs") {
       final provider = Provider.of<JobProvider>(context, listen: false);
-      if (provider.recommendedJob?.data?.recommendations?.isEmpty ?? true) {
+      if (provider.recommendedJobs.isEmpty) {
         provider.fetchRecomendJob();
       }
     }
@@ -344,9 +344,9 @@ class _JobHomePageState extends State<JobHomePage> {
         final isLoading = jobProvider.isLoading;
         // final selectedCityFromProvider = jobProvider.selectedCity;
         final userData = jobProvider.userData;
-        final availableTabs =
-            jobProvider.recommendedJob != null &&
-                jobProvider.recommendedJob!.data != null
+       final availableTabs =
+            (jobProvider.isAiOverallEnabled &&
+                jobProvider.recommendedJobs.isNotEmpty)
             ? ["Recommended Jobs", ...getAvailableTabs(jobs)]
             : getAvailableTabs(jobs);
         final availableMyJobSubTabs = getAvailableMyJobSubTabs(jobs);
@@ -652,12 +652,11 @@ class _JobHomePageState extends State<JobHomePage> {
           );
   }
 
-  Widget _buildRecommendedJobsList(
+Widget _buildRecommendedJobsList(
     JobProvider jobProvider,
     UserData? userData,
   ) {
-    final recommendedJobs =
-        jobProvider.recommendedJob?.data?.recommendations ?? [];
+    final recommendedJobs = jobProvider.recommendedJobs;
     final isLoading = jobProvider.recommendLoading;
 
     if (isLoading) {
@@ -677,7 +676,7 @@ class _JobHomePageState extends State<JobHomePage> {
       itemBuilder: (context, index) {
         final job = recommendedJobs[index];
         List<String> myList = job.skills != null
-            ? List<String>.from(job.skills!)
+            ? List<String>.from(jsonDecode(job.skills!))
             : [];
         return Column(
           children: [
@@ -691,10 +690,11 @@ class _JobHomePageState extends State<JobHomePage> {
                   ),
                 );
               },
-              child: CustomRecommendJobcard(
+              child: CustomJobCard(
                 job: job,
                 skills: myList,
                 onLastFavoriteRemoved: () {},
+                isMyJob: false,
               ),
             ),
             if (index != recommendedJobs.length - 1)

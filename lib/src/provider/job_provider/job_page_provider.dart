@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: prefer_final_fields, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/enum.dart';
@@ -23,6 +23,10 @@ class JobProvider extends ChangeNotifier {
   String? _selectedCity;
   bool _recommendLoading = false;
   final FocusNode _searchBarFocusNode = FocusNode();
+  List<JobContent> _recommendedJobs = [];
+  bool _isAiOverallEnabled = false;
+
+  
 
   // Getters
   List<JobContent> get jobs => _jobs;
@@ -35,6 +39,8 @@ class JobProvider extends ChangeNotifier {
   String? get selectedCity => _selectedCity;
   bool get recommendLoading => _recommendLoading;
   FocusNode get searchBarFocusNode => _searchBarFocusNode;
+  List<JobContent> get recommendedJobs => _recommendedJobs;
+    bool get isAiOverallEnabled => _isAiOverallEnabled;
 
   Future<void> fetchJobs({
     bool isRefresh = false,
@@ -68,56 +74,51 @@ class JobProvider extends ChangeNotifier {
     _userData = result['userData'];
     _isLoading = false;
 
+    await fetchRecomendJob();
     _applyLocalFilters();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
   }
 
-  Future<void> fetchRecomendJob() async {
+Future<void> fetchRecomendJob() async {
+    final userId = SharedPrefsHelper.getInt(
+      ESharedPreferences.user_id,
+    ).toString();
+    if (userId.isEmpty || userId == '0') return;
+
     _recommendLoading = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _careerPreferenceProvider?.fetchCareerPreference(false);
-      notifyListeners();
-    });
+    notifyListeners();
+
     try {
-      _recommendedJob = await _jobServices.fetchRecomendJob(
-        userId: SharedPrefsHelper.getInt(ESharedPreferences.user_id),
-        locations:
-            _careerPreferenceProvider!.model.location != null &&
-                _careerPreferenceProvider!.model.location!.isNotEmpty == true
-            ? _careerPreferenceProvider?.preferredLocations
-            : null,
-        industries:
-            _careerPreferenceProvider!.model.industry != null &&
-                _careerPreferenceProvider!.model.industry!.isNotEmpty == true
-            ? _careerPreferenceProvider?.model.industry
-            : null,
-        workTypes:
-            _careerPreferenceProvider?.model.workMode != null &&
-                _careerPreferenceProvider!.model.workMode!.isNotEmpty == true
-            ? _careerPreferenceProvider?.model.workMode
-            : null,
-        salaryMin:
-            _careerPreferenceProvider?.model.startSalary != null &&
-                _careerPreferenceProvider!.model.startSalary!.isNotEmpty == true
-            ? _careerPreferenceProvider?.model.startSalary
-            : null,
-        salaryMax:
-            _careerPreferenceProvider?.model.endSalary != null &&
-                _careerPreferenceProvider!.model.endSalary!.isNotEmpty == true
-            ? _careerPreferenceProvider?.model.endSalary
-            : null,
-      );
+      // 1. Pehle Admin Settings check karein
+      _isAiOverallEnabled = await _jobServices.checkAiSettings();
+
+      // Agar setting disabled hai, toh aage call nahi karni
+      if (!_isAiOverallEnabled) {
+        _recommendedJobs = [];
+        return;
+      }
+
+      // 2. Setting enabled hone par hi Recommendations API call karein
+      final List<int> recommendedIds = await _jobServices
+          .fetchRecommendedJobIds(userId: userId);
+
+      // 3. Normal jobs ke sath match karein
+      if (recommendedIds.isNotEmpty && _allJobs.isNotEmpty) {
+        _recommendedJobs = _allJobs.where((job) {
+          return job.id != null && recommendedIds.contains(job.id);
+        }).toList();
+      } else {
+        _recommendedJobs = [];
+      }
     } catch (e, stackTrace) {
-      print('Error fetching recommended job: $e');
+      print('Error mapping recommended jobs: $e');
       print(stackTrace);
-      _recommendedJob = null;
+      _recommendedJobs = [];
     } finally {
       _recommendLoading = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      notifyListeners();
     }
   }
 
