@@ -22,6 +22,7 @@ import 'package:job_circle/src/provider/referal_program/bank_detail_provider.dar
 import 'package:job_circle/src/provider/referal_program/invoice_provider.dart';
 import 'package:job_circle/src/provider/referal_program/joiners_provider.dart';
 import 'package:job_circle/src/provider/referal_program/paymet_status_provider.dart';
+import 'package:job_circle/src/provider/screening/cv_screening_provider.dart';
 import 'package:job_circle/src/provider/suggestion_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +60,7 @@ class ProviderScop {
         ),
         ChangeNotifierProvider(create: (_) => AtsProvider()),
         ChangeNotifierProvider(create: (_) => CompanyMembershipProvider()),
+           ChangeNotifierProvider(create: (_) => CvScreeningProvider()),
       ],
       child: child,
     );
