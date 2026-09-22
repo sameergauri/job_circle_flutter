@@ -228,7 +228,7 @@ class _CvProfileEditScreenState extends State<CvProfileEditScreen> {
                           SizedBox(
                             height: MediaQuery.of(context).size.height / 24,
                             child: DropdownButtonFormField<String>(
-                              value:
+                              initialValue:
                                   [
                                     'Male',
                                     'Female',
@@ -274,38 +274,52 @@ class _CvProfileEditScreenState extends State<CvProfileEditScreen> {
               title: 'Location Information',
               colors: colors,
               children: [
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildFieldLabel('City', colors),
-                          CustomTextFieldForMasterData(
-                            contextIn: context,
-                            controller: provider.cityController,
-                            hintText: "Type to search city",
-                            name: "city",
-                            title: "Location",
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildFieldLabel('City', colors),
+                              CustomTextFieldForMasterData(
+                                contextIn: context,
+                                controller: provider.cityController,
+                                hintText: "Type to search city",
+                                name: "city",
+                                title: "Location",
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildFieldLabel('Locality / Area', colors),
+                              CustomTextFieldForMasterData(
+                                contextIn: context,
+                                controller: provider.localityController,
+                                hintText: "Type to search locality",
+                                name: "location",
+                                title: "Locality",
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildFieldLabel('Locality / Area', colors),
-                          CustomTextFieldForMasterData(
-                            contextIn: context,
-                            controller: provider.localityController,
-                            hintText: "Type to search locality",
-                            name: "location",
-                            title: "Locality",
-                          ),
-                        ],
-                      ),
+                    _buildFieldLabel('Pin Code', colors),
+                    CustomTextFieldForMasterData(
+                      contextIn: context,
+                      controller: provider.pincode,
+                      hintText: "Type to search pincode",
+                      name: "pin_code",
+                      title: "Pin Code",
                     ),
                   ],
                 ),
@@ -322,7 +336,7 @@ class _CvProfileEditScreenState extends State<CvProfileEditScreen> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 24,
                   child: DropdownButtonFormField<String>(
-                    value:
+                    initialValue:
                         [
                           'Graduate',
                           'Under_Graduate',
@@ -418,7 +432,7 @@ class _CvProfileEditScreenState extends State<CvProfileEditScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: provider.educationList.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (context, idx) {
                       final edu = provider.educationList[idx];
                       return Container(
@@ -536,7 +550,7 @@ class _CvProfileEditScreenState extends State<CvProfileEditScreen> {
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 24,
                   child: DropdownButtonFormField<String>(
-                    value: provider.selectedExperienceLevel,
+                    initialValue: provider.selectedExperienceLevel,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 10,
@@ -675,7 +689,7 @@ class _CvProfileEditScreenState extends State<CvProfileEditScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: provider.workHistoryList.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, idx) {
                       final item = provider.workHistoryList[idx];
                       return Container(
@@ -1643,7 +1657,7 @@ class _JobSelectionBottomSheetState extends State<_JobSelectionBottomSheet> {
                 : ListView.separated(
                     padding: const EdgeInsets.all(16),
                     itemCount: filteredJobs.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
                     itemBuilder: (context, index) {
                       final job = filteredJobs[index];
                       final isSelected = selectedIds.contains(job.jobId);

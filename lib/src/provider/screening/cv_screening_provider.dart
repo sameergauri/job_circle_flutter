@@ -47,6 +47,7 @@ class CvScreeningProvider extends ChangeNotifier {
   final emailController = TextEditingController();
   final dobController = TextEditingController();
   final cityController = TextEditingController();
+  final pincode = TextEditingController();
   final localityController = TextEditingController();
 
   // Experience Controllers (2 Digit Numeric)
@@ -197,6 +198,7 @@ void _populateControllers(CvProfileData profile) {
     emailController.text = profile.email;
     dobController.text = profile.dateOfBirth ?? '';
     cityController.text = profile.locationCity ?? '';
+    pincode.text = profile.pincode ?? '';
     localityController.text = profile.locationLocality ?? '';
     selectedGender = profile.gender;
 
@@ -319,6 +321,9 @@ void _populateControllers(CvProfileData profile) {
       _extractedProfile!.locationCity = cityController.text.trim().isEmpty
           ? null
           : cityController.text.trim();
+      _extractedProfile!.pincode = pincode.text.trim().isEmpty
+          ? null
+          : pincode.text.trim();
       _extractedProfile!.locationLocality =
           localityController.text.trim().isEmpty
           ? null
@@ -372,6 +377,7 @@ void _populateControllers(CvProfileData profile) {
     emailController.clear();
     dobController.clear();
     cityController.clear();
+    pincode.clear();
     localityController.clear();
     expYearsController.clear();
     expMonthsController.clear();
@@ -392,6 +398,7 @@ void _populateControllers(CvProfileData profile) {
     emailController.dispose();
     dobController.dispose();
     cityController.dispose();
+    pincode.dispose();
     localityController.dispose();
     expYearsController.dispose();
     expMonthsController.dispose();

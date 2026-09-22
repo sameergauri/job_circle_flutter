@@ -33,6 +33,7 @@ class CvProfileData {
   String? dateOfBirth;
   String? locationCity;
   String? locationLocality;
+  String? pincode;
   List<String> educationText;
   List<EducationItem> education; // Naya structured field
   List<String> languages;
@@ -52,6 +53,7 @@ class CvProfileData {
     this.dateOfBirth,
     this.locationCity,
     this.locationLocality,
+    this.pincode,
     required this.educationText,
     required this.education,
     required this.languages,
@@ -73,6 +75,7 @@ class CvProfileData {
       dateOfBirth: json['dateOfBirth'],
       locationCity: json['locationCity'],
       locationLocality: json['locationLocality'],
+      pincode: json['pincode'],
       educationText: List<String>.from(json['educationText'] ?? []),
       education: (json['education'] as List? ?? [])
           .map((e) => EducationItem.fromJson(e))
@@ -100,6 +103,7 @@ class CvProfileData {
       'locationCity': locationCity,
       'locationLocality': locationLocality,
       'educationText': educationText,
+      'pincode': pincode,
       'education': education.map((e) => e.toJson()).toList(),
       'languages': languages,
       'certificationNames': certificationNames,
