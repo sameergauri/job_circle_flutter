@@ -17,6 +17,7 @@ import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
 import 'package:job_circle/src/screen/referal_program/payment_status_home_page.dart';
 import 'package:job_circle/src/screen/screening/cv_screening_screen.dart';
+import 'package:job_circle/src/screen/screening/recompute_job_screen.dart';
 import 'package:job_circle/src/screen/user_profile/user_profile.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
@@ -303,6 +304,27 @@ class _CustomDrawerState extends State<CustomDrawer> {
               ),
               onTap: () {
                 NavigationService.push(CvScreeningScreen());
+                widget.onClose();
+              },
+            ),
+            CustomListTile(
+              contentPadding: const EdgeInsets.only(left: 10, right: 10),
+              dense: true,
+              minLeadingWidth: 0.0,
+              minVerticalPadding: 5.1,
+              leading: CustomNetworkImage(
+                imageUrl: CustomIconUrl.websiteicon,
+                defaultIcon: Icons.business_outlined,
+                color: colors.subtitleTextColor,
+              ),
+              title: customText(
+                title: 'Recompute Job Screen',
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: colors.subtitleTextColor,
+              ),
+              onTap: () {
+                NavigationService.push(RecomputeJobsScreen());
                 widget.onClose();
               },
             ),

@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/model/screening/cv_match_response_model.dart';
+import 'package:job_circle/src/model/screening/user_job_compo_model.dart';
 import 'package:job_circle/src/services/master_data/master_data_service.dart';
 import 'package:job_circle/src/services/screening/cv_screening_service.dart';
 
@@ -83,6 +84,7 @@ class CvScreeningProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
   // Experience,
   // Work History State
   List<WorkHistoryItem> _workHistoryList = [];
@@ -124,8 +126,6 @@ class CvScreeningProvider extends ChangeNotifier {
       expMonthsController.text = (totalValidMonths % 12).toString();
     }
   }
-
-
 
   // Active Jobs fetching
   Future<void> fetchActiveJobs() async {
@@ -193,7 +193,7 @@ class CvScreeningProvider extends ChangeNotifier {
     }
   }
 
-void _populateControllers(CvProfileData profile) {
+  void _populateControllers(CvProfileData profile) {
     nameController.text = profile.name;
     emailController.text = profile.email;
     dobController.text = profile.dateOfBirth ?? '';
@@ -306,7 +306,7 @@ void _populateControllers(CvProfileData profile) {
   }
 
   // STEP 2: Submit edited profile & retrieve matches
- Future<bool> submitAndGetRecommendations() async {
+  Future<bool> submitAndGetRecommendations() async {
     if (_extractedProfile == null) return false;
     try {
       _state = ScreeningState.matching;
@@ -367,7 +367,7 @@ void _populateControllers(CvProfileData profile) {
     }
   }
 
- void reset() {
+  void reset() {
     _state = ScreeningState.initial;
     _errorMessage = null;
     _selectedFileName = null;
@@ -403,5 +403,51 @@ void _populateControllers(CvProfileData profile) {
     expYearsController.dispose();
     expMonthsController.dispose();
     super.dispose();
+  }
+
+  // Recompute Recommendations for a user and selected jobs
+  // Recompute State Management
+  bool _isRecomputing = false;
+  bool get isRecomputing => _isRecomputing;
+
+  List<RecomputedJobItem> _recomputedResults = [];
+  List<RecomputedJobItem> get recomputedResults => _recomputedResults;
+
+  String? _recomputeError;
+  String? get recomputeError => _recomputeError;
+
+  Future<bool> triggerRecomputeJobs(int userId) async {
+    if (_selectedJobIds.isEmpty) {
+      _recomputeError = 'Please select at least one job to recompute.';
+      notifyListeners();
+      return false;
+    }
+
+    _isRecomputing = true;
+    _recomputeError = null;
+    notifyListeners();
+
+    try {
+      final response = await _service.recomputeUserJobs(
+        userId: userId,
+        jobIds: _selectedJobIds,
+      );
+
+      _recomputedResults = response.resultData;
+      _isRecomputing = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _recomputeError = e.toString().replaceAll('Exception: ', '');
+      _isRecomputing = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  void clearRecomputedResults() {
+    _recomputedResults = [];
+    _recomputeError = null;
+    notifyListeners();
   }
 }

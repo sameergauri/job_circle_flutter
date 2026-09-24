@@ -28,7 +28,6 @@ class ResumeService {
     if (response.statusCode == 200) {
       final respStr = await response.stream.bytesToString();
       final data = jsonDecode(respStr);
-
       // ✅ Model me convert karke return
       return CvParseModel.fromJson(data);
     } else {
@@ -171,7 +170,6 @@ class ResumeService {
     } catch (e) {
       print("Error generating responsibilities: $e");
     }
-
     return null;
   }
 
@@ -187,12 +185,12 @@ class ResumeService {
         return ProfileSummaryModel.fromJson(data);
       } else {
         print(
-          "Failed to generate responsibilities. Status: ${response.statusCode}",
+          "Failed to generate summary. Status: ${response.statusCode}",
         );
         print("Response body: ${response.body}");
       }
     } catch (e) {
-      print("Error generating responsibilities: $e");
+      print("Error generating summary: $e");
     }
 
     return null;

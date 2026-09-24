@@ -34,7 +34,7 @@ class _CvProfileEditScreenState extends State<CvProfileEditScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const _JobSelectionBottomSheet(),
+      builder: (_) => const JobSelectionBottomSheet(),
     );
   }
 
@@ -1512,14 +1512,14 @@ class _EducationEditDialogState extends State<_EducationEditDialog> {
 }
 
 // ================= BOTTOM SHEET FOR TARGET JOB SELECTION =================
-class _JobSelectionBottomSheet extends StatefulWidget {
-  const _JobSelectionBottomSheet();
+class JobSelectionBottomSheet extends StatefulWidget {
+  const JobSelectionBottomSheet();
   @override
-  State<_JobSelectionBottomSheet> createState() =>
-      _JobSelectionBottomSheetState();
+  State<JobSelectionBottomSheet> createState() =>
+      JobSelectionBottomSheetState();
 }
 
-class _JobSelectionBottomSheetState extends State<_JobSelectionBottomSheet> {
+class JobSelectionBottomSheetState extends State<JobSelectionBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
