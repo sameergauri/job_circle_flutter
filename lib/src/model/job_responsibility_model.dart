@@ -3,12 +3,16 @@ class ResponsibilityAiModel {
   final List<String>? responsibilities;
   final List<String>? skills;
   final String? message;
+    final List<String>? keywords;
+      final String? seniorityLevel;
 
   ResponsibilityAiModel({
     this.success,
     this.responsibilities,
     this.skills,
     this.message,
+    this.keywords,
+    this.seniorityLevel,
   });
 
   factory ResponsibilityAiModel.fromJson(Map<String, dynamic> json) {
@@ -27,6 +31,13 @@ class ResponsibilityAiModel {
               .toList() ??
           [],
       message: json['message'] ?? "",
+      keywords:
+          (json['keywords'] as List?)
+              ?.where((e) => e != null)
+              .map((e) => e.toString())
+              .toList() ??
+          [],
+      seniorityLevel: json['seniorityLevel'] ?? "",
     );
   }
 }

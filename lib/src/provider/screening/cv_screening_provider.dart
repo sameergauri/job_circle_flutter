@@ -436,7 +436,12 @@ class CvScreeningProvider extends ChangeNotifier {
       _recomputedResults = response.resultData;
       _isRecomputing = false;
       notifyListeners();
-      return true;
+      if(_recomputedResults.isEmpty) {
+        _recomputeError = 'No recomputed results returned.';
+        return false;
+      }else {
+        return true;
+      }
     } catch (e) {
       _recomputeError = e.toString().replaceAll('Exception: ', '');
       _isRecomputing = false;
