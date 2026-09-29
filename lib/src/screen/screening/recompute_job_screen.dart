@@ -438,6 +438,56 @@ class _RecomputeJobsScreenState extends State<RecomputeJobsScreen> {
             const SizedBox(height: 12),
           ],
 
+          if (item.workStatus.isNotEmpty) ...[
+            const customText(
+              title: 'User Work Status',
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF475569),
+            ),
+            const SizedBox(height: 4),
+            customText(
+              title: item.workStatus,
+              fontSize: 12,
+              color: const Color(0xFF1E293B),
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          if (item.seniorityAnalysis != null) ...[
+            const customText(
+              title: 'Seniority Analysis',
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF475569),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                customText(
+                  title:
+                      "User Seniority: ${item.seniorityAnalysis!.userSeniority}",
+                  fontSize: 12,
+                  color: const Color(0xFF1E293B),
+                ),
+                customText(
+                  title:
+                      "Job Seniority: ${item.seniorityAnalysis!.targetJobSeniority}",
+                  fontSize: 12,
+                  color: const Color(0xFF1E293B),
+                ),
+                customText(
+                  title:
+                      "Is Seniority Match: ${item.seniorityAnalysis!.isSeniorityMatched ? 'Yes' : 'No'}",
+                  fontSize: 12,
+                  color: const Color(0xFF1E293B),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+          ],
+
           // Why Matched Chips
           if (item.whyMatched.isNotEmpty) ...[
             const customText(

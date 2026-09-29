@@ -38,6 +38,8 @@ class RecomputedJobItem {
   final List<String> missingRequirements;
   final String recruiterSummary;
   final List<String> actionableSuggestions;
+  final String workStatus; // 🎯 Added
+  final SeniorityAnalysisModel? seniorityAnalysis; // 🎯 Added
 
   RecomputedJobItem({
     required this.userId,
@@ -50,6 +52,8 @@ class RecomputedJobItem {
     required this.missingRequirements,
     required this.recruiterSummary,
     required this.actionableSuggestions,
+    required this.workStatus,
+    this.seniorityAnalysis,
   });
 
   factory RecomputedJobItem.fromJson(Map<String, dynamic> json) {
@@ -66,6 +70,32 @@ class RecomputedJobItem {
       actionableSuggestions: List<String>.from(
         json['actionableSuggestions'] ?? [],
       ),
+      workStatus: json['workStatus'] as String? ?? 'FRESHER',
+      seniorityAnalysis: json['seniorityAnalysis'] != null
+          ? SeniorityAnalysisModel.fromJson(
+              json['seniorityAnalysis'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
+}
+
+class SeniorityAnalysisModel {
+  final String userSeniority;
+  final String targetJobSeniority;
+  final bool isSeniorityMatched;
+
+  SeniorityAnalysisModel({
+    required this.userSeniority,
+    required this.targetJobSeniority,
+    required this.isSeniorityMatched,
+  });
+
+  factory SeniorityAnalysisModel.fromJson(Map<String, dynamic> json) {
+    return SeniorityAnalysisModel(
+      userSeniority: json['userSeniority'] as String? ?? '',
+      targetJobSeniority: json['targetJobSeniority'] as String? ?? '',
+      isSeniorityMatched: json['isSeniorityMatched'] as bool? ?? false,
     );
   }
 }
