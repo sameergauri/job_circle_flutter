@@ -609,14 +609,14 @@ class SignupCreateUserProvider with ChangeNotifier {
             levelOfHiring: '',
           ) ??
           ResponsibilityAiModel();
-      if (_responsibilityAiModel!.responsibilities != null &&
-          _responsibilityAiModel!.responsibilities!.isNotEmpty) {
-        jobrole.text = _responsibilityAiModel!.responsibilities!.join('\n');
+      if (_responsibilityAiModel!.jobPosting!.responsibilities != null &&
+          _responsibilityAiModel!.jobPosting!.responsibilities!.isNotEmpty) {
+        jobrole.text = _responsibilityAiModel!.jobPosting!.responsibilities!.join('\n');
         _isResponsebilityGenerated = true;
-        if (_responsibilityAiModel!.skills != null &&
+       /*  if (_responsibilityAiModel!.skills != null &&
             _responsibilityAiModel!.skills!.isNotEmpty) {
           _skills.addAll(List<String>.from(_responsibilityAiModel!.skills!));
-        }
+        } */
       }
       notifyListeners();
       CustomSnackbar.show(

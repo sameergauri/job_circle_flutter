@@ -85,6 +85,8 @@ class GlobalConstants {
       '$_baseurl/api/v1/users/generateProfileSummery?userId=';
   static const generateSummaryUsingAiUrl =
       '$_baseurl/jobs/v1/generateJobSummary';
+        static const generateSkillUsingAiUrl =
+      '$_baseurl/jobs/v1/generateSkillsUsingGPT';
   //
   //
   //TODO:: Parse resume

@@ -725,14 +725,35 @@ class ProfileExperienceEdit extends StatelessWidget {
               ],
             ),
             SizedBox(height: 15),
-            customText(
-              title: "Skills*",
-              fontStyle: FontStyle.italic,
-              color: colors.headingColor,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                customText(
+                  title: "Skills*",
+                  fontStyle: FontStyle.italic,
+                  color: colors.headingColor,
+                ),
+                InkWell(
+                  onTap: () {
+                    provider.fetchSkillsUsingGPT(
+                      industry: provider.industry.text,
+                      jobTitle: provider.jobrole.text,
+                      functionalArea: provider.functionalArea.text,
+                      responsibilities: [provider.jobResponsibility.text],
+                    );
+                  },
+                  child: CustomNetworkImage(
+                    imageUrl: CustomIconUrl.aiicon,
+                    defaultIcon: Icons.star,
+                  ),
+                ),
+              ],
             ),
             CustomTextFieldForSkills(
               title: "Skills",
-              initialSkills: provider.skills,
+              initialSkills: provider.skillResponse != null
+                  ? provider.skillResponse!.skills
+                  : [],
               onSkillsChanged: (skills) {
                 provider.assignSkillsToExperience(skills);
               },

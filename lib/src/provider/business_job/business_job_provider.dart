@@ -397,16 +397,17 @@ class BusinessJobProvider extends ChangeNotifier {
       if (result != null) {
         responsibilityAiModel = result;
 
-        if (result.responsibilities != null &&
-            result.responsibilities!.isNotEmpty) {
-          keyResponsibilitiesController.text = result.responsibilities!
+        if (result.jobPosting!.responsibilities != null &&
+            result.jobPosting!.responsibilities!.isNotEmpty) {
+          keyResponsibilitiesController.text = result.jobPosting!
+              .responsibilities!
               .map((e) => '• ${e.trim()}')
               .join('\n');
         }
 
-        if (result.skills != null && result.skills!.isNotEmpty) {
+       /*  if (result.skills != null && result.skills!.isNotEmpty) {
           aiSuggestedSkills = List.from(result.skills!);
-        }
+        } */
 
         CustomSnackbar.show(
           "Responsibilities & Skills generated successfully",

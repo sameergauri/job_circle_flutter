@@ -710,13 +710,13 @@ class ProfileProvider with ChangeNotifier {
             levelOfHiring: '',
           ) ??
           ResponsibilityAiModel();
-      if (_responsibilityAiModel!.responsibilities != null &&
-          _responsibilityAiModel!.responsibilities!.isNotEmpty) {
-        jobrole.text = _responsibilityAiModel!.responsibilities!.join('\n');
-        if (_responsibilityAiModel!.skills != null &&
+      if (_responsibilityAiModel!.jobPosting!.responsibilities.isNotEmpty) {
+        jobrole.text = _responsibilityAiModel!.jobPosting!.responsibilities
+            .join('\n');
+        /*   if (_responsibilityAiModel!.skills != null &&
             _responsibilityAiModel!.skills!.isNotEmpty) {
           _skills.addAll(List<String>.from(_responsibilityAiModel!.skills!));
-        }
+        } */
         _isResponsebilityGenerated = true;
       }
       notifyListeners();
@@ -733,6 +733,40 @@ class ProfileProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // ================= GENERATE SKILLS VIA GPT STATE =================
+  SkillFetchResponse? _skillResponse;
+  SkillFetchResponse? get skillResponse => _skillResponse;
+
+  Future<void> fetchSkillsUsingGPT({
+    required String industry,
+    required String jobTitle,
+    required String functionalArea,
+    required List<String> responsibilities,
+  }) async {
+    if (_isLoading) return;
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _skillResponse = await ResumeService.generateSkillsUsingGPT(
+        industry: industry,
+        jobTitle: jobTitle,
+        functionalArea: functionalArea,
+        responsibilities: responsibilities,
+      );
+      notifyListeners();
+      CustomSnackbar.show("Skills generated successfully", false);
+    } catch (e) {
+      // Show error Snackbar
+      CustomSnackbar.show("Error while generating skills: $e", true);
+      rethrow; // Rethrow the error to handle it in the UI
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //================== END OF GENERATE SKILLS VIA GPT STATE =================
 
   void clearResponsibility() {
     jobrole.clear();

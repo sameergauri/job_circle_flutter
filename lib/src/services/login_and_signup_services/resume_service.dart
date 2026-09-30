@@ -173,6 +173,42 @@ class ResumeService {
     return null;
   }
 
+  static Future<SkillFetchResponse> generateSkillsUsingGPT({
+    required String jobTitle,
+    required String industry,
+    required String functionalArea,
+    required List<String> responsibilities,
+  }) async {
+    // Production URL / Local endpoint
+    final uri = Uri.parse(GlobalConstants.generateSkillUsingAiUrl);
+
+    final payload = GenerateSkillsRequest(
+      jobTitle: jobTitle,
+      industry: industry,
+      functionalArea: functionalArea,
+      responsibilities: responsibilities,
+    );
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: {'Content-Type': 'application/json', 'Accept': '*/*'},
+        body: jsonEncode(payload.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body = jsonDecode(response.body);
+        return SkillFetchResponse.fromJson(body);
+      } else {
+        throw Exception(
+          'Failed to generate skills. Code: ${response.statusCode}, Body: ${response.body}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error calling generateSkillsUsingGPT: $e');
+    }
+  }
+
   static Future<ProfileSummaryModel?> generateSummaryUsingAi() async {
     int userid = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
     final url = Uri.parse('${GlobalConstants.genereteSummaryUsingAI}$userid');
