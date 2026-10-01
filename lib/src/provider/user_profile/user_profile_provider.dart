@@ -754,6 +754,18 @@ class ProfileProvider with ChangeNotifier {
         functionalArea: functionalArea,
         responsibilities: responsibilities,
       );
+      // Merge into the live skills list (case-insensitive dedupe) so it's
+      // the one source of truth the skills field reads from — otherwise
+      // later removals get silently undone by the next rebuild, since
+      // _skillResponse.skills never reflects them.
+      final existingLower = _skills.map((s) => s.toLowerCase()).toSet();
+      for (final skill in _skillResponse?.skills ?? <String>[]) {
+        final trimmed = skill.trim();
+        if (trimmed.isNotEmpty && !existingLower.contains(trimmed.toLowerCase())) {
+          _skills.add(trimmed);
+          existingLower.add(trimmed.toLowerCase());
+        }
+      }
       notifyListeners();
       CustomSnackbar.show("Skills generated successfully", false);
     } catch (e) {

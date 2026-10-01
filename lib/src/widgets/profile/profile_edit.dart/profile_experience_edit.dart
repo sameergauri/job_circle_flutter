@@ -725,41 +725,51 @@ class ProfileExperienceEdit extends StatelessWidget {
               ],
             ),
             SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Stack(
               children: [
-                customText(
-                  title: "Skills*",
-                  fontStyle: FontStyle.italic,
-                  color: colors.headingColor,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        customText(
+                          title: "Skills*",
+                          fontStyle: FontStyle.italic,
+                          color: colors.headingColor,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            provider.fetchSkillsUsingGPT(
+                              industry: provider.industry.text,
+                              jobTitle: provider.jobrole.text,
+                              functionalArea: provider.functionalArea.text,
+                              responsibilities: [
+                                provider.jobResponsibility.text,
+                              ],
+                            );
+                          },
+                          child: CustomNetworkImage(
+                            imageUrl: CustomIconUrl.aiicon,
+                            defaultIcon: Icons.star,
+                          ),
+                        ),
+                      ],
+                    ),
+                    CustomTextFieldForSkills(
+                      title: "Skills",
+                      initialSkills: provider.skills,
+                      onSkillsChanged: (skills) {
+                        provider.assignSkillsToExperience(skills);
+                      },
+                      name: "skills",
+                      controller: provider.skillController,
+                      hintText: "Enter your skills",
+                    ),
+                  ],
                 ),
-                InkWell(
-                  onTap: () {
-                    provider.fetchSkillsUsingGPT(
-                      industry: provider.industry.text,
-                      jobTitle: provider.jobrole.text,
-                      functionalArea: provider.functionalArea.text,
-                      responsibilities: [provider.jobResponsibility.text],
-                    );
-                  },
-                  child: CustomNetworkImage(
-                    imageUrl: CustomIconUrl.aiicon,
-                    defaultIcon: Icons.star,
-                  ),
-                ),
+                if (provider.isLoading) CustomLoadingIndicator(),
               ],
-            ),
-            CustomTextFieldForSkills(
-              title: "Skills",
-              initialSkills: provider.skillResponse != null
-                  ? provider.skillResponse!.skills
-                  : [],
-              onSkillsChanged: (skills) {
-                provider.assignSkillsToExperience(skills);
-              },
-              name: "skills",
-              controller: provider.skillController,
-              hintText: "Enter your skills",
             ),
             const SizedBox(height: 15),
             customText(
