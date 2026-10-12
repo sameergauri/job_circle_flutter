@@ -32,6 +32,7 @@ class _SimpleBasicDetailState extends State<SimpleBasicDetail> {
         SharedPrefsHelper.getInt(ESharedPreferences.user_mobile).toString(),
       );
     });
+    context.read<SignupCreateUserProvider>().startTimer(context);
     // TODO: implement initState
     super.initState();
   }
@@ -77,9 +78,15 @@ class _SimpleBasicDetailState extends State<SimpleBasicDetail> {
             backgroundColor: Constants.borderColor,
             elevation: 0,
             iconTheme: const IconThemeData(color: Colors.black),
-            title: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [OnboardingAppBarHeading(), OnboardingAppBarSubTitle()],
+            title: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  OnboardingAppBarHeading(),
+                  OnboardingAppBarSubTitle(),
+                ],
+              ),
             ),
             actions: [
               Padding(

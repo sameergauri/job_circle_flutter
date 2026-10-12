@@ -232,12 +232,14 @@ class GenerateSkillsRequest {
   final String industry;
   final String functionalArea;
   final List<String> responsibilities;
+  final bool isCanonical;
 
   GenerateSkillsRequest({
     required this.jobTitle,
     required this.industry,
     required this.functionalArea,
     required this.responsibilities,
+    required this.isCanonical,
   });
 
   Map<String, dynamic> toJson() {
@@ -246,6 +248,7 @@ class GenerateSkillsRequest {
       'industry': industry,
       'functionalArea': functionalArea,
       'responsibilities': responsibilities,
+      'isCanonical': isCanonical,
     };
   }
 }

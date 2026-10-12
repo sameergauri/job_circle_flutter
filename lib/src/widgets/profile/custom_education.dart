@@ -225,16 +225,16 @@ class CustomEducationContainer extends StatelessWidget {
                               ? customText(
                                   monst: true,
                                   title:
-                                      data.endMonth != null &&
+                                     /*  data.endMonth != null &&
                                           data.endMonth != "Unknown"
                                       ? '${MonthNameConverter.getShortMonthName(data.endMonth)} - ${data.passingYear.toString()}'
-                                      : data.passingYear.toString(),
+                                      :  */data.passingYear.toString(),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   color: colors.subTitleColor,
                                   overflow: TextOverflow.ellipsis,
                                 )
-                              : customText(
+                              :SizedBox.shrink() /* customText(
                                   monst: true,
                                   title:
                                       data.startMonth != null &&
@@ -245,7 +245,7 @@ class CustomEducationContainer extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   color: colors.subTitleColor,
                                   overflow: TextOverflow.ellipsis,
-                                ),
+                                ), */
                         ),
                       ],
                     );

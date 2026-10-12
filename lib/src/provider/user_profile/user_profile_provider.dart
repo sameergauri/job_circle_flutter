@@ -708,6 +708,7 @@ class ProfileProvider with ChangeNotifier {
             industry: industry.text,
             jobTitle: jobtitle.text,
             levelOfHiring: '',
+            forUser: true,
           ) ??
           ResponsibilityAiModel();
       if (_responsibilityAiModel!.jobPosting!.responsibilities.isNotEmpty) {
@@ -753,6 +754,7 @@ class ProfileProvider with ChangeNotifier {
         jobTitle: jobTitle,
         functionalArea: functionalArea,
         responsibilities: responsibilities,
+        isCanonical: true
       );
       // Merge into the live skills list (case-insensitive dedupe) so it's
       // the one source of truth the skills field reads from — otherwise
@@ -761,7 +763,8 @@ class ProfileProvider with ChangeNotifier {
       final existingLower = _skills.map((s) => s.toLowerCase()).toSet();
       for (final skill in _skillResponse?.skills ?? <String>[]) {
         final trimmed = skill.trim();
-        if (trimmed.isNotEmpty && !existingLower.contains(trimmed.toLowerCase())) {
+        if (trimmed.isNotEmpty &&
+            !existingLower.contains(trimmed.toLowerCase())) {
           _skills.add(trimmed);
           existingLower.add(trimmed.toLowerCase());
         }
@@ -1275,12 +1278,12 @@ class ProfileProvider with ChangeNotifier {
           : null,
       degreeSpc: degree.text.isNotEmpty ? degree.text : null,
       fieldOfStudy: fieldOfStudy.text.isNotEmpty ? fieldOfStudy.text : null,
-      firstYear: int.tryParse(startyear.text.trim()),
-      startMonth: startMonthInt,
+      //firstYear: int.tryParse(startyear.text.trim()),
+      //startMonth: startMonthInt,
       passingYear: _currentlyStudying
           ? null
           : int.tryParse(endyear.text.trim()),
-      endMonth: _currentlyStudying ? null : endMonthInt,
+      //endMonth: _currentlyStudying ? null : endMonthInt,
       isCurrent: _currentlyStudying ? 1 : 0,
       marksheet: _markSheet,
       courseType: _fullTimeCourse

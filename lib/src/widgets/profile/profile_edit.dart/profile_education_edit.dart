@@ -13,7 +13,6 @@ import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart'
 import 'package:job_circle/src/services/file_upload_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart'
     show NavigationService;
-import 'package:job_circle/src/utils/custom_get_month.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_document_upload_button.dart';
@@ -23,7 +22,6 @@ import 'package:job_circle/src/widgets/container/custom_container_to_view_docume
 import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
 import 'package:job_circle/src/widgets/dialogue/custom_pdf_view_dialogue.dart';
-import 'package:job_circle/src/widgets/dropdown/month_drop_down.dart';
 import 'package:job_circle/src/widgets/dropdown/year_drop_down.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_list_tile.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -203,7 +201,7 @@ class ProfileEducationEdit extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 15),
+            /*    const SizedBox(height: 15),
             customText(title: "Start Year*", color: colors.headingColor),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -232,12 +230,18 @@ class ProfileEducationEdit extends StatelessWidget {
                   // child: DropDownYear("Select Year", provider.startYear, true)
                 ),
               ],
-            ),
+            ), */
             if (!provider.currentlyStudying) const SizedBox(height: 15),
             if (!provider.currentlyStudying)
               customText(title: "End Year*", color: colors.headingColor),
             if (!provider.currentlyStudying)
-              Row(
+              DropDownYear(
+                hint: "Select Year",
+                controller: provider.endyear,
+                isFirst: false,
+                firstYearController: provider.startyear,
+              ),
+            /*  Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SizedBox(
@@ -257,7 +261,7 @@ class ProfileEducationEdit extends StatelessWidget {
                     ),
                   ),
                 ],
-              ),
+              ), */
             const SizedBox(height: 10),
             CustomCheckboxRow(
               title: "Currently Studying",
@@ -348,11 +352,10 @@ class ProfileEducationEdit extends StatelessWidget {
                     CustomSnackbar.show("Enter university name", true);
                   } else if (provider.degree.text.isEmpty) {
                     CustomSnackbar.show("Enter Degree to save education", true);
-                  } else if (provider.startmonth.text.isEmpty ||
+                  } /*  else if (provider.startmonth.text.isEmpty ||
                       provider.startyear.text.isEmpty) {
                     CustomSnackbar.show("Enter Start Year", true);
-                  } else if ((provider.endmonth.text.isEmpty ||
-                          provider.endyear.text.isEmpty) &&
+                  } */ else if ((provider.endyear.text.isEmpty) &&
                       !provider.currentlyStudying) {
                     CustomSnackbar.show("Enter End Year", true);
                   } else {
@@ -471,16 +474,18 @@ class ProfileEducationEdit extends StatelessWidget {
                         ? customText(
                             monst: true,
                             title:
-                                edu.endMonth != null &&
+                                /* edu.endMonth != null &&
                                     edu.endMonth != "Unknown"
                                 ? '${MonthNameConverter.getShortMonthName(edu.endMonth)} - ${edu.passingYear.toString()}'
-                                : edu.passingYear.toString(),
+                                : */
+                                edu.passingYear.toString(),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: Constants.subtitleclr,
                             overflow: TextOverflow.ellipsis,
                           )
-                        : customText(
+                        : SizedBox.shrink(),
+                    /* : customText(
                             monst: true,
                             title:
                                 edu.startMonth != null &&
@@ -491,7 +496,7 @@ class ProfileEducationEdit extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                             color: Constants.subtitleclr,
                             overflow: TextOverflow.ellipsis,
-                          ),
+                          ), */
                   ],
                 ),
               ],

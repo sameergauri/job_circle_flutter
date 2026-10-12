@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, todo, non_constant_identifier_names, avoid_print, prefer_final_fields
+// ignore_for_file: unnecessary_non_null_assertion, unnecessary_null_comparison, use_build_context_synchronously, todo, non_constant_identifier_names, avoid_print, prefer_final_fields
 import 'dart:async';
 import 'dart:io';
 
@@ -607,6 +607,7 @@ class SignupCreateUserProvider with ChangeNotifier {
             industry: industry.text,
             jobTitle: jobtitle.text,
             levelOfHiring: '',
+            forUser: true
           ) ??
           ResponsibilityAiModel();
       if (_responsibilityAiModel!.jobPosting!.responsibilities != null &&

@@ -143,6 +143,7 @@ class ResumeService {
     required String industry,
     required String jobTitle,
     required String levelOfHiring,
+    required bool forUser,
   }) async {
     final url = Uri.parse(GlobalConstants.generateResponsibilityUsingAiUrl);
 
@@ -155,6 +156,7 @@ class ResumeService {
           "industry": industry,
           "jobTitle": jobTitle,
           "levelOfHiring": levelOfHiring,
+          'forUser': forUser,
         }),
       );
 
@@ -178,6 +180,7 @@ class ResumeService {
     required String industry,
     required String functionalArea,
     required List<String> responsibilities,
+    required bool isCanonical,
   }) async {
     // Production URL / Local endpoint
     final uri = Uri.parse(GlobalConstants.generateSkillUsingAiUrl);
@@ -187,6 +190,7 @@ class ResumeService {
       industry: industry,
       functionalArea: functionalArea,
       responsibilities: responsibilities,
+      isCanonical: isCanonical,
     );
 
     try {

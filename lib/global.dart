@@ -12,7 +12,7 @@ class GlobalConstants {
         "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
       // local
       // "192.168.1.103:8081"
-      // "192.168.1.104:9090"
+      // "192.168.1.101:9090"
       //TODO:: For Website......
       : "api.jobcircle.co.in";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
@@ -85,7 +85,7 @@ class GlobalConstants {
       '$_baseurl/api/v1/users/generateProfileSummery?userId=';
   static const generateSummaryUsingAiUrl =
       '$_baseurl/jobs/v1/generateJobSummary';
-        static const generateSkillUsingAiUrl =
+  static const generateSkillUsingAiUrl =
       '$_baseurl/jobs/v1/generateSkillsUsingGPT';
   //
   //

@@ -11,7 +11,7 @@ import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/screen/home_page.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
-import 'package:job_circle/src/screen/login_and_signup/signup/signup_resume_parse_page.dart';
+import 'package:job_circle/src/screen/login_and_signup/signup/no_profile/basic_simple_detail_page.dart';
 import 'package:job_circle/src/services/deeplink/deeplink_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
@@ -171,7 +171,9 @@ class Utils {
     } else if (from == "otp") {
       // ✅ OTP validation logic
       if (isNew) {
-        NavigationService.pushAndRemoveUntil(ResumeParsePage());
+        // TODO: Filhal isko hatadiya gaya hai because of lanthy process.
+        // NavigationService.pushAndRemoveUntil(ResumeParsePage());
+         NavigationService.pushAndRemoveUntil(SimpleBasicDetail());
       } else {
         provider.fetchJobs(
           applyCityFilter: false,
