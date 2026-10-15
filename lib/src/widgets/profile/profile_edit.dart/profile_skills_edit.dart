@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
@@ -8,13 +9,16 @@ import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_add_skill.dart';
 import 'package:job_circle/src/widgets/button/custom_button_for_save.dart';
 import 'package:job_circle/src/widgets/button/custom_full_size_button.dart';
+import 'package:job_circle/src/widgets/button/custom_icon_button.dart';
+import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/custom_title/onboarding_title.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
 import 'package:provider/provider.dart';
 
 class ProfileAddSkill extends StatelessWidget {
-  const ProfileAddSkill({super.key});
+  final List<String> skills;
+  const ProfileAddSkill({super.key, required this.skills});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +34,6 @@ class ProfileAddSkill extends StatelessWidget {
     });
 
     return Scaffold(
-     
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, bottom: 5),
         child: CustomButtonForSave(
@@ -55,6 +58,22 @@ class ProfileAddSkill extends StatelessWidget {
         title: OnboardingTitle(title: "Skills", fontSize: 16),
         backgroundColor: colors.appbarColor,
         elevation: 0,
+        actions: [
+          CustomIconButton(
+            imageUrl: CustomIconUrl.staricon,
+            onTap: () {
+              final provider = Provider.of<ProfileProvider>(
+                context,
+                listen: false,
+              );
+              provider.rankSkills(
+                skills: skills,
+                seniorityLevel:
+                    provider.responsibilityAiModel?.seniorityLevel ?? "",
+              );
+            },
+          ),
+        ],
       ),
       backgroundColor: colors.bgColor,
 
@@ -72,6 +91,25 @@ class ProfileAddSkill extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        provider.fetchSkillsUsingGPT(
+                          industry: provider.industry.text,
+                          jobTitle: provider.jobrole.text,
+                          functionalArea: provider.functionalArea.text,
+                          responsibilities: [provider.jobResponsibility.text],
+                        );
+                      },
+                      child: CustomNetworkImage(
+                        imageUrl: CustomIconUrl.aiicon,
+                        defaultIcon: Icons.star,
+                      ),
+                    ),
+                  ],
+                ),
                 CustomTextFieldforAll(
                   maxLength: 20,
                   controller: provider.skillController,
@@ -130,7 +168,7 @@ class ProfileAddSkill extends StatelessWidget {
                     margin: const EdgeInsets.only(top: 10),
                     decoration: BoxDecoration(
                       color: colors.bottomsheetbgColor,
-                      border: Border.all(color:colors.appbarColor!),
+                      border: Border.all(color: colors.appbarColor!),
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(

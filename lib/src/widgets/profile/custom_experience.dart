@@ -298,6 +298,7 @@ class CustomExperienceContainer extends StatelessWidget {
                               ),
                               child: ExpandableTextWidget(
                                 initialMaxLines: 5,
+                                hangingIndentBullets: true,
                                 text: BulletFormatter.formatWithBullets(
                                   data.jobRole!,
                                 ),

@@ -128,11 +128,17 @@ Future<void> fetchRecomendJob() async {
     if (_searchQuery.isNotEmpty) {
       final query = _searchQuery.toLowerCase();
       filteredJobs = filteredJobs.where((job) {
+        final matchesSearchKeywords =
+            job.search_keywords?.allKeywords.any(
+              (keyword) => keyword.toLowerCase().contains(query),
+            ) ??
+            false;
         return (job.rolename?.toLowerCase().contains(query) ?? false) ||
             (job.companyName?.toLowerCase().contains(query) ?? false) ||
             (job.process?.toLowerCase().contains(query) ?? false) ||
             (job.jobHeadline?.toLowerCase().contains(query) ?? false) ||
-            (job.skills?.toLowerCase().contains(query) ?? false);
+            (job.skills?.toLowerCase().contains(query) ?? false) ||
+            matchesSearchKeywords;
       }).toList();
       print('After search filter: ${filteredJobs.length} jobs');
     }

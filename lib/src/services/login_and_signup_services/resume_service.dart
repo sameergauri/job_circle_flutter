@@ -144,6 +144,7 @@ class ResumeService {
     required String jobTitle,
     required String levelOfHiring,
     required bool forUser,
+    required bool isGenerateSkills,
   }) async {
     final url = Uri.parse(GlobalConstants.generateResponsibilityUsingAiUrl);
 
@@ -155,8 +156,9 @@ class ResumeService {
           'functionalArea': functionalArea,
           "industry": industry,
           "jobTitle": jobTitle,
-          "levelOfHiring": levelOfHiring,
+          "levelOfHiring": levelOfHiring, 
           'forUser': forUser,
+          'isGenerateSkills': isGenerateSkills,
         }),
       );
 
@@ -210,6 +212,49 @@ class ResumeService {
       }
     } catch (e) {
       throw Exception('Error calling generateSkillsUsingGPT: $e');
+    }
+  }
+
+  static Future<List<String>> rankSkillsUsingGPT({
+    required List<String> skills,
+    String? seniorityLevel,
+  }) async {
+    final uri = Uri.parse(GlobalConstants.rankSkillUsingGPT);
+
+    final payload = RankSkillsRequest(
+      skills: skills,
+      seniorityLevel: seniorityLevel,
+    );
+
+    try {
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        body: jsonEncode(payload.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> body = jsonDecode(response.body);
+        final parsed = SkillRankResponse.fromJson(body);
+
+        if (!parsed.success) {
+          throw Exception(
+            'API returned success=false. Message: ${parsed.message}',
+          );
+        }
+
+        // ✅ Return ONLY the skills list — as you asked
+        return parsed.skills;
+      } else {
+        throw Exception(
+          'Failed to rank skills. Code: ${response.statusCode}, Body: ${response.body}',
+        );
+      }
+    } catch (e) {
+      throw Exception('Error calling rankSkillsUsingGPT: $e');
     }
   }
 

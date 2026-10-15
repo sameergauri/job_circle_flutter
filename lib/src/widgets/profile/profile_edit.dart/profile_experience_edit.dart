@@ -31,7 +31,6 @@ import 'package:job_circle/src/widgets/text_field/custom_auto_size_text_field.da
 import 'package:job_circle/src/widgets/text_field/custom_suggestion_text_field.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_field_for_master_data.dart';
 import 'package:job_circle/src/widgets/text_field/custom_text_fielld_for_all.dart';
-import 'package:job_circle/src/widgets/text_field/custom_textfield_for_skills.dart';
 import 'package:provider/provider.dart';
 
 class ProfileExperienceEdit extends StatelessWidget {
@@ -636,7 +635,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   customText(
-                    title: "Job Responsibiity",
+                    title: "Job Responsibiity*",
                     color: colors.headingColor,
                   ),
                   ValueListenableBuilder<TextEditingValue>(
@@ -724,7 +723,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                   ),
               ],
             ),
-            SizedBox(height: 15),
+            /*  SizedBox(height: 15),
             Stack(
               children: [
                 Column(
@@ -770,7 +769,7 @@ class ProfileExperienceEdit extends StatelessWidget {
                 ),
                 if (provider.isLoading) CustomLoadingIndicator(),
               ],
-            ),
+            ), */
             const SizedBox(height: 15),
             customText(
               title: "Anual Salary",
@@ -1041,6 +1040,8 @@ class ProfileExperienceEdit extends StatelessWidget {
                   } else if (!provider.currentlyWorking &&
                       provider.lastWorkingDate.text.isEmpty) {
                     CustomSnackbar.show("Enter Last date", true);
+                  } else if (provider.jobrole.text.isEmpty) {
+                    CustomSnackbar.show("Enter Job Resposibility", true);
                   } else if (!provider.onSite &&
                       !provider.hybrid &&
                       !provider.remote) {

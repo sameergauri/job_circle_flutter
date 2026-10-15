@@ -607,7 +607,8 @@ class SignupCreateUserProvider with ChangeNotifier {
             industry: industry.text,
             jobTitle: jobtitle.text,
             levelOfHiring: '',
-            forUser: true
+            forUser: true,
+            isGenerateSkills: false,
           ) ??
           ResponsibilityAiModel();
       if (_responsibilityAiModel!.jobPosting!.responsibilities != null &&

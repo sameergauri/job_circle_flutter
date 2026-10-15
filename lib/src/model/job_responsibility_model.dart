@@ -6,6 +6,7 @@ class ResponsibilityAiModel {
   final JobPosting? jobPosting;
   final SearchKeywords? searchKeywords;
   final ScreeningKeywords? screeningKeywords;
+  final List<String>? skills;
 
   ResponsibilityAiModel({
     this.seniorityLevel,
@@ -13,6 +14,7 @@ class ResponsibilityAiModel {
     this.jobPosting,
     this.searchKeywords,
     this.screeningKeywords,
+    this.skills,
   });
 
   factory ResponsibilityAiModel.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,11 @@ class ResponsibilityAiModel {
               json['screening_keywords'] as Map<String, dynamic>,
             )
           : null,
+      skills: (json['skills'] as List?)
+              ?.where((e) => e != null)
+              .map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 
@@ -42,6 +49,7 @@ class ResponsibilityAiModel {
       'job_posting': jobPosting?.toJson(),
       'search_keywords': searchKeywords?.toJson(),
       'screening_keywords': screeningKeywords?.toJson(),
+      'skills': skills,
     };
   }
 
@@ -251,4 +259,52 @@ class GenerateSkillsRequest {
       'isCanonical': isCanonical,
     };
   }
+}
+
+class RankSkillsRequest {
+  final List<String> skills;
+  final String? seniorityLevel; // "Junior", "Mid", "Senior", "Lead", etc.
+
+  RankSkillsRequest({required this.skills, this.seniorityLevel});
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {'skills': skills};
+    if (seniorityLevel != null && seniorityLevel!.isNotEmpty) {
+      data['seniorityLevel'] = seniorityLevel;
+    }
+    return data;
+  }
+
+  factory RankSkillsRequest.fromJson(Map<String, dynamic> json) {
+    return RankSkillsRequest(
+      skills: List<String>.from(json['skills'] ?? []),
+      seniorityLevel: json['seniorityLevel'],
+    );
+  }
+}
+
+class SkillRankResponse {
+  final bool success;
+  final List<String> skills;
+  final String? message;
+
+  SkillRankResponse({
+    required this.success,
+    required this.skills,
+    this.message,
+  });
+
+  factory SkillRankResponse.fromJson(Map<String, dynamic> json) {
+    return SkillRankResponse(
+      success: json['success'] ?? false,
+      skills: List<String>.from(json['skills'] ?? []),
+      message: json['message'],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'success': success,
+    'skills': skills,
+    'message': message,
+  };
 }

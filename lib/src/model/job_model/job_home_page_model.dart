@@ -119,6 +119,8 @@ class JobContent {
   final String? businessCompanyIndustry;
   final int? spoc;
   final String? jobStatus;
+  final SearchKeywords? search_keywords;
+  final ScreeningKeywords? screening_keywords;
 
   const JobContent({
     this.jobPostType,
@@ -159,6 +161,8 @@ class JobContent {
     this.spoc,
     this.job_updated_on,
     this.jobStatus,
+    this.screening_keywords,
+    this.search_keywords,
   });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
@@ -201,6 +205,12 @@ class JobContent {
       spoc: json['spoc'],
       job_updated_on: json['job_updated_on'],
       jobStatus: json['jobStatus'],
+      search_keywords: json['search_keywords'] != null
+          ? SearchKeywords.fromJson(json['search_keywords'])
+          : null,
+      screening_keywords: json['screening_keywords'] != null
+          ? ScreeningKeywords.fromJson(json['screening_keywords'])
+          : null,
     );
   }
 
@@ -243,6 +253,8 @@ class JobContent {
     String? job_updated_on,
     int? spoc,
     String? jobStatus,
+    SearchKeywords? search_keywords,
+    ScreeningKeywords? screening_keywords,
   }) {
     return JobContent(
       jobPostType: jobPostType ?? this.jobPostType,
@@ -288,7 +300,99 @@ class JobContent {
           businessCompanyIndustry ?? this.businessCompanyIndustry,
       spoc: spoc ?? this.spoc,
       job_updated_on: job_updated_on ?? this.job_updated_on,
-      jobStatus: jobStatus ?? this.jobStatus
+      jobStatus: jobStatus ?? this.jobStatus,
+      search_keywords: search_keywords ?? this.search_keywords,
+      screening_keywords: screening_keywords ?? this.screening_keywords,
     );
   }
+}
+
+class SearchKeywords {
+  final List<String> roleAndTitleTags;
+  final List<String> hardSkillTags;
+  final List<String> domainAndIndustryTags;
+  final List<String> seniorityTags;
+
+  const SearchKeywords({
+    this.roleAndTitleTags = const [],
+    this.hardSkillTags = const [],
+    this.domainAndIndustryTags = const [],
+    this.seniorityTags = const [],
+  });
+
+  factory SearchKeywords.fromJson(Map<String, dynamic> json) {
+    return SearchKeywords(
+      roleAndTitleTags: _toStringList(json['role_and_title_tags']),
+      hardSkillTags: _toStringList(json['hard_skill_tags']),
+      domainAndIndustryTags: _toStringList(json['domain_and_industry_tags']),
+      seniorityTags: _toStringList(json['seniority_tags']),
+    );
+  }
+  bool get isEmpty =>
+      roleAndTitleTags.isEmpty &&
+      hardSkillTags.isEmpty &&
+      domainAndIndustryTags.isEmpty &&
+      seniorityTags.isEmpty;
+
+  List<String> get allKeywords => [
+    ...roleAndTitleTags,
+    ...hardSkillTags,
+    ...domainAndIndustryTags,
+    ...seniorityTags,
+  ];
+
+  static List<String> _toStringList(dynamic value) {
+    if (value == null) return const [];
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return const [];
+  }
+
+  @override
+  String toString() =>
+      'SearchKeywords(role: ${roleAndTitleTags.length}, hard: ${hardSkillTags.length}, '
+      'domain: ${domainAndIndustryTags.length}, seniority: ${seniorityTags.length})';
+}
+
+class ScreeningKeywords {
+  final List<String> mustHaveScreeningKeywords;
+  final List<String> niceToHaveScreeningKeywords;
+
+  const ScreeningKeywords({
+    this.mustHaveScreeningKeywords = const [],
+    this.niceToHaveScreeningKeywords = const [],
+  });
+
+  factory ScreeningKeywords.fromJson(Map<String, dynamic> json) {
+    return ScreeningKeywords(
+      mustHaveScreeningKeywords: _toStringList(
+        json['must_have_screening_keywords'],
+      ),
+      niceToHaveScreeningKeywords: _toStringList(
+        json['nice_to_have_screening_keywords'],
+      ),
+    );
+  }
+
+  bool get isEmpty =>
+      mustHaveScreeningKeywords.isEmpty && niceToHaveScreeningKeywords.isEmpty;
+
+  List<String> get allKeywords => [
+    ...mustHaveScreeningKeywords,
+    ...niceToHaveScreeningKeywords,
+  ];
+
+  static List<String> _toStringList(dynamic value) {
+    if (value == null) return const [];
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return const [];
+  }
+
+  @override
+  String toString() =>
+      'ScreeningKeywords(mustHave: ${mustHaveScreeningKeywords.length}, '
+      'niceToHave: ${niceToHaveScreeningKeywords.length})';
 }

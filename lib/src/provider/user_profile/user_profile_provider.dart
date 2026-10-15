@@ -709,9 +709,11 @@ class ProfileProvider with ChangeNotifier {
             jobTitle: jobtitle.text,
             levelOfHiring: '',
             forUser: true,
+            isGenerateSkills: true,
           ) ??
           ResponsibilityAiModel();
-      if (_responsibilityAiModel!.jobPosting!.responsibilities.isNotEmpty) {
+      if (_responsibilityAiModel != null &&
+          _responsibilityAiModel!.jobPosting!.responsibilities.isNotEmpty) {
         jobrole.text = _responsibilityAiModel!.jobPosting!.responsibilities
             .join('\n');
         /*   if (_responsibilityAiModel!.skills != null &&
@@ -754,7 +756,7 @@ class ProfileProvider with ChangeNotifier {
         jobTitle: jobTitle,
         functionalArea: functionalArea,
         responsibilities: responsibilities,
-        isCanonical: true
+        isCanonical: true,
       );
       // Merge into the live skills list (case-insensitive dedupe) so it's
       // the one source of truth the skills field reads from — otherwise
@@ -775,6 +777,37 @@ class ProfileProvider with ChangeNotifier {
       // Show error Snackbar
       CustomSnackbar.show("Error while generating skills: $e", true);
       rethrow; // Rethrow the error to handle it in the UI
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  List<String> _rankedSkills = [];
+  List<String> get rankedSkills => _rankedSkills;
+
+  Future<void> rankSkills({
+    required List<String> skills,
+    String? seniorityLevel,
+  }) async {
+    if (skills.isEmpty) {
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
+
+    // ─── Loading ON ───
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await ResumeService.rankSkillsUsingGPT(
+        skills: skills,
+        seniorityLevel: seniorityLevel,
+      );
+      _rankedSkills = result;
+    } catch (e) {
+      _rankedSkills = [];
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -896,6 +929,16 @@ class ProfileProvider with ChangeNotifier {
   void addOrUpdateExperience() async {
     _isUpdating = true; // Lock UI
     notifyListeners();
+    if (responsibilityAiModel == null ||
+        responsibilityAiModel!.skills == null ||
+        responsibilityAiModel!.skills!.isEmpty) {
+      await fetchSkillsUsingGPT(
+        industry: industry.text,
+        jobTitle: jobtitle.text,
+        functionalArea: functionalArea.text,
+        responsibilities: [jobrole.text],
+      );
+    }
     var snackMessage = '';
     final experience = ExperienceRequest(
       userId: _userid,
@@ -948,7 +991,15 @@ class ProfileProvider with ChangeNotifier {
       experienceLettter: _experienceLetter,
       incrementLetter: _incrementLetter,
       salarySlip: _salarySlip,
-      skillsExp: _skills.isNotEmpty ? List<String>.from(_skills) : null,
+      skillsExp:
+          _responsibilityAiModel != null &&
+              _responsibilityAiModel!.skills != null &&
+              _responsibilityAiModel!.skills!.isNotEmpty
+          ? List<String>.from(_responsibilityAiModel!.skills!)
+          : _skillResponse != null && _skillResponse!.skills.isNotEmpty
+          ? List<String>.from(_skillResponse!.skills)
+          : null,
+      // skillsExp: _skills.isNotEmpty ? List<String>.from(_skills) : null,
     );
 
     if (_editingIndex != null &&
@@ -986,6 +1037,7 @@ class ProfileProvider with ChangeNotifier {
       certificationsRequest: [],
       userProjectRequest: [],
     );
+
     clearExperienceForm();
     _editingIndex = null;
     setShowExperienceForm(false);
@@ -1000,6 +1052,8 @@ class ProfileProvider with ChangeNotifier {
       Future.delayed(const Duration(seconds: 2), () {
         // This flag will hide the loader after 2 sec
         _isUpdating = false;
+        _skillResponse = null; // Clear the skill response after saving
+        _responsibilityAiModel = null;
         notifyListeners();
       });
       notifyListeners();
@@ -1135,6 +1189,10 @@ class ProfileProvider with ChangeNotifier {
     _experienceLetter = null;
     _skills.clear();
     _selfemployee = false;
+    // Without this, a leftover index from an earlier edit (e.g. the user
+    // backed out of editing without using Cancel/Save) silently turns the
+    // next "Add" into an overwrite of whatever experience sits at that index.
+    _editingIndex = null;
     clearResponsibility();
     notifyListeners();
   }

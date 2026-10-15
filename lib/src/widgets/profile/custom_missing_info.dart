@@ -227,7 +227,9 @@ class _CustomMissingInfoContainerState
           description: "Skills that showcase your expertise",
           buttonText: "+ Add Skill",
           onPressed: () {
-            NavigationService.push(ProfileAddSkill());
+            NavigationService.push(ProfileAddSkill(
+              skills: [],
+            ));
           },
         ),
       );
