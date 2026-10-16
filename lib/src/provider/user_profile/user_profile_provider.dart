@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
@@ -932,6 +933,24 @@ class ProfileProvider with ChangeNotifier {
     if (responsibilityAiModel == null ||
         responsibilityAiModel!.skills == null ||
         responsibilityAiModel!.skills!.isEmpty) {
+      await fetchSkillsUsingGPT(
+        industry: industry.text,
+        jobTitle: jobtitle.text,
+        functionalArea: functionalArea.text,
+        responsibilities: [jobrole.text],
+      );
+    } else if (responsibilityAiModel != null &&
+        responsibilityAiModel!.jobPosting != null &&
+        // `List` doesn't override `==`, so comparing two List<String>
+        // instances with `!=` compares object identity, not content — that
+        // made this always evaluate to true (a fresh list comes out of
+        // every `.split('\n')` call), re-calling the AI skills fetch on
+        // every save even when the responsibilities text hadn't changed.
+        // listEquals does the actual element-by-element comparison.
+        !listEquals(
+          responsibilityAiModel!.jobPosting!.responsibilities,
+          jobrole.text.split('\n'),
+        )) {
       await fetchSkillsUsingGPT(
         industry: industry.text,
         jobTitle: jobtitle.text,
