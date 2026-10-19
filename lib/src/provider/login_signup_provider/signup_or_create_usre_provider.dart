@@ -609,6 +609,7 @@ class SignupCreateUserProvider with ChangeNotifier {
             levelOfHiring: '',
             forUser: true,
             isGenerateSkills: false,
+            generateWithRules: true,
           ) ??
           ResponsibilityAiModel();
       if (_responsibilityAiModel!.jobPosting!.responsibilities != null &&
