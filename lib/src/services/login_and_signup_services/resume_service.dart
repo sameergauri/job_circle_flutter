@@ -145,6 +145,7 @@ class ResumeService {
     required String levelOfHiring,
     required bool forUser,
     required bool isGenerateSkills,
+    required bool generateWithRules,
   }) async {
     final url = Uri.parse(GlobalConstants.generateResponsibilityUsingAiUrl);
 
@@ -159,6 +160,7 @@ class ResumeService {
           "levelOfHiring": levelOfHiring, 
           'forUser': forUser,
           'isGenerateSkills': isGenerateSkills,
+          'generateWithRules': generateWithRules,
         }),
       );
 

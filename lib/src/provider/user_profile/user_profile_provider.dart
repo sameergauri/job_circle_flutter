@@ -711,6 +711,7 @@ class ProfileProvider with ChangeNotifier {
             levelOfHiring: '',
             forUser: true,
             isGenerateSkills: true,
+            generateWithRules: true,
           ) ??
           ResponsibilityAiModel();
       if (_responsibilityAiModel != null &&
