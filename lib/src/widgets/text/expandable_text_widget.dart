@@ -124,7 +124,10 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
       )..layout(maxWidth: availableWidth > 0 ? availableWidth : 0);
       final neededLines = fullPainter.computeLineMetrics().length;
       if (neededLines == 0) continue;
-      final take = neededLines <= remaining ? neededLines : remaining;
+      // A point only gets shown once it fully fits the remaining budget —
+      // never cut mid-sentence with "...". If it doesn't fit, stop here;
+      // it (and anything after it) only appears once "View More" is tapped.
+      if (neededLines > remaining) break;
 
       rows.add(
         Padding(
@@ -133,19 +136,12 @@ class _ExpandableTextWidgetState extends State<ExpandableTextWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(width: bulletColumnWidth, child: Text(bulletChar, style: style)),
-              Expanded(
-                child: Text(
-                  restText,
-                  style: style,
-                  maxLines: take,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              Expanded(child: Text(restText, style: style)),
             ],
           ),
         ),
       );
-      remaining -= take;
+      remaining -= neededLines;
     }
 
     return Column(

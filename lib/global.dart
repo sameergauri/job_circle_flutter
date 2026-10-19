@@ -5,11 +5,9 @@ import 'package:flutter/foundation.dart';
 
 class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
-  static const API_Host_one = !kIsWeb
-      ?
-        //TODO:: For App
-        // ec2
-        "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
+  static const API_Host_one = !kIsWeb ? //TODO:: For App
+      // ec2
+         "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
       // local
       // "192.168.1.103:8081"
       // "192.168.1.101:9090"
