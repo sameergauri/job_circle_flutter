@@ -496,7 +496,7 @@ class CustomJobCard extends StatelessWidget {
                 ...skills.take(6).toList().asMap().entries.map((entry) {
                   final skillIndex = entry.key;
                   final value = entry.value;
-                  final isLast = skillIndex == skills.take(10).length - 1;
+                  final isLast = skillIndex == skills.take(6).length - 1;
                   return customText(
                     title: isLast
                         ? value + (skills.length > 6 ? '...' : '.')

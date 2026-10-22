@@ -554,7 +554,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
     );
   }
 
-    List<String> _getPrioritizedSkills(JobDetailPageModel model) {
+  List<String> _getPrioritizedSkills(JobDetailPageModel model) {
     // Normalize: lowercase + split on space/dash/underscore for robust matching
     final words = (model.levelOfHiring ?? '')
         .toLowerCase()
@@ -576,10 +576,10 @@ class _JobDetailPageState extends State<JobDetailPage> {
         );
 
     final int count = isLead
-        ? 13
+        ? 15
         : isMidSr
-        ? 11
-        : 9;
+        ? 12
+        : 10;
 
     final seen = <String>{};
     final result = <String>[];
