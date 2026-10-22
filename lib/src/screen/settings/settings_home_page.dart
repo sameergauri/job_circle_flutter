@@ -5,8 +5,11 @@ import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart'
 import 'package:job_circle/src/screen/business_page/business_home_page.dart';
 import 'package:job_circle/src/screen/digi_locker/digilocker_one.dart';
 import 'package:job_circle/src/screen/digi_locker/digilocker_verified_page.dart';
+import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/login_and_signup/login/login.dart';
 import 'package:job_circle/src/screen/referal_program/bank_detail_page.dart';
+import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
+import 'package:job_circle/src/screen/referal_program/payment_status_home_page.dart';
 import 'package:job_circle/src/services/cache_clear_and_app_version/cache_clear_and_app_version_service.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
@@ -41,17 +44,14 @@ class SettingHomePage extends StatelessWidget {
               color: colors.headingColor,
             ),
           ),
-          /* actions: [
+          actions: [
             IconButton(
               icon: Icon(Icons.help_outline, color: colors.headingColor),
               onPressed: () {
-                CustomSnackbar.show(
-                  "For Help go to app drawer and click on write to us option",
-                  true,
-                );
+                NavigationService.push(FaqScreen());
               },
             ),
-          ], */
+          ],
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -260,6 +260,16 @@ class SettingHomePage extends StatelessWidget {
                 }, colors);
               },
             ),
+            Divider(thickness: 10, color: colors.bottomsheerCard1Color),
+            _buildHeader('Talent Referral Program', colors),
+            _buildSettingsTile('My Referaal', () {
+              // NavigationService.push(SelfieCaptureScreen());
+              NavigationService.push(JoinersHomePage());
+            }, colors),
+            _buildSettingsTile('Payment Tracker', () {
+              // NavigationService.push(SelfieCaptureScreen());
+              NavigationService.push(PaymentStatusHomePage());
+            }, colors),
             _buildSettingsTile('My Banking Detail', () {
               // NavigationService.push(SelfieCaptureScreen());
               NavigationService.push(
@@ -291,9 +301,9 @@ class SettingHomePage extends StatelessWidget {
             _buildHeader('Account management', colors),
             _buildSettingsTile('Logout', () async {
               // Clear Shared Preferences and navigate to Login Page
-             // final client = StreamChat.of(context).client;
+              // final client = StreamChat.of(context).client;
               // 1. Disconnect Stream
-             // await client.disconnectUser();
+              // await client.disconnectUser();
               SharedPrefsHelper.clearAllPreferences();
               await CacheClearAppVersionService.clearCache();
               NavigationService.pushAndRemoveUntil(LoginPage());

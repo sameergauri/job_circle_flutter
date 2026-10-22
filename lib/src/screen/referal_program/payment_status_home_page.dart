@@ -233,7 +233,8 @@ class _PaymentStatusHomePageState extends State<PaymentStatusHomePage>
           );
         }
 
-        if ((state.paymentStatus!.resultData.invoiceSent.isEmpty &&
+        if ((state.paymentStatus != null &&
+            state.paymentStatus!.resultData.invoiceSent.isEmpty &&
             state.paymentStatus!.resultData.paidData.isEmpty &&
             state.paymentStatus!.resultData.validation.isEmpty &&
             state.paymentStatus!.resultData.rejectData.isEmpty)) {

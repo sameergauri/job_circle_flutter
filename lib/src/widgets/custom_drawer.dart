@@ -6,23 +6,18 @@ import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/enum.dart';
-import 'package:job_circle/src/provider/business_page/business_comapny_provider.dart';
 import 'package:job_circle/src/provider/business_page/company_member_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
-import 'package:job_circle/src/screen/business_page/business_home_page.dart';
-import 'package:job_circle/src/screen/business_page/create_company/create_company_page.dart';
+import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
-import 'package:job_circle/src/screen/referal_program/payment_status_home_page.dart';
-import 'package:job_circle/src/screen/screening/cv_screening_screen.dart';
-import 'package:job_circle/src/screen/screening/recompute_job_screen.dart';
+import 'package:job_circle/src/screen/settings/settings_home_page.dart';
 import 'package:job_circle/src/screen/user_profile/user_profile.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
-import 'package:job_circle/src/widgets/list_tile/custom_expansion_list_tile.dart';
 import 'package:job_circle/src/widgets/list_tile/custom_list_tile_faq.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:provider/provider.dart';
@@ -50,6 +45,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final int userId = SharedPrefsHelper.getInt(ESharedPreferences.user_id);
       if (userId != 0) {
+        context.read<ProfileProvider>().fetchProfile();
         context.read<CompanyMembershipProvider>().fetchMembershipSummary(
           userId: userId,
         );
@@ -61,6 +57,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final jobProvider = Provider.of<JobProvider>(context, listen: false);
+    final profileProvider = Provider.of<ProfileProvider>(
+      context,
+      listen: false,
+    );
     final userdetail = jobProvider.userData;
     return Container(
       width: 250,
@@ -128,7 +128,50 @@ class _CustomDrawerState extends State<CustomDrawer> {
               onClose: widget.onClose,
               scaffoldKey: widget.scaffoldKey,
             ),
-            CustomExpansionTile(
+            CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
+              dense: true,
+              minLeadingWidth: 0.0,
+              minVerticalPadding: 5.1,
+              leading: CustomNetworkImage(
+                imageUrl: CustomIconUrl.referalprogramicon,
+                defaultIcon: Icons.room_preferences_sharp,
+                color: colors.subtitleTextColor,
+              ),
+              title: customText(
+                title: "My Referral",
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: colors.subtitleTextColor,
+              ),
+              onTap: () {
+                NavigationService.push(JoinersHomePage());
+                widget.onClose();
+              },
+            ),
+            /*   CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
+              dense: true,
+              minLeadingWidth: 0.0,
+              minVerticalPadding: 5.1,
+              leading: CustomNetworkImage(
+                imageUrl: CustomIconUrl.walleticon,
+                defaultIcon: Icons.room_preferences_sharp,
+                color: colors.subtitleTextColor,
+              ),
+              title: customText(
+                title: 'Payment Tracker',
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: colors.subtitleTextColor,
+              ),
+              onTap: () {
+                NavigationService.push(PaymentStatusHomePage());
+
+                widget.onClose();
+              },
+            ), */
+            /* CustomExpansionTile(
               dense: true,
               textColor: Constants.darkBlue,
               childrenPadding: EdgeInsets.only(left: 30, right: 10),
@@ -150,50 +193,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 // color: Constants.darkBlue,
               ),
               children: [
-                CustomListTile(
-                  contentPadding: EdgeInsets.only(left: 10, right: 10),
-                  dense: true,
-                  minLeadingWidth: 0.0,
-                  minVerticalPadding: 5.1,
-                  leading: CustomNetworkImage(
-                    imageUrl: CustomIconUrl.joinersicon,
-                    defaultIcon: Icons.room_preferences_sharp,
-                    color: colors.subtitleTextColor,
-                  ),
-                  title: customText(
-                    title: "Joiner's",
-                    fontSize: 12,
-                    fontWeight: FontWeight.normal,
-                    color: colors.subtitleTextColor,
-                  ),
-                  onTap: () {
-                    NavigationService.push(JoinersHomePage());
-
-                    widget.onClose();
-                  },
-                ),
-                CustomListTile(
-                  contentPadding: EdgeInsets.only(left: 10, right: 10),
-                  dense: true,
-                  minLeadingWidth: 0.0,
-                  minVerticalPadding: 5.1,
-                  leading: CustomNetworkImage(
-                    imageUrl: CustomIconUrl.walleticon,
-                    defaultIcon: Icons.room_preferences_sharp,
-                    color: colors.subtitleTextColor,
-                  ),
-                  title: customText(
-                    title: 'Payment Tracker',
-                    fontSize: 12,
-                    fontWeight: FontWeight.normal,
-                    color: colors.subtitleTextColor,
-                  ),
-                  onTap: () {
-                    NavigationService.push(PaymentStatusHomePage());
-
-                    widget.onClose();
-                  },
-                ),
+              
                 /*  CustomListTile(
                   contentPadding: EdgeInsets.only(left: 10, right: 10),
                   dense: true,
@@ -222,7 +222,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   },
                 ), */
               ],
-            ),
+            ), */
             /* CustomListTile(
               contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
@@ -287,6 +287,28 @@ class _CustomDrawerState extends State<CustomDrawer> {
               },
             ),
             CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
+              dense: true,
+              minLeadingWidth: 0.0,
+              minVerticalPadding: 5.1,
+              leading: Icon(
+                Icons.settings_outlined,
+                color: colors.subtitleTextColor,
+              ),
+              title: customText(
+                title: 'Account preferences',
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: colors.subtitleTextColor,
+              ),
+              onTap: () async {
+                NavigationService.push(
+                  SettingHomePage(profile: profileProvider.profile!),
+                );
+                widget.onClose();
+              },
+            ),
+            /*  CustomListTile(
               contentPadding: const EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
@@ -306,8 +328,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 NavigationService.push(CvScreeningScreen());
                 widget.onClose();
               },
-            ),
-            CustomListTile(
+            ), */
+            /*    CustomListTile(
               contentPadding: const EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
@@ -327,9 +349,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 NavigationService.push(RecomputeJobsScreen());
                 widget.onClose();
               },
-            ),
+            ), */
+            // TODO:: job post and manage comppany wala start
             // --- Conditional Job Post / Manage Company Buttons ---
-            Consumer<CompanyMembershipProvider>(
+            /*   Consumer<CompanyMembershipProvider>(
               builder: (context, membershipProvider, _) {
                 final memberships = membershipProvider.memberships;
                 final bool hasNoCompany = memberships.isEmpty;
@@ -399,7 +422,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ],
                 );
               },
-            ),
+            ), */
+            // TODO:: job post and manage comppany wala end
             /*   CustomListTile(
               contentPadding: EdgeInsets.only(left: 10, right: 10),
               dense: true,
