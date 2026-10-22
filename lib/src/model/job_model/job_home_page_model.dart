@@ -121,6 +121,7 @@ class JobContent {
   final String? jobStatus;
   final SearchKeywords? search_keywords;
   final ScreeningKeywords? screening_keywords;
+  final CategorizedSkills? categorizedSkills;
 
   const JobContent({
     this.jobPostType,
@@ -163,6 +164,7 @@ class JobContent {
     this.jobStatus,
     this.screening_keywords,
     this.search_keywords,
+    this.categorizedSkills,
   });
 
   factory JobContent.fromJson(Map<String, dynamic> json) {
@@ -211,6 +213,9 @@ class JobContent {
       screening_keywords: json['screening_keywords'] != null
           ? ScreeningKeywords.fromJson(json['screening_keywords'])
           : null,
+      categorizedSkills: json['categorizedSkills'] != null
+          ? CategorizedSkills.fromJson(json['categorizedSkills'])
+          : null,
     );
   }
 
@@ -255,6 +260,7 @@ class JobContent {
     String? jobStatus,
     SearchKeywords? search_keywords,
     ScreeningKeywords? screening_keywords,
+    CategorizedSkills? categorizedSkills,
   }) {
     return JobContent(
       jobPostType: jobPostType ?? this.jobPostType,
@@ -303,6 +309,7 @@ class JobContent {
       jobStatus: jobStatus ?? this.jobStatus,
       search_keywords: search_keywords ?? this.search_keywords,
       screening_keywords: screening_keywords ?? this.screening_keywords,
+      categorizedSkills: categorizedSkills ?? this.categorizedSkills,
     );
   }
 }
@@ -395,4 +402,75 @@ class ScreeningKeywords {
   String toString() =>
       'ScreeningKeywords(mustHave: ${mustHaveScreeningKeywords.length}, '
       'niceToHave: ${niceToHaveScreeningKeywords.length})';
+}
+
+class CategorizedSkills {
+  final List<String> coreFunctionalSkills;
+  final List<String> supportingSkills;
+  final List<String> toolsTechnicalSkills;
+  final List<String> domainSkills;
+  final List<String> methodologiesAndProcessesSkills;
+
+  const CategorizedSkills({
+    this.coreFunctionalSkills = const [],
+    this.supportingSkills = const [],
+    this.toolsTechnicalSkills = const [],
+    this.domainSkills = const [],
+    this.methodologiesAndProcessesSkills = const [],
+  });
+
+  factory CategorizedSkills.fromJson(Map<String, dynamic> json) {
+    return CategorizedSkills(
+      coreFunctionalSkills: _toStringList(json['core_functional_skills']),
+      supportingSkills: _toStringList(json['supporting_skills']),
+      toolsTechnicalSkills: _toStringList(json['tools_technical_skills']),
+      domainSkills: _toStringList(json['domain_skills']),
+      methodologiesAndProcessesSkills: _toStringList(
+        json['methodologies_and_processes_skills'],
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'core_functional_skills': coreFunctionalSkills,
+      'supporting_skills': supportingSkills,
+      'tools_technical_skills': toolsTechnicalSkills,
+      'domain_skills': domainSkills,
+      'methodologies_and_processes_skills': methodologiesAndProcessesSkills,
+    };
+  }
+
+  bool get isEmpty =>
+      coreFunctionalSkills.isEmpty &&
+      supportingSkills.isEmpty &&
+      toolsTechnicalSkills.isEmpty &&
+      domainSkills.isEmpty &&
+      methodologiesAndProcessesSkills.isEmpty;
+
+  bool get isNotEmpty => !isEmpty;
+
+  List<String> get allSkills => [
+    ...coreFunctionalSkills,
+    ...supportingSkills,
+    ...toolsTechnicalSkills,
+    ...domainSkills,
+    ...methodologiesAndProcessesSkills,
+  ];
+
+  static List<String> _toStringList(dynamic value) {
+    if (value == null) return const [];
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
+    }
+    return const [];
+  }
+
+  @override
+  String toString() =>
+      'CategorizedSkills(core: ${coreFunctionalSkills.length}, '
+      'supporting: ${supportingSkills.length}, '
+      'tools: ${toolsTechnicalSkills.length}, '
+      'domain: ${domainSkills.length}, '
+      'methodologies: ${methodologiesAndProcessesSkills.length})';
 }

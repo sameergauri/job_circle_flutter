@@ -1,5 +1,7 @@
 // models/job_detail_model.dart
 
+import 'package:job_circle/src/model/job_model/job_home_page_model.dart';
+
 class JobDetailPageModel {
   final int? id;
   final String? companyName;
@@ -46,6 +48,8 @@ class JobDetailPageModel {
   final int? active;
   final String? jobSummary;
   final String? postedByType;
+  final CategorizedSkills? categorizedSkills;
+  final String? levelOfHiring;
 
   JobDetailPageModel({
     this.id,
@@ -92,7 +96,9 @@ class JobDetailPageModel {
     this.locationWithWorkType,
     this.active,
     this.jobSummary,
-    this.postedByType
+    this.postedByType,
+    this.categorizedSkills,
+    this.levelOfHiring,
   });
 
   factory JobDetailPageModel.fromJson(Map<String, dynamic> json) {
@@ -150,7 +156,11 @@ class JobDetailPageModel {
       locationWithWorkType: json['locationWithWorkType'],
       active: json['active'],
       jobSummary: json['jobSummary'],
-      postedByType: json['postedByType']
+      postedByType: json['postedByType'],
+      categorizedSkills: json['categorizedSkills'] != null
+          ? CategorizedSkills.fromJson(json['categorizedSkills'])
+          : null,
+      levelOfHiring:json['levelOfHiring'],
     );
   }
 }

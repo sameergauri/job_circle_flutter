@@ -1,12 +1,15 @@
 // ignore_for_file: must_be_immutable, unused_local_variable, unrelated_type_equality_checks, unused_element
 
 import 'package:flutter/material.dart';
+import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_loading.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
+import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_resume.dart';
+import 'package:job_circle/src/widgets/custom_network_image.dart';
 import 'package:job_circle/src/widgets/profile/career_preference_view_card.dart';
 import 'package:job_circle/src/widgets/profile/custom_app_bar.dart';
 import 'package:job_circle/src/widgets/profile/custom_award_achivmnt.dart';
@@ -78,7 +81,21 @@ class _UserProfileState extends State<UserProfile> {
                       profileData.resume != " " &&
                       profileData.resume != 'null'
                   ? CustomFloatingButton(data: profileData)
-                  : const SizedBox(),
+                  : FloatingActionButton(
+                      backgroundColor: colors.appbarColor,
+                      child: CustomNetworkImage(
+                        imageUrl: CustomIconUrl.addresumeicon,
+                        defaultIcon: Icons.add,
+                        color: colors.headingColor,
+                      ),
+                      onPressed: () {
+                        CustomBottomSheetForResume.show(
+                          context: context,
+                          provider: provider,
+                          profileData: profileData,
+                        );
+                      },
+                    ),
               appBar: CustomAppBar(data: profileData),
               body: RefreshIndicator(
                 color: Constants.darkBlue,

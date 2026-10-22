@@ -440,7 +440,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                     isList: true,
                   ),
                 ViewConatinerForSkills(
-                  skills: job.skills!,
+                  skills: _getPrioritizedSkills(job),
                   title: "Skills",
                   valueColor: colors.jobdetailGreyColor!,
                 ),
@@ -552,6 +552,88 @@ class _JobDetailPageState extends State<JobDetailPage> {
           CustomLoadingIndicator(), //Loading when user click on apply button
       ],
     );
+  }
+
+    List<String> _getPrioritizedSkills(JobDetailPageModel model) {
+    // Normalize: lowercase + split on space/dash/underscore for robust matching
+    final words = (model.levelOfHiring ?? '')
+        .toLowerCase()
+        .split(RegExp(r'[\s\-_]+'))
+        .toSet();
+
+    final isLead = words.any(
+      (w) =>
+          w == 'lead' ||
+          w == 'leader' ||
+          w == 'leadership' ||
+          w == 'manager' ||
+          w == 'management',
+    );
+    final isMidSr =
+        !isLead &&
+        words.any(
+          (w) => w == 'mid' || w == 'middle' || w == 'senior' || w == 'sr',
+        );
+
+    final int count = isLead
+        ? 13
+        : isMidSr
+        ? 11
+        : 9;
+
+    final seen = <String>{};
+    final result = <String>[];
+
+    void addSkill(String s) {
+      final trimmed = s.trim();
+      if (trimmed.isNotEmpty && seen.add(trimmed.toLowerCase())) {
+        result.add(trimmed);
+      }
+    }
+
+    // 1. Add all existing flat skills first
+    for (final s in (model.skills ?? [])) {
+      addSkill(s.toString());
+    }
+
+    // 2. Merge categorized skills in priority order
+    final sk = model.categorizedSkills;
+    if (sk != null && sk.isNotEmpty) {
+      final skByKey = <String, List<String>>{
+        'methodologies_and_processes_skills':
+            sk.methodologiesAndProcessesSkills,
+        'core_functional_skills': sk.coreFunctionalSkills,
+        'domain_skills': sk.domainSkills,
+        'tools_technical_skills': sk.toolsTechnicalSkills,
+        'supporting_skills': sk.supportingSkills,
+      };
+
+      List<String> pick(String key) => skByKey[key] ?? [];
+
+      final priorityKeys = isLead
+          ? [
+              'methodologies_and_processes_skills',
+              'core_functional_skills',
+              'domain_skills',
+              'tools_technical_skills',
+              'supporting_skills',
+            ]
+          : [
+              'core_functional_skills',
+              'domain_skills',
+              'tools_technical_skills',
+              'methodologies_and_processes_skills',
+              'supporting_skills',
+            ];
+
+      for (final key in priorityKeys) {
+        for (final s in pick(key)) {
+          addSkill(s);
+        }
+      }
+    }
+
+    return result.take(count).toList();
   }
 
   String _locationText(BusinessJobProvider provider) {

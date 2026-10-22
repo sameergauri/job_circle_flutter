@@ -2,21 +2,18 @@
 // ignore_for_file: todo
 
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/constants/custom_snackbar.dart';
 import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
-import 'package:job_circle/src/provider/app_theme_provider.dart/app_theme_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
+import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_resume.dart';
 import 'package:job_circle/src/widgets/custom_row.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_award_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_certificate_edit.dart';
@@ -26,7 +23,6 @@ import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_skills_
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_summary_edit.dart';
 import 'package:job_circle/src/widgets/profile/profile_edit.dart/profile_technical_skills_edit.dart';
 import 'package:provider/provider.dart';
-import 'package:resume_builder_kit/resume_builder_kit.dart';
 
 class CustomMissingInfoContainer extends StatefulWidget {
   final ProfileProvider provider;
@@ -107,88 +103,20 @@ class _CustomMissingInfoContainerState
       );
     }
 
-    /// ---------------- Resume (Build) ----------------
+    /// ---------------- Resume ----------------
     if (profileData.resume == null ||
         profileData.resume == " " ||
         profileData.resume == "null") {
       cards.add(
         CustomFieldBlock(
           description: "Never skip adding your resume.",
-          buttonText: "+ Build Resume",
-          onPressed: () async {
-            final provider = context.read<ThemeProvider>();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ResumeTemplateSelectionScreen(
-                  themeMode: provider.themeMode,
-                  buttonTitle: "Add To Profile",
-                  userProfileJson: profileData.toJson(),
-                  geminiApiKey: 'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc',
-                  onPdfGenerated: (Uint8List pdfBytes) async {
-                    String? uploadedFileName = await fileUploader
-                        .uploadGeneratedPdf(context, pdfBytes);
-                    if (uploadedFileName != null) {
-                      await widget.provider.updateResume(
-                        profileData,
-                        uploadedFileName,
-                      );
-                      CustomSnackbar.show(
-                        "Resume Uploaded Successfully",
-                        false,
-                      );
-                      NavigationService.pop();
-                      NavigationService.pop();
-                    }
-                  },
-                ),
-              ),
+          buttonText: "+ Resume",
+          onPressed: () {
+            CustomBottomSheetForResume.show(
+              context: context,
+              provider: widget.provider,
+              profileData: profileData,
             );
-          },
-        ),
-      );
-    }
-
-    /// ---------------- Resume (Upload) ----------------
-    if (profileData.resume == null ||
-        profileData.resume == " " ||
-        profileData.resume == "null") {
-      cards.add(
-        CustomFieldBlock(
-          description: "Never skip adding your resume.",
-          buttonText: "+ Add Resume",
-          onPressed: () async {
-            widget.provider.setLoading(true);
-            // provider.setShowExperienceForm(false);
-            FileUploader fileUploader = FileUploader();
-            var data = await fileUploader.pickFileAndUpload(
-              //TODO:: this function is use to return file path and uploaded file name ....
-              needToUpload: true,
-              context,
-              allowedExt: ['pdf', 'doc', 'docx'],
-              folder: "resume",
-            );
-            if (data == null) {
-              widget.provider.setLoading(false);
-              return;
-            }
-            widget.provider.fetchParseData(
-              File(data.file.path),
-              data.uploadedFileName!,
-              context,
-              profileData,
-            );
-            Future.delayed(const Duration(milliseconds: 500), () {
-              widget.provider.setLoading(false);
-            });
-            /*  String? resumePath = await fileUploader.uploadFile(context, [
-              'pdf',
-              'doc',
-              'docx',
-            ], "resume");
-            if (resumePath != null) {
-              widget.provider.updateResume(profileData, resumePath);
-            } */
           },
         ),
       );
