@@ -493,13 +493,13 @@ class CustomJobCard extends StatelessWidget {
               alignment: WrapAlignment.start,
               children: [
                 customText(title: "Skills : ", color: colors.textPrimary),
-                ...skills.take(10).toList().asMap().entries.map((entry) {
+                ...skills.take(6).toList().asMap().entries.map((entry) {
                   final skillIndex = entry.key;
                   final value = entry.value;
                   final isLast = skillIndex == skills.take(10).length - 1;
                   return customText(
                     title: isLast
-                        ? value + (skills.length > 10 ? '...' : '.')
+                        ? value + (skills.length > 6 ? '...' : '.')
                         : '$value, ',
                     overflow: TextOverflow.ellipsis,
                     fontStyle: FontStyle.italic,
