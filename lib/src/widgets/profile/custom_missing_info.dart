@@ -149,7 +149,7 @@ class _CustomMissingInfoContainerState
     }
 
     /// ---------------- Skills ----------------
-    if (profileData.allSkills!.isEmpty) {
+    if (widget.provider.mergedSkills.isEmpty) {
       cards.add(
         CustomFieldBlock(
           description: "Skills that showcase your expertise",

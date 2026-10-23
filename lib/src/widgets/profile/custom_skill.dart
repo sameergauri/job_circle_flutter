@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
-import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
 import 'package:job_circle/src/widgets/custom_network_image.dart';
@@ -13,34 +12,10 @@ class SkillsSection extends StatelessWidget {
 
   const SkillsSection({super.key, required this.provider});
 
-  /// Merges profile-level skills with every experience's own skills
-  /// (case-insensitive dedupe), so the chip list reflects all of them.
-  List<String> _mergedSkills() {
-    final merged = <String>[];
-    final seenLower = <String>{};
-    void addSkill(String skill) {
-      final trimmed = skill.trim();
-      if (trimmed.isEmpty) return;
-      if (seenLower.add(trimmed.toLowerCase())) {
-        merged.add(trimmed);
-      }
-    }
-
-    for (final skill in provider.profile!.allSkills ?? <String>[]) {
-      addSkill(skill);
-    }
-    for (final exp in provider.profile!.experiences ?? <Experience>[]) {
-      for (final skill in exp.skillsExp ?? <String>[]) {
-        addSkill(skill);
-      }
-    }
-    return merged;
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
-    final skills = _mergedSkills();
+    final skills = provider.mergedSkills;
     return Container(
       padding: const EdgeInsets.only(bottom: 5, top: 5),
       margin: const EdgeInsets.symmetric(horizontal: 10),

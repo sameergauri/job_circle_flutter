@@ -72,7 +72,7 @@ class CustomBottomSheetForResume {
                   subtitle: "Create a polished resume with our templates",
                   imgurl: CustomIconUrl.buildresumeicon,
                   onTap: () {
-                    Navigator.pop(sheetContext);
+                    // Navigator.pop(sheetContext);
                     _buildResume(context, provider, profileData);
                   },
                 ),

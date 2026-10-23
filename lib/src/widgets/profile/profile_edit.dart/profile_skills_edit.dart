@@ -44,10 +44,10 @@ class ProfileAddSkill extends StatelessWidget {
               context,
               listen: false,
             );
-            if (provider.tempSelectedSkills.isEmpty) {
+            /*  if (provider.tempSelectedSkills.isEmpty) {
               CustomSnackbar.show("Please select at least one skill.", true);
               return;
-            }
+            } */
             provider.updateAndSaveSkills();
             NavigationService.pop();
           },

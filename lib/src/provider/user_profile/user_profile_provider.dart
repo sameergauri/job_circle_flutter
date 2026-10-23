@@ -230,6 +230,32 @@ class ProfileProvider with ChangeNotifier {
   bool get isUpdating => _isUpdating;
   bool get isLoading => _isLoading;
 
+  /// Profile-level skills merged with every experience's own skills
+  /// (case-insensitive dedupe) — the single source both the Skills section
+  /// and the missing-info prompts should check, since a skill can live only
+  /// on an experience without ever being added to profile-level skills.
+  List<String> get mergedSkills {
+    final merged = <String>[];
+    final seenLower = <String>{};
+    void addSkill(String skill) {
+      final trimmed = skill.trim();
+      if (trimmed.isEmpty) return;
+      if (seenLower.add(trimmed.toLowerCase())) {
+        merged.add(trimmed);
+      }
+    }
+
+    for (final skill in _profile?.allSkills ?? <String>[]) {
+      addSkill(skill);
+    }
+    for (final exp in _profile?.experiences ?? <Experience>[]) {
+      for (final skill in exp.skillsExp ?? <String>[]) {
+        addSkill(skill);
+      }
+    }
+    return merged;
+  }
+
   // Basic Profile Variables
   TextEditingController firstname = TextEditingController();
   TextEditingController middlename = TextEditingController();

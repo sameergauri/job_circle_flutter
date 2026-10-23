@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/enum.dart';
@@ -17,7 +16,7 @@ class UserServices {
       Uri.parse("${GlobalConstants.getUserDetailUsinguid}$userid"),
     );
     if (response.statusCode == 200) {
-      final parsedResponse = json.decode(response.body);
+      final parsedResponse = json.decode(response.body);  
       if (parsedResponse.containsKey("data")) {
         return ProfileModel.fromJson(parsedResponse["data"]);
       } else {
