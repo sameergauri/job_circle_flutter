@@ -7,10 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/src/constants/colors.dart';
 import 'package:job_circle/src/constants/custom_snackbar.dart';
+import 'package:job_circle/src/constants/enum.dart';
 import 'package:job_circle/src/model/user_profile/user_model.dart';
 import 'package:job_circle/src/provider/app_theme_provider.dart/app_theme_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/utils/upload_file.dart';
 import 'package:job_circle/src/widgets/bottom_sheet/custom_bottom_sheet_for_business_ats.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
@@ -105,12 +107,13 @@ class CustomBottomSheetForResume {
       context,
       MaterialPageRoute(
         builder: (_) => ResumeTemplateSelectionScreen(
-           onProfileChanged: ()async {
+          onProfileChanged: () async {
             await provider.fetchProfile();
-           },
+          },
           themeMode: themeProvider.themeMode,
           buttonTitle: "Add To Profile",
-          userProfileJson: profileData.toJson(),
+          userId: SharedPrefsHelper.getInt(ESharedPreferences.user_id),
+          // userProfileJson: profileData.toJson(),
           geminiApiKey: 'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc',
           onPdfGenerated: (Uint8List pdfBytes) async {
             String? uploadedFileName = await fileUploader.uploadGeneratedPdf(
