@@ -105,6 +105,9 @@ class CustomBottomSheetForResume {
       context,
       MaterialPageRoute(
         builder: (_) => ResumeTemplateSelectionScreen(
+           onProfileChanged: ()async {
+            await provider.fetchProfile();
+           },
           themeMode: themeProvider.themeMode,
           buttonTitle: "Add To Profile",
           userProfileJson: profileData.toJson(),

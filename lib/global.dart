@@ -5,12 +5,13 @@ import 'package:flutter/foundation.dart';
 
 class GlobalConstants {
   static final spaceMatch = RegExp(r"^[A-Z][a-z]+\s[A-Z][a-z]+$");
-  static const API_Host_one = !kIsWeb ? //TODO:: For App
-      // ec2
-         "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
-      // local
-      // "192.168.1.103:8081"
-      // "192.168.1.101:9090"
+  static const API_Host_one = !kIsWeb
+      ? //TODO:: For App
+        // ec2
+        "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
+        // local
+        // "192.168.1.103:8081"
+        // "192.168.1.104:9090"
       //TODO:: For Website......
       : "api.jobcircle.co.in";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
@@ -218,4 +219,13 @@ class GlobalConstants {
       "$_baseurl/api/question-bank/v1/getAll?employeeId=";
   static const getMasterQuestionForScreening =
       "$_baseurl/api/master-screening-question/v1/getAll";
+  //
+  //
+  // TODO:: Chat
+  //
+  static const _chatBaseUrl = '$_baseurl/api/v1/chat-messages';
+  static const chatInboxUrl = '$_chatBaseUrl/inbox';
+  static const chatStartConversationUrl = '$_chatBaseUrl/conversation/start';
+  static const chatConversationUrl = '$_chatBaseUrl/conversation/';
+  static const chatSendMessageUrl = '$_chatBaseUrl/send';
 }

@@ -11,6 +11,7 @@ import 'package:job_circle/src/provider/career_preference_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_page_provider.dart';
 import 'package:job_circle/src/provider/user_profile/user_profile_provider.dart';
 import 'package:job_circle/src/screen/career_preference.dart';
+import 'package:job_circle/src/screen/chat_message/chat_inbox_screen.dart';
 import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
 import 'package:job_circle/src/screen/settings/settings_home_page.dart';
@@ -304,6 +305,38 @@ class _CustomDrawerState extends State<CustomDrawer> {
               onTap: () async {
                 NavigationService.push(
                   SettingHomePage(profile: profileProvider.profile!),
+                );
+                widget.onClose();
+              },
+            ),
+            CustomListTile(
+              contentPadding: EdgeInsets.only(left: 10, right: 10),
+              dense: true,
+              minLeadingWidth: 0.0,
+              minVerticalPadding: 5.1,
+              leading: Icon(
+                Icons.chat_bubble_outline_outlined,
+                color: colors.subtitleTextColor,
+              ),
+              title: customText(
+                title: 'Chat & Message',
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: colors.subtitleTextColor,
+              ),
+              onTap: () async {
+                Navigator.pop(context); // Pehle drawer close karein
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChatInboxScreen(
+                      myId: SharedPrefsHelper.getInt(
+                        ESharedPreferences.user_id,
+                      ),
+                      myType:
+                          'JOBSEEKER', // Recruiter app me 'RECRUITER' pass karein
+                    ),
+                  ),
                 );
                 widget.onClose();
               },

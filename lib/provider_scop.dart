@@ -12,6 +12,8 @@ import 'package:job_circle/src/provider/business_page/business_comapny_provider.
 import 'package:job_circle/src/provider/business_page/company_member_provider.dart';
 import 'package:job_circle/src/provider/business_page/custom_suggestion_textfield_provider.dart';
 import 'package:job_circle/src/provider/career_preference_provider.dart';
+import 'package:job_circle/src/provider/chat_message/chat_inbox_provider.dart';
+import 'package:job_circle/src/provider/chat_message/chat_room_provider.dart';
 import 'package:job_circle/src/provider/digi_locker/digilocker_status_provider.dart';
 import 'package:job_circle/src/provider/faq/faq_provider.dart';
 import 'package:job_circle/src/provider/job_provider/job_detail_provider.dart';
@@ -60,7 +62,12 @@ class ProviderScop {
         ),
         ChangeNotifierProvider(create: (_) => AtsProvider()),
         ChangeNotifierProvider(create: (_) => CompanyMembershipProvider()),
-           ChangeNotifierProvider(create: (_) => CvScreeningProvider()),
+        ChangeNotifierProvider(create: (_) => CvScreeningProvider()),
+        ChangeNotifierProvider(create: (_) => ChatInboxProvider()),
+        // ChatRoomProvider's per-conversation data (conversationId, myId,
+        // otherPartyId, ...) is handed over via openConversation() once this
+        // shared instance already exists, not through the constructor.
+        ChangeNotifierProvider(create: (_) => ChatRoomProvider()),
       ],
       child: child,
     );

@@ -2324,14 +2324,12 @@ class ProfileProvider with ChangeNotifier {
     if (_isUpdating) return;
     _isUpdating = true;
     notifyListeners();
-
     try {
       if (currentProfile.profilePic != null &&
           currentProfile.profilePic != " " &&
           newProfilePic != null) {
         await FileUploadService().deleteSingleFile(currentProfile.profilePic!);
       }
-
       _createNewUserModel = CreateNewUserModel(
         userRequest: UserRequest(
           alternateNo: currentProfile.alternateNo,
@@ -2344,7 +2342,6 @@ class ProfileProvider with ChangeNotifier {
         certificationsRequest: [],
         userProjectRequest: [],
       );
-
       await UserServices.postUserInfo(_createNewUserModel!);
       await fetchProfile();
     } catch (e) {

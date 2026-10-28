@@ -3,6 +3,10 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:job_circle/custom_icon_url.dart';
 import 'package:job_circle/global.dart';
 import 'package:job_circle/src/constants/colors.dart';
+import 'package:job_circle/src/constants/enum.dart';
+import 'package:job_circle/src/screen/chat_message/chat_conversation_screen.dart';
+import 'package:job_circle/src/services/chat_message/chat_api_service.dart';
+import 'package:job_circle/src/utils/shared_preference/shared_preference.dart';
 import 'package:job_circle/src/widgets/button/custom_call_sms_button.dart';
 import 'package:job_circle/src/widgets/text/custom_text.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,6 +21,7 @@ class RecruiterDetailsCard extends StatelessWidget {
   final String profilepic;
   final int contactNumber;
   final String jobTitle;
+  final int recruiterid;
 
   const RecruiterDetailsCard({
     super.key,
@@ -28,6 +33,7 @@ class RecruiterDetailsCard extends StatelessWidget {
     required this.email,
     required this.profilepic,
     required this.jobTitle,
+    required this.recruiterid,
   });
 
   @override
@@ -45,7 +51,7 @@ class RecruiterDetailsCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: colors.recruiterCardBgColor,
               borderRadius: BorderRadius.circular(8),
-              boxShadow:  [
+              boxShadow: [
                 BoxShadow(
                   color: colors.shadowColor!,
                   blurRadius: 8,
@@ -131,11 +137,19 @@ class RecruiterDetailsCard extends StatelessWidget {
                       imageUrl:
                           "https://cdn-icons-png.flaticon.com/128/9821/9821763.png",
                       label: "Chat",
-                      onTap: () async {
-                         final whatsappUrl =
+                      onTap: ()  {
+                       /*  final whatsappUrl =
                             "whatsapp://send?phone=91$contactNumber";
-                        await launchUrl(Uri.parse(whatsappUrl));
-                       /*  ChatUtils.startChatWithRecruiter(
+                        await launchUrl(Uri.parse(whatsappUrl)); */
+                        openChatWithRecruiter(
+                          context: context,
+                          jobseekerId: SharedPrefsHelper.getInt(
+                            ESharedPreferences.user_id,
+                          ),
+                          recruiterId: recruiterid,
+                          recruiterName: recruiterName,
+                        );
+                        /*  ChatUtils.startChatWithRecruiter(
                           context: context,
                           recruiterId: contactNumber
                               .toString()
@@ -153,6 +167,59 @@ class RecruiterDetailsCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> openChatWithRecruiter({
+    required BuildContext context,
+    required int jobseekerId,
+    required int recruiterId,
+    required String recruiterName,
+    String? recruiterAvatar,
+    int? jobId,
+  }) async {
+    // Loading indicator dikhayein
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // 1. Backend API se conversationId fetch ya create karein
+      final int conversationId = await ChatApiService.startOrGetConversation(
+        jobseekerId: jobseekerId,
+        recruiterId: recruiterId,
+        jobId: jobId,
+      );
+
+      if (context.mounted) {
+        Navigator.pop(context); // Dialog close karein
+
+        // 2. Chat screen par navigate karein
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChatRoomScreen(
+              conversationId: conversationId,
+              myId: jobseekerId,
+              myType: 'JOBSEEKER',
+              otherPartyId: recruiterId,
+              otherPartyType: 'RECRUITER',
+              otherPartyName: recruiterName,
+              otherPartyAvatar: recruiterAvatar,
+              jobId: jobId,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to open chat: $e')));
+      }
+    }
   }
 
   Future<void> _handleCallPermission(BuildContext context) async {
@@ -186,7 +253,9 @@ class RecruiterDetailsCard extends StatelessWidget {
       builder: (ctx) => PopScope(
         canPop: false,
         child: Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           elevation: 0,
           backgroundColor: Colors.transparent,
           child: Container(
@@ -264,7 +333,10 @@ class RecruiterDetailsCard extends StatelessWidget {
                           onPressed: () => Navigator.of(ctx).pop(),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.grey.shade600,
-                            side: BorderSide(color: Colors.grey.shade300, width: 1.5),
+                            side: BorderSide(
+                              color: Colors.grey.shade300,
+                              width: 1.5,
+                            ),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -272,7 +344,10 @@ class RecruiterDetailsCard extends StatelessWidget {
                           ),
                           child: const Text(
                             "Cancel",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -294,7 +369,10 @@ class RecruiterDetailsCard extends StatelessWidget {
                           ),
                           child: const Text(
                             "Open Settings",
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),

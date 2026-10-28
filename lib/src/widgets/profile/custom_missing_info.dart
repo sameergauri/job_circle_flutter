@@ -490,7 +490,11 @@ class CustomMissingInfoContainer extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => ResumeTemplateSelectionScreen(
-                          userProfileJson: profileData.toJson(),
+                          // Loads from / saves to the API; JSON only if the id is missing.
+                          userId: profileData.id,
+                          userProfileJson: profileData.id == null ? profileData.toJson() : null,
+                          // Keep the profile screen in sync with edits made in the builder.
+                          onProfileChanged: () => provider.fetchProfile(),
                           geminiApiKey:
                               'AIzaSyAnhaXULIUPpgeewuV7_bFZBhZBPL1PLBc', // null = skip AI polishing
                           onPdfGenerated: (Uint8List pdfBytes) async {

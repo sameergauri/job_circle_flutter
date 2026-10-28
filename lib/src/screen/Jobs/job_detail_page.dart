@@ -487,6 +487,7 @@ class _JobDetailPageState extends State<JobDetailPage> {
                     contactNumber: job.postedByContactNo!,
                     profilepic: job.postedByProfilePic ?? " ",
                     jobTitle: job.roleName.toString(),
+                    recruiterid: job.spocid!,
                   ),
                 if (job.payoutDetails != null)
                   InkWell(
