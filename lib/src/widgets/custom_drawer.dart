@@ -14,6 +14,8 @@ import 'package:job_circle/src/screen/career_preference.dart';
 import 'package:job_circle/src/screen/chat_message/chat_inbox_screen.dart';
 import 'package:job_circle/src/screen/faq/faq_home_screen.dart';
 import 'package:job_circle/src/screen/referal_program/joiners_home_page.dart';
+import 'package:job_circle/src/screen/screening/cv_screening_screen.dart';
+import 'package:job_circle/src/screen/screening/recompute_job_screen.dart';
 import 'package:job_circle/src/screen/settings/settings_home_page.dart';
 import 'package:job_circle/src/screen/user_profile/user_profile.dart';
 import 'package:job_circle/src/services/navigation/navigation_services.dart';
@@ -341,7 +343,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 widget.onClose();
               },
             ),
-            /*  CustomListTile(
+            CustomListTile(
               contentPadding: const EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
@@ -361,8 +363,8 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 NavigationService.push(CvScreeningScreen());
                 widget.onClose();
               },
-            ), */
-            /*    CustomListTile(
+            ),
+            CustomListTile(
               contentPadding: const EdgeInsets.only(left: 10, right: 10),
               dense: true,
               minLeadingWidth: 0.0,
@@ -382,7 +384,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 NavigationService.push(RecomputeJobsScreen());
                 widget.onClose();
               },
-            ), */
+            ),
             // TODO:: job post and manage comppany wala start
             // --- Conditional Job Post / Manage Company Buttons ---
             /*   Consumer<CompanyMembershipProvider>(

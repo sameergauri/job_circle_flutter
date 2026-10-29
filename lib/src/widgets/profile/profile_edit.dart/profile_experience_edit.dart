@@ -112,14 +112,27 @@ class ProfileExperienceEdit extends StatelessWidget {
       if (expA.isCurrent == 1 && expB.isCurrent != 1) return -1;
       if (expB.isCurrent == 1 && expA.isCurrent != 1) return 1;
 
-      // If both are not currently working, compare by lastDate
-      DateTime aDate = expA.lastWorkingDate is DateTime
-          ? expA.lastWorkingDate as DateTime
-          : DateTime(1900);
-      DateTime bDate = expB.lastWorkingDate is DateTime
-          ? expB.lastWorkingDate as DateTime
-          : DateTime(1900);
-      return bDate.compareTo(aDate); // Descending order
+      // If both are not currently working, compare by lastDate.
+      // lastWorkingDate is a String (API format, e.g. 'yyyy-MM-dd'), so the
+      // old `is DateTime` check below was always false — both dates always
+      // fell back to the same DateTime(1900), making this comparator return
+      // 0 for every pair. List.sort() isn't a stable sort, so with an
+      // always-0 comparator it was free to reorder cards differently on
+      // every rebuild — making it look like editing one card's data showed
+      // up on a different card, when really the same experience was always
+      // being edited, it just visually swapped position afterwards.
+      DateTime aDate =
+          DateTime.tryParse(expA.lastWorkingDate ?? '') ?? DateTime(1900);
+      DateTime bDate =
+          DateTime.tryParse(expB.lastWorkingDate ?? '') ?? DateTime(1900);
+      final dateCompare = bDate.compareTo(aDate); // Descending order
+      if (dateCompare != 0) return dateCompare;
+
+      // Deterministic tie-break so equally-ranked cards keep a fixed order
+      // across rebuilds instead of being reshuffled by the unstable sort.
+      final originalIndexA = a['originalIndex'] as int;
+      final originalIndexB = b['originalIndex'] as int;
+      return originalIndexA.compareTo(originalIndexB);
     });
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
