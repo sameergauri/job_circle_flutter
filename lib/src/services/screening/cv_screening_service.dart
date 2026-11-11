@@ -65,8 +65,11 @@ class CvScreeningService {
   Future<RecomputeRecommendationResponse> recomputeUserJobs({
     required int userId,
     required List<int> jobIds,
+    bool debug = false,
   }) async {
-    final uri = Uri.parse('${GlobalConstants.recompute_user_jobs}$userId/jobs');
+    final uri = Uri.parse(
+      '${GlobalConstants.recompute_user_jobs}2069/jobs',
+    ).replace(queryParameters: {'debug': debug.toString()});
 
     final response = await http.post(
       uri,

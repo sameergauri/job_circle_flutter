@@ -413,10 +413,13 @@ class CvScreeningProvider extends ChangeNotifier {
   List<RecomputedJobItem> _recomputedResults = [];
   List<RecomputedJobItem> get recomputedResults => _recomputedResults;
 
+  RecomputeDebugInfo? _recomputeDebugInfo;
+  RecomputeDebugInfo? get recomputeDebugInfo => _recomputeDebugInfo;
+
   String? _recomputeError;
   String? get recomputeError => _recomputeError;
 
-  Future<bool> triggerRecomputeJobs(int userId) async {
+  Future<bool> triggerRecomputeJobs(int userId, {bool debug = false}) async {
     if (_selectedJobIds.isEmpty) {
       _recomputeError = 'Please select at least one job to recompute.';
       notifyListeners();
@@ -431,15 +434,20 @@ class CvScreeningProvider extends ChangeNotifier {
       final response = await _service.recomputeUserJobs(
         userId: userId,
         jobIds: _selectedJobIds,
+        debug: debug,
       );
 
       _recomputedResults = response.resultData;
+      _recomputeDebugInfo = response.debug;
       _isRecomputing = false;
       notifyListeners();
-      if(_recomputedResults.isEmpty) {
+      // In debug mode an empty results list is expected (e.g. the job was
+      // dropped by a hard filter before scoring) — the debug payload still
+      // explains why, so that alone counts as a usable response.
+      if (_recomputedResults.isEmpty && _recomputeDebugInfo == null) {
         _recomputeError = 'No recomputed results returned.';
         return false;
-      }else {
+      } else {
         return true;
       }
     } catch (e) {
@@ -452,6 +460,7 @@ class CvScreeningProvider extends ChangeNotifier {
 
   void clearRecomputedResults() {
     _recomputedResults = [];
+    _recomputeDebugInfo = null;
     _recomputeError = null;
     notifyListeners();
   }
