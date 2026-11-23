@@ -955,8 +955,22 @@ class ProfileProvider with ChangeNotifier {
   }
 
   void addOrUpdateExperience() async {
+    // Re-entrancy guard: without this, a fast double-tap on Save could start
+    // a second overlapping call while the first one is still awaiting the AI
+    // skills fetch below. Since _editingIndex used to be read only AFTER
+    // that await, the second (faster, since fetchSkillsUsingGPT no-ops while
+    // already loading) call could finish its entire save+clear cycle first —
+    // nulling _editingIndex — before the first call resumed and used it.
+    // The first call would then no longer see itself as "editing" and would
+    // append a stray/duplicate experience instead of updating the right
+    // one. That's what caused the intermittent "wrong experience got
+    // overwritten" bug.
+    if (_isUpdating) return;
     _isUpdating = true; // Lock UI
     notifyListeners();
+    // Captured before any `await` below, so a concurrent call changing
+    // _editingIndex afterwards can't redirect where this save lands.
+    final editingIndexForThisSave = _editingIndex;
     if (responsibilityAiModel == null ||
         responsibilityAiModel!.skills == null ||
         responsibilityAiModel!.skills!.isEmpty) {
@@ -1048,11 +1062,11 @@ class ProfileProvider with ChangeNotifier {
       // skillsExp: _skills.isNotEmpty ? List<String>.from(_skills) : null,
     );
 
-    if (_editingIndex != null &&
-        _editingIndex! >= 0 &&
-        _editingIndex! < _experiencesModel.length) {
-      _experiencesModel[_editingIndex!] = experience.copyWith(
-        id: _experiencesModel[_editingIndex!].id,
+    if (editingIndexForThisSave != null &&
+        editingIndexForThisSave >= 0 &&
+        editingIndexForThisSave < _experiencesModel.length) {
+      _experiencesModel[editingIndexForThisSave] = experience.copyWith(
+        id: _experiencesModel[editingIndexForThisSave].id,
       );
       snackMessage = 'Experience updated successfully.';
     } else {

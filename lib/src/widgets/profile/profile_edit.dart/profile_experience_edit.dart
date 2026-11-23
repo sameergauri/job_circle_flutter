@@ -1040,6 +1040,11 @@ class ProfileExperienceEdit extends StatelessWidget {
               child: CustomButtonForSave(
                 isPading: false,
                 onTap: () {
+                  // Guards against a fast double-tap starting a second save
+                  // while the first is still in flight (the provider also
+                  // guards this, but checking here avoids even queuing the
+                  // second call).
+                  if (provider.isUpdating) return;
                   if (provider.jobtitle.text.isEmpty) {
                     CustomSnackbar.show("Enter Job Title", true);
                   } else if (provider.companyname.text.isEmpty) {

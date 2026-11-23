@@ -213,6 +213,22 @@ class ProfileProjectEdit extends StatelessWidget {
                   ),
                 ],
               ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    provider.removeProjects(provider.isEditProjectIndex!);
+                    provider.clearProjectForm();
+                    provider.setShowProjectForm(false);
+                  },
+                  child: customText(
+                    title: "Delete Project",
+                    color: colors.headingColor,
+                  ),
+                ),
+              ],
+            ),
             Padding(
               padding: const EdgeInsets.only(bottom: 5, top: 10),
               child: CustomButtonForSave(
