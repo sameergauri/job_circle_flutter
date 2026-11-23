@@ -26,7 +26,7 @@ Future<void> startDigiLockerVerification({
     // 1. Backend se Auth URL lo
     final response = await http.get(
       Uri.parse(
-        "https://api.jobcircle.co.in/api/v1/digilocker/auth-url?userId=${userId.toString()}",
+        "${GlobalConstants.authenticate_digilocker_url}${userId.toString()}",
       ),
       headers: {
         "Content-Type": "application/json",

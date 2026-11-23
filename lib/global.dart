@@ -11,7 +11,7 @@ class GlobalConstants {
         "ec2-13-200-109-136.ap-south-1.compute.amazonaws.com:9090"
       // local
       // "192.168.1.103:8081"
-      // "10.33.64.183:9090"
+      // "192.168.1.101:9090"
       //TODO:: For Website......
       : "api.jobcircle.co.in";
   static const ASSET_URL = "https://job-circle.s3.ap-south-1.amazonaws.com/";
@@ -74,6 +74,8 @@ class GlobalConstants {
   static const facecomparison_url = '$_baseurl/api/v1/digilocker/compare-faces';
   static const digilocker_auth_url =
       '$_baseurl/api/v1/digilocker/auth-url?userId=';
+  static const authenticate_digilocker_url =
+      'https://api.jobcircle.co.in/api/v1/digilocker/auth-url?userId=';
   //
   //
   // TODO:: Generate responsibility & Summary using ai
